@@ -11,8 +11,93 @@ Point SamplesEnhance::GetRectCenterPoint(Rect rect)
 	return cpt;
 }
 
+
+void SamplesEnhance::autoLableforColor(Mat imgO)
+{
+		//Mat img = imgO.clone();
+		Mat img = imgO;
+		Mat imgGray;
+		Mat rangemat;
+		Mat imgHSV;
+		//img=gamaPROC(img);
+		const int g_nkernelSize = 25;
+		medianBlur(img, img, g_nkernelSize);
+		GaussianBlur(img, img, Size(g_nkernelSize, g_nkernelSize), 2);
+		blur(img, img, Size(g_nkernelSize, g_nkernelSize));
+		// img=gamaPROC(img);
+		//gray  this is not used in this method
+		cvtColor(img, imgGray, CV_BGR2GRAY);
+
+		cvtColor(img, imgHSV, COLOR_BGR2HSV);//转为HSV
+		Mat imgThresholded;
+		//split the gray
+		//	inRange(imgHSV, Scalar(grayLowH, grayLowS, grayLowV), Scalar(grayHighH, grayHighS, grayHighV), imgThresholded); //Threshold the image
+
+		//erode
+
+		inRange(imgHSV, Scalar(blueLowH, blueLowS, blueLowV), Scalar(blueHighH, blueHighS, blueHighV), imgThresholded); //Threshold the image
+		Mat eromat;
+		//   erode(imgThresholded,eromat,element_13); //if not erode the box will tight near the bottle but will generate noise
+		eromat = imgThresholded;
+
+		morphologyEx(eromat, eromat, MORPH_OPEN, element_13);
+
+		//draw contour
+		vector< vector<Point> > contours;
+		//findContours(eromat, contours,CV_RETR_EXTERNAL , CV_CHAIN_APPROX_NONE);
+		findContours(eromat, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+		//findContours(eromat, contours, RETR_FLOODFILL , CV_CHAIN_APPROX_NONE);
+		//drawContours(imgO, contours,-1,CV_RGB(0,255,255),2);  //with a thickness of 2
+		drawContours(img, contours, -1, CV_RGB(0, 255, 255), 2);  //with a thickness of 2
+		int cnt = 0;
+		double xmin, ymin, xmax, ymax;
+		for (int i = 0; i < contours.size(); i++)
+		{
+			Rect rect = boundingRect(contours[i]);
+			Point ct = GetRectCenterPoint(rect);
+			double l = arcLength(contours[i], true);
+			if ((abs(rect.width - rect.height) >(rect.width + rect.height) / 4.0) && (rect.width*rect.height > imgO.size().width*imgO.size().height / 30.0))
+			{
+				rectangle(imgO, Point(rect.x, rect.y), Point(rect.x + rect.width, rect.y + rect.height), Scalar(0, 0, 255), 2, 8);
+				xmin = rect.x;
+				xmax = rect.x + rect.width;
+				ymin = rect.y;
+				ymax = rect.y + rect.height;
+
+				cout << "xmin=" << xmin << endl;
+				cout << "xmax=" << xmax << endl;
+				cout << "ymin=" << ymin << endl;
+				cout << "ymax=" << ymax << endl;
+				cnt++;
+			}
+
+			cout << "i" << l << endl;
+		}
+		//Label it
+		if (cnt == 1)
+		{
+			/////////	OutputLabelTXT(imgO, xmin, ymin, \
+							xmax, ymax, files_value[i], lable);
+
+		}
+		cout << "contoursize = " << contours.size() << endl;
+		//test the gray
+
+#ifdef SHOW
+		//namedWindow( "org", CV_WINDOW_NORMAL);
+		//resizeWindow( "org", 600, 400);
+#endif
+		// namedWindow("erod",CV_WINDOW_NORMAL);
+		//display the orig pic
+#ifdef SHOW
+		//imshow( "org", imgO);
+		imshow("process", img);
+#endif
+	
+}
+
 /*********autolable********/
-void SamplesEnhance::autoLableTest(string PICDIR)
+void SamplesEnhance::autoLableforColorTest(string PICDIR)
 {
 	vector<string> files_value = listFileFromDIR(PICDIR);
 	cout << files_value.size() << endl;
@@ -23,7 +108,7 @@ void SamplesEnhance::autoLableTest(string PICDIR)
 		Mat imgO = imread(currentdir, 1);
 
 		Mat s_down0, s_down1;;
-		//decrese the pixel
+		//decrese the pixel   decrese is not used in this method
 		pyrDown(imgO, s_down0, Size(imgO.cols / 2, imgO.rows / 2));
 
 		resize(imgO, s_down1, cv::Size(resize_width, resize_height), (0, 0), (0, 0), cv::INTER_LINEAR);
@@ -36,18 +121,20 @@ void SamplesEnhance::autoLableTest(string PICDIR)
 		//img=gamaPROC(img);
 		const int g_nkernelSize = 25;
 		medianBlur(img, img, g_nkernelSize);
-
+		GaussianBlur(img, img, Size(g_nkernelSize, g_nkernelSize), 2);
 		blur(img, img, Size(g_nkernelSize, g_nkernelSize));
 		// img=gamaPROC(img);
-		//gray
+		//gray  this is not used in this method
 		cvtColor(img, imgGray, CV_BGR2GRAY);
 
 		cvtColor(img, imgHSV, COLOR_BGR2HSV);//转为HSV
 		Mat imgThresholded;
 		//split the gray
-		inRange(imgHSV, Scalar(grayLowH, grayLowS, grayLowV), Scalar(grayHighH, grayHighS, grayHighV), imgThresholded); //Threshold the image
+	//	inRange(imgHSV, Scalar(grayLowH, grayLowS, grayLowV), Scalar(grayHighH, grayHighS, grayHighV), imgThresholded); //Threshold the image
 
 																														//erode
+
+		inRange(imgHSV, Scalar(blueLowH, blueLowS, blueLowV), Scalar(blueHighH, blueHighS, blueHighV), imgThresholded); //Threshold the image
 		Mat eromat;
 		//   erode(imgThresholded,eromat,element_13); //if not erode the box will tight near the bottle but will generate noise
 		eromat = imgThresholded;
@@ -85,14 +172,16 @@ void SamplesEnhance::autoLableTest(string PICDIR)
 
 			cout << "i" << l << endl;
 		}
-
+//Label it
 		if (cnt == 1)
 		{
-			OutputLabelTXT(imgO, xmin, ymin, \
+		/////////	OutputLabelTXT(imgO, xmin, ymin, \
 				xmax, ymax, files_value[i], lable);
 
 		}
 		cout << "contoursize = " << contours.size() << endl;
+		//test the gray
+
 		GaussianBlur(imgGray, imgGray, Size(5, 5), 2);
 		inRange(imgGray, 194, 203, rangemat);
 		Mat morphmat;
@@ -107,16 +196,18 @@ void SamplesEnhance::autoLableTest(string PICDIR)
 		resizeWindow(currentdir + "org", 600, 400);
 #endif
 		// namedWindow("erod",CV_WINDOW_NORMAL);
+		//display the orig pic
 #ifdef SHOW
 		imshow(currentdir + "org", imgO);
+		imshow(currentdir + "process", img);
 #endif
 		// imshow("erod",eromat);
 		// imshow("mo",morphmat);
 		//imshow(currentdir+"gray_color",imgThresholded);
 	}
-#ifdef SHOW
-	waitKey(0);
-#endif	
+//#ifdef SHOW
+//	waitKey(0);
+//#endif	
 }
 
 /*gama enhance*/
@@ -759,12 +850,12 @@ void SamplesEnhance::LKlightflow_track(Mat featureimg, Mat &secondimg_orig)
 #endif
 
 }
-
+//roughly label the pic at the fixed position,for more precise label on next stage
 void SamplesEnhance::roughLabel(Mat input, int left, int top, int right, int down)
 {
 	Rect rect(left, top, abs(left - right), abs(top - down));
 	rectangle(input, rect, Scalar(0, 0, 255), 2, LINE_8, 0);
-
+	autoLableforColor(input(rect));
 }
 
 

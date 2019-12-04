@@ -63,6 +63,17 @@ private:
 	int grayLowV = 46;
 	int grayHighV = 220;
 
+	//blue
+	int blueLowH = 100;
+	int blueHighH = 124;
+	int blueLowS = 43;
+	int blueHighS = 255;
+	int blueLowV = 46;
+	int blueHighV = 255;
+
+
+
+
 	Point GetRectCenterPoint(Rect rect);
 
 	Mat gamaPROC(Mat img);
@@ -103,7 +114,8 @@ public:
 	void gamaTest(string PICDIR);
 	void roughLabel(Mat input,int left,int top,int right,int down);
 	void roughLabelTest(string PICDIR);
-	void autoLableTest(string PICDIR);
+	void autoLableforColorTest(string PICDIR);
+	void autoLableforColor(Mat imgO);
 	void frameSubTest(string PICDIR);
 	void saltTest(string PICDIR, int noise_point_num);
 	void resizePicTest(string PICDIR, int resize_width, int resize_height);
