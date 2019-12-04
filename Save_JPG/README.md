@@ -16,9 +16,9 @@
 
 1、cd 到Save_JPG/GrabVideo/
 
-2、运行python GrabVideo.py文件
+2、运行python Jpg_to_local.py文件
 
-（PS：如果提示找不到dll文件，尝试安装海康SDK中的Runtime组件包）
+（PS：如果报错“OSError: [WinError 126] 找不到指定的模块。”提示找不到dll文件，尝试安装海康SDK中的Runtime组件包，不行的话，重启计算机，重新运行python Jpg_to_local.py）
 
 3、选择默认设备0
 
