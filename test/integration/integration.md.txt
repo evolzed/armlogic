@@ -1,0 +1,1 @@
+integration         # End-to-end, integration tests (alternatively `e2e`)
