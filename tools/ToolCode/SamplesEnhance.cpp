@@ -12,7 +12,7 @@ Point SamplesEnhance::GetRectCenterPoint(Rect rect)
 }
 
 
-void SamplesEnhance::autoLableforColor(Mat imgO)
+Rect SamplesEnhance::autoLableforColor(Mat &imgO)
 {
 		//Mat img = imgO.clone();
 		Mat img = imgO;
@@ -20,10 +20,10 @@ void SamplesEnhance::autoLableforColor(Mat imgO)
 		Mat rangemat;
 		Mat imgHSV;
 		//img=gamaPROC(img);
-		const int g_nkernelSize = 25;
-		medianBlur(img, img, g_nkernelSize);
+		const int g_nkernelSize = 5;
+		//medianBlur(img, img, g_nkernelSize);
 		GaussianBlur(img, img, Size(g_nkernelSize, g_nkernelSize), 2);
-		blur(img, img, Size(g_nkernelSize, g_nkernelSize));
+		//blur(img, img, Size(g_nkernelSize, g_nkernelSize));
 		// img=gamaPROC(img);
 		//gray  this is not used in this method
 		cvtColor(img, imgGray, CV_BGR2GRAY);
@@ -35,10 +35,21 @@ void SamplesEnhance::autoLableforColor(Mat imgO)
 
 		//erode
 
-		inRange(imgHSV, Scalar(blueLowH, blueLowS, blueLowV), Scalar(blueHighH, blueHighS, blueHighV), imgThresholded); //Threshold the image
+
+		//belt
+		int beltLowH = 0;
+		int beltHighH = 15;
+		int beltLowS = 43;
+		int beltHighS = 255;
+		int beltLowV = 46;
+		int beltHighV = 255;
+		//find green and blue  the effect is low
+		inRange(imgHSV, Scalar(beltLowH, beltLowS, beltLowV), Scalar(beltHighH, beltHighS, beltHighV), imgThresholded); //Threshold the image
 		Mat eromat;
 		//   erode(imgThresholded,eromat,element_13); //if not erode the box will tight near the bottle but will generate noise
 		eromat = imgThresholded;
+
+		//imshow("imgThresholded", eromat);
 
 		morphologyEx(eromat, eromat, MORPH_OPEN, element_13);
 
@@ -51,14 +62,21 @@ void SamplesEnhance::autoLableforColor(Mat imgO)
 		drawContours(img, contours, -1, CV_RGB(0, 255, 255), 2);  //with a thickness of 2
 		int cnt = 0;
 		double xmin, ymin, xmax, ymax;
+		int theMostleft=1280;
+		int theMostup = 960;
 		for (int i = 0; i < contours.size(); i++)
 		{
 			Rect rect = boundingRect(contours[i]);
 			Point ct = GetRectCenterPoint(rect);
 			double l = arcLength(contours[i], true);
+			//if it is a rect the area is enough
 			if ((abs(rect.width - rect.height) >(rect.width + rect.height) / 4.0) && (rect.width*rect.height > imgO.size().width*imgO.size().height / 30.0))
 			{
-				rectangle(imgO, Point(rect.x, rect.y), Point(rect.x + rect.width, rect.y + rect.height), Scalar(0, 0, 255), 2, 8);
+				if (rect.x < theMostleft)
+					theMostleft = rect.x;
+				if (rect.y < theMostup)
+					theMostup = rect.y;
+				//////rectangle(imgO, Point(rect.x, rect.y), Point(rect.x + rect.width, rect.y + rect.height), Scalar(0, 0, 255), 2, 8);
 				xmin = rect.x;
 				xmax = rect.x + rect.width;
 				ymin = rect.y;
@@ -71,8 +89,15 @@ void SamplesEnhance::autoLableforColor(Mat imgO)
 				cnt++;
 			}
 
+			if (rect.x < theMostleft)
+				theMostleft = rect.x;
+			if (rect.y < theMostup)
+				theMostup = rect.y;
+
 			cout << "i" << l << endl;
 		}
+		/////rectangle(imgO, Point(theMostleft, theMostup), Point(theMostleft + 189, theMostup + 56), Scalar(0, 0, 255), 2, 8);
+		
 		//Label it
 		if (cnt == 1)
 		{
@@ -91,10 +116,21 @@ void SamplesEnhance::autoLableforColor(Mat imgO)
 		//display the orig pic
 #ifdef SHOW
 		//imshow( "org", imgO);
-		imshow("process", img);
+		//imshow("process", img);
 #endif
+		//return img.clone();
+		Rect resrect(theMostleft, theMostup, theMostleft + 180, theMostup + 38);
+		return resrect;
 	
 }
+
+//see python
+void RGBtoHSV(int R,int G,int B)
+{
+
+}
+
+
 
 /*********autolable********/
 void SamplesEnhance::autoLableforColorTest(string PICDIR)
@@ -119,10 +155,10 @@ void SamplesEnhance::autoLableforColorTest(string PICDIR)
 		Mat rangemat;
 		Mat imgHSV;
 		//img=gamaPROC(img);
-		const int g_nkernelSize = 25;
-		medianBlur(img, img, g_nkernelSize);
-		GaussianBlur(img, img, Size(g_nkernelSize, g_nkernelSize), 2);
-		blur(img, img, Size(g_nkernelSize, g_nkernelSize));
+		const int g_nkernelSize = 3;
+		//medianBlur(img, img, g_nkernelSize);
+		//GaussianBlur(img, img, Size(g_nkernelSize, g_nkernelSize), 2);
+		//blur(img, img, Size(g_nkernelSize, g_nkernelSize));
 		// img=gamaPROC(img);
 		//gray  this is not used in this method
 		cvtColor(img, imgGray, CV_BGR2GRAY);
@@ -134,7 +170,7 @@ void SamplesEnhance::autoLableforColorTest(string PICDIR)
 
 																														//erode
 
-		inRange(imgHSV, Scalar(blueLowH, blueLowS, blueLowV), Scalar(blueHighH, blueHighS, blueHighV), imgThresholded); //Threshold the image
+		inRange(imgHSV, Scalar(greenLowH, greenLowS, greenLowV), Scalar(greenHighH, greenHighS, greenHighV), imgThresholded); //Threshold the image
 		Mat eromat;
 		//   erode(imgThresholded,eromat,element_13); //if not erode the box will tight near the bottle but will generate noise
 		eromat = imgThresholded;
@@ -851,11 +887,16 @@ void SamplesEnhance::LKlightflow_track(Mat featureimg, Mat &secondimg_orig)
 
 }
 //roughly label the pic at the fixed position,for more precise label on next stage
-void SamplesEnhance::roughLabel(Mat input, int left, int top, int right, int down)
+Mat  SamplesEnhance::roughLabel(Mat input, int left, int top, int right, int down)
 {
+	Mat show = input.clone();
 	Rect rect(left, top, abs(left - right), abs(top - down));
-	rectangle(input, rect, Scalar(0, 0, 255), 2, LINE_8, 0);
-	autoLableforColor(input(rect));
+	//rectangle(input, rect, Scalar(0, 0, 255), 2, LINE_8, 0);
+	Rect rectobj=autoLableforColor(input(rect));
+	rectobj.x = rectobj.x + left;
+	rectobj.y = rectobj.y + top;
+	rectangle(show, rectobj, Scalar(0, 0, 255), 2, LINE_8, 0);
+	return show;
 }
 
 
@@ -866,13 +907,15 @@ void SamplesEnhance::roughLabelTest(string PICDIR)
 	int right = 0;
 	int down = 0;
 	vector<string> files_value = listFileFromDIR(PICDIR);
-	for (int i = 1; i < files_value.size(); i++)
+	for (int i = 0; i < files_value.size(); i++)
 	{
 		String currentdir = (files_value[i]).c_str();
 		Mat secondimg = imread(currentdir, 1);
-		roughLabel(secondimg, 437, 411,656, 542);	
-
-		imshow(currentdir, secondimg);
+		Mat result= roughLabel(secondimg, 437, 411,656, 542);	
+		//namedWindow(currentdir, 1);
+		//resizeWindow(currentdir, Size(480, 320));
+		//imshow(currentdir, result);
+		imwrite(currentdir, result);
 		//waitKey(0);
 	}
 }

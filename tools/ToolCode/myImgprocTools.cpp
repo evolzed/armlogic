@@ -17,7 +17,7 @@ string  PICDIR_motion = "E:\\Xscx2019\\OPENCV_PROJ\\picForMotion\\2\\2";
 //E:\Xscx2019\OPENCV_PROJ\picForMotion\2\2
 string  PICDIR_noise = "E:\\DataShare\\已经标注图片\\yuan\\20191120noise\\2019-11-20";
 string PICDIR_ground = "E:\\Xscx2019\\vedio\\5";
-string  PICDIR_roughlabel = "E:\\DataShare\\DataSet";
+string  PICDIR_roughlabel = "E:\\DataShare\\DataSet2";
 
 int main(int argc, char **argv)
 {
@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 	//obj.autoLableTest(PICDIR_autolable);
 	//obj.resizePicTest(PICDIR_resize,640,480); //有返回值一定要写返回值
 	//obj.gamaTest(PICDIR_gama); //有返回值一定要写返回值
-	obj.frameSubTest(PICDIR_motion);
+	//obj.frameSubTest(PICDIR_motion);
 
 	//obj.saltTest(PICDIR_noise, 1000);
 	//obj.foreGroundSegmentTest(PICDIR_ground);
