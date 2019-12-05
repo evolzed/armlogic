@@ -1,0 +1,78 @@
+## 标注数据项目
+
+#### 1.需要的环境
+
+* win10 X86-64
+* opencv441
+* visual studio 2015
+
+
+
+#### 2.需要的代码
+
+​	[https://github.com/evolzed/armlogic/tree/LabelTool/tools](https://github.com/evolzed/armlogic/tree/LabelTool/tools)
+
+
+
+#### 3.配置Path系统环境变量
+
+* 此电脑-右键“属性”-高级系统设置 （在左侧）
+* 点击环境变量（右下方）
+* 找到系统变量中的Path进行编辑 
+* 把之前解压（安装）好的OpenCV路径下的bin路径添加到Path系统环境变量中
+* 主意是bin路径，我的是D:\软件区域\opencv\build\x64\vc14\bin (选择自己安装的目录)
+
+
+
+#### VS2015中配置OpenCV
+
+##### 1.创建工程
+
+* 鼠标点击文件->新建->项目
+* 找不到就用快捷键，快捷键：ctrl+shift+n 
+
+##### 2.创建.cpp文件
+
+* 把需要的代码拷贝进来
+* 创建完成后开始配置，本人是在Release x64下运行 ，所以一会将配置Debug x64
+
+##### 3.添加包含目录
+
+* 点击视图==>解决方案资源管理器==>在myImgprocTools栏右键==>属性
+
+* vc++目录=》包含目录=》选择编辑 
+
+* 添加解压（安装）好的OpenCV路径，分别是include，include\opencv ，include\opencv2，建议三个都添加
+
+* 我的目录是（记得找到你的路径复制）：
+
+  D:\软件区域\opencv\build\include\opencv2
+
+  ​
+
+  D:\软件区域\opencv\build\include\opencv
+
+  D:\软件区域\opencv\build\include
+
+##### 4.添加库目录 
+
+* 点击视图==>解决方案资源管理器==>在myImgprocTools栏右键==>属性
+
+* VC++目录=》库目录 解压（安装）好的OpenCV路径下
+
+* 我的是（记得找到你的路径复制）：
+
+  D:\软件区域\opencv\build\x64\vc14\lib
+
+##### 5.添加附加依赖项 
+
+* 点击视图==>解决方案资源管理器==>在myImgprocTools栏右键==>属性
+* 链接器=》输入=》附加依赖项 手动敲入 opencv_world411.lib 
+
+##### 6.注意
+
+* 411对应OpenCV4.1.1。其他版本自行行编写添加。 查询方法：打开安装目录下的opencv\build\x64\vc14\bin，里面有opencv_worldXXX，这个就是。
+* 文件夹中有两个文件，其中后缀d代表Debug模式，没有d即Release模式。在debug版本和release版本调试配置的时候注意区分。也就是Release版本要写opencv_world411.lib
+
+
+
