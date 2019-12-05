@@ -1,0 +1,19 @@
+image
+	loadCNN()
+		yolo = YOLO()  # instance yolov3 object which will be loaded
+		initYoloModel()
+		load_Cfg_file()  # load config to model contain weights¡¢anchor¡¢annotation
+		
+	testRun()
+		try:
+			loadCNN():  # load successfully
+			detect_video(yolo)  # callback HIKVison_cam API
+				GrabVideo_connect_cam()  # connect_cam
+				inputImageDataToModel()
+				getResultFromModel()
+				return imageCheckResult
+		except:
+			return False  # load_failed!
+	checkImage()
+		checkImgData:
+			return result  # checkImage_successfully!
