@@ -2,6 +2,7 @@ TX2_TODO
 
 TX2相关
 
+
 1.开发气泵压力变送服务脚本(pressureService)
   *目前已有两种规格压力变送器设备，输出5V信号线(0~5V)/RS485通信；
   1)另需数模转换模块配合5V信号线输出，将模拟信号转化为数字信号以供Jetson TX2进行读取；
@@ -12,3 +13,29 @@ TX2相关
 3.开发电磁阀服务脚本(relayService)
   1)能够控制4路电磁阀动作；
   2)任意位号电磁阀可任意组合同时动作；
+
+
+TODO:
+
+python
+	Main
+		initState
+			checkInitState
+				(hardware)
+					powerCheck
+					cameraCheck
+					pressureCheck
+					lightCheck
+					robotCheck
+				(software)
+					TX2Check
+				set global checkState
+		runState
+			TX2
+				logPressure
+				listenBlast
+				pinService
+		debugState
+			printf
+			userInput
+			log
