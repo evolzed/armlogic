@@ -1,0 +1,18 @@
+Label data project design document
+
+Project content:
+1.Get the pictures collected 
+2.Label the pictures to picData
+We can use auto label tech and manual label, auto label is based on the fixed object  position, and based on motion detected tech and background learning tech  which is developed before.
+
+3.Handle  the  picData  to Taotao
+
+
+Project deadline:
+3 days all, from 2019_12_4 to 2019_12_6
+1st day
+Make auto label tools based on fixed obj position and motion detect, then test the accuracy, judge the feasibility.
+2st day
+Make auto label tools based on background learning, and develop new tech for auto label, and if necessary, use manual label
+3st day
+Prepare all picData,  handle  the  picData  to Taotao
