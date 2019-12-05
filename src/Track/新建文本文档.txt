@@ -27,6 +27,6 @@ run 阶段的check()，
 重复对每帧进行上述check和存储
 
 实现计划
-预计周六下班前实现python版本的bglearn()
-预计下周六下班前实现C++版本的run阶段的check（）
-预计下下周三之前实现Python版本的run阶段的check（）
+预计下周四下班前实现C++版本的run阶段的check（）
+预计下下周一之前实现Python版本的run阶段的check（）
+预计下下周三之前实现Python版本的run阶段的bglearn（）
