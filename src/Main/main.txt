@@ -2,15 +2,15 @@ main.py
 		initState
 			checkInitState()
 				(hardware)
-					powerCheck
-					cameraCheck
-					pressureCheck
-					lightCheck
-					robotCheck
+				powerCheck
+				cameraCheck
+				pressureCheck
+				lightCheck
+				robotCheck
 				(software)
-					imageCheck
-					trackCheck
-					TX2Check
+				imageCheck
+				trackCheck
+				TX2Check
 				set global checkState
 		runState
 			image.py
