@@ -1,0 +1,17 @@
+image
+	loadCNN()
+		yolo = YOLO()  # instance yolov3 object which will be loaded
+		detect_video(yolo)  # callback HIKVison_cam API
+			GrabVideo_connect_cam()  # connect_cam
+			GrabVideo.destroy()  #  diconnect_HIKVison_cam
+
+	testRun()
+		try:
+			loadCNN():  # load successfully
+		except:
+			return False  # load_failed!
+	checkImage()
+		if not Image():
+			return False
+		else:
+			return True  # checkImage_successfully!
