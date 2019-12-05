@@ -5,9 +5,9 @@ Alternatively, you can put them into the /lib (if you're developing a library), 
 TODO:
 
 python
-	Main
+	main.py
 		initState
-			checkInitState
+			checkInitState()
 				(hardware)
 					powerCheck
 					cameraCheck
@@ -20,12 +20,11 @@ python
 					TX2Check
 				set global checkState
 		runState
-			image
+			image.py
 				loadCNN()
 				testRun()
 				checkImage()
-				
-			track
+			track.py
 				bgLearn()
 				check()
 					send img to image
@@ -37,15 +36,17 @@ python
 						controlDict
 							pos, type, state, t0, t1
 						
-			control
+			control.py
 				receive seePic from track.update
 				get bottleDict.pos to set checkRate
 				check for time
 				send blast to TX2
-			TX2
+			TX2.py
 				logPressure
 				listenBlast
 				pinService
+			#database.py
+				#mySQL dict
 		debugState
 			printf
 			userInput
