@@ -1,15 +1,24 @@
-main.py
-		initState
-			checkInitState()
+main.py #系统架构详细方法说明
+		initState # 导入初始化状态模块
+		#所有check信息都导入到log模块，log采用logging模块进行编写，编写四个等级1.普通等级2.管理员等级3.Error等级4.Debug等级
+			checkInitState() #查看初始化状态类
 				(hardware)
-				powerCheck
-				cameraCheck
+				powerCheck 
+				#方式1.可采用智能控制PDU来进行，通过TCP/IP下ssh协议来获取状态信息，电源端口是否开启（python可通过pexpect模块或者 paramiko模块）
+				#方式2.建立一个txt文本，里面只有0和1两种状态，0代表关闭，1代表开启，每次停止之后，系统自动写入0，开启时系统自动写入1，通过txt来判断机器的运行状态。
+				cameraCheck 
+				#ping 摄像机的IP地址，看是否能够ping通，如果可以ping成功，说明摄像机连接没有问题，反之，连接有问题，log需有报错信息。（直接调用python自身模块os和sys模块进行，本机命令调用，回馈信息加入到log信息中）
 				pressureCheck
+				#辰胤提供气帕信息，需写入到log模块中，突出信息内容。
 				lightCheck
+				#
 				robotCheck
+				#通过socket编写通信脚本，实现上位机和下位机的通信check
 				(software)
 				imageCheck
+				#根据imageCheck来定义各个方法的命名和导入脚本的开发。或者通过sys模块来调用image模块脚本。
 				trackCheck
+				#根据trackCheck来定义各个方法的命名和导入脚本的开发。或者通过sys模块来调用image模块脚本。
 				TX2Check
 				set global checkState
 		runState
