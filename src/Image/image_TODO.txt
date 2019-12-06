@@ -1,37 +1,37 @@
 image
 	loadCNN()
-		yolo = YOLO()  # instance yolov3 object which will be loaded
-		initYoloModel()
-		load_Cfg_file()  # load config to model contain weights、anchor、annotation
 		
 	testRun()
-		try:
-			loadCNN():  # load successfully
-			detect_video(yolo)  # callback HIKVison_cam API
-				GrabVideo_connect_cam()  # connect_cam
-				inputImageDataToModel()
-				getResultFromModel()
-				return imageCheckResult
-		except:
-			return False  # load_failed!
+		
 	checkImage()
-		checkImgData:
-			return result  # checkImage_successfully!
+		
 
+设计说明：
+	loadCNN():
+		功能：模型加载
+		参数：yolo模型
+		返回数据类型：检测到的物体类别、位置信息
+		code
+		......
 
-
-目前进度（20191205）：
-	1、yolo内嵌入了GIGE相机实时检测联调成功，可以根据目前的相机焦距检测出小目标物体
-	2、利用tiny-yolo检测4中类别瓶子，不足的是，受外界环境干扰太大，不是很稳定，还有传送带反光，加重了识别的扰动。
-
-
-TODO：
-	1、利用最新采集的数据，进行模型训练，调整模型参数，返回识别物体的位置信息，给tracker
-	2、提高实际应用场景下对bottle的识别率，提高召回率，验证识别到的正确的类别瓶子的概率，以及识别错误的概率。
-	3、对不同光线下的训练集进行加强训练，尝试不同的epoch，以及输入模型的图像尺寸，由原来的416*416转换成832*832。
-
-
-计划完成周期：
-	1、跟踪标注图像工作的进度，利用已标注的数据集信息开始训练模型。
-	2、增加tiny网络层数。将模型提高到一个可以识别每一帧中的瓶子。减少对tracker的依赖。
-	3、以上工作，需要图像处理配合。预计截至日期12-16日前完成
+	testRun():
+		功能：检测模型是否加载成功
+		参数：预设照片
+		参数格式：.jpg
+		数量：一张或多张
+		返回数据类型：检测到的物体类别、位置信息
+		校验：对比检测结果是否符合预设
+		code
+		......
+	checkImage():
+		功能：加载的模型是否可以正常运行
+		参数：tracker随机采集的照片
+		格式：.jpg
+		数量：一张或多张
+		返回数据类型：是否返回检测结果。
+		校验：根据tracker的真实值，校验检测结果是否正常
+		code
+		......
+		
+完成周期：
+	工作日7~10日
