@@ -253,41 +253,38 @@ truth_thresh = 1
 random=1
 ```
 
-## 开始训练
+## 准备数据
 
-1. 根据所需要的类别数调整好基本参数后，编译预训练的weights文件：
+1. 准备数据，图像的(.jpg)数据的目录在OpenLabeling/main/input/下，标注的文件(.txt)，存放在OpenLabeling/main/output/YOLO_darknet/下。注意标注信息的格式是否正确。注意，每个txt文件对应一个jpg文件。文件要同名。注意需要对txt进行处理，生成annotation.txt文件。
 
-   注意修改一下文件路径：
+2. 调用合并文件的脚本，使用cd 到main目录进行python merge_annotation.py，将会在output目录下生成my_annotation.txt：
 
-   ```
-   annotation_path = "yourAnnotationFilePath"
-   log_dir = "yourLogsFilesPath"
-   classes_path = "yourClassesFilePath"
-   anchors_path = "anchorsFilePathYouUsed"
-   input_shapt = (416, 416) # 默认416， 如需提高小物体检测效果，可以改成其他32倍数的数字，如832，或608
-   val_split = 0.1  # 该参数调整数据集中的验证机比例，0.1代表验证集占整个数据集的10%， 小数据集可以为0.2或0.3，大数据集设置为0.1或0.05，根据数据集大小适当调整
-   对模型进行编译，在compile()方法优化器参数optimizer中设置采用Adam算法，学习率lr不要设置过大，从1e-3(0.001)开始，损失函数采用yolo_loss。
-   第一次迭代中的batch_size = 32,如果运行时报错run out of memory的话，说明一次进入到模型的数据太多，显存吃不下。此时可以适当调整batch_size为16或者8，如果显存够大，可以适当调整该值为64甚至128
-   然后调整fit_generator()中的epochs数值，initial_epoch=0,此为第一次迭代，从0开始
-   第二阶段训练，同样，需要调整合适的batch_size，为了获得更优梯度下降效果，需要设置一个比上一次低的学习率。当然了，该阶段训练要设置学习率自动下降。
-   调整epochs为训练总共的迭代次数，需要注意的是，initial_epoch参数需要设置成第一阶段的epochs值
-   第二阶段的训练在callbacks参数中加入了reduce_lr，设置学习率下降梯度。另外一个early_stopping，当损失值在限定次数内不再出现最小时，将出发early_stopping，训练终止
-   最终，训练好的.h5文件将保存在log_dir中。用于检测物体时给模型使用
-   ```
-
-2. 准备数据，图像的(.jpg)数据的目录在OpenLabeling/main/input/下，标注的文件(.txt)，存放在OpenLabeling/main/output/YOLO_darknet/下。注意标注信息的格式是否正确。注意，每个txt文件对应一个jpg文件。文件要同名。注意需要对txt进行处理，生成annotation.txt文件。
-
-3. 调用合并文件的脚本，使用cd 到main目录进行python merge_annotation.py，将会在output目录下生成my_annotation.txt：
-
-    `x_min,y_min,x_max,y_max,class_id` (no space).
+   `x_min,y_min,x_max,y_max,class_id` (no space).
 
    如果是多个目标物:放在一排，不同的类之间用空格隔开，坐标之间用逗号隔开。
 
-4. 训练模型中指定my_annotation.txt即可
+3. 训练模型中指定my_annotation.txt即可
+
+## 开始训练
+
++ ##根据所需要的类别数调整好基本参数后，编译预训练的weights文件，注意修改文件路径：
+
+1. annotation_path = "yourAnnotationFilePath"
+2. log_dir = "yourLogsFilesPath"
+3. classes_path = "yourClassesFilePath"
+4. anchors_path = "anchorsFilePathYouUsed"
+5. input_shapt = (416, 416) # 默认416， 如需提高小物体检测效果，可以改成其他32倍数的数字，如832，或608
+6. val_split = 0.1  # 该参数调整数据集中的验证机比例，0.1代表验证集占整个数据集的10%， 小数据集可以为0.2或0.3，大数据集设置为0.1或0.05，根据数据集大小适当调整
+7. 对模型进行编译，在compile()方法优化器参数optimizer中设置采用Adam算法，学习率lr不要设置过大，从1e-3(0.001)开始，损失函数采用yolo_loss。
+8. 第一次迭代中的batch_size = 32,如果运行时报错run out of memory的话，说明一次进入到模型的数据太多，显存吃不下。此时可以适当调整batch_size为16或者8，如果显存够大，可以适当调整该值为64甚至128
+   然后调整fit_generator()中的epochs数值，initial_epoch=0,此为第一次迭代，从0开始
+9. 第二阶段训练，同样，需要调整合适的batch_size，为了获得更优梯度下降效果，需要设置一个比上一次低的学习率。当然了，该阶段训练要设置学习率自动下降。
+10. 调整epochs为训练总共的迭代次数，需要注意的是，initial_epoch参数需要设置成第一阶段的epochs值
+11. 第二阶段的训练在callbacks参数中加入了reduce_lr，设置学习率下降梯度。另外一个early_stopping，当损失值在限定次数内不再出现最小时，将触发early_stopping，训练终止
+12. 最终，训练好的.h5文件将保存在log_dir中。用于检测物体时给模型使用
 
 ## 模型效果实时检测
 
 1. 运行keras-yolo3-02下面的yolo.py文件python yolo.py。
 2. 其中的`detect_img()`方法，封装了对图片进行识别。`detect_video()`中封装了调用摄像机获取实时数据和加载视频进行识别， 通过`video_path`参数进行切换（0：实时检测，如果是视频路径，则对视频进行载入并识别）。
 3. 需要对控制输出参数的话，修改`detect_image()`中的参数逻辑，根据需求对输出参数的格式和数量类型进行重新改写封装。
-
