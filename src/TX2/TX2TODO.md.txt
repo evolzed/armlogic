@@ -2,35 +2,74 @@ TX2_TODO
 
 TX2相关
 
+1.开发气泵压力变送服务脚本(pressureService)
+*目前已有两种规格压力变送器设备，输出5V信号线(0~5V)/RS485通信；
+	1)另需数模转换模块配合5V信号线输出，将模拟信号转化为数字信号以供Jetson TX2进行读取；
+	2)RS485通信压力变送器，与Jetson TX2连接方式？（未确认）
+
+2.提供监听服务，监听任意时刻blast_message，并同时产生电磁阀动作指令；
+
+3.开发电磁阀服务脚本(relayService)
+	1)能够控制4路电磁阀动作；
+	2)任意位号电磁阀可任意组合同时动作；
 
 TODO:
 
 python
+导入模块
 	Main
 		initState
 			checkInitState
 				(hardware)
 					powerCheck	供电检测（传输带）
+						
 					cameraCheck	相机检测
+						
 					pressureCheck	气压检测
+						定义PFC8591地址；
+						定义挂载点I2C口；
+						定义循环读取时间间隔
+						循环读取PFC8591的信号输入端口的value；
+							判断	如果处理后的value未达到设定值，
+								继续循环；
+								如果处理后的value达到设定值，
+								跳出循环；
+						返回 pressureSignal；
+
 					lightCheck	补光检测
+
 					robotCheck	机械臂检测
+
 				(software)
 					TX2Check	TX2检测
+
 				set global checkState
 		runState
 			TX2
 				logPressure	气压log
-					开发气泵压力变送服务脚本(pressureService)
-					*目前已有两种规格压力变送器设备，输出5V信号线(0~5V)/RS485通信；
-					1)另需数模转换模块配合5V信号线输出，将模拟信号转化为数字信号以供Jetson TX2进行读取；
-					2)RS485通信压力变送器，与Jetson TX2连接方式？（未确认）
+					定义PFC8591地址；
+					定义挂载点I2C口；
+					定义循环读取时间间隔
+					循环读取PFC8591的信号输入端口的value；
+					循环发送处理后的value值；
+
 				listenBlast	监听Blast
-					提供监听服务，监听任意时刻blast_message，并同时产生电磁阀动作指令；
-				pinService	
-					开发电磁阀服务脚本(relayService)
-					1)能够控制4路电磁阀动作；
-					2)任意位号电磁阀可任意组合同时动作；
+					#定义socket通信；
+					监听Control函数发出的Blast控制指令；
+					返回自定义字节信号、以及Delta_T;
+
+				pinService
+					#定义socket通信
+					定义使用的Pin脚；
+					设置GPIO模式；
+					循环获取listenBlast；
+						空数组arr[]
+						如果自定义字节信号中含1，则添加相应pin号至arr[];
+						GPIO输出相应pin号位置的高电平；
+						保持高电平（Delta_T）
+						GPIO输出相应pin号位置的低电平；
+					清空GPIO状态；
+
 		debugState
 			printf
 			userInput
