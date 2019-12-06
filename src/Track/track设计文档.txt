@@ -3,15 +3,15 @@ track设计文档
 
 需求说明
 
-用python实现 init阶段的trackcheck和run 阶段的check(),update()
+用python实现 init阶段的trackCheck和run 阶段的checkImage(),update()
 
 
 实现说明
 
-init阶段的trackcheck
-实现bgLearn()，bglearn()用Python实现之前用C++实现的背景学习算法，主要是在几秒钟的采集时间里学习背景，进行背景建模，保存背景的均值和差值
+init阶段的trackCheck
+实现bgLearn()，bgLearn()用Python实现之前用C++实现的背景学习算法，主要是在几秒钟的采集时间里学习背景，进行背景建模，保存背景的均值和差值
 
-run 阶段的check()，
+run 阶段的checkImage()，
 
 对当前帧调用角点跟踪和运动检测，然后调用识别算法得到图像识别结果，检查运动区域和角点区域和识别区域是否一一对应，完全吻合，
 
@@ -24,7 +24,7 @@ run 阶段的check()，
 如果在一个图像识别区域，没有发现角点或者运动区域（目前认为不会出现这种情况），则修正角点和运动检测算法，保证角点和运动检测分割出所有的瓶子区域，保证分割结果大于瓶子区域，不能小于瓶子区域
 
 
-重复对每帧进行上述check和存储
+重复对每帧进行上述checkImage和存储
 
 实现计划
 预计周六下班前实现python版本的bglearn()
