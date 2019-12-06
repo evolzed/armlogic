@@ -1,4 +1,4 @@
-## acquisition
+## getSample.md
 
 ### 实现前提：
 
