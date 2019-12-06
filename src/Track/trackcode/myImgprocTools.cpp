@@ -28,12 +28,14 @@ int main(int argc, char **argv)
 	//obj.frameSubTest(PICDIR_motion);
 
 	//obj.saltTest(PICDIR_noise, 1000);
-	//obj.foreGroundSegmentTest(PICDIR_ground);
+	///obj.foreGroundSegmentTest(PICDIR_ground);
 	//obj.LKlightflow_trackTest(PICDIR_ground);
 	//obj.LKlightflow_trackCamTest();
 
 	//void SamplesEnhance::roughLabelTest(string PICDIR, int init_left, int init_top, int init_right, int init_down)
-	obj.roughLabelTest(PICDIR_roughlabel, 437, 411, 656, 542);
+	//obj.roughLabelTest(PICDIR_roughlabel, 437, 411, 656, 542);
+
+	obj.dnnTest();
 	//waitKey(0);
 	//char c;
 	//cin >> c;

@@ -24,6 +24,7 @@
 #include<time.h>
 #include <vector>
 
+
 using namespace cv;
 using namespace std;
 using namespace dnn;
@@ -101,7 +102,7 @@ private:
 	Mat mysobel(Mat img_pre);
 	Mat sharp_laplace(Mat input);
 
-
+	/////avg bacmodel
 	/*******************************/
 	Mat IavgF, IdiffF;  // average frame  differ frame
 	Mat	IprevF; //pre frame

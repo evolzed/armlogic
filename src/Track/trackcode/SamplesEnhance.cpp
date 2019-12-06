@@ -11,14 +11,14 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include<vector>
-
+#include "Camera.h"
 
 using namespace std;
 using namespace cv;
 using namespace dnn;
 
 vector<string> classes;
-
+Mat show;
 vector<String>  SamplesEnhance::getOutputsNames(Net&net)
 {
 	static vector<String> names;
@@ -100,8 +100,11 @@ void  SamplesEnhance::postprocess(Mat& frame, const vector<Mat>& outs, float con
 	{
 		int idx = indices[i];
 		Rect box = boxes[idx];
+		//drawPred(classIds[idx], confidences[idx], box.x, box.y,
+		//	box.x + box.width, box.y + box.height, frame);
+
 		drawPred(classIds[idx], confidences[idx], box.x, box.y,
-			box.x + box.width, box.y + box.height, frame);
+			box.x + box.width, box.y + box.height, show);
 	}
 }
 
@@ -133,14 +136,56 @@ int  SamplesEnhance::dnnTest()
 	Net net = readNetFromDarknet(model_def, weights);
 	net.setPreferableBackend(DNN_BACKEND_OPENCV);
 	net.setPreferableTarget(DNN_TARGET_CPU);
+	//net.setPreferableTarget(DNN_TARGET_OPENCL);
 
 	//read image and forward
-	VideoCapture capture(2);// VideoCapture:OENCV中新增的类，捕获视频并显示出来
+/////////	VideoCapture capture(0);// VideoCapture:OENCV中新增的类，捕获视频并显示出来
+
+	camera cam;
+	cam.init();
+
+
+
+	Mat frame;
+	frame = cam.getImage();
+	/////capture >> frame;
+	Mat pre_frame = Mat::zeros(frame.size(), CV_8UC3);
+	pre_frame = frame.clone();
+	show= frame.clone();
+	/*
+	while (1)
+	{
+		capture >> frame;
+		LKlightflow_track(pre_frame, frame);
+		imshow("track", frame);
+		//if (waitKey(30)>0)//按下任意键退出摄像头 因电脑环境而异，有的电脑可能会出现一闪
+		而过的情况
+		//	break;
+		waitKey(10);
+		pre_frame = frame.clone();
+	*/
+/*
 	while (1)
 	{
 		Mat frame, blob;
-		capture >> frame;
+		frame = cam.getImage();
 
+		waitKey(1)
+
+
+	}
+
+*/
+	
+	while (1)
+	{
+		Mat frame, blob;
+		///////capture >> frame;
+		frame = cam.getImage();
+		
+		show = frame.clone();
+		
+		LKlightflow_track(pre_frame, frame);   //track the current frame
 
 		blobFromImage(frame, blob, 1 / 255.0, Size(in_w, in_h), Scalar(), true, false);
 
@@ -154,18 +199,26 @@ int  SamplesEnhance::dnnTest()
 		vector<Mat> outs;
 		net.forward(outs, getOutputsNames(net));
 
-		postprocess(frame, outs, thresh, nms_thresh);
+		postprocess(frame, outs, thresh, nms_thresh);  //draw
 
 		vector<double> layersTimes;
 		double freq = getTickFrequency() / 1000;
 		double t = net.getPerfProfile(layersTimes) / freq;
 		string label = format("Inference time for a frame : %.2f ms", t);
-		putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
+		//putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
+		putText(show, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
 
-		imshow("res", frame);
-
+		pre_frame = frame.clone();
+		
+		///imshow("res", frame);
+		///cvNamedWindow("res", CV_WINDOW_FULLSCREEN);
+		imshow("res", show);
+		if (waitKey(1000) == 27) //延时30ms,以正常的速率播放视频,播放期间按下任意按键则退出视频播放，并返回键值
+			break;
+		//
 		waitKey(10);
 	}
+	cam.close();
 	return 0;
 }
 
@@ -988,7 +1041,7 @@ void SamplesEnhance::LKlightflow_track(Mat featureimg, Mat &secondimg_orig)
 	}
 	*/
 #ifdef SHOW
-	imshow("corner img", drawimg);
+	////imshow("corner img", drawimg);
 #endif
 
 	//char features_found[MAX_CORNERS];
@@ -1001,13 +1054,13 @@ void SamplesEnhance::LKlightflow_track(Mat featureimg, Mat &secondimg_orig)
 ///	cout << "pysize:"<<pyramid1.size()<<endl;
 ///	cout << "py2size:" << pyramid2.size() << endl;
 #ifdef SHOW
-	imshow("pyramid1", pyramid1[2]);
-	imwrite("E:\\Xscx2019\\vedio\\5\\pyr0.jpg", pyramid1[0]);
-	imwrite("E:\\Xscx2019\\vedio\\5\\pyr2.jpg", pyramid1[2]);
 	//imshow("pyramid1", pyramid1[2]);
-	imshow("pyramid2", pyramid2[2]);
-	imwrite("E:\\Xscx2019\\vedio\\5\\p2yr0.jpg", pyramid2[0]);
-	imwrite("E:\\Xscx2019\\vedio\\5\\p2yr2.jpg", pyramid2[2]);
+	//imwrite("E:\\Xscx2019\\vedio\\5\\pyr0.jpg", pyramid1[0]);
+	//imwrite("E:\\Xscx2019\\vedio\\5\\pyr2.jpg", pyramid1[2]);
+	//imshow("pyramid1", pyramid1[2]);
+	//imshow("pyramid2", pyramid2[2]);
+	//imwrite("E:\\Xscx2019\\vedio\\5\\p2yr0.jpg", pyramid2[0]);
+	//imwrite("E:\\Xscx2019\\vedio\\5\\p2yr2.jpg", pyramid2[2]);
 	//waitKey(0);
 #endif
 
@@ -1030,7 +1083,8 @@ void SamplesEnhance::LKlightflow_track(Mat featureimg, Mat &secondimg_orig)
 	{
 		float flow_speed = abs(feature_errors.at<float>(i, 0));
 		//if (features_found.at<uchar>(i,0) == 0 || feature_errors.at<uchar>(i, 0) > 550)
-		if ((features_found.at<uchar>(i, 0) == 0)||(flow_speed < 40)||(flow_speed > 1e5))
+		//if ((features_found.at<uchar>(i, 0) == 0)||(flow_speed < 40)||(flow_speed > 1e5))
+		if ((features_found.at<uchar>(i, 0) == 0) || (flow_speed < 10) || (flow_speed > 1e5))
 		{
 			//cout << "filter the error is:" << feature_errors.at<float>(i, 0) << endl;
 			continue;
@@ -1044,16 +1098,22 @@ void SamplesEnhance::LKlightflow_track(Mat featureimg, Mat &secondimg_orig)
 		Point p1 = Point(cvRound(cornersB.at<Vec2f>(i, 0)[0]), cvRound(cornersB.at<Vec2f>(i, 0)[1]));
 
 		//circle(drawimg2, p1, 2, Scalar(0, 0, 255), -1);  //scalar b g r
-		circle(secondimg_orig, p1, 2, Scalar(0, 0, 255), -1);  //scalar b g r
-		//line(imgC, p0, p1, Scalar(255, 0, 0),2);
-		////line(secondimg_orig, p0, p1, Scalar(0, 255, 255), 1);	
+		/////circle(secondimg_orig, p1, 2, Scalar(0, 0, 255), -1);  //scalar b g r
+		///line(imgC, p0, p1, Scalar(255, 0, 0),2);
+		
+		/////line(secondimg_orig, p0, p1, Scalar(0, 255, 255), 1);	
+
+		circle(show, p1, 2, Scalar(0, 0, 255), -1);  
+
+		line(show, p0, p1, Scalar(0, 255, 255), 1);
 	}
 #ifdef SHOW
 	//imshow("feature img", featureimg);
 	//imshow("second img", secondimg);
-	imshow("drawimg2", drawimg2);
-	imshow("flow",imgC);
-	waitKey(0);
+	///imshow("drawimg2", drawimg2);
+	///imshow("flow",imgC);   //flow箭头
+	////waitKey(0);
+
 #endif
 
 }
@@ -1104,8 +1164,6 @@ void SamplesEnhance::roughLabelTest(string PICDIR,int init_left,int init_top,int
 		//waitKey(0);
 	}
 }
-
-
 
 
 
