@@ -39,6 +39,12 @@ python
 					lightCheck	补光检测
 
 					robotCheck	机械臂检测
+						向机械臂控制器发送检测指令；
+						接受机械臂控制器返回的应答报文；
+							如果	收到含义未在线
+								返回	机械臂状态ready
+							如果	收到含义不在线
+								返回	机械臂状态notReady
 
 				(software)
 					TX2Check	TX2检测
