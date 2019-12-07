@@ -2,8 +2,7 @@ Source files
 The actual source files of a software project are usually stored inside /src. 
 Alternatively, you can put them into the /lib (if you're developing a library), or into the /tool (if your application's source files are not supposed to be compiled).
 
-main()
-#导入main.py,主要是调用所有功能模块，主要分为三部分，一部分为设备检查部分，一部分是正常交互模式（是后期用户交互使用），一部分是Debug模式（为后面调试阶段做准备）
+Code Structure
 
 #导入所需工作包
 import sys      				#sys模块是python自带系统模块，可通过此模块方法进行对localhost的cmd操控。
@@ -17,9 +16,8 @@ import pyqt5    				#用户gui的界面操作
 import logging  				#log记录模块
 
 
-main.py #系统架构详细方法说明
+main.py 					#系统架构详细方法说明
 	class initState 			# 导入初始化状态模块
-		#所有check信息都导入到log模块，log采用logging模块进行编写，编写四个等级1.普通等级2.管理员等级3.Error等级4.Debug等级
    		tx2.powercheck()        	# return tx2check
    		tx2.cameracheck()       	# return cameracheck
   		tx2.pressurecheck()     	# return pressurecheck
@@ -30,8 +28,9 @@ main.py #系统架构详细方法说明
     		imageCheck.testRun()    	# return loadCNNResult
     		control.robotcheck()   		# return robotcheck; update controlDict
     		//DEBUG:上述所诉正常均为log的正常模式信息，报错信息在log栏中红色突出报错信息。
-	class RunState
-    		tx2.monitor() 			#periodically check system;
+		//DEBUG:#所有check信息都导入到log模块，log采用logging模块进行编写，编写四个等级1.普通等级2.管理员等级3.Error等级4.Debug等级
+	class RunState				
+    		tx2.monitor() 			#periodically check system; more rules allies here;
 		image.py		
 			loadCNN():
 						#功能：模型加载
