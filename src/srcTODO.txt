@@ -2,51 +2,89 @@ Source files
 The actual source files of a software project are usually stored inside /src. 
 Alternatively, you can put them into the /lib (if you're developing a library), or into the /tool (if your application's source files are not supposed to be compiled).
 
-TODO:
-	main.py
-		initState
-			checkInitState()
-				(hardware)
-					powerCheck
-					cameraCheck
-					pressureCheck
-					lightCheck
-					robotCheck
-				(software)
-					imageCheck
-					trackCheck
-					TX2Check
-				set global checkState
-		runState
-			image.py
-				loadCNN()
-				testRun()
-				checkImage()
-			track.py
-				bgLearn()
-				check()
-					send img to image
-					send seePic to control
-				update()
-					class dict
-						bottleDict
-							pos, type, state, t0, t1
-						controlDict
-							pos, type, state, t0, t1
-						
-			control.py
-				receive seePic from track.update
-				get bottleDict.pos to set checkRate
-				check for time
-				send blast to TX2
-			TX2.py
-				logPressure
-				listenBlast
-				pinService
-			#database.py
-				#mySQL dict
-		debugState
+main()
+#导入main.py,主要是调用所有功能模块，主要分为三部分，一部分为设备检查部分，一部分是正常交互模式（是后期用户交互使用），一部分是Debug模式（为后面调试阶段做准备）
+
+#导入所需工作包
+import sys      				#sys模块是python自带系统模块，可通过此模块方法进行对localhost的cmd操控。
+import os       				#os模块是路径模块，通常用os来完成路径文件的调用和查看，一般和sys合用。
+import datetime 				#datetime模块和time模块，一般记录时间节点toc和tic采用都是用datetime比较优
+import time     				#调用time.sleep()方法
+import socket   				#实现TCP/IP通信的模块
+import GPIO     				#实现树莓派GPIO口短通信模块
+import paramiko or pexpect # 调用下位机控制的第三方模块，连接方式一般是TCP/IP的ssh协议和telnet协议
+import pyqt5    				#用户gui的界面操作
+import logging  				#log记录模块
+
+
+main.py #系统架构详细方法说明
+	class initState 			# 导入初始化状态模块
+		#所有check信息都导入到log模块，log采用logging模块进行编写，编写四个等级1.普通等级2.管理员等级3.Error等级4.Debug等级
+   		tx2.powercheck()        	# return tx2check
+   		tx2.cameracheck()       	# return cameracheck
+  		tx2.pressurecheck()     	# return pressurecheck
+ 		tx2.tx2check()          	# additional tx2 information
+		db.init()               	# db online: CRUD functions
+  		track.trackcheck()      	# return trackCheck; save_JPG;
+    		tx2.lightcheck()        	# return image.brightness;
+    		imageCheck.testRun()    	# return loadCNNResult
+    		control.robotcheck()   		# return robotcheck; update controlDict
+    		//DEBUG:上述所诉正常均为log的正常模式信息，报错信息在log栏中红色突出报错信息。
+	class RunState
+    		tx2.monitor() 			#periodically check system;
+		image.py		
+			loadCNN():
+						#功能：模型加载
+						#参数：yolo模型
+						#返回数据类型：检测到的物体类别、位置信息
+			testRun():
+						#功能：检测模型是否加载成功
+						#参数：预设照片
+						#参数格式：.jpg
+						#数量：一张或多张
+						#返回数据类型：检测到的物体类别、位置信息
+						#校验：对比检测结果是否符合预设
+			checkImage():
+						#功能：加载的模型是否可以正常运行
+						#参数：tracker随机采集的照片
+						#格式：.jpg
+						#数量：一张或多张
+						#返回数据类型：是否返回检测结果。
+						#校验：根据tracker的真实值，校验检测结果是否正常
+		track.py
+			class InitState
+				#在几秒钟的采集时间里学习背景，进行背景建模，保存背景的均值和差值
+				bgLearn();
+			class RunState
+				#对当前帧调用角点跟踪和运动检测，然后调用识别算法得到图像识别结果，检查运动区域和角点区域和识别区域是否一一对应，完全吻合，
+					#如果完全吻合，则分割出各个跟踪区域，调用识别算法再识别一次，
+					image.checkimage();
+					#如果和上次结果一样，则认为正确，
+					#结果存储在bottleDict（pos, type, state, t0, t1）中。（或者节约时间直接保存结果）
+					db.update();
+				#如果不吻合：			
+					#如果在一个角点区域或者运动区域上，没有图像识别区域，那么把该区域再次调用图像识别算法，再识别一次，
+					image.checkImage();	
+					#如果识别出，则补上，结果存在bottleDict（pos, type, state, t0, t1）中。
+					db.update();		
+				#如果识别不出，则放弃
+		
+				#如果在一个图像识别区域，没有发现角点或者运动区域（目前认为不会出现这种情况），
+					#则修正角点和运动检测算法，保证角点和运动检测分割出所有的瓶子区域，保证分割结果大于瓶子区域，不能小于瓶子区域
+				#重复对每帧进行上述checkImage和存储
+		control.py
+			receive seePic from track.update
+			get bottleDict.pos to set checkRate
+			check for time
+			send blast to TX2
+		TX2.py
+			monitor()
+			logPressure		#开发气泵压力变送服务脚本(pressureService)
+			listenBlast		#提供监听服务，监听任意时刻blast_message，并同时产生电磁阀动作指令；
+			pinService		#开发电磁阀服务脚本(pinService);能够控制4路电磁阀动作；任意位号电磁阀可任意组合同时动作；
+		#database.py
+			#mySQL dict
+	class DebugState
 			printf
 			userInput
 			log
-					
