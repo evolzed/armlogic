@@ -19,8 +19,7 @@ src/BS0.1 install -a -p packages
 The actual source files of a software project are usually stored inside /src. 
 Alternatively, you can put them into the /lib (if you're developing a library), or into the /tool (if your application's source files are not supposed to be compiled).
 
-TODO:
- main.py
+	main.py
 		initState
 			checkInitState()
 				(hardware)
@@ -50,13 +49,11 @@ TODO:
 							pos, type, state, t0, t1
 						controlDict
 							pos, type, state, t0, t1
-						
 			# control.py
 				receive seePic from track.update
 				get bottleDict.pos to set checkRate
 				check for time
 				send blast to TX2
-    
 			# TX2.py
 				logPressure
 				listenBlast
