@@ -9,15 +9,20 @@ trackTODO
 实现说明
 
 	class InitState
-		bgLearn()	#实现bgLearn()，bgLearn()用Python实现之前用C++实现的背景学习算法，主要是在几秒钟的采集时间里学习背景，进行背景建模，保存背景的均值和差值
+		#在几秒钟的采集时间里学习背景，进行背景建模，保存背景的均值和差值
+		bgLearn();
 	class RunState
 		#对当前帧调用角点跟踪和运动检测，然后调用识别算法得到图像识别结果，检查运动区域和角点区域和识别区域是否一一对应，完全吻合，
 			#如果完全吻合，则分割出各个跟踪区域，调用识别算法再识别一次，
+			image.checkimage();
 			#如果和上次结果一样，则认为正确，
-			db.update()		#结果存储在bottleDict（pos, type, state, t0, t1）中。（或者节约时间直接保存结果）
+			#结果存储在bottleDict（pos, type, state, t0, t1）中。（或者节约时间直接保存结果）
+			db.update();
 		#如果不吻合：			
-			image.checkImage();	#如果在一个角点区域或者运动区域上，没有图像识别区域，那么把该区域再次调用图像识别算法，再识别一次，
-			db.update		#如果识别出，则补上，结果存在bottleDict（pos, type, state, t0, t1）中。
+			#如果在一个角点区域或者运动区域上，没有图像识别区域，那么把该区域再次调用图像识别算法，再识别一次，
+			image.checkImage();	
+			#如果识别出，则补上，结果存在bottleDict（pos, type, state, t0, t1）中。
+			db.update();		
 		#如果识别不出，则放弃
 		
 		#如果在一个图像识别区域，没有发现角点或者运动区域（目前认为不会出现这种情况），
