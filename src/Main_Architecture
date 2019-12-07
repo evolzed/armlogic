@@ -22,7 +22,7 @@ class InitState()
     rebotcheck() #socket实现上下机位的通信（具体还得看下位机通信方式）
     TX2Check() #查看TX2的运行状态
     #上述所诉正常均为log的正常模式信息，报错信息在log栏中红色突出报错信息。
-class NormalMode（）
+class NormalState（）
     #image部分
     powercheck()     #检查电源启动
     cameracheck()    #再次确认照相机的连接状态
@@ -47,7 +47,7 @@ class NormalMode（）
     robotoff()   #关闭机械臂
     poweroff()   #关闭电源
     break()      #退出程序
-class DebugMode() #增加命令控制和整体流程验证
+class DebugState() #增加命令控制和整体流程验证
     #image部分
     powercheck1()     #检查电源启动
     cameracheck1()    #再次确认照相机的连接状态
