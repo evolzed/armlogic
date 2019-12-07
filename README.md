@@ -16,54 +16,9 @@ src/BS0.1 install -a -p packages
 
 ## Source files
 
+![srcTODO](https://github.com/evolzed/armlogic/blob/BottleSort0.1/src/srcTODO.txt)
 The actual source files of a software project are usually stored inside /src. 
 Alternatively, you can put them into the /lib (if you're developing a library), or into the /tool (if your application's source files are not supposed to be compiled).
-
-	main.py
-		initState
-			checkInitState()
-				(hardware)
-					powerCheck
-					cameraCheck
-					pressureCheck
-					lightCheck
-					robotCheck
-				(software)
-					imageCheck
-					trackCheck
-					TX2Check
-				set global checkState
-		runState
-			# image.py
-				loadCNN()
-				testRun()
-				checkImage()
-			# track.py
-				bgLearn()
-				check()
-					send img to image
-					send seePic to control
-				update()
-					class dict
-						bottleDict
-							pos, type, state, t0, t1
-						controlDict
-							pos, type, state, t0, t1
-			# control.py
-				receive seePic from track.update
-				get bottleDict.pos to set checkRate
-				check for time
-				send blast to TX2
-			# TX2.py
-				logPressure
-				listenBlast
-				pinService
-			# database.py
-				#mySQL dict
-		debugState
-			printf
-			userInput
-			log
 
 ## License
 
