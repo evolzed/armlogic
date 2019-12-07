@@ -1,4 +1,4 @@
-Main 架构
+main.py 架构
 
 1.导入所需工作包 #我这边先把通信和gui所需用到的库填入其中
 a.import sys      #sys模块是python自带系统模块，可通过此模块方法进行对localhost的cmd操控。
@@ -13,18 +13,21 @@ i.import logging  #log记录模块
 
 main()
 
-2.导入第一个py文件,main.py,主要是调用所有功能模块，主要分为三部分，一部分为设备检查部分，一部分是正常交互模式（是后期用户交互使用），一部分是Debug模式（为后面调试阶段做准备）
+#导入第一个py文件,main.py,主要是调用所有功能模块，主要分为三部分，一部分为设备检查部分，一部分是正常交互模式（是后期用户交互使用），一部分是Debug模式（为后面调试阶段做准备）
+
 class InitState()
-    powercheck()
-    cameracheck()
-    pressurecheck() #return 辰胤提供
-    lightcheck() #return image info
-    robotcheck() #socket实现上下机位的通信（具体还得看下位机通信方式）
-    TX2Check() #查看TX2的运行状态
-    #上述所诉正常均为log的正常模式信息，报错信息在log栏中红色突出报错信息。
-    runState
+    tx2.powercheck()        # return tx2check
+    tx2.cameracheck()       # return cameracheck
+    tx2.pressurecheck()     # return pressurecheck
+    tx2.tx2check()          # additional tx2 information
+    db.init()               # db online: CRUD functions
+    track.trackcheck()      # return trackCheck; save_JPG;
+    tx2.lightcheck()        # return image.brightness;
+    imageCheck.testRun()    # return loadCNNResult
+    control.robotcheck()    # return robotcheck; update controlDict
+    //DEBUG:上述所诉正常均为log的正常模式信息，报错信息在log栏中红色突出报错信息。
     
-class RunState（）
+class RunState()
     monitor() #periodic check during RunState        
         #image部分
         powercheck()     #检查电源启动
