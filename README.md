@@ -1,8 +1,8 @@
-# armlogic
+# BottleSort version 0.1
 
 ## Description
 
-This is the armlogic "packages"-feed containing community-maintained build scripts, options and patches for applications, modules and libraries used within armlogic.
+This is the armlogic "src/BS0.1"-feed containing community-maintained build scripts, options and patches for applications, modules and libraries used within armlogic.
 
 ## Usage
 
@@ -10,8 +10,8 @@ This repository is intended to be layered on-top of an armlogic buildroot. If yo
 
 This feed is enabled by default. To install all its package definitions, run:
 ```
-./scripts/feeds update packages
-./scripts/feeds install -a -p packages
+src/BS0.1 update packages
+src/BS0.1 install -a -p packages
 ```
 
 ## License

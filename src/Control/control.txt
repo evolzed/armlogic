@@ -1,0 +1,13 @@
+从BottleDic和ControlDic中读取出相同类型的瓶子和喷嘴之间的位置信息，作差求出DeltaPos；
+触发间隔CheckAgain=k*DeltaPos；//k是位置偏差与出发间隔之间的一个比例关系，触发系数，可以设置；
+如果来自外部的触发信号(SeePic==1)或(CheckAgain<= ThresholdValue)  //ThresholdValue是一个触发阈值，可以设置；
+        Control函数
+                如果DeltaPos小于等于某个尺寸，如(5px),
+                         则向TX2发送控制指令，控制该类型的喷嘴喷射若干时间(Delta_t)；
+                返回；
+        返回；
+返回；   
+
+
+
+
