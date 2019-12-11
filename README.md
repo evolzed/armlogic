@@ -95,6 +95,13 @@
 ## 3.1 系统流程图
 ![FlowChart](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/FlowChart/BS0.2FC.png)
 ## 3.2 功能包及其实现逻辑
+**PC(代替TX2)**
+
+| class |    function    |   description   | 依赖包                                       | 输入参数  | 输出参数  |
+| :---: | :------------: | :-------------: | -------------------------------------------- | :-------: | :-------: |
+|  PC   | logPressure()  |  #读取气压信息  | #smbus<br />#time<br />#modubus<br />#socket |     /     | gPressure |
+|  PC   | relayService() | #继电器执行模块 | #time<br />#modbus<br />#socket              | gBlasting |     /     |
+|  PC   | listenBlast()  |    #监听模块    | #socket<br />#dataBase                       | gDataBase | gBlasting |
 
 #  4.**测试BS0.1**
 | 测试流程 | ---------------描述---------------- |      |
