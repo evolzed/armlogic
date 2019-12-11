@@ -27,7 +27,12 @@
 ## 2.1 数据变量命名规则
 |   类型   | 命名举例 |              描述               |
 | :------: | :------: | :-----------------------------: |
-| 全局变量 |  gState  | 1初始阶段, 2运行阶段, 3停止阶段 |
+| global |  gState  | 1初始阶段, 2运行阶段, 3停止阶段 |
+| library |  airDict  | int x, int y, int z, int type |
+| library |  bgDict  | #%.JPG, bool max |
+| global |  gDir  | #direction of the moving belt |
+| library |  bottleDict  | int x, int y, int z, int type, float frame, Time time |
+
 
 ## 2.2 功能包文档填写说明
 <table>
