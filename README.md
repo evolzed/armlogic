@@ -4,8 +4,15 @@
 
 ## 1.1 硬件环境
 
-* 运行平台: PC
-* 工业相机: HikVision 
+* 运行平台： PC/Win10_x86_64**&**Linux
+
+* 工业相机
+
+  + 品牌：HIKVision 
+  + 接口协议：Gigabit Ethernet（GigE协议）
+
+  + 型号:MV-CE013-50GC
+  + **注意：相机完成了Win10下驱动调用，Linux平台未测试**
 
 ## 1.2 软件环境
 * Ubuntu 18.04
@@ -20,14 +27,113 @@
 # 2.**定义及规则**
 ## 2.1 数据变量命名规则
 |   类型   | 命名举例 |              描述               |
-| :------: | :------: | :----------------------------: |
+| :------: | :------: | :-----------------------------: |
 | 全局变量 |  gState  | 1初始阶段, 2运行阶段, 3停止阶段 |
 
-## 2.2 功能包文档
-|  class   | function |   description   | 依赖包  |   输入参数   |  输出参数 |
-| :------: | :------: | :---------: | ------ | ---------- | --------- |
-|  Image   | getImage |      #get one frame from camera      |   #HikSDK     |   .raw   |   return .jpg   |
+## 2.2 功能包文档填写说明
+<table>
+	<tr>
+	    <th>Class</th>
+	    <th>Functions/methods</th>
+	    <th>Description</th>  
+	</tr >
+	<tr >
+	    <td rowspan="9">type</td>
+	    <td>fun1</td>
+	    <td>功能描述</td>
+	</tr>
+	<tr>
+	    <td>fun2</td>
+	    <td>功能描述</td>
+	</tr>
+	<tr>
+	    <td>fun3</td>
+	    <td>功能描述</td>
+	</tr>
+	<tr>
+	    <td>fun4</td>
+	    <td>功能描述</td>
+	</tr>
+	<tr><td>fun5</td>
+	    <td>功能描述</td>
+	</tr>
+	<tr>
+	    <td>fun6/td>
+	    <td>功能描述/td>
+	<tr>
+	    <td>fun7</td>
+	    <td>功能描述</td>
+	</tr>
+	<tr>
+	    <td>fun8</td>
+	    <td>功能描述</td>
+	</tr>
+	<tr>
+	    <td >fun9</td>
+	    <td>功能描述</td>
+	</tr>
+	<tr>
+	    <td >name</td>
+	    <td>用户自定义</td>
+	    <td>控件名称</td>
+	</tr>
+	<tr>
+	    <td >value</td>
+	    <td >用户自定义</td>
+	    <td >默认文本值</td>
+	</tr>
+	<tr>
+	    <td >size</td>
+	    <td >正整数</td>
+	    <td >控件在页面中的显示宽度</td>
+	</tr>
+	<tr>
+	    <td >checked</td>
+	    <td >checked</td>
+	    <td >定义选择控件默认被选中项</td>
+	</tr>
+	<tr>
+	    <td >maxlength</td>
+	    <td >正整数</td>
+	    <td >控件允许输入的最多字符</td>
+	</tr>
+</table>
 
+
+
+
+| 功能包名称 |      className       |    /     |
+| :--------: | :------------------: | :------: |
+|    功能    | 该功能包所实现的功能 |    /     |
+|   依赖包   |      依赖包名称      |    /     |
+|  输入参数  |       数据类型       | 变量描述 |
+|  输出参数  |       数据类型       | 变量描述 |
+
+| 子函数名称 | functionName |    /     |
+| :--------: | :----------: | :------: |
+|    功能    |  子函数功能  |    /     |
+|   依赖包   |  依赖包名称  |    /     |
+|  输入参数  |   数据类型   | 变量描述 |
+|  输出参数  |   数据类型   | 变量描述 |
+
+## 2.3 功能包文档
+|  class   |               Image                |            描述            |
+| :------: | :--------------------------------: | :------------------------: |
+|   功能   | Image processing related functions |             /              |
+|  依赖包  |                                    |             /              |
+| 输入参数 |                .raw                | input from camera at 30fps |
+| 输入参数 |                list                |        controlDict         |
+| 输出参数 |                list                |           bgDict           |
+| 输出参数 |                list                |         bottleDict         |
+
+| function |               Image                | 描述 |
+| :------: | :--------------------------------: | :--: |
+|   功能   | Image processing related functions |  /   |
+|  依赖包  |            class Image             |  /   |
+| 输入参数 |                                    |      |
+| 输入参数 |                                    |      |
+| 输出参数 |                                    |      |
+| 输出参数 |                                    |      |
 
 ## 2.4 文件夹
 * project_root/
@@ -44,6 +150,7 @@
 ## 3.2 功能包及其实现逻辑
 * 相机
   * 初始化相机(cameraConfig,cameraOn)
+
         填写规则见上文。
   * 获取图像(getImage)
 
@@ -56,7 +163,7 @@
 
         填写规则见上文。
 * 数据库搭建(dataBase)
-  
+
   * 数据库结构
 
 |   名称    |      第1~3个元素      | 第4个元素 |      第5个元素      |
