@@ -1,4 +1,6 @@
-# BottleSort0.1设计说明书
+# BottleSort0.2设计说明书
+
+# Objective：Control using existing libraries to perform simple blast task.
 
 # 1.**环境搭建**
 
@@ -22,7 +24,6 @@
 * Ethernet
 
 ----
-
 # 2.**定义及规则**
 
 ## 2.1 文件夹
@@ -32,16 +33,55 @@
   * src/          #源代码
   * test/         #测试
   * README.md     
-  * LICENSE.md     
+  * LICENSE.md   
+  
+----
+## 2.2 数据库结构
 
-## 2.2 数据变量命名规则
-|   类型   | 命名举例 |              描述               |
-| :------: | :------: | :-----------------------------: |
-| global |  gState  | 1初始阶段, 2运行阶段, 3停止阶段 |
-| library |  airDict  | int x, int y, int z, int type |
-| library |  bgDict  | #%.JPG, bool max |
-| global |  gDir  | #direction of the moving belt |
-| library |  bottleDict  | int x, int y, int z, int type, float frame, Time time |
+
+|   类 型  |   名称    |    第1个元素    |    第2个元素    |    第3个元素    |    第4个元素    |    第5个元素    |    第6个元素    |
+| :------:  | :------: | :-------------: | :------------: | :------------: | :-------------: | :------------: |
+|  global  |  gState  | System state, 1 = INIT, 2 = RUN, 3 = STOP | | | |
+|  library |  airDict | 喷嘴位置坐标(x) | 喷嘴位置坐标(y) | 喷嘴位置坐标(z)  |  int type       |  int frame     | Time processed |
+|  library |  bgDict  | %图像文件地址 | 瓶子位置坐标(y) | 瓶子位置坐标(z)  |  int type       |  int frame     | Time processed |
+|  global  |  gDir    | 运动方向的角度 0°~360° | Time processed | | | |
+|  library |bottleDict| 瓶子位置坐标(x) | 瓶子位置坐标(y) | 瓶子位置坐标(z)  |  int type       |  int frame     | Time processed |
+
+<table>
+	<tr>
+	    	<th>类型</th>
+	    	<th>名称</th>
+	    	<th>介绍</th>
+		<th>第一元素</th>
+		<th>第二元素</th>
+		<th>第三元素</th>
+		<th>第四元素</th>
+		<th>第五元素</th>
+		<th>第六元素</th>
+	</tr >
+	<tr >
+	    	<td rowspan="5">global</td>
+	    	<td>gState</td>
+	    	<td>#system state, 1 = INIT, 2 = RUN, 3 = STOP </td>
+		<td>int gState</td>
+	</tr>
+	<tr >
+	    	<td>gDir</td>
+	    	<td>#运动方向的角度 0°~360°  </td>
+		<td>int gDir </td>
+		<td>Time processed </td>	
+	</tr>
+	<tr >
+	    	<td rowspan="4">Dictionary</td>
+	    	<td>airDict</td>
+	    	<td>#喷嘴位置坐标  </td>
+		<td>int x </td>
+		<td>int y </td>	
+		<td>int z </td>	
+		<td>int type </td>
+		<td>int frame </td>
+		<td>Time processed </td>
+</table>
 
 
 ## 2.3 功能包文档填写说明
@@ -52,9 +92,9 @@
 	    <th>Description</th>  
 	</tr >
 	<tr >
-	    <td rowspan="9">Image</td>
-	    <td>fun1</td>
-	    <td>功能描述</td>
+	    <td rowspan="9">Control</td>
+	    <td>Blast</td>
+	    <td>#send a signal to air pressure nozzle upon running code</td>
 	</tr>
 	<tr>
 	    <td>fun2</td>
@@ -118,33 +158,7 @@
 ## 3.1 系统流程图
 ![FlowChart](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/FlowChart/BS0.1FC.png)
 ## 3.2 功能包及其实现逻辑
-* 相机
-  * 初始化相机(cameraConfig,cameraOn)
 
-        填写规则见上文。
-  * 获取图像(getImage)
-
-        填写规则见上文。
-* 图像处理与识别(ImageProcess)
-  * 背景学习(bgLearn)
-
-        填写规则见上文。
-  * 瓶子位置(imageCheck)
-
-        填写规则见上文。
-* 数据库搭建(dataBase)
-
-  * 数据库结构
-
-|   名称    |      第1~3个元素      | 第4个元素 |      第5个元素      |
-| :-------: | :-------------------: | :-------: | :-----------------: |
-| gdataBase | 瓶子的位置坐标(x,y,z) | 拍照时刻t | 瓶子运动速度估计值v |
-
-    举例:gdataBase = [100,200,300,5.0,0.8].
-
-  * 数据写入(updateDatabase)
-
-        填写规则见上文。
 #  4.**测试BS0.1**
 | 测试流程 | ---------------描述---------------- |      |
 | :------: | :---------------------------------: | ---- |
