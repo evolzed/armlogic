@@ -99,7 +99,7 @@
 
 | class |    function    |   description   | 依赖包                                       | 输入参数  | 输出参数  |
 | :---: | :------------: | :-------------: | -------------------------------------------- | :-------: | :-------: |
-|  PC   | relayService() | #继电器执行模块 | #time<br />#modbus<br />#socket              | gBlasting |     /     |
+|  PC   | relayService() | #继电器执行模块 | #time<br />#modbus<br />#socket<br />#serial       | gBlasting |     /     |
 |  PC   | listenBlast()  |    #监听模块    | #socket<br />#dataBase                       | gDataBase | gBlasting |
 
 #  4.**测试BS0.1**
