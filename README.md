@@ -99,7 +99,6 @@
 
 | class |    function    |   description   | 依赖包                                       | 输入参数  | 输出参数  |
 | :---: | :------------: | :-------------: | -------------------------------------------- | :-------: | :-------: |
-|  PC   | logPressure()  |  #读取气压信息  | #smbus<br />#time<br />#modubus<br />#socket |     /     | gPressure |
 |  PC   | relayService() | #继电器执行模块 | #time<br />#modbus<br />#socket              | gBlasting |     /     |
 |  PC   | listenBlast()  |    #监听模块    | #socket<br />#dataBase                       | gDataBase | gBlasting |
 
