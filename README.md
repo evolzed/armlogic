@@ -37,7 +37,7 @@
 	    <th>Description</th>  
 	</tr >
 	<tr >
-	    <td rowspan="9">type</td>
+	    <td rowspan="9">Image</td>
 	    <td>fun1</td>
 	    <td>功能描述</td>
 	</tr>
