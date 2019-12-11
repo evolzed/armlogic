@@ -49,70 +49,56 @@
 	<tr>
 	    <th>Class</th>
 	    <th>Functions/methods</th>
-	    <th>Description</th>  
+		<th>Description</th> 
+        <th>Parameter 1</th>
+        <th>Parameter 2</th>
+        <th>Return </th>
 	</tr >
 	<tr >
-	    <td rowspan="9">Image</td>
-	    <td>fun1</td>
+	    <td rowspan="4">Image</td>
+	    <td>cameraOn</td>
 	    <td>功能描述</td>
+        <td></td>
+        <td></td>
+        <td>return gCameraGo</td>
 	</tr>
 	<tr>
-	    <td>fun2</td>
+	    <td>getImage</td>
 	    <td>功能描述</td>
+        <td>.raw</td>
+        <td>.JPG</td>
+        <td>return bgDict</td>
 	</tr>
 	<tr>
-	    <td>fun3</td>
+	    <td>bgLearn</td>
 	    <td>功能描述</td>
+        <td>bgDict</td>
+        <td></td>
+        <td>return bgDict</td>
 	</tr>
 	<tr>
-	    <td>fun4</td>
+	    <td>checkImage</td>
 	    <td>功能描述</td>
+        <td>bgDict</td>
+        <td></td>
+        <td>return bottleDict</td>
 	</tr>
-	<tr><td>fun5</td>
+    <tr >
+	    <td rowspan="3">Tool</td>
+	    <td>mySQL.createDict</td>
 	    <td>功能描述</td>
+        <td></td>
+        <td></td>
+        <td>return bgDict, bottleDict</td>
 	</tr>
 	<tr>
-	    <td>fun6</td>
+	    <td>mySQL.updateDict</td>
 	    <td>功能描述</td>
-	<tr>
-	    <td>fun7</td>
-	    <td>功能描述</td>
-	</tr>
-	<tr>
-	    <td>fun8</td>
-	    <td>功能描述</td>
-	</tr>
-	<tr>
-	    <td >fun9</td>
-	    <td>功能描述</td>
-	</tr>
-	<tr>
-	    <td >name</td>
-	    <td>用户自定义</td>
-	    <td>控件名称</td>
-	</tr>
-	<tr>
-	    <td >value</td>
-	    <td >用户自定义</td>
-	    <td >默认文本值</td>
-	</tr>
-	<tr>
-	    <td >size</td>
-	    <td >正整数</td>
-	    <td >控件在页面中的显示宽度</td>
-	</tr>
-	<tr>
-	    <td >checked</td>
-	    <td >checked</td>
-	    <td >定义选择控件默认被选中项</td>
-	</tr>
-	<tr>
-	    <td >maxlength</td>
-	    <td >正整数</td>
-	    <td >控件允许输入的最多字符</td>
+        <td>%FILENAME</td>
+        <td>str</td>
+        <td>return %FILENAME</td>
 	</tr>
 </table>
-
 
 #  3.**系统总体设计框架**
 ## 3.1 系统流程图
