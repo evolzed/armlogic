@@ -92,7 +92,7 @@
 
 #  3.**系统总体设计框架**
 ## 3.1 系统流程图
-![FlowChart](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/FlowChart/BS0.1FC.png)
+![FlowChart](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/FlowChart/BS0.2FC.png)
 ## 3.2 功能包及其实现逻辑
 
 #  4.**测试BS0.1**
