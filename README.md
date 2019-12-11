@@ -57,8 +57,8 @@
 	    <td>功能描述</td>
 	</tr>
 	<tr>
-	    <td>fun6/td>
-	    <td>功能描述/td>
+	    <td>fun6</td>
+	    <td>功能描述</td>
 	<tr>
 	    <td>fun7</td>
 	    <td>功能描述</td>
