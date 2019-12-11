@@ -6,7 +6,8 @@
 
 2. python==3.6.5
 
-   tensorflow-gpu==1.6.0或tensorflow-gpu==1.9.0
+   * tensorflow-gpu==1.6.0或tensorflow-gpu==1.9.0（gpu版本需要配置cuda）
+  + Tips：安装cuda：查看自己的gpu是否支持cuda[点击查看我的GPU是否支持安装cuda](https://developer.nvidia.com/cuda-gpus)，如果不支持，只能使用cpu版本的tensorflow，同样安装tensorflow==1.6.0或tensorflow==1.9.0
 
    python-opencv==3.4.2.16（尽量不要使用最新4+版本）
 
