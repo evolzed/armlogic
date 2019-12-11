@@ -9,9 +9,8 @@
 * 工业相机
 
   + 品牌：HIKVision 
-  + 接口协议：Gigabit Ethernet（GigE协议）
-
   + 型号:MV-CE013-50GC
+  + 接口协议：Gigabit Ethernet（GigE协议）
   + **注意：相机完成了Win10下驱动调用，Linux平台未测试**
 
 ## 1.2 软件环境
