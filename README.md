@@ -1,30 +1,85 @@
-# BottleSort version 0.1
+# BottleSort0.1设计说明书
 
-## Source files
+# 1.**环境搭建**
 
-[srcTODO](https://github.com/evolzed/armlogic/blob/BottleSort0.1/src/srcTODO.txt)
+## 1.1 硬件环境
 
-The actual source files of a software project are usually stored inside /src. 
-Alternatively, you can put them into the /lib (if you're developing a library), or into the /tool (if your application's source files are not supposed to be compiled).
+* 运行平台: PC
+* 工业相机: HikVision 
 
-## Description
+## 1.2 软件环境
+* Ubuntu 18.04
+* PyCharm 2018.3.5
+* [GitHub](https://github.com/evolzed/armlogic)
 
-This is the armlogic "src/BS0.1"-feed containing community-maintained build scripts, options and patches for applications, modules and libraries used within armlogic.
+## 1.3 通讯接口
+* Ethernet
 
-## Usage
+----
 
-This repository is intended to be layered on-top of an armlogic buildroot. If you do not have an armlogic buildroot installed, see the documentation at: [armlogic Buildroot – Installation](https://armlogic.tech/Buildroot) on the armlogic support site.
+# 2.**定义及规则**
+## 2.1 数据变量命名规则
+|   类型   | 命名举例 |              描述               |
+| :------: | :------: | :----------------------------: |
+| 全局变量 |  gState  | 1初始阶段, 2运行阶段, 3停止阶段 |
 
-This feed is enabled by default. To install all its package definitions, run:
-```
-src/BS0.1 update packages
-src/BS0.1 install -a -p packages
-```
+## 2.2 功能包文档
+|  class   | function |   description   | 依赖包  |   输入参数   |  输出参数 |
+| :------: | :------: | :---------: | ------ | ---------- | --------- |
+|  Image   | getImage |      #get one frame from camera      |   #HikSDK     |   .raw   |   return .jpg   |
 
-## License
 
-See [LICENSE](LICENSE) file.
- 
-## Package Guidelines
+## 2.4 文件夹
+* project_root/
+  * lib/          #库
+  * docs/         #技术文档
+  * src/          #源代码
+  * test/         #测试
+  * README.md     
+  * LICENSE.md     
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) file.
+#  3.**系统总体设计框架**
+## 3.1 系统流程图
+![FlowChart](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/FlowChart/BS0.1FC.png)
+## 3.2 功能包及其实现逻辑
+* 相机
+  * 初始化相机(cameraConfig,cameraOn)
+        填写规则见上文。
+  * 获取图像(getImage)
+
+        填写规则见上文。
+* 图像处理与识别(ImageProcess)
+  * 背景学习(bgLearn)
+
+        填写规则见上文。
+  * 瓶子位置(imageCheck)
+
+        填写规则见上文。
+* 数据库搭建(dataBase)
+  
+  * 数据库结构
+
+|   名称    |      第1~3个元素      | 第4个元素 |      第5个元素      |
+| :-------: | :-------------------: | :-------: | :-----------------: |
+| gdataBase | 瓶子的位置坐标(x,y,z) | 拍照时刻t | 瓶子运动速度估计值v |
+
+    举例:gdataBase = [100,200,300,5.0,0.8].
+
+  * 数据写入(updateDatabase)
+
+        填写规则见上文。
+#  4.**测试BS0.1**
+| 测试流程 | ---------------描述---------------- |      |
+| :------: | :---------------------------------: | ---- |
+|   条件   |                                     |      |
+|   内容   |                                     |      |
+|   结果   |                                     |      |
+| 常见错误 |                                     |      |
+| 解决办法 |                                     |      |
+
+# 5.**总结**
+|         项目          | ---------------描述---------------- |      |
+| :-------------------: | :---------------------------------: | ---- |
+|     当前方案优点      |                                     |      |
+|     当前方案缺点      |                                     |      |
+| 改进方案(version 0.2) |                                     |      |
