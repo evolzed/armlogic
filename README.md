@@ -47,20 +47,20 @@
 ## 2.3 功能包文档填写说明
 <table>
 	<tr>
-	    <th>Class</th>
-	    <th>Functions/methods</th>
+	    	<th>Class</th>
+		<th>Functions/methods</th>
 		<th>Description</th> 
-        <th>Parameter 1</th>
-        <th>Parameter 2</th>
-        <th>Return </th>
+        	<th>Parameter 1</th>
+        	<th>Parameter 2</th>
+        	<th>Return </th>
 	</tr >
 	<tr >
-	    <td rowspan="4">Image</td>
-	    <td>cameraOn</td>
-	    <td>功能描述</td>
-        <td></td>
-        <td></td>
-        <td>return gCameraGo</td>
+	    	<td rowspan="4">Image</td>
+	    	<td>cameraOn</td>
+	    	<td>功能描述</td>
+        	<td></td>
+       	 	<td></td>
+        	<td>return gCameraGo</td>
 	</tr>
 	<tr>
 	    <td>getImage</td>
@@ -100,37 +100,35 @@
 	</tr>
 </table>
 
+----
 #  3.**系统总体设计框架**
+
 ## 3.1 系统流程图
 ![FlowChart](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/FlowChart/BS0.1FC.png)
+
 ## 3.2 功能包及其实现逻辑
-* 相机
+
+* 数据库搭建(Tool)
+  * mySQL.createDict
+        填写规则见上文。
+  * mySQL.updateDict
+	填写规则见上文
+	
+* Image
   * 初始化相机(cameraConfig,cameraOn)
 
         填写规则见上文。
   * 获取图像(getImage)
 
         填写规则见上文。
-* 图像处理与识别(ImageProcess)
   * 背景学习(bgLearn)
 
         填写规则见上文。
   * 瓶子位置(imageCheck)
 
         填写规则见上文。
-* 数据库搭建(dataBase)
 
-  * 数据库结构
-
-|   名称    |      第1~3个元素      | 第4个元素 |      第5个元素      |
-| :-------: | :-------------------: | :-------: | :-----------------: |
-| gdataBase | 瓶子的位置坐标(x,y,z) | 拍照时刻t | 瓶子运动速度估计值v |
-
-    举例:gdataBase = [100,200,300,5.0,0.8].
-
-  * 数据写入(updateDatabase)
-
-        填写规则见上文。
+----
 #  4.**测试BS0.1**
 | 测试流程 | ---------------描述---------------- |      |
 | :------: | :---------------------------------: | ---- |
@@ -140,6 +138,7 @@
 | 常见错误 |                                     |      |
 | 解决办法 |                                     |      |
 
+----
 # 5.**总结**
 |         项目          | ---------------描述---------------- |      |
 | :-------------------: | :---------------------------------: | ---- |
