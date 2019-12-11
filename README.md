@@ -7,7 +7,6 @@
 * 运行平台： PC/Win10_x86_64**&**Linux
 
 * 工业相机
-
   + 品牌：HIKVision 
   + 型号:MV-CE013-50GC
   + 接口协议：Gigabit Ethernet（GigE协议）
@@ -37,7 +36,6 @@
 ## 2.2 系统流程图
 ![FlowChart](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/FlowChart/BS0.1FC.png)
 
-
 ## 2.3 数据变量命名规则
 
 |   类型   | 命名举例 |              描述               | 第一元素 | 第二元素 |  第三元素 |  第四元素 |  第五元素 | 
@@ -49,6 +47,7 @@
 | library |  bottleDict  | #recognised bottle information | int x | int y | int z | int type | float frame | Time processed |
 
 ## 2.4 功能包文档填写说明
+
 <table>
 	<tr>
 	    	<th>Class</th>
@@ -67,40 +66,40 @@
         	<td>return gCameraGo</td>
 	</tr>
 	<tr>
-	    <td>getImage</td>
-	    <td>功能描述</td>
-        <td>.raw</td>
-        <td>.JPG</td>
-        <td>return bgDict</td>
+	    	<td>getImage</td>
+	    	<td>功能描述</td>
+        	<td>.raw</td>
+        	<td>.JPG</td>
+        	<td>return bgDict</td>
 	</tr>
 	<tr>
-	    <td>bgLearn</td>
-	    <td>功能描述</td>
-        <td>bgDict</td>
-        <td></td>
-        <td>return bgDict</td>
+	    	<td>bgLearn</td>
+	    	<td>功能描述</td>
+        	<td>bgDict</td>
+        	<td></td>
+        	<td>return bgDict</td>
 	</tr>
 	<tr>
-	    <td>checkImage</td>
-	    <td>功能描述</td>
-        <td>bgDict</td>
-        <td></td>
-        <td>return bottleDict</td>
+	    	<td>checkImage</td>
+	    	<td>功能描述</td>
+        	<td>bgDict</td>
+        	<td></td>
+        	<td>return bottleDict</td>
 	</tr>
-    <tr >
-	    <td rowspan="3">Tool</td>
-	    <td>mySQL.createDict</td>
-	    <td>功能描述</td>
-        <td></td>
-        <td></td>
-        <td>return bgDict, bottleDict</td>
+    	<tr >
+	    	<td rowspan="3">Tool</td>
+	    	<td>mySQL.createDict</td>
+	    	<td>功能描述</td>
+        	<td></td>
+        	<td></td>
+        	<td>return bgDict, bottleDict</td>
 	</tr>
 	<tr>
-	    <td>mySQL.updateDict</td>
-	    <td>功能描述</td>
-        <td>%FILENAME</td>
-        <td>str</td>
-        <td>return %FILENAME</td>
+	    	<td>mySQL.updateDict</td>
+	    	<td>功能描述</td>
+        	<td>%FILENAME</td>
+        	<td>str</td>
+        	<td>return %FILENAME</td>
 	</tr>
 </table>
 
