@@ -15,6 +15,7 @@
 ## 1.2 软件环境
 * Ubuntu 18.04
 * PyCharm 2018.3.5
+* opencv 4.4.1
 * [GitHub](https://github.com/evolzed/armlogic)
 
 ## 1.3 通讯接口
@@ -74,9 +75,9 @@
 	</tr>
 	<tr>
 	    	<td>bgLearn</td>
-	    	<td>功能描述</td>
-        	<td>bgDict</td>
-        	<td></td>
+	    	<td>learn the backgroud by pics from cam then get a background model</td>
+        	<td>capture</td>
+        	<td>background model</td>
         	<td>return bgDict</td>
 	</tr>
 	<tr>
