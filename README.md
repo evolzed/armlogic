@@ -35,14 +35,14 @@
   * LICENSE.md     
 
 ## 2.2 数据变量命名规则
-|   类型   | 命名举例 |              描述               |
-| :------: | :------: | :-----------------------------: |
-| global |  gState  | 1初始阶段, 2运行阶段, 3停止阶段 |
-| library |  airDict  | int x, int y, int z, int type |
-| library |  bgDict  | #%.JPG, bool max |
-| global |  gDir  | #direction of the moving belt |
-| library |  bottleDict  | int x, int y, int z, int type, float frame, Time time |
 
+|   类型   | 命名举例 |              描述               | 第一元素 | 第二元素 |  第三元素 |  第四元素 |  第五元素 | 
+| :------: | :------: | :-----------------------------: | :-------: | :-------: | :-------: | :-------: | :-------: |
+| global |  gState  | #1 = 初始阶段, 2 = 运行阶段, 3 = 停止阶段 | int gState |
+| library |  airDict  | #User input air pressure nozzle locations | int x | int y | int z | int type |
+| library |  bgDict  | #address to image file location and processed flag | #%.JPG | bool processed |
+| global |  gDir  | #direction of the moving belt | int gDir |
+| library |  bottleDict  | #recognised bottle information | int x | int y | int z | int type | float frame | Time processed |
 
 ## 2.3 功能包文档填写说明
 <table>
