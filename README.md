@@ -102,6 +102,23 @@
 |  PC   | relayService() | #继电器执行模块 | #time<br />#modbus<br />#socket<br />#serial       | gBlasting |     /     |
 |  PC   | listenBlast()  |    #监听模块    | #socket<br />#dataBase                       | gDataBase | gBlasting |
 
+**实现逻辑：**
+
+* **PC.relayService()**
+
+  获取PC.listenBlast()发出的gBlasting；
+
+  调用modbus包中的方法处理gBlasting，并调用serial包完成执行
+
+* **PC.listenBlast()**
+
+  监听dataBase的gDataBase；
+
+  ​	gDir转换成的向量与gBottleDict做处理，转换成瓶子在实际方向上的坐标；
+
+  ​	比较上步转换的坐标值与airDict，
+
+  ​	假如在设定范围内（DELTA_X），输出信号gBlasting；
 #  4.**测试BS0.1**
 | 测试流程 | ---------------描述---------------- |      |
 | :------: | :---------------------------------: | ---- |
