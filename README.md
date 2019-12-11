@@ -38,15 +38,6 @@
 ----
 ## 2.2 数据库结构
 
-
-|   类 型  |   名称    |    第1个元素    |    第2个元素    |    第3个元素    |    第4个元素    |    第5个元素    |    第6个元素    |
-| :------:  | :------: | :-------------: | :------------: | :------------: | :-------------: | :------------: |
-|  global  |  gState  | System state, 1 = INIT, 2 = RUN, 3 = STOP | | | |
-|  library |  airDict | 喷嘴位置坐标(x) | 喷嘴位置坐标(y) | 喷嘴位置坐标(z)  |  int type       |  int frame     | Time processed |
-|  library |  bgDict  | %图像文件地址 | 瓶子位置坐标(y) | 瓶子位置坐标(z)  |  int type       |  int frame     | Time processed |
-|  global  |  gDir    | 运动方向的角度 0°~360° | Time processed | | | |
-|  library |bottleDict| 瓶子位置坐标(x) | 瓶子位置坐标(y) | 瓶子位置坐标(z)  |  int type       |  int frame     | Time processed |
-
 <table>
 	<tr>
 	    	<th>类型</th>
@@ -95,61 +86,6 @@
 	    <td rowspan="9">Control</td>
 	    <td>Blast</td>
 	    <td>#send a signal to air pressure nozzle upon running code</td>
-	</tr>
-	<tr>
-	    <td>fun2</td>
-	    <td>功能描述</td>
-	</tr>
-	<tr>
-	    <td>fun3</td>
-	    <td>功能描述</td>
-	</tr>
-	<tr>
-	    <td>fun4</td>
-	    <td>功能描述</td>
-	</tr>
-	<tr><td>fun5</td>
-	    <td>功能描述</td>
-	</tr>
-	<tr>
-	    <td>fun6</td>
-	    <td>功能描述</td>
-	<tr>
-	    <td>fun7</td>
-	    <td>功能描述</td>
-	</tr>
-	<tr>
-	    <td>fun8</td>
-	    <td>功能描述</td>
-	</tr>
-	<tr>
-	    <td >fun9</td>
-	    <td>功能描述</td>
-	</tr>
-	<tr>
-	    <td >name</td>
-	    <td>用户自定义</td>
-	    <td>控件名称</td>
-	</tr>
-	<tr>
-	    <td >value</td>
-	    <td >用户自定义</td>
-	    <td >默认文本值</td>
-	</tr>
-	<tr>
-	    <td >size</td>
-	    <td >正整数</td>
-	    <td >控件在页面中的显示宽度</td>
-	</tr>
-	<tr>
-	    <td >checked</td>
-	    <td >checked</td>
-	    <td >定义选择控件默认被选中项</td>
-	</tr>
-	<tr>
-	    <td >maxlength</td>
-	    <td >正整数</td>
-	    <td >控件允许输入的最多字符</td>
 	</tr>
 </table>
 
