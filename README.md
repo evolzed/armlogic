@@ -33,8 +33,12 @@
   * test/         #测试
   * README.md     
   * LICENSE.md     
+  
+## 2.2 系统流程图
+![FlowChart](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/FlowChart/BS0.1FC.png)
 
-## 2.2 数据变量命名规则
+
+## 2.3 数据变量命名规则
 
 |   类型   | 命名举例 |              描述               | 第一元素 | 第二元素 |  第三元素 |  第四元素 |  第五元素 | 
 | :------: | :------: | :-----------------------------: | :-------: | :-------: | :-------: | :-------: | :-------: |
@@ -44,7 +48,7 @@
 | global |  gDir  | #direction of the moving belt | int gDir |
 | library |  bottleDict  | #recognised bottle information | int x | int y | int z | int type | float frame | Time processed |
 
-## 2.3 功能包文档填写说明
+## 2.4 功能包文档填写说明
 <table>
 	<tr>
 	    	<th>Class</th>
@@ -101,35 +105,7 @@
 </table>
 
 ----
-#  3.**系统总体设计框架**
-
-## 3.1 系统流程图
-![FlowChart](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/FlowChart/BS0.1FC.png)
-
-## 3.2 功能包及其实现逻辑
-
-* 数据库搭建(Tool)
-  * mySQL.createDict
-        填写规则见上文。
-  * mySQL.updateDict
-	填写规则见上文
-	
-* Image
-  * 初始化相机(cameraConfig,cameraOn)
-
-        填写规则见上文。
-  * 获取图像(getImage)
-
-        填写规则见上文。
-  * 背景学习(bgLearn)
-
-        填写规则见上文。
-  * 瓶子位置(imageCheck)
-
-        填写规则见上文。
-
-----
-#  4.**测试BS0.1**
+#  3.**测试BS0.1**
 | 测试流程 | ---------------描述---------------- |      |
 | :------: | :---------------------------------: | ---- |
 |   条件   |                                     |      |
@@ -139,7 +115,7 @@
 | 解决办法 |                                     |      |
 
 ----
-# 5.**总结**
+# 4.**总结**
 |         项目          | ---------------描述---------------- |      |
 | :-------------------: | :---------------------------------: | ---- |
 |     当前方案优点      |                                     |      |
