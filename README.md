@@ -10,9 +10,9 @@
 
   + 品牌：HIKVision 
   + 接口协议：Gigabit Ethernet（GigE协议）
-
   + 型号:MV-CE013-50GC
   + **注意：相机完成了Win10下驱动调用，Linux平台未测试**
+  
 ## 1.2 软件环境
 * Ubuntu 18.04
 * PyCharm 2018.3.5
@@ -56,86 +56,18 @@
 
 ## 2.4 功能包文档填写说明
 
-<table>
-	<tr>
-	    <th>ModelName</th>
-	    <th>Functions/methods</th>
-	    <th>Description</th>
-        <th>Related Functions</th>
-	</tr>
-	<tr>
-        <td rowspan="5">loadYolo()</td>
-	    <td>__init__()</td>
-        <td>模型参数初始化(包含model_path、anchors_path、classes_path等)</td>
-	    <td>调用generate()方法，初始化boxes，scores， classes</td>
-	</tr>
-	<tr>
-	    <td>_get_class()</td>
-        <td>存放类别的.txt文件，返回需要识别的类别列表</td>
-	    <td>采用python自带的文件操作方法with open(),返回文件内容列表</td>
-	</tr>
-	<tr>
-	    <td>_get_anchors()</td>
-        <td>将anchors转换成np.array,形状是(*, 2)</td>
-	    <td>采用python自带的文件操作方法with open()，返回文件内容列表</td>
-	</tr>
-	<tr>
-	    <td>generate()</td>
-        <td>返回预测框列表，评分列表，类别列表</td>
-	    <td>使用load_model()、yolo_eval()</td>
-	</tr>
-	<tr><td>detect_image()</td>
-        <td>检测输入图像的函数</td>
-	    <td>调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注等操作;</td>
-	</tr>
-	<tr>
-        <td rowspan="6">testRun()</td>
-        <td>detect_video()</td>
-	    <td>进行实时视频流识别(此方法中集成海康相机驱动进行实时识别)，包括了相机启动自检，启动失败后控制台输出ERROR_MESSAGE并将ERROR写入日志</td>
-        <td>HIKvison_camera模块</td>
-    </tr>
-    <tr>MESSAGE
-        <td>connectCam()</td>
-        <td>获取检测到的设备编号，连接设备</td>
-	    <td>GrabVideo.get_device_num()、GrabVideo.connect_cam()</td>
-    </tr>
-    <tr>
-        <td>grabVideo()</td>
-        <td>获取相机的视频流</td>
-	    <td>利用封装好的GrabVideo包进行获取</td>
-    </tr>
-    <tr>
-        <td>detect_image()</td>
-        <td>将数据流传给yoloCNN</td>
-	    <td>cv2.cvtColor()[色彩空间转换]、PIL.Image()[转换成网络需要的imageObject]</td>
-    </tr>
-     <tr>
-        <td>detect_img()</td>
-        <td>尝试识别预设的照片，已知图像中的物体以及种类</td>
-	    <td>调用detect_image()、PIL.Image模块</td>
-    </tr>
-    <tr>
-        <td>cam.MV_CC_GetOneFrameTimeout()</td>
-        <td>使用相机驱动调用视频流中的下一帧图像数据</td>
-	    <td>/</td>
-    </tr>
-    <tr>
-        <td rowspan="3">testRun完成后，checkState()[1:init 2：run 3：stop]</td>
-        <td>gState==1</td>
-	    <td>reInitCNN()</td>
-        <td>loadYolo()</td>
-    </tr>
-	<tr>
-        <td>gState==2</td>
-	    <td>当检测到系统信号2时，开始运行检测</td>
-        <td>detect_video(),创建yolo对象，获取数据流进行识别</td>
-    </tr>
-	<tr>
-	    <td>gState==3</td>
-        <td>检测到系统指令3时，停止网络，关闭相机驱动</td>
-	    <td>GrabVideo.destroy()[清空保存在内存中的相机数据，销毁相机对象]、yolo.close_session()</td>
-	</tr>
-</table>
+|   Class   | Function |              描述               | 参数 1 | 参数 2 |  参数 3 |  参数 4 |  Return | 
+| :------: | :------: | :-----------------------------: | :-------: | :-------: | :-------: | :-------: | :-------: |
+| Image |  _get_class  | 存放类别的.txt文件，返回需要识别的类别列表采用python自带的文件操作方法with open(),返回文件内容列表 | | | | |
+| Image |  _get_anchors  | 将anchors转换成np.array,形状是(*, 2), 采用python自带的文件操作方法with open()，返回文件内容列表 | | | | |
+| Image |  generate  | 返回预测框列表，评分列表，类别列表, 使用load_model()、yolo_eval() | | | | |
+| Image |  loadYolo  | 模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | input | | | | |
+| Image |  detect_image  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Image()[转换成网络需要的imageObject]; | | | | |
+| Image |  connectCam  | 获取检测到的设备编号，连接设备GrabVideo.get_device_num()、GrabVideo.connect_cam() | | | | |
+| Image |  grabVideo  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 | | | | |
+| Image |  cam.MV_CC_GetOneFrameTimeout()  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 ，使用相机驱动调用视频流中的下一帧图像数据| | | | |
+| Image |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动</td>
+	    <td>GrabVideo.destroy()[清空保存在内存中的相机数据，销毁相机对象]、yolo.close_session() | | | | |
 
 
 ----
