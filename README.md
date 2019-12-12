@@ -57,8 +57,8 @@
 
 ## 2.4 功能包文档填写说明
 
-|   Class   | Function |              描述               | 参数 1 | 参数 2 |  参数 3 |  参数 4 |  Return | 
-| :------: | :------: | :-----------------------------: | :-------: | :-------: | :-------: | :-------: | :-------: |
+|   Class   | Function |           Description          | Input | Output | Return | 
+| :------: | :------: | :-----------------------------: | :----: | :----: | :----: | 
 | Image |  _get_class  | 存放类别的.txt文件，返回需要识别的类别列表采用python自带的文件操作方法with open(),返回文件内容列表 | | | | |
 | Image |  _get_anchors  | 将anchors转换成np.array,形状是(*, 2), 采用python自带的文件操作方法with open()，返回文件内容列表 | | | | |
 | Image |  bgLearn  | learn the backgroud by pics from cam then get a background model |capture |background model |bgDict | |
