@@ -17,6 +17,7 @@
 * Ubuntu 18.04
 * PyCharm 2018.3.5
 * python==3.6.5
+* opencv==4.4.1
 * tensorflow-gpu==1.6.0或tensorflow-gpu==1.9.0（gpu版本需要配置cuda）
   + Tips：安装cuda：查看自己的gpu是否支持cuda[点击查看我的GPU是否支持安装cuda](https://developer.nvidia.com/cuda-gpus)，如果不支持，只能使用cpu版本的tensorflow，同样安装tensorflow==1.6.0或tensorflow==1.9.0
 * python-opencv==3.4.2.16（尽量不要使用最新4+版本）
@@ -60,6 +61,7 @@
 | :------: | :------: | :-----------------------------: | :-------: | :-------: | :-------: | :-------: | :-------: |
 | Image |  _get_class  | 存放类别的.txt文件，返回需要识别的类别列表采用python自带的文件操作方法with open(),返回文件内容列表 | | | | |
 | Image |  _get_anchors  | 将anchors转换成np.array,形状是(*, 2), 采用python自带的文件操作方法with open()，返回文件内容列表 | | | | |
+| Image |  bgLearn  | learn the backgroud by pics from cam then get a background model |capture |background model |bgDict | |
 | Image |  generate  | 返回预测框列表，评分列表，类别列表, 使用load_model()、yolo_eval() | | | | |
 | Image |  loadYolo  | 模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | input | | | | |
 | Image |  detect_image  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Image()[转换成网络需要的imageObject]; | | | | |
