@@ -52,6 +52,7 @@
 | library |  bgDict  | #address to image file location and processed flag | #%.JPG | bool processed |
 | global |  gDir  | #direction of the moving belt | int gDir | | 
 | library |  bottleDict  | #sorted bottle information | int x | int y | int z | int type | float frame | Time processed |
+| path | bgPic | #file location for bgPic |
 
 ## 2.4 功能包文档填写说明
 
