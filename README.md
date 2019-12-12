@@ -68,6 +68,7 @@
 | Image |  connectCam  | 获取检测到的设备编号，连接设备GrabVideo.get_device_num()、GrabVideo.connect_cam() | | | | |
 | Image |  grabVideo  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 | | | | |
 | Image |  cam.MV_CC_GetOneFrameTimeout()  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 ，使用相机驱动调用视频流中的下一帧图像数据| | | | |
+| Image |  checkImage  | check the cnn detected result by image process and image track and then update the bottle dict|capture | bottledict| | |
 | Image |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动</td>
 	    <td>GrabVideo.destroy()[清空保存在内存中的相机数据，销毁相机对象]、yolo.close_session() | | | | |
 
