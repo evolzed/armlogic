@@ -1,18 +1,38 @@
-bgLearn  learn the backgroud by pics from cam then get a background model
+bgLearn
 
-vector<Vec4d> convertRoiCoordinate(vector<Vec4d> Lines,Rect Roi)
+bgLearn Description:
+Learn the backgroud by pics from cam then get a background model
+bgLearn is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
 
-void SamplesEnhance::findrColor(Mat &imgO,Rect &rectout)
+bgLearn Implemente Details:
+function:studyBackgroundFromCam
+description:
+get the 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
+
+function:avgBackground
+description:
+read background pics from disk,and then calculate every frame difference,and accumulate every frame difference
+to a sum of frame difference,and then calculate the average frame difference,meanwhile,accumulate every frame to a sum of frame and
+then calculate the average frame.
+
+createModelsfromStats
+description:
+calculate the BackgroundModel,whichi is composed of  high background threadhold and low background threadhold.
+add the average frame difference to the  the average frame to make the high background threadhold,
+subtract the average frame difference from  the  the average frame to make the low background threadhold,
+
+backgroundDiff
+description:
+when get pic frame from camera, use the backgroundDiff to  segment the frame pic;
+if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
+will change to white,otherwise, it will cover to black.
 
 
-cvtColor(frame, gray, CV_RGB2GRAY);
 
 
+checkImage
 
-Canny(theobj, theobj, 10, 50);
+checkImage Description:
+checkImage is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
 
-HoughLinesP(theobj, Lines, 1, CV_PI / 360, 60, 30, 5);
-
-
-void SamplesEnhance::backgroundDiff(Mat I,Mat &Imask )
-checkImage   check the cnn detected result by image process and image track and then update the bottle dict
+checkImage Implemente Details:
