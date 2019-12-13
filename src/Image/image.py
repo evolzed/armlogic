@@ -13,4 +13,6 @@ Canny(theobj, theobj, 10, 50);
 
 HoughLinesP(theobj, Lines, 1, CV_PI / 360, 60, 30, 5);
 
+
+void SamplesEnhance::backgroundDiff(Mat I,Mat &Imask )
 checkImage   check the cnn detected result by image process and image track and then update the bottle dict
