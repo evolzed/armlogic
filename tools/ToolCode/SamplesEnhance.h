@@ -119,7 +119,7 @@ private:
 	void learnBackground(string PICDIR);
 public:
 	void gamaTest(string PICDIR);
-	Mat roughLabel(Mat input,int left,int top,int right,int down);
+	Mat roughLabel(Mat input,int left,int top,int right,int down, Rect &outRect);
 	void roughLabelTest(string PICDIR);
 	void autoLableforColorTest(string PICDIR);
 	Rect autoLableforColor(Mat &imgO);
@@ -147,7 +147,8 @@ extern string renameJPG(string jpg);
 extern  string getDir(string jpg);
 extern void OutputLabelTXT(Mat imgO, double xmin, double ymin, \
 	double xmax, double ymax, string pic_dir, int lable);
-
-
+extern void OutputLabelTXT_keras(Mat imgO, double xmin, double ymin, \
+	double xmax, double ymax, string pic_dir, int lable);
+extern string changeJPGtoTXT2(string jpg);
 
 #endif

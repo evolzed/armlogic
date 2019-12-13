@@ -1,0 +1,55 @@
+main.py 架构
+
+1.导入所需工作包 #我这边先把通信和gui所需用到的库填入其中
+a.import sys      #sys模块是python自带系统模块，可通过此模块方法进行对localhost的cmd操控。
+b.import os       #os模块是路径模块，通常用os来完成路径文件的调用和查看，一般和sys合用。
+c.import datetime #datetime模块和time模块，一般记录时间节点toc和tic采用都是用datetime比较优
+d.import time     #调用time.sleep()方法
+e.import socket   #实现TCP/IP通信的模块
+f.import GPIO     #实现树莓派GPIO口短通信模块
+g.import paramiko or pexpect # 调用下位机控制的第三方模块，连接方式一般是TCP/IP的ssh协议和telnet协议
+h.import pyqt5    #用户gui的界面操作
+i.import logging  #log记录模块
+
+main()
+
+#导入第一个py文件,main.py,主要是调用所有功能模块，主要分为三部分，一部分为设备检查部分，一部分是正常交互模式（是后期用户交互使用），一部分是Debug模式（为后面调试阶段做准备）
+
+class InitState()
+    tx2.powercheck()        # return tx2check
+    tx2.cameracheck()       # return cameracheck
+    tx2.pressurecheck()     # return pressurecheck
+    tx2.tx2check()          # additional tx2 information
+    db.init()               # db online: CRUD functions
+    track.trackcheck()      # return trackCheck; save_JPG;
+    tx2.lightcheck()        # return image.brightness;
+    imageCheck.testRun()    # return loadCNNResult
+    control.robotcheck()    # return robotcheck; update controlDict
+    //DEBUG:上述所诉正常均为log的正常模式信息，报错信息在log栏中红色突出报错信息。
+    
+class RunState()
+    monitor() #periodic check during RunState        
+        #image部分
+        powercheck()     #检查电源启动
+        cameracheck()    #再次确认照相机的连接状态
+        cameraon()       #启动照相机
+        imagecheck()     #确认是否有图片输出和识别
+        #hardware check 检查部分，目的是再次确认机器的正常运作，此内容如果正常可以不映射到log信息栏，如果有error信息在发送弹送框
+        poweron()        #电源启动
+        pressurecheck()  #气泵状态监测
+        pressureon()     #启动气泵
+        pressurecheck()  #气泵状态检测
+        lightcheck()     #检测环境是否需要启动
+        robotcheck()     #机械臂的功能状态是否正常
+    #while time < 15min: #在15分钟内检测到物体，就一直工作
+    #mysqlon()       #mysql启动
+    runimage()       #图像识别工作
+    runtrack()       #物体跟踪过程
+    runpressure()    #气泵工作
+    runrobot()       #手臂工作
+    cameraoff()  #关闭摄像头
+    pressureoff()#关闭气泵
+    robotoff()   #关闭机械臂
+    poweroff()   #关闭电源
+    break()      #退出程序
+class DebugState() #增加命令控制和整体流程验证

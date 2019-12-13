@@ -94,10 +94,10 @@ Rect SamplesEnhance::autoLableforColor(Mat &imgO)
 			if (rect.y < theMostup)
 				theMostup = rect.y;
 
-			cout << "i" << l << endl;
+			/////cout << "i" << l << endl;
 		}
 		/////rectangle(imgO, Point(theMostleft, theMostup), Point(theMostleft + 189, theMostup + 56), Scalar(0, 0, 255), 2, 8);
-		
+		//////OutputLabelTXT(imgO, xmin, ymin, xmax, ymax, files_value[i], lable);
 		//Label it
 		if (cnt == 1)
 		{
@@ -887,14 +887,19 @@ void SamplesEnhance::LKlightflow_track(Mat featureimg, Mat &secondimg_orig)
 
 }
 //roughly label the pic at the fixed position,for more precise label on next stage
-Mat  SamplesEnhance::roughLabel(Mat input, int left, int top, int right, int down)
+Mat  SamplesEnhance::roughLabel(Mat input, int left, int top, int right, int down,Rect &outRect)
 {
 	Mat show = input.clone();
 	Rect rect(left, top, abs(left - right), abs(top - down));
 	//rectangle(input, rect, Scalar(0, 0, 255), 2, LINE_8, 0);
 	Rect rectobj=autoLableforColor(input(rect));
+	
+	////////OutputLabelTXT(imgO, xmin, ymin, xmax, ymax, files_value[i], lable);
 	rectobj.x = rectobj.x + left;
 	rectobj.y = rectobj.y + top;
+
+	outRect = rectobj;
+
 	rectangle(show, rectobj, Scalar(0, 0, 255), 2, LINE_8, 0);
 	return show;
 }
@@ -910,8 +915,16 @@ void SamplesEnhance::roughLabelTest(string PICDIR)
 	for (int i = 0; i < files_value.size(); i++)
 	{
 		String currentdir = (files_value[i]).c_str();
-		Mat secondimg = imread(currentdir, 1);
-		Mat result= roughLabel(secondimg, 437, 411,656, 542);	
+		Mat img = imread(currentdir, 1);
+		Rect outRect;
+		Mat result= roughLabel(img, 437, 411,656, 542, outRect);
+
+		int xmin = outRect.x;
+		int ymin = outRect.y;
+		int xmax = outRect.x+ outRect.width;
+		int ymax = outRect.x+ outRect.height;
+		int lable = 0;//nong fu shan quan
+		OutputLabelTXT_keras(img, xmin, ymin, xmax, ymax, files_value[i], lable);
 		//namedWindow(currentdir, 1);
 		//resizeWindow(currentdir, Size(480, 320));
 		//imshow(currentdir, result);

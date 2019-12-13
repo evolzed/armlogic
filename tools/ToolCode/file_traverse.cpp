@@ -107,6 +107,17 @@ string changeJPGtoTXT(string jpg)
 }
 
 
+string changeJPGtoTXT2(string jpg)
+{
+	string dir_txt = string(jpg.c_str());
+	//dir_txt = jpg.c_str();
+
+	string::size_type point = dir_txt.rfind("jpg");
+
+	dir_txt.replace(point, 3, "txt");
+	return dir_txt;
+}
+
 string renameJPG(string jpg)
 {
 	string dir_txt = string(jpg.c_str());
@@ -162,6 +173,24 @@ void OutputLabelTXT(Mat imgO,double xmin, double ymin, \
 	outfile << xmin << ' ';
 	outfile << xmax << ' ';
 	outfile << ymin << ' ';
+	outfile << ymax << ' ';
+	//outfile<<argv[2]<<' ';
+	outfile << lable << ' ';
+	outfile << endl;
+	outfile.close();
+}
+
+void OutputLabelTXT_keras(Mat imgO, double xmin, double ymin, \
+	double xmax, double ymax, string pic_dir, int lable)
+{
+	ofstream outfile;
+	string dir_txt = changeJPGtoTXT(pic_dir);
+	outfile.open(dir_txt.c_str(), ios::out);
+	//outfile << imgO.size().width << ' ';
+	//outfile << imgO.size().height << ' ';
+	outfile << xmin << ' ';
+	outfile << ymin << ' ';
+	outfile << xmax << ' ';
 	outfile << ymax << ' ';
 	//outfile<<argv[2]<<' ';
 	outfile << lable << ' ';
