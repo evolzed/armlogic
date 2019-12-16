@@ -64,8 +64,12 @@
 | Image |  grabVideo  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 | | %bgPic.JPG | |
 | Image |  loadYolo  | Tiny-Yolov3模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | %.py %.pt | | |
 | Image |  detect_image  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Image()[转换成网络需要的imageObject]; | | | |
+| Image |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
+| Image |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
 | Image |  bgLearn  | learn the backgroud by pics from cam then get a background model | %bgPic | %lowBgModel, %highBgModel |  |
-| Image |  checkImage  | check the cnn detected result by image process and image track and then update the bottle dict| %bgPic | bottleDict||
+| Image |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
+| Image |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
+
 | Image |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动</td>
 	    <td>GrabVideo.destroy()[清空保存在内存中的相机数据，销毁相机对象]、yolo.close_session() | | | | |
 
