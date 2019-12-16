@@ -40,7 +40,26 @@ def studyBackgroundFromCam(cam): #get 100 pics for time interval of 60sec by cam
         if (pic_cnt == BG_STUDY_NUM):
             over_flag = 0
 
-    #learnBackGroundFromVec(bgVector);
+    learnBackGroundFromVec(bgVector)
+
+
+def learnBackGroundFromVec(bgVector):
+{
+	img0 = bgVector[0];
+	AllocateImages(img0);
+	for (int i = 0; i < bgVector.size(); i++)
+	{
+		Mat img = bgVector[i];
+		cout << "img.type"<<img.type() << endl;
+		avgBackground(img);
+	}
+	//imshow("avg", IavgF);
+	//imshow("diff", IdiffF);
+	cout << Icount << endl;
+	//waitKey(0);
+	createModelsfromStats();
+}
+
 
 def avgBackground(img):#read background pics from disk,and then calculate every frame difference,and accumulate every frame difference
                    #to a sum of frame difference,and then calculate the average frame difference,meanwhile,accumulate every frame to a sum of frame and
@@ -114,7 +133,6 @@ def backgroundDiff(src,dst):# when get pic frame from camera, use the background
 #checkImage is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
 
 #checkImage Implemente Details:
-
 
 class Image(object):
     """create main Image class for processing images"""
