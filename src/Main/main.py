@@ -12,8 +12,8 @@ import Tool                                     #导入工具集功能包
 
 
 def main()
-    global gState
-    global gDir
+    global gState       #全局变量gState；
+    global gDir         #全局变量gDir；
     if gState == 1:
         Tool.mySQL().connectDict()
         Tool.mySQL().createDict()
