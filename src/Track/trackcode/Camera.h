@@ -22,5 +22,6 @@ public:
 	void init();
 	Mat getImage();
 	void close();
+	long frameNum;
 
 };

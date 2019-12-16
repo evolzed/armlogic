@@ -375,6 +375,7 @@ void camera::init()
 			{
 				printf("[device %d]:\n", i);
 				MV_CC_DEVICE_INFO* pDeviceInfo = stDeviceList.pDeviceInfo[i];
+				
 				if (NULL == pDeviceInfo)
 				{
 					cout <<" NULL == pDeviceInfo" << endl;
@@ -497,6 +498,7 @@ Mat camera::getImage()
 		{
 			printf("Get One Frame: Width[%d], Height[%d], nFrameNum[%d]\n",
 				stImageInfo.nWidth, stImageInfo.nHeight, stImageInfo.nFrameNum);
+			frameNum = stImageInfo.nFrameNum;
 		}
 		else
 		{

@@ -2,7 +2,7 @@
 #include "SamplesEnhance.h"
 //using namespace sample;
 /*get rect center point*/
-
+//#include "winSock_client.h"
 
 #include <fstream>
 #include <sstream>
@@ -11,7 +11,11 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include<vector>
-#include "Camera.h"
+#include "line_angle.hpp"
+#include "winSock_client.h"
+
+
+//#include "Camera.h"
 
 using namespace std;
 using namespace cv;
@@ -19,6 +23,16 @@ using namespace dnn;
 
 vector<string> classes;
 Mat show;
+
+
+
+Point GetCenterPoint(Rect rect)
+{
+	Point cpt;
+	cpt.x = rect.x + cvRound(rect.width / 2.0);
+	cpt.y = rect.y + cvRound(rect.height / 2.0);
+	return cpt;
+}
 vector<String>  SamplesEnhance::getOutputsNames(Net&net)
 {
 	static vector<String> names;
@@ -61,7 +75,8 @@ void  SamplesEnhance::postprocess(Mat& frame, const vector<Mat>& outs, float con
 {
 	vector<int> classIds;
 	vector<float> confidences;
-	vector<Rect> boxes;
+	vector<Rect> boxes;   //每个东西都有个out【i】  每个out[i]有很多个列块 
+						//填写的是每种类型的框位置和预测置信度，找出置信度最大的列
 
 	for (size_t i = 0; i < outs.size(); ++i)
 	{
@@ -71,14 +86,14 @@ void  SamplesEnhance::postprocess(Mat& frame, const vector<Mat>& outs, float con
 		float* data = (float*)outs[i].data;
 		for (int j = 0; j < outs[i].rows; ++j, data += outs[i].cols)
 		{
-			Mat scores = outs[i].row(j).colRange(5, outs[i].cols);
+			Mat scores = outs[i].row(j).colRange(5, outs[i].cols);  //scores store in  mat
 			Point classIdPoint;
 			double confidence;
 			// Get the value and location of the maximum score
 			minMaxLoc(scores, 0, &confidence, 0, &classIdPoint);
 			if (confidence > confThreshold)
 			{
-				int centerX = (int)(data[0] * frame.cols);
+				int centerX = (int)(data[0] * frame.cols);  //data 前5个是x y width height  然后是 confidence 分成每个类的confidence
 				int centerY = (int)(data[1] * frame.rows);
 				int width = (int)(data[2] * frame.cols);
 				int height = (int)(data[3] * frame.rows);
@@ -103,55 +118,147 @@ void  SamplesEnhance::postprocess(Mat& frame, const vector<Mat>& outs, float con
 		//drawPred(classIds[idx], confidences[idx], box.x, box.y,
 		//	box.x + box.width, box.y + box.height, frame);
 
+		////drawPred(classIds[idx], confidences[idx], box.x, box.y,
+			/////box.x + box.width, box.y + box.height, show);
 		drawPred(classIds[idx], confidences[idx], box.x, box.y,
-			box.x + box.width, box.y + box.height, show);
+			box.x + box.width, box.y + box.height, frame);
 	}
 }
 
-int  SamplesEnhance::dnnTest()
+void  SamplesEnhance::studyBackgroundFromCam(camera cam)
+{
+	string BGDIR = "E:\\Xscx2019\\OPENCV_PROJ\\backgroundLearn\\";
+	int over_flag = 1;
+	while (over_flag)
+	{
+		static int pic_cnt = 1;
+		Mat frame, blob;
+		
+		frame = cam.getImage();
+		Mat fin = Mat::zeros(frame.size(), CV_32FC3);
+			
+		frame.convertTo(fin, CV_32FC3);
+
+		bgVector.push_back(fin);
+		string picname = to_string(pic_cnt);
+		picname = BGDIR + picname + ".jpg";
+		cout << picname << endl;
+	////imwrite(picname.c_str(), frame);
+		waitKey(200);
+		pic_cnt++;
+		if (pic_cnt == BG_STUDY_NUM)
+			over_flag = 0;
+	}
+
+	////learnBackground(BGDIR);
+	learnBackGroundFromVec(bgVector);
+}
+
+
+void  SamplesEnhance::getPicFromCam(camera cam)
+{
+	string BGDIR = "E:\\Xscx2019\\OPENCV_PROJ\\GetPic\\";
+	int over_flag = 1;
+	while (over_flag)
+	{
+		static int pic_cnt = 1;
+		Mat frame, blob;
+		frame = cam.getImage();
+		string picname = to_string(pic_cnt);
+		picname = BGDIR + picname + ".jpg";
+		cout << picname << endl;
+		imwrite(picname.c_str(), frame);
+		waitKey(1000);
+		pic_cnt++;
+		if (pic_cnt == 120)
+			over_flag = 0;
+	}
+	
+}
+
+
+void SamplesEnhance::loadBackgroundModel()
+{
+	Mat IlowF0, IhiF0;
+	IlowF0 = imread(BG_LOW_THRESHOLD_DIR.c_str());
+	IhiF0 = imread(BG_HIGH_THRESHOLD_DIR.c_str());
+
+	//IlowF0 = imread(BG_LOW_THRESHOLD_DIR.c_str(), IMREAD_ANYDEPTH);
+	//IhiF0 = imread(BG_HIGH_THRESHOLD_DIR.c_str(), IMREAD_ANYDEPTH);
+	
+	cout << IlowF0.type() << endl;
+	cout << IhiF0.type() << endl;
+	imshow("IlowF0", IlowF0);
+	imshow("IhiF0", IhiF0);
+
+
+//	IlowF0.convertTo(IlowF, CV_32FC3,1.0/255.0);
+//	IhiF0.convertTo(IhiF, CV_32FC3, 1.0 / 255.0);
+	IlowF0.convertTo(IlowF, CV_32FC3);
+	IhiF0.convertTo(IhiF, CV_32FC3);
+
+	///IlowF0.convertTo(IlowF, IlowF0.type());
+	///IhiF0.convertTo(IhiF, IhiF0.type());
+
+	cout << IlowF.type() << endl;
+	cout << IhiF.type() << endl;
+	imshow("IlowF", IlowF);
+	imshow("IhiF", IhiF);
+}
+
+//extern void winSockclientTest(SOCKET sockClient);
+//extern void winSockclientTest();
+int  SamplesEnhance::dnnTest() 
 {
 	//string names_file = "/home/oliver/darknet-master/data/coco.names";
 	//String model_def = "/home/oliver/darknet-master/cfg/yolov3.cfg";
 	//String weights = "/home/oliver/darknet-master/yolov3.weights";
+	/////////SOCKET sockClient;
 
-	string names_file = "E:\\Xscx2019\\OPENCV_PROJ\\darknet-master\\data\\myvoc2.names";
-	String model_def = "E:\\Xscx2019\\OPENCV_PROJ\\darknet-master\\cfg\\myyolov3-tiny.cfg";
-	String weights = "E:\\Xscx2019\\OPENCV_PROJ\\darknet-master\\backup2\\myyolov3-tiny_last.weights";
 
-	int in_w, in_h;
-	double thresh = 0.5;
-	double nms_thresh = 0.25;
-	in_w = in_h = 608;
-
+	//winSockclientTest();
+	
+	winSockclientInit();
 	//string img_path = "/home/oliver/darknet/data/dog.jpg";
 	string img_path = "E:\\Xscx2019\\OPENCV_PROJ\\darknet-master\\scripts\\VOCdevkit\\VOC2014\\JPEGImages\\18.jpg";
 
 	//read names
 
-	ifstream ifs(names_file.c_str());
-	string line;
-	while (getline(ifs, line)) classes.push_back(line);
+	///vector<Mat> bgVector;
 
-	//init model
-	Net net = readNetFromDarknet(model_def, weights);
-	net.setPreferableBackend(DNN_BACKEND_OPENCV);
-	net.setPreferableTarget(DNN_TARGET_CPU);
-	//net.setPreferableTarget(DNN_TARGET_OPENCL);
-
-	//read image and forward
-/////////	VideoCapture capture(0);// VideoCapture:OENCV中新增的类，捕获视频并显示出来
+	
 
 	camera cam;
 	cam.init();
-
-
-
+	if(bgNeedUpdated)
+		studyBackgroundFromCam(cam);
+	else
+	{
+		loadBackgroundModel();
+		//IlowF = imread(BG_LOW_THRESHOLD_DIR.c_str());
+		//IhiF = imread(BG_HIGH_THRESHOLD_DIR.c_str());
+		//IlowF.convertTo(IlowF, CV_32FC3);
+		//IhiF.convertTo(IhiF, CV_32FC3);
+	}
+/////	loadBackgroundModel();
+	/////////getPicFromCam(cam);
 	Mat frame;
 	frame = cam.getImage();
 	/////capture >> frame;
 	Mat pre_frame = Mat::zeros(frame.size(), CV_8UC3);
 	pre_frame = frame.clone();
 	show= frame.clone();
+
+	Mat backMask_init;
+	vector<Rect> tmp;
+	backgroundDiff(pre_frame, backMask_init, tmp);
+
+	Mat frame_delimite_bac_pre;
+
+	bitwise_and(pre_frame, pre_frame, frame_delimite_bac_pre, backMask_init);
+
+
+
 	/*
 	while (1)
 	{
@@ -164,19 +271,34 @@ int  SamplesEnhance::dnnTest()
 		waitKey(10);
 		pre_frame = frame.clone();
 	*/
-/*
-	while (1)
-	{
-		Mat frame, blob;
-		frame = cam.getImage();
-
-		waitKey(1)
-
-
-	}
-
-*/
 	
+
+	/******************nn*******************/
+	string names_file = "E:\\Xscx2019\\OPENCV_PROJ\\darknet-master\\data\\myvoc2.names";
+	String model_def = "E:\\Xscx2019\\OPENCV_PROJ\\darknet-master\\cfg\\myyolov3-tiny.cfg";
+	String weights = "E:\\Xscx2019\\OPENCV_PROJ\\darknet-master\\backup2\\myyolov3-tiny_last.weights";
+
+	ifstream ifs(names_file.c_str());
+	string line;
+	while (getline(ifs, line)) 
+		classes.push_back(line);
+
+	int in_w, in_h;
+	double thresh = 0.5;
+	double nms_thresh = 0.25;
+	in_w = in_h = 608;
+	////in_w = in_h = 1280;
+
+	//init model
+	Net net = readNetFromDarknet(model_def, weights);
+	net.setPreferableBackend(DNN_BACKEND_OPENCV);
+	net.setPreferableTarget(DNN_TARGET_CPU);
+	//net.setPreferableTarget(DNN_TARGET_OPENCL);
+
+	//read image and forward
+	/////////	VideoCapture capture(0);// VideoCapture:OENCV中新增的类，捕获视频并显示出来
+	/******************nn*******************/
+	vector<Vec2d> basketLines;
 	while (1)
 	{
 		Mat frame, blob;
@@ -185,9 +307,270 @@ int  SamplesEnhance::dnnTest()
 		
 		show = frame.clone();
 		
-		LKlightflow_track(pre_frame, frame);   //track the current frame
+		Mat dst;
+		vector<Rect> rectArray;
+		backgroundDiff(frame,dst, rectArray);
 
-		blobFromImage(frame, blob, 1 / 255.0, Size(in_w, in_h), Scalar(), true, false);
+		string x = " bac";
+		//imshow(currentdir + x, img);
+		//imshow(x.c_str(), dst);
+
+		/////threshold(dst, dst, 30, 255,0);//same direction 
+		//imshow("bina", dst);
+		Mat backMask;
+		dst.convertTo(backMask, CV_8UC3); //change to C3
+		imshow("C3", dst);
+		Mat frame_delimite_bac;
+		cout << frame.type()<<endl; 
+		cout << backMask.type()<<endl;
+
+		//bitwise_and(frame, backMask, frame_delimite_bac);
+		bitwise_and(frame, frame,frame_delimite_bac, backMask);
+
+		Rect rectFlag0;
+		findrColor(frame,rectFlag0);
+		rectFlag = rectFlag0;
+		rectFlag.width = (1280 - (rectFlag.x));
+		rectFlag.height = (960 - (rectFlag.y));
+
+		Rect rectPool1;
+		rectPool1.x = rectFlag.x + 200;
+		rectPool1.y = rectFlag.y + 70;
+		rectPool1.width =90 ;
+		rectPool1.height =50 ;
+
+
+		////rectangle(show,rectFlag,Scalar(0,255,255));
+		rectangle(show, rectPool1, Scalar(0, 255, 255));
+
+		
+
+
+		Mat gray;
+		cvtColor(frame, gray, CV_RGB2GRAY);
+		//imshow("gray",gray);
+		///HoughLines()
+		//Mat theobj=gray(rectFlag).clone();
+		double kout, bout;
+		if (((rectPool1.x > 10) && (rectPool1.y > 10)) && (rectPool1.x + rectPool1.width + 10 < frame.size().width) && (rectPool1.y + rectPool1.height + 10 < frame.size().height))
+		{		//protect
+			Mat theobj = gray(rectPool1).clone();
+			//Mat theobj1 = frame(rectFlag).clone();
+			//theobj1 = gamaPROC(theobj1);
+			imshow("theobj", theobj);
+
+			//imshow("theobjgamma", theobj);
+
+			Mat h2_kernel = (Mat_<char>(3, 3) << 0, -1, 0, -1, 5, -1, 0, -1, 0);
+
+			Mat h2_result;
+
+			////	filter2D(theobj, h2_result, CV_8UC1, h2_kernel);
+
+			///	convertScaleAbs(h2_result, h2_result);
+
+
+			////	imshow("h2_result", h2_result);
+
+
+
+			Canny(theobj, theobj, 10, 50);
+
+			//Canny(gray(rectFlag), gray(rectFlag), 10, 100);
+			//Mat lines;
+			vector<Vec4d> Lines;
+			//HoughLinesP(theobj, Lines, 1, CV_PI / 360, 5, 5, 35);
+			//HoughLinesP(theobj, Lines, 50, 6 * CV_PI / 180, 2, 1, 35);
+			HoughLinesP(theobj, Lines, 1, CV_PI / 180, 30, 10, 3);
+			imshow("canny", theobj);
+			/*
+			vector<Vec4d> Lines_convert;
+			for (size_t i = 0; i < Lines.size(); i++)
+			{
+
+			//	cv::line(show, Point(Lines[i][0], Lines[i][1]) + Point(rectFlag.x, rectFlag.y), Point(Lines[i][2], Lines[i][3]) + Point(rectFlag.x, rectFlag.y), Scalar(0, 0, 255), 2, 8);
+
+				Lines_convert[i][0] = Lines[i][0] + rectFlag.x;
+				Lines_convert[i][1] = Lines[i][1] + rectFlag.y;
+
+				Lines_convert[i][2] = Lines[i][2] + rectFlag.x;
+				Lines_convert[i][3] = Lines[i][3] + rectFlag.y;
+			}
+			*/
+			vector<Vec4d> Lines_convert;
+			if (Lines.size() > 0)
+			{
+				// Lines_convert = convertRoiCoordinate(Lines, rectFlag);
+				Lines_convert = convertRoiCoordinate(Lines, rectPool1);
+			}
+		
+			cout<<"Lines.size()="<< Lines.size() << endl;
+		//	double kout, bout;
+			for (size_t i = 0; i < Lines.size(); i++)
+			{
+				//cv::line(show, Point(Lines[i][0], Lines[i][1])+Point(rectFlag.x, rectFlag.y), Point(Lines[i][2], Lines[i][3])+Point(rectFlag.x, rectFlag.y), Scalar(0, 0, 255), 2, 8);
+				//cv::line(show, Point(Lines[i][0], Lines[i][1]) + Point(rectPool1.x, rectPool1.y), Point(Lines[i][2], Lines[i][3]) + Point(rectPool1.x, rectPool1.y), Scalar(255, 0, 255), 2, 8);
+				Vec4d line = Lines_convert[i];
+				double cos_value = cos_value_to_horizon(line);
+				double deg = acos(cos_value) / 3.1415926 * 180;
+				if ((deg > 70) && (deg < 90))
+				{
+					double k, b;
+					resolveLineKXEqution(line, k, b);
+					Vec2d kb;
+					kb[0] = k;
+					kb[1] = b;
+
+					///basketLines.insert(basketLines.begin(),kb);//insert to head 导致不会增长
+					basketLines.push_back(kb);//insert to head 导致不会增长
+					cout << basketLines.size() << endl;
+					if(basketLines.size()==15)
+					{
+						double sumk=0, sumb=0;
+						for (int i = 0;i < basketLines.size();i++)
+						{
+							sumk += basketLines[i][0];
+							sumb += basketLines[i][1];
+						}
+						kout = sumk / 15.0;
+						bout = sumb / 15.0;
+						basketLines.erase(basketLines.begin());  //del the end
+					}
+
+					//cv::line(show, Point(Lines_convert[i][0], Lines_convert[i][1]), Point(Lines_convert[i][2], Lines_convert[i][3]), Scalar(0, 0, 255), 2, 8);
+					//cv::line(show, Point(Lines_convert[i][0], Lines_convert[i][1]), Point(xV, yV), Scalar(0, 255, 255), 2, 8);
+					
+					
+				}
+			}
+			//solution ins
+			//double xV = -bout / kout; 
+			double xV = solutionXlineKXEqution(kout, bout, 0);
+			double yV = 0;
+
+			//double xb = (960 - bout) / kout;  
+			double xb = solutionXlineKXEqution(kout, bout, 960);
+			double yb = (960);
+			cv::line(show, Point(xb,yb), Point(xV, yV), Scalar(0, 255, 255), 1, 8);
+
+
+		}
+
+
+
+		//SOCKET sockClient;
+		if (rectArray.size() > 0)
+		{
+			for (int i = 0;i < rectArray.size();i++)
+			{
+				Point ct=GetCenterPoint(rectArray[i]);
+				circle(show, ct, 6, Scalar(0, 0, 255), -1);
+				double xlimit= solutionXlineKXEqution(kout, bout, ct.y);
+				circle(show, Point(xlimit, ct.y), 9, Scalar(0, 100, 255), 1);
+				if( ((xlimit-ct.x)<100) && ((xlimit - ct.x)>0) && (ct.y<680)&&(ct.y>260)  )
+				{
+					socksend();
+				}
+
+			}
+		}
+		
+	
+				/*
+				if ((deg > 50) && (deg < 90))
+				{
+
+					cv::line(show, Point(Lines_convert[i][0], Lines_convert[i][1]), Point(Lines_convert[i][2], Lines_convert[i][3]), Scalar(0, 0, 255), 2, 8);
+					basketLines.push_back(Lines_convert[i]);
+				}
+				*/
+				//cout << "deg="<<acos(cos_value) << endl;
+				//cout << "cos=" << cos_value << endl;
+				//cout << "deg=" << acos(cos_value)/3.1415926*180 << endl;
+
+			
+			//find the different lines
+			/*
+			vector<Vec4d> basketLinesChoose;
+			cout << "line num" << basketLines.size() << endl;
+			vector<int> indexForDel;
+			if (basketLines.size() > 0)
+			{
+				//del the distance small
+				//static int quitFlagCnt = 0;
+				for (size_t j = 0; j < basketLines.size(); j++)
+				{
+
+					for (size_t i = j + 1; i < basketLines.size(); i++)
+					{
+						Vec4d line = basketLines[i];
+						double distance = distance_between_lines(basketLines[j], basketLines[i]);
+						if (distance < 20)
+						{
+							indexForDel.push_back(j);
+						}
+
+					}
+				}
+
+				for (size_t i = 0; i < basketLines.size(); i++)
+				{
+					bool notEqual = false;
+					for (size_t j = 0; j < indexForDel.size(); j++)
+					{
+						if (i == indexForDel[j])
+							notEqual = true;
+
+
+					}
+					if (notEqual == false)  //illustarte that i should be retain
+						basketLinesChoose.push_back(basketLines[i]);
+				}
+
+
+
+
+			}
+			*/
+
+
+
+			/*
+			if ((distance > 220) && (distance < 260))
+			{
+			basketLinesChoose.push_back(basketLines[i]);
+			basketLinesChoose.push_back(basketLines[i-1]);
+
+			}
+			
+
+			if (basketLinesChoose.size() > 0)
+			{
+				for (size_t i = 1; i < basketLinesChoose.size(); i++)
+				{
+					Vec4d line = basketLinesChoose[i];
+
+
+					cv::line(show, Point(line[0], line[1]), Point(line[2], line[3]), Scalar(0, 0, 255), 2, 8);
+					cout << "frameNUM=" << cam.frameNum;
+				}
+			}
+			*/
+		
+
+		////imshow("and", frame_delimite_bac);
+
+		////LKlightflow_track(pre_frame, frame);   //track the current frame
+
+
+	////	LKlightflow_track(frame_delimite_bac_pre, frame_delimite_bac);   //track the current frame of back delete
+
+	////	imshow("and", frame_delimite_bac);//see track 
+		////blobFromImage(frame, blob, 1 / 255.0, Size(in_w, in_h), Scalar(), true, false);
+
+
+/******************nn*******************
+		blobFromImage(frame_delimite_bac, blob, 1 / 255.0, Size(in_w, in_h), Scalar(), true, false);
 
 		vector<Mat> mat_blob;
 		imagesFromBlob(blob, mat_blob);
@@ -199,26 +582,38 @@ int  SamplesEnhance::dnnTest()
 		vector<Mat> outs;
 		net.forward(outs, getOutputsNames(net));
 
-		postprocess(frame, outs, thresh, nms_thresh);  //draw
+		/////postprocess(frame, outs, thresh, nms_thresh);  //draw
+
+		postprocess(frame_delimite_bac, outs, thresh, nms_thresh);  //draw
 
 		vector<double> layersTimes;
 		double freq = getTickFrequency() / 1000;
 		double t = net.getPerfProfile(layersTimes) / freq;
 		string label = format("Inference time for a frame : %.2f ms", t);
 		//putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
-		putText(show, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
+		////putText(show, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
+		putText(frame_delimite_bac, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
+*************************************/
 
 		pre_frame = frame.clone();
-		
+
+		frame_delimite_bac_pre = frame_delimite_bac.clone();
 		///imshow("res", frame);
 		///cvNamedWindow("res", CV_WINDOW_FULLSCREEN);
 		imshow("res", show);
-		if (waitKey(1000) == 27) //延时30ms,以正常的速率播放视频,播放期间按下任意按键则退出视频播放，并返回键值
+	//	imshow("res2", frame_delimite_bac);
+		if (waitKey(10) == 27) //延时30ms,以正常的速率播放视频,播放期间按下任意按键则退出视频播放，并返回键值
 			break;
 		//
 		waitKey(10);
 	}
 	cam.close();
+
+	////closesocket(sockClient);
+	///WSACleanup();
+
+
+	sockclose();
 	return 0;
 }
 
@@ -233,6 +628,259 @@ Point SamplesEnhance::GetRectCenterPoint(Rect rect)
 	cpt.y = rect.y + cvRound(rect.height / 2.0);
 	return cpt;
 }
+
+
+//only for xueb based on color
+Rect SamplesEnhance::autoLableforXueB(Mat &imgO)
+{
+	//Mat img = imgO.clone();
+	Mat img = imgO;
+	Mat imgGray;
+	Mat rangemat;
+	Mat imgHSV;
+	//img=gamaPROC(img);
+	const int g_nkernelSize = 5;
+	//medianBlur(img, img, g_nkernelSize);
+	GaussianBlur(img, img, Size(g_nkernelSize, g_nkernelSize), 2);
+	//blur(img, img, Size(g_nkernelSize, g_nkernelSize));
+	// img=gamaPROC(img);
+	//gray  this is not used in this method
+	cvtColor(img, imgGray, CV_BGR2GRAY);
+
+	cvtColor(img, imgHSV, COLOR_BGR2HSV);//杞负HSV
+	Mat imgThresholded;
+	//split the gray
+	//	inRange(imgHSV, Scalar(grayLowH, grayLowS, grayLowV), Scalar(grayHighH, grayHighS, grayHighV), imgThresholded); //Threshold the image
+
+	//erode
+
+
+	//belt
+	int beltLowH = 0;
+	int beltHighH = 15;
+	int beltLowS = 43;
+	int beltHighS = 255;
+	int beltLowV = 46;
+	int beltHighV = 255;
+	//find green and blue  the effect is low
+	//inRange(imgHSV, Scalar(beltLowH, beltLowS, beltLowV), Scalar(beltHighH, beltHighS, beltHighV), imgThresholded); //Threshold the image
+	///inRange(imgHSV, Scalar(greenLowH, greenLowS, greenLowV), Scalar(greenHighH, greenHighS, greenHighV), imgThresholded); //Threshold the image
+
+	inRange(imgHSV, Scalar(yellowLowH, yellowLowS, yellowLowV), Scalar(yellowHighH, yellowHighS, yellowHighV), imgThresholded); //Threshold the image
+	Mat eromat;
+	//   erode(imgThresholded,eromat,element_13); //if not erode the box will tight near the bottle but will generate noise
+	eromat = imgThresholded;
+
+	//imshow("imgThresholded", eromat);
+#ifdef SHOW
+	imshow("color_split", eromat);
+#endif
+	//morphologyEx(eromat, eromat, MORPH_OPEN, element_5);
+	dilate(eromat, eromat, element_7);
+	//dilate(eromat, eromat, element_5);
+#ifdef SHOW
+	imshow("dialte", eromat);
+#endif
+	//draw contour
+	vector< vector<Point> > contours;
+	//findContours(eromat, contours,CV_RETR_EXTERNAL , CV_CHAIN_APPROX_NONE);
+	findContours(eromat, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+	//findContours(eromat, contours, RETR_FLOODFILL , CV_CHAIN_APPROX_NONE);
+	//drawContours(imgO, contours,-1,CV_RGB(0,255,255),2);  //with a thickness of 2
+	cout << contours.size() << endl;
+	drawContours(img, contours, -1, CV_RGB(0, 255, 255), 2);  //with a thickness of 2
+#ifdef SHOW
+	imshow("img_contoure", img);
+	//waitKey();
+#endif
+	int cnt = 0;
+	double xmin, ymin, xmax, ymax;
+	int theMostleft = 1280;
+	int theMostup = 960;
+	for (int i = 0; i < contours.size(); i++)
+	{
+		Rect rect = boundingRect(contours[i]);
+		Point ct = GetRectCenterPoint(rect);
+		double l = arcLength(contours[i], true);
+
+		if (rect.x < theMostleft)
+		{ 
+			theMostleft = rect.x;
+			theMostup = rect.y;
+			theMostup -= 25;
+		}
+			
+		//if (rect.y < theMostup)
+			//theMostup = rect.y;
+		//if it is a rect the area is enough
+		if ((abs(rect.width - rect.height) >(rect.width + rect.height) / 4.0) && (rect.width*rect.height > imgO.size().width*imgO.size().height / 30.0))
+		{
+			if (rect.x < theMostleft)
+				theMostleft = rect.x;
+			if (rect.y < theMostup)
+				theMostup = rect.y;
+			//////rectangle(imgO, Point(rect.x, rect.y), Point(rect.x + rect.width, rect.y + rect.height), Scalar(0, 0, 255), 2, 8);
+			xmin = rect.x;
+			xmax = rect.x + rect.width;
+			ymin = rect.y;
+			ymax = rect.y + rect.height;
+
+			/////////	cout << "xmin=" << xmin << endl;
+			////////	cout << "xmax=" << xmax << endl;
+			///////	cout << "ymin=" << ymin << endl;
+			////////	cout << "ymax=" << ymax << endl;
+			cnt++;
+		}
+
+		if (rect.x < theMostleft)
+			theMostleft = rect.x;
+		if (rect.y < theMostup)
+			theMostup = rect.y;
+
+		/////cout << "i" << l << endl;
+	}
+	/////rectangle(imgO, Point(theMostleft, theMostup), Point(theMostleft + 189, theMostup + 56), Scalar(0, 0, 255), 2, 8);
+	//////OutputLabelTXT(imgO, xmin, ymin, xmax, ymax, files_value[i], lable);
+	//Label it
+	if (cnt == 1)
+	{
+		/////////	OutputLabelTXT(imgO, xmin, ymin, \
+									xmax, ymax, files_value[i], lable);
+
+	}
+	//////cout << "contoursize = " << contours.size() << endl;
+	//test the gray
+
+#ifdef SHOW
+	//namedWindow( "org", CV_WINDOW_NORMAL);
+	//resizeWindow( "org", 600, 400);
+#endif
+	// namedWindow("erod",CV_WINDOW_NORMAL);
+	//display the orig pic
+#ifdef SHOW
+	//imshow( "org", imgO);
+	//imshow("process", img);
+#endif
+	//return img.clone();
+
+	Rect resrect(theMostleft, theMostup, theMostleft + xuebi_width, theMostup + xuebi_height);
+
+	//Rect resrect(xmin, ymin, xmax -xmin, ymax - ymin);
+	return resrect;
+
+}
+
+void rectExtend(Rect &rect, int width, int height)
+{
+	rect.x -= width;
+	rect.y -= height;
+	rect.width += 2*width;
+	rect.height += 2*height;
+	//return rect;
+}
+
+
+
+void SamplesEnhance::findrColor(Mat &imgO,Rect &rectout)
+{
+	//Mat img = imgO.clone();
+	Mat img = imgO;
+	Mat imgGray;
+	Mat rangemat;
+	Mat imgHSV;
+
+	const int g_nkernelSize = 13;
+	//medianBlur(img, img, g_nkernelSize);
+	GaussianBlur(img, img, Size(g_nkernelSize, g_nkernelSize), 2);
+	cvtColor(img, imgGray, COLOR_BGR2GRAY);//杞负HSV
+
+	cvtColor(img, imgHSV, COLOR_BGR2HSV);//杞负HSV
+	Mat imgThresholded;
+	
+
+	//find green and blue  the effect is low
+	inRange(imgHSV, Scalar(redLowH, redLowS, redLowV), Scalar(redHighH, redHighS, redHighV), imgThresholded); //Threshold the image
+	Mat eromat;
+	//   erode(imgThresholded,eromat,element_13); //if not erode the box will tight near the bottle but will generate noise
+	eromat = imgThresholded;
+
+	//imshow("imgThresholded", eromat);
+	imshow("color0", eromat);
+	morphologyEx(eromat, eromat, MORPH_OPEN, element_5);
+	imshow("color", eromat);
+
+
+
+	//draw contour
+	vector< vector<Point> > contours;
+	//findContours(eromat, contours,CV_RETR_EXTERNAL , CV_CHAIN_APPROX_NONE);
+	findContours(eromat, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+	//findContours(eromat, contours, RETR_FLOODFILL , CV_CHAIN_APPROX_NONE);
+	//drawContours(imgO, contours,-1,CV_RGB(0,255,255),2);  //with a thickness of 2
+	
+	cout << contours.size() << endl;
+	int csize = contours.size();
+	if (csize > 0)
+	{
+		int cnt = 0;
+		double xmin, ymin, xmax, ymax;
+		int theMostleft = 1280;
+		int theMostup = 960;
+		double area_max = 0;
+		int the_index;
+		for (int i = 0; i < contours.size(); i++)
+		{
+			Rect rect = boundingRect(contours[i]);
+			Point ct = GetRectCenterPoint(rect);
+			double l = arcLength(contours[i], true);
+
+			double area = contourArea(contours[i]);
+			if (area > area_max)
+			{
+				area_max = area;
+				the_index = i;
+			}
+
+			//rectangle(show, rect, Scalar(255, 0, 0));
+		}
+		Rect rect = boundingRect(contours[the_index]);
+
+		//rect.x -= 20;
+		//rect.x -= 20;
+		//rect.width += 20;
+		//rect.height += 20;
+		if(((rect.x>10)&&(rect.y>10))&& (rect.x+rect.width+10<imgGray.size().width)&&(rect.y+rect.height+10<imgGray.size().height))
+			rectExtend(rect, 10, 10);
+		std::vector<Vec3f> circles;//存储每个圆的位置信息
+								   //霍夫圆
+		//HoughCircles(imgGray(rect), circles, CV_HOUGH_GRADIENT, 1.5, 10, 200, 100, 0, 0);
+
+		Mat theCir = imgGray(rect).clone(); //not put in the for::
+		imshow("theCir", theCir);
+		Canny(theCir, theCir, 10, 30);
+		//HoughCircles(theCir, circles, CV_HOUGH_GRADIENT, 1.5, 10, 200, 100, 0, 0);
+		HoughCircles(theCir, circles, CV_HOUGH_GRADIENT, 1.5, 20, 100, 100, 0, 0);
+		imshow("theCir", theCir);
+		//HoughCircles(imgGray(rect), circles, CV_HOUGH_GRADIENT, 1, 10, 200, 100, 0, 0);//will error
+		if (circles.size() > 1)
+		{
+			for (size_t i = 0; i < circles.size(); i++)
+			{
+				///Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+				Point center(cvRound(circles[i][0])+rect.x, cvRound(circles[i][1]+rect.y));
+
+				int radius = cvRound(circles[i][2]);
+				//std::cout << "圆的X是" << circles[i][0] << "圆的Y是" << circles[i][1] << std:: endl;
+				//绘制圆轮廓  
+				circle(show, center, radius, Scalar(155, 50, 255), 3, 8, 0);
+			}
+		}
+		rectangle(show, rect, Scalar(255, 0, 0));
+		rectout = rect;
+		////drawContours(show, contours, -1, CV_RGB(0, 255, 255), 2);  //with a thickness of 2
+	}
+}
+
 
 
 Rect SamplesEnhance::autoLableforColor(Mat &imgO)
@@ -731,7 +1379,7 @@ void SamplesEnhance::avgBackground(Mat I)
 	//cout << I.type() << endl;   CV_8UC3
 	//cout << CV_32FC3 << endl;
 	//cout << CV_8UC3 << endl;
-	
+	cout << "Iscratch"<<Iscratch.type() << endl;  
 	//I.convertTo(Iscratch, CV_32FC3);
 	
 	//convertScaleAbs(I,Iscratch,1,0);
@@ -774,6 +1422,7 @@ void SamplesEnhance::setHighThreshold(float scale)
 	Ihi1 = IhiArray[0];
 	Ihi2= IhiArray[1];
 	Ihi3=IhiArray[2];
+	////imwrite(BG_HIGH_THRESHOLD_DIR.c_str(), IhiF);
 }
 
 void SamplesEnhance::setLowThreshold(float scale)
@@ -793,6 +1442,7 @@ void SamplesEnhance::setLowThreshold(float scale)
 	Ilow1 = IhiArray[0];
 	Ilow2 = IhiArray[1];
 	Ilow3 = IhiArray[2];
+	//////imwrite(BG_LOW_THRESHOLD_DIR.c_str(), IlowF);
 }
 
 
@@ -823,8 +1473,60 @@ void SamplesEnhance::createModelsfromStats()
 
 }
 
-void SamplesEnhance::backgroundDiff(Mat I,Mat &Imask )
+
+
+int FindOptimumContourForBarcode(vector<std::vector<cv::Point>> contours, Rect &rect_res)
 {
+	if (contours.size() > 0)
+	{
+		double max = 0;
+		int maxIndex = 0;
+
+		vector<Moments> mom(contours.size());
+		vector<Point2f> m(contours.size());
+		for (int index = 0; index < contours.size(); index++)
+		{
+			if (contours.size() == 0)
+			{
+				break;
+			}
+			double tmp = fabs(contourArea(contours[index]));
+			Rect rect = boundingRect(contours[index]);
+			Point ct = GetCenterPoint(rect);
+			mom[index] = moments(contours[index], false);
+			m[index] = Point(static_cast<float>(mom[index].m10 / mom[index].m00), static_cast<float>(mom[index].m01 / mom[index].m00));
+			if (abs(ct.x - m[index].x) < rect.width / 10.0)
+			{
+				if ((double)abs(rect.width - rect.height) < 0.5*(rect.width + rect.height))
+				{
+					if (tmp >= max)
+					{
+						max = tmp;
+						maxIndex = index;
+					}
+				}
+			}
+		}
+		Rect rect = boundingRect(contours[maxIndex]);
+
+		if ((abs((double)rect.width / (double)rect.height - 1)) < 0.7)
+		{
+			rect_res = rect;
+			return maxIndex;
+
+		}
+		else
+			return -1;
+	}
+	else
+		return -1;
+
+}
+
+
+void SamplesEnhance::backgroundDiff(Mat I,Mat &Idst,vector<Rect> &rectArray )
+{
+	/*
 	Mat Iscratch_mask;
 	Mat Iscratch_mask2;
 	Mat Iscratch_mask3;
@@ -899,9 +1601,87 @@ void SamplesEnhance::backgroundDiff(Mat I,Mat &Imask )
 	src[1] = Iscratch_mask2;
 	src[2] = Iscratch_mask3;
 	//////merge(src,3, dst);
+	*/
+	Mat dst;
+	I.convertTo(Iscratch, CV_32FC3);
 
-	inRange(Iscratch, IlowF, IhiF, dst);  //will change the type to CV8U
+	
+	///I.convertTo(Iscratch, I.type());
+	
+	/////cout << Iscratch.type();
+	inRange(Iscratch, IlowF, IhiF, dst);  //will change the type to CV8U  only this is useful
+	
+	//morphologyEx(dst, dst, MORPH_OPEN, element_5);
+	//morphologyEx(dst, dst, MORPH_CLOSE, element_5);
 
+	morphologyEx(dst, dst, MORPH_OPEN, element_7);
+	morphologyEx(dst, dst, MORPH_CLOSE, element_7);
+	
+	//threashold()
+
+	//absdiff(dst,255, dst); 
+	subtract(255,dst, dst);
+	
+	
+	////morphologyEx(dst, dst, MORPH_OPEN, element_ecllipse_13);
+	////medianBlur(dst, dst, 13);
+	GaussianBlur(dst, dst, Size(19, 19),3,3);
+	dilate(dst, dst, element_ecllipse_19);
+	dilate(dst, dst, element_19);
+	morphologyEx(dst, dst, MORPH_CLOSE, element_ecllipse_13);
+
+
+	vector<std::vector<cv::Point>> contours;
+	vector<Vec4i> hierarchy;
+	findContours(dst, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+	drawContours(show, contours, -1, Scalar(255, 0, 0));
+
+	if (contours.size() > 0)
+	{
+		double max = 0;
+		int maxIndex = 0;
+
+		vector<Moments> mom(contours.size());
+		vector<Point2f> m(contours.size());
+		for (int index = 0; index < contours.size(); index++)
+		{
+			if (contours.size() == 0)
+			{
+				break;
+			}
+			double tmp = fabs(contourArea(contours[index]));
+			Rect rect = boundingRect(contours[index]);
+			Point ct = GetCenterPoint(rect);//几何中心
+			mom[index] = moments(contours[index], false);
+			m[index] = Point(static_cast<float>(mom[index].m10 / mom[index].m00), static_cast<float>(mom[index].m01 / mom[index].m00));//重心
+			/*
+			if (abs(ct.x - m[index].x) < rect.width / 10.0)//几何中心和重心重合
+			{
+				if ((double)abs(rect.width - rect.height) < 0.5*(rect.width + rect.height))  //正方形
+				{
+					if (tmp >= max)
+					{
+						max = tmp;
+						maxIndex = index;
+					}
+				}
+			}
+			*/
+			Rect rect0 = boundingRect(contours[index]);
+			rectangle(show, rect0 , Scalar(0, 255, 0));
+			rectArray.push_back(rect0);
+		}
+		//////Rect rect = boundingRect(contours[maxIndex]);
+	}
+
+	//morphologyEx(dst, dst, MORPH_OPEN, element_ecllipse_13);
+	//morphologyEx(dst, dst, MORPH_OPEN, element_ecllipse_13);
+	//dilate(dst, dst, element_13);
+	//dilate(dst, dst, element_13);
+	////dilate(dst, dst, element_ecllipse_13);
+	
+
+	//dilate(dst, dst, element_13);
 	//subtract(Iscratch_mask,255, Iscratch_mask);
 	//imshow("14", Iscratch_mask);
 #ifdef SHOW
@@ -909,7 +1689,7 @@ void SamplesEnhance::backgroundDiff(Mat I,Mat &Imask )
 #endif
 	//imshow("4", dst);
 	//bitwise_not(dst, Imask);
-	Imask = dst;
+	Idst = dst;
 	//waitKey(0);
 }
 //only support pics same size
@@ -932,6 +1712,24 @@ void SamplesEnhance::learnBackground(string PICDIR)
 	createModelsfromStats();
 }
 
+
+void SamplesEnhance::learnBackGroundFromVec(vector<Mat> bgVector)
+{
+	Mat img0 = bgVector[0];
+	AllocateImages(img0);
+	for (int i = 0; i < bgVector.size(); i++)
+	{
+		Mat img = bgVector[i];
+		cout << "img.type"<<img.type() << endl;
+		avgBackground(img);
+	}
+	//imshow("avg", IavgF);
+	//imshow("diff", IdiffF);
+	cout << Icount << endl;
+	//waitKey(0);
+	createModelsfromStats();
+}
+
 void SamplesEnhance::foreGroundSegmentTest(string PICDIR)
 {
 	//learnBackground(PICDIR);
@@ -943,7 +1741,8 @@ void SamplesEnhance::foreGroundSegmentTest(string PICDIR)
 		String currentdir = (files_value[i]).c_str();
 		Mat img = imread(currentdir, 1);
 		Mat dst;
-		backgroundDiff(img, dst);
+		vector<Rect> tmp;
+		backgroundDiff(img, dst,tmp);
 		string x = "org";
 		imshow(currentdir+x, img);
 	    imshow(currentdir, dst);
@@ -1103,9 +1902,13 @@ void SamplesEnhance::LKlightflow_track(Mat featureimg, Mat &secondimg_orig)
 		
 		/////line(secondimg_orig, p0, p1, Scalar(0, 255, 255), 1);	
 
-		circle(show, p1, 2, Scalar(0, 0, 255), -1);  
+		////circle(show, p1, 2, Scalar(0, 0, 255), -1);  
 
-		line(show, p0, p1, Scalar(0, 255, 255), 1);
+		////line(show, p0, p1, Scalar(0, 255, 255), 1);
+
+		circle(secondimg_orig, p1, 2, Scalar(0, 0, 255), -1);
+
+		line(secondimg_orig, p0, p1, Scalar(0, 255, 255), 1);
 	}
 #ifdef SHOW
 	//imshow("feature img", featureimg);
@@ -1135,6 +1938,31 @@ Mat  SamplesEnhance::roughLabel(Mat input, int left, int top, int right, int dow
 	return show;
 }
 
+
+
+//only for XueB
+Mat  SamplesEnhance::roughLabelforXueB(Mat input, int left, int top, int right, int down, Rect &outRect)
+{
+	Mat show = input.clone();
+	Rect rect(left, top, abs(left - right), abs(top - down));
+	//rectangle(input, rect, Scalar(0, 0, 255), 2, LINE_8, 0);
+	Rect rectobj = autoLableforXueB(input(rect));
+
+
+
+	////////OutputLabelTXT(imgO, xmin, ymin, xmax, ymax, files_value[i], lable);
+	rectobj.x = rectobj.x + left;
+	rectobj.y = rectobj.y + top;
+
+	outRect = rectobj;
+
+	rectangle(show, rectobj, Scalar(0, 0, 255), 2, LINE_8, 0);
+	
+	return show;
+}
+
+
+
 //Mat result = roughLabel(img, 437, 411, 656, 542, outRect);
 void SamplesEnhance::roughLabelTest(string PICDIR,int init_left,int init_top,int init_right,int init_down)
 {
@@ -1157,6 +1985,8 @@ void SamplesEnhance::roughLabelTest(string PICDIR,int init_left,int init_top,int
 		int ymax = outRect.x+ outRect.height;
 		int lable = 0;//nong fu shan quan
 		OutputLabelTXT_keras(img, xmin, ymin, xmax, ymax, files_value[i], lable);
+
+		///////OutputLabelTXT(img, xmin, ymin, xmax, ymax, files_value[i], lable);
 		//namedWindow(currentdir, 1);
 		//resizeWindow(currentdir, Size(480, 320));
 		//imshow(currentdir, result);
@@ -1166,5 +1996,37 @@ void SamplesEnhance::roughLabelTest(string PICDIR,int init_left,int init_top,int
 }
 
 
+void SamplesEnhance::roughLabelTestforXueB(string PICDIR, int init_left, int init_top, int init_right, int init_down)
+{
+	int left = 0;
+	int top = 0;
+	int right = 0;
+	int down = 0;
+	vector<string> files_value = listFileFromDIR(PICDIR);
+	for (int i = 0; i < files_value.size(); i++)
+	{
 
+		String currentdir = (files_value[i]).c_str();
+		Mat img = imread(currentdir, 1);
+		Rect outRect;
+		Mat result = roughLabelforXueB(img, init_left, init_top, init_right, init_down, outRect);
+
+		int xmin = outRect.x;
+		int ymin = outRect.y;
+		int xmax = outRect.x + outRect.width;
+		int ymax = outRect.y + outRect.height;
+		int lable = 0;//nong fu shan quan
+		OutputLabelTXT_keras(img, xmin, ymin, xmax, ymax, files_value[i], lable);
+
+		imshow("show", result);
+
+		//namedWindow(currentdir, 1);
+		//resizeWindow(currentdir, Size(480, 320));
+		//imshow(currentdir, result);
+#ifdef SAVEPIC
+		imwrite(currentdir, result);
+#endif
+		//waitKey(0);
+	}
+}
 

@@ -24,11 +24,14 @@
 #include<time.h>
 #include <vector>
 
-
+#include "Camera.h"
 using namespace cv;
 using namespace std;
 using namespace dnn;
-#define SHOW
+//#define SHOW
+#define SAVEPIC
+
+
 //namespace sample {
 class SamplesEnhance
 {
@@ -37,10 +40,34 @@ private:
 	const int lable = 2;
 	//pic size
 	const int resize_width = 600, resize_height = 500;
+	bool bgNeedUpdated = true;
+	//bool bgNeedUpdated = false;
+	const int BG_STUDY_NUM = 60;
+	double high_threadhold = 6.0;
+	double low_threadhold = 6.0;
+	Rect rectFlag;
+	vector<Mat> bgVector;
+	//string BG_HIGH_THRESHOLD_DIR = "E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\highThreadhold.tiff";
+	//string BG_LOW_THRESHOLD_DIR = "E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\lowThreadhold.tiff";
 
+	string BG_HIGH_THRESHOLD_DIR = "E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\highThreadhold.jpg";
+	string BG_LOW_THRESHOLD_DIR = "E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\lowThreadhold.jpg";
 	//useful element for morph
 	Mat element_5 = getStructuringElement(MORPH_RECT, Size(5, 5));
+	Mat element_3 = getStructuringElement(MORPH_RECT, Size(3, 3));
+	Mat element_7 = getStructuringElement(MORPH_RECT, Size(7, 7));
 	Mat element_13 = getStructuringElement(MORPH_RECT, Size(13, 13));
+	Mat element_25 = getStructuringElement(MORPH_RECT, Size(25, 25));
+	Mat element_37 = getStructuringElement(MORPH_RECT, Size(37, 37));
+	Mat element_19 = getStructuringElement(MORPH_RECT, Size(19, 19));
+
+	Mat element_ecllipse_5 = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
+	Mat element_ecllipse_3 = getStructuringElement(MORPH_ELLIPSE, Size(3, 3));
+	Mat element_ecllipse_7 = getStructuringElement(MORPH_ELLIPSE, Size(7, 7));
+	Mat element_ecllipse_13 = getStructuringElement(MORPH_ELLIPSE, Size(13, 13));
+	Mat element_ecllipse_19 = getStructuringElement(MORPH_ELLIPSE, Size(19, 19));
+	Mat element_ecllipse_25 = getStructuringElement(MORPH_ELLIPSE, Size(25, 25));
+	Mat element_ecllipse_37 = getStructuringElement(MORPH_ELLIPSE, Size(37, 37));
 	//HSV color space
 	//green
 	int greenLowH = 35;
@@ -87,6 +114,9 @@ private:
 	const int nongfu_width = 180;
 	const int nongfu_height = 38;
 
+	const int xuebi_width = 210;
+	const int xuebi_height =60;
+	
 
 	Point GetRectCenterPoint(Rect rect);
 
@@ -117,12 +147,11 @@ private:
 	float Icount;
 	void AllocateImages(Mat I);
 	void avgBackground(Mat I);
-	double high_threadhold=2.0;
-	double low_threadhold=2.0;
+
 	void createModelsfromStats();
 	void setHighThreshold(float scale);
 	void setLowThreshold(float scale);
-	void backgroundDiff(Mat I, Mat &Imask);
+	void backgroundDiff(Mat I, Mat &Imask,vector<Rect> &rectarray);
 	void learnBackground(string PICDIR);
 public:
 	void gamaTest(string PICDIR);
@@ -137,12 +166,18 @@ public:
 	void LKlightflow_trackTest(string PICDIR);
 	void LKlightflow_track(Mat featureimg, Mat &secondimg_orig);
 	void LKlightflow_trackCamTest();
-
+	Rect autoLableforXueB(Mat &imgO);
 	vector<String> getOutputsNames(Net&net);
 	void  drawPred(int classId, float conf, int left, int top, int right, int bottom, Mat& frame);
 	void  postprocess(Mat& frame, const vector<Mat>& outs, float confThreshold, float nmsThreshold);
 	int  dnnTest();
-	
+	void roughLabelTestforXueB(string PICDIR, int init_left, int init_top, int init_right, int init_down);
+	Mat  roughLabelforXueB(Mat input, int left, int top, int right, int down, Rect &outRect);
+	void studyBackgroundFromCam(camera cam);
+	void loadBackgroundModel();
+	void  getPicFromCam(camera cam);
+	void SamplesEnhance::findrColor(Mat &imgO, Rect &rectout);
+	void SamplesEnhance::learnBackGroundFromVec(vector<Mat> bgVector);
 };
 
 //}
