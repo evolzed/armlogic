@@ -10,15 +10,16 @@ from keras.models import load_model
 from keras.layers import Input
 from PIL import Image, ImageFont, ImageDraw
 
-from lib.GrabVideo import GrabVideo
-from lib.HikMvImport.CameraParams_header import MV_FRAME_OUT_INFO_EX
-from .model import yolo_eval, yolo_body, tiny_yolo_body
-from .utils import letterbox_image
+# from lib.GrabVideo import GrabVideo
+# from lib.HikMvImport.CameraParams_header import MV_FRAME_OUT_INFO_EX
+from src.Image.yolo.model import yolo_eval, yolo_body, tiny_yolo_body
+from src.Image.yolo.utils import letterbox_image
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 from keras.utils import multi_gpu_model
 
-gpu_num=1
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+
+GPU_NUM = 1
 gImgPath = None
 
 
@@ -60,10 +61,10 @@ class YOLO(object):
         model_path = os.path.expanduser(self.model_path)
         assert model_path.endswith('.h5'), 'Keras model or weights must be a .h5 file.'
 
-        # Load model, or construct model and load weights.
+        # 载入模型，或构造模型和载入权重|Load model, or construct model and load weights.
         num_anchors = len(self.anchors)
         num_classes = len(self.class_names)
-        is_tiny_version = num_anchors==6 # default setting
+        is_tiny_version = num_anchors == 6  # default setting
         try:
             self.yolo_model = load_model(model_path, compile=False)
         except:
@@ -80,7 +81,7 @@ class YOLO(object):
 
         print('{} model, anchors, and classes loaded.'.format(model_path))
 
-        # Generate colors for drawing bounding boxes.
+        # 生成绘图边界框的颜色|Generate colors for drawing bounding boxes.
         hsv_tuples = [(x / len(self.class_names), 1., 1.)
                       for x in range(len(self.class_names))]
         self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
@@ -91,10 +92,10 @@ class YOLO(object):
         np.random.shuffle(self.colors)  # Shuffle colors to decorrelate adjacent classes.
         np.random.seed(None)  # Reset seed to default.
 
-        # Generate output tensor targets for filtered bounding boxes.
+        # 为过滤的边界框生成输出张量目标|Generate output tensor targets for filtered bounding boxes.
         self.input_image_shape = K.placeholder(shape=(2, ))
-        if gpu_num>=2:
-            self.yolo_model = multi_gpu_model(self.yolo_model, gpus=gpu_num)
+        if GPU_NUM>=2:
+            self.yolo_model = multi_gpu_model(self.yolo_model, gpus=GPU_NUM)
         boxes, scores, classes = yolo_eval(self.yolo_model.output, self.anchors,
                 len(self.class_names), self.input_image_shape,
                 score_threshold=self.score, iou_threshold=self.iou)
@@ -166,7 +167,6 @@ class YOLO(object):
         end = timer()
         print(end - start)
         return image
-
 
     def close_session(self):
         self.sess.close()

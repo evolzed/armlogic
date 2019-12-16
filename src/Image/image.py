@@ -124,10 +124,13 @@ def backgroundDiff(src,dst):# when get pic frame from camera, use the background
 
 class Image(object):
     """create main Image class for processing images"""
+    def __init__(self):
+        """相机自检"""
+
     def detectVideo(self, yolo, output_path=""):
         """
         进行实时视频检测功能
-        :param yolo:
+        :param yolo:yolo实例对象
         :return:
         """
 
@@ -215,4 +218,3 @@ class Image(object):
                 break
         GrabVideo.destroy(cam, data_buf)
         yolo.close_session()
-

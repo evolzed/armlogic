@@ -9,7 +9,7 @@ from PIL import Image
 
 from ctypes import *
 
-sys.path.append("../MvImport")
+sys.path.append("../HikMvImport")
 from MvCameraControl_class import *
 
 g_bExit = False
