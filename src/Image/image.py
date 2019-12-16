@@ -3,10 +3,7 @@
     #Learn the backgroud by pics from cam then get a background model
     #bgLearn is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
 
-    def __init__(self):
-        pass
-
-    def studyBackgroundFromCam(cam): #get the 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
+    def studyBackgroundFromCam(cam): #get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
     """
      Parameters
 
@@ -30,7 +27,7 @@
     """
         Parameters
         --------------
-        cam: input  Mat type pic stream
+        img: input  Mat type pic stream
 
 
           Returns
@@ -41,6 +38,29 @@
           Examples
        --------
     """
+
+
+
+    def createModelsfromStats():  # average the frame and frame difference to get the background model
+    """
+            Parameters
+            --------------
+            I:      input cam pic waited for segment
+            dst:    segment result
+
+
+
+
+            Returns
+            -------
+
+
+
+            Examples
+            --------
+    """
+
+
 
     def backgroundDiff(src,dst):# when get pic frame from camera, use the backgroundDiff to  segment the frame pic;
         # if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
@@ -63,6 +83,8 @@
             Examples
             --------
     """
+
+
 
 
     #checkImage
