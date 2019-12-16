@@ -32,8 +32,9 @@ def main():
 if __name__ == "__main__":                      #main模块
     print("please type the gState: ")
     gState = int(input())                       #手动输入gState
-    try:                                        #执行main()
-        main()
-    except KeyboardInterrupt:
-        sys.stderr.write("Keyboard interrupt.\n")
-        sys.exit(main())
+    while (True):
+        try:                                                    # 执行main()
+            main()
+        except KeyboardInterrupt:
+            sys.stderr.write("Keyboard interrupt.\n")
+            sys.exit(main())
