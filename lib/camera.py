@@ -24,6 +24,7 @@ np.set_printoptions(threshold=np.inf)  # 设置numpy数组完全显示
 deviceList = MV_CC_DEVICE_INFO_LIST()
 tlayerType = MV_GIGE_DEVICE | MV_USB_DEVICE
 
+
 class Camera(object):
     """海康相机类"""
     # 为线程定义一个函数
