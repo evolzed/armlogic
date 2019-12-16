@@ -15,21 +15,16 @@ def main()
     global gState       #全局变量gState；
     global gDir         #全局变量gDir；
     if gState == 1:
-        Tool.mySQL().connectDict()
-        Tool.mySQL().createDict()
         Image.cameraOn()
         Image.getImage()
         Image.bgLearn()
-        Tool.mySQL().updateDict(bgDict)
         print("gState = 1")
         gState = 2
     elif gState == 2:
         Image.getImage()
         Image.checkImage()
-        Tool.mySQL().updateDict(bottledict)
         print("gState = 2")
     elif gState == 3:
-        Tool.mySQL.disconnectDict()
         print("gState = 3")
     
 if __name__ == "__main__":
