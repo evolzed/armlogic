@@ -10,7 +10,7 @@ import os       				#os模块是路径模块，通常用os来完成路径文件�
 import Image                                    #导入图像处理的功能包
 
 
-def main()
+def main():
     global gState                               #全局变量gState；
     global gDir                                 #全局变量gDir；
     if gState == 1:                             #判断gState状态；若为 1 ，进入init，设备检查部分；
@@ -32,8 +32,9 @@ def main()
 if __name__ == "__main__":                      #main模块
     print("please type the gState: ")
     gState = int(input())                       #手动输入gState
-    try:                                        #执行main()
-        main()
-    except KeyboardInterrupt:
-        sys.stderr.write("Keyboard interrupt.\n")
-        sys.exit(main())
+    while (True):
+        try:                                                    # 执行main()
+            main()
+        except KeyboardInterrupt:
+            sys.stderr.write("Keyboard interrupt.\n")
+            sys.exit(main())
