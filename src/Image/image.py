@@ -1,3 +1,5 @@
+#import cv2
+import numpy as np
 #bgLearn
 #Description:
 #Learn the backgroud by pics from cam then get a background model
@@ -6,8 +8,6 @@
 def studyBackgroundFromCam(cam): #get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
     """
     Parameters
-
-
      --------------
      cam: input camera object
 
@@ -19,7 +19,28 @@ def studyBackgroundFromCam(cam): #get 100 pics for time interval of 60sec by cam
        Examples
     --------
     """
+    bgVector=[]
+    BGDIR = "E:\\Xscx2019\\OPENCV_PROJ\\backgroundLearn\\"
+    over_flag = 1
+    BG_STUDY_NUM=10
+    while (over_flag):
+        pic_cnt = 1
+        #Mat frame, blob;
+        frame = cam.getImage()
+        #Mat fin = Mat::zeros(frame.size(), CV_32FC3);
+        fin=cv.zeros(frame.size(), CV_32FC3)
+        print(np.array(pin))
+        frame.convertTo(fin, CV_32FC3)
+        bgVector.append(fin)
+        picname = to_string(pic_cnt)
+        picname = BGDIR + picname + ".jpg"
+        print(picname)
+        cv.waitKey(200)
+        pic_cnt=pic_cnt+1
+        if (pic_cnt == BG_STUDY_NUM):
+            over_flag = 0
 
+    #learnBackGroundFromVec(bgVector);
 
 def avgBackground(img):#read background pics from disk,and then calculate every frame difference,and accumulate every frame difference
                    #to a sum of frame difference,and then calculate the average frame difference,meanwhile,accumulate every frame to a sum of frame and
