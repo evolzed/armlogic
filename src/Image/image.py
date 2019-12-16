@@ -1,11 +1,11 @@
 #bgLearn
 #Description:
-    #Learn the backgroud by pics from cam then get a background model
-    #bgLearn is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
+#Learn the backgroud by pics from cam then get a background model
+#bgLearn is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
 
-    def studyBackgroundFromCam(cam): #get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
+def studyBackgroundFromCam(cam): #get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
     """
-     Parameters
+    Parameters
 
 
      --------------
@@ -21,75 +21,75 @@
     """
 
 
-    def avgBackground(img):#read background pics from disk,and then calculate every frame difference,and accumulate every frame difference
-                       #to a sum of frame difference,and then calculate the average frame difference,meanwhile,accumulate every frame to a sum of frame and
-                       #then calculate the average frame.
+def avgBackground(img):#read background pics from disk,and then calculate every frame difference,and accumulate every frame difference
+                   #to a sum of frame difference,and then calculate the average frame difference,meanwhile,accumulate every frame to a sum of frame and
+                   #then calculate the average frame.
+    """
+    Parameters
+    --------------
+    img: input  Mat type pic stream
+
+
+      Returns
+   -------
+
+
+
+      Examples
+   --------
+"""
+
+
+
+def createModelsfromStats():  # average the frame and frame difference to get the background model
+    """
+    Parameters
+    --------------
+    I:      input cam pic waited for segment
+    dst:    segment result
+
+
+
+
+    Returns
+    -------
+
+
+
+    Examples
+    --------
+    """
+
+
+
+def backgroundDiff(src,dst):# when get pic frame from camera, use the backgroundDiff to  segment the frame pic;
+    # if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
+    # will change to white,otherwise, it will cover to black.
+
     """
         Parameters
         --------------
-        img: input  Mat type pic stream
-
-
-          Returns
-       -------
-
-
-
-          Examples
-       --------
-    """
-
-
-
-    def createModelsfromStats():  # average the frame and frame difference to get the background model
-    """
-            Parameters
-            --------------
-            I:      input cam pic waited for segment
-            dst:    segment result
+        I:      input cam pic waited for segment
+        dst:    segment result
 
 
 
 
-            Returns
-            -------
+        Returns
+        -------
 
 
 
-            Examples
-            --------
-    """
-
-
-
-    def backgroundDiff(src,dst):# when get pic frame from camera, use the backgroundDiff to  segment the frame pic;
-        # if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
-        # will change to white,otherwise, it will cover to black.
-
-    """
-            Parameters
-            --------------
-            I:      input cam pic waited for segment
-            dst:    segment result
-
-
-
-
-            Returns
-            -------
-
-
-
-            Examples
-            --------
+        Examples
+        --------
     """
 
 
 
 
-    #checkImage
+#checkImage
 
-    #Description:
-    #checkImage is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
+#Description:
+#checkImage is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
 
-    #checkImage Implemente Details:
+#checkImage Implemente Details:
