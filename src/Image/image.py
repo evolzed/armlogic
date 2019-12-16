@@ -114,3 +114,13 @@ def backgroundDiff(src,dst):# when get pic frame from camera, use the background
 #checkImage is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
 
 #checkImage Implemente Details:
+
+
+class Image(object):
+    """create main Image class for processing images"""
+    def detectVideo(self, yolo):
+        """
+        进行实时视频检测功能
+        :param yolo:
+        :return:
+        """
