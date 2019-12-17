@@ -7,7 +7,7 @@ import cv2
 sys.path.append(os.path.abspath("../../"))
 from lib.GrabVideo import GrabVideo
 from lib.HikMvImport.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
-from lib.camera import Camera
+from camera import Camera
 from yolo.Yolo import *
 
 

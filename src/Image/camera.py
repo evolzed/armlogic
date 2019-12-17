@@ -5,18 +5,16 @@ import threading
 import msvcrt
 import cv2
 import numpy as np
-from PIL import Image
 
 from ctypes import *
-# sys.path.append("HikMvImport")
-from HikMvImport.MvCameraControl_class import *
+# print(sys.path)
+from lib.HikMvImport.MvCameraControl_class import *
 
 g_bExit = False
 # 设置保存的帧间隔
 per_frame = 2
-
-
-np.set_printoptions(threshold=np.inf)  # 设置numpy数组完全显示
+# 错误信息
+ERR = -1
 
 deviceList = MV_CC_DEVICE_INFO_LIST()
 tlayerType = MV_GIGE_DEVICE | MV_USB_DEVICE
@@ -24,10 +22,6 @@ tlayerType = MV_GIGE_DEVICE | MV_USB_DEVICE
 
 class Camera(object):
     """海康相机类"""
-
-    def __init__(self):
-        self.stFrameInfo = MV_FRAME_OUT_INFO_EX()
-        memset(byref(self.stFrameInfo), 0, sizeof(self.stFrameInfo))
 
     # 为线程定义一个函数
     def work_thread(self, cam=0, pData=0, nDataSize=0):
