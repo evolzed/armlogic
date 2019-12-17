@@ -13,6 +13,12 @@ IprevF=np.zeros(shape=(960,1280,3),dtype=np.float32)
 Iscratch2=np.zeros(shape=(960,1280,3),dtype=np.float32)
 IdiffF=np.zeros(shape=(960,1280,3),dtype=np.float32)
 Icount=0
+kernel5 = np.ones((5, 5), np.uint8)
+kernel7 = np.ones((7, 7), np.uint8)
+kernel13 = np.ones((13, 13), np.uint8)
+kernel19 = np.ones((19, 19), np.uint8)
+kernel25 = np.ones((25, 25), np.uint8)
+show=np.zeros(shape=(960,1280,3),dtype=np.uint8)
 
 def studyBackgroundFromCam(cam): #get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
     """
@@ -54,20 +60,6 @@ def studyBackgroundFromCam(cam): #get 100 pics for time interval of 60sec by cam
     except Exception as e:
         print(e)
         cam.destroy(_cam, _data_buf)
-
-
-def learnBackGroundFromVec(bgVector):
-	img0 = bgVector[0];
-	AllocateImages(img0);
-	#for (int i = 0; i < bgVector.size(); i++)
-    for i in list:
-		img = bgVector[i]
-		#cout << "img.type"<<img.type() << endl;
-        print("img.type",img.type())
-		avgBackground(img)
-	#cout << Icount << endl;
-    print("Icount", Icount)
-	createModelsfromStats()
 
 
 
@@ -120,6 +112,21 @@ def createModelsfromStats():  # average the frame and frame difference to get th
     Examples
     --------
     """
+    global IavgF
+    global IdiffF
+    global IhiF
+    global IlowF
+    IavgF = IavgF / Icount
+    IdiffF = IdiffF / Icount
+    cv2.add(IdiffF, 1.0, IdiffF)  # 这个必须有
+    cv2.imshow("avg", IavgF)
+    cv2.imshow("diff", IdiffF)
+    cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\a.jpg", IavgF)
+    cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\d.jpg", IdiffF)
+    cv2.add(IavgF, IdiffF, IhiF)
+    cv2.subtract(IavgF, IdiffF, IlowF)
+    cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", IhiF)
+    cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", IlowF)
 
 
 
@@ -144,7 +151,19 @@ def backgroundDiff(src,dst):# when get pic frame from camera, use the background
         Examples
         --------
     """
-
+    cv2.inRange(src, IlowF, IhiF, dst)
+    cv2.morphologyEx(dst, dst, cv2.MORPH_OPEN, kernel7)
+    cv2.morphologyEx(dst, dst, cv2.MORPH_CLOSE, kernel7)
+    cv2.subtract(255, dst, dst);
+    cv2.GaussianBlur(dst, dst, (19, 19), 3)
+    cv2.dilate(dst, dst, kernel19)
+    cv2.dilate(dst, dst, kernel19)
+    cv2.morphologyEx(dst, dst, cv2.MORPH_CLOSE, kernel13)  #eclipice
+    binary,contours, hierarchy  = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    cv2.drawContours(show, contours, -1, (0, 255, 0), 3)
+    contourLen=len(contours)
+    printf(contourLen)
+    if len>0:
 
 
 
@@ -155,11 +174,4 @@ def backgroundDiff(src,dst):# when get pic frame from camera, use the background
 
 #checkImage Implemente Details:
 
-class Image(object):
-    """create main Image class for processing images"""
-    def detectVideo(self, yolo):
-        """
-        进行实时视频检测功能
-        :param yolo:
-        :return:
-        """
+
