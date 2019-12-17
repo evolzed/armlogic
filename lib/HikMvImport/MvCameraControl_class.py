@@ -3,14 +3,13 @@
 import sys
 import copy
 import ctypes
-
 from ctypes import *
-from lib.HikMvImport.utils.CameraParams_const import *
-from lib.HikMvImport.utils.CameraParams_header import *
-from lib.HikMvImport.utils.MvCameraControl_header import *
-from lib.HikMvImport.utils.MvErrorDefine_const import *
-from lib.HikMvImport.utils.PixelType_const import *
-from lib.HikMvImport.utils.PixelType_header import *
+from HikMvImport.utils.CameraParams_const import *
+from HikMvImport.utils.CameraParams_header import *
+from HikMvImport.utils.MvCameraControl_header import *
+from HikMvImport.utils.MvErrorDefine_const import *
+from HikMvImport.utils.PixelType_const import *
+from HikMvImport.utils.PixelType_header import *
 
 MvCamCtrldll = WinDLL("MvCameraControl.dll")
 

@@ -8,7 +8,6 @@ from timeit import default_timer as timer
 import cv2
 
 
-
 class Image(object):
     """create main Image class for processing images"""
     def __init__(self):

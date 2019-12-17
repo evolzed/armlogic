@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 
 from ctypes import *
-sys.path.append("../HikMvImport")
+# sys.path.append("HikMvImport")
 from HikMvImport.MvCameraControl_class import *
 
 g_bExit = False
