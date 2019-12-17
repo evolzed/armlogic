@@ -1,5 +1,5 @@
 # -- coding: utf-8 --
-
+import os
 import sys
 import threading
 import msvcrt
@@ -9,8 +9,9 @@ import numpy as np
 
 from ctypes import *
 
-sys.path.append("../HikMvImport")
-from MvCameraControl_class import *
+sys.path.insert(0, "../HikMvImport")
+# print(sys.path)
+from lib.HikMvImport.MvCameraControl_class import *
 
 g_bExit = False
 

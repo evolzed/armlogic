@@ -8,7 +8,7 @@ import numpy as np
 from keras import backend as K
 from keras.models import load_model
 from keras.layers import Input
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image as PImage, ImageFont, ImageDraw
 
 # from lib.GrabVideo import GrabVideo
 # from lib.HikMvImport.CameraParams_header import MV_FRAME_OUT_INFO_EX
@@ -24,6 +24,7 @@ gImgPath = None
 
 
 class YOLO(object):
+
     def __init__(self):
 
         # self.model_path = 'model_data/yolo_init.h5' # model path or trained weights path
@@ -32,9 +33,9 @@ class YOLO(object):
         # self.model_path = 'model_data/tiny_yolo_weights.h5' # model path or trained weights path
 
         # 自己的模型
-        self.model_path = '1000_416_trained_weights_final.h5' # model path or trained weights path
-        self.anchors_path = 'tiny_yolo_anchors.txt'
-        self.classes_path = 'bottle_annotation_classes.txt'
+        self.model_path = 'yolo/1000_416_trained_weights_final.h5' # model path or trained weights path
+        self.anchors_path = 'yolo/tiny_yolo_anchors.txt'
+        self.classes_path = 'yolo/bottle_annotation_classes.txt'
         self.score = 0.3
         self.iou = 0.45
         self.class_names = self._get_class()
@@ -128,7 +129,7 @@ class YOLO(object):
 
         print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 
-        font = ImageFont.truetype(font='font/FiraMono-Medium.otf',
+        font = ImageFont.truetype(font='yolo/font/FiraMono-Medium.otf',
                     size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = (image.size[0] + image.size[1]) // 300
 

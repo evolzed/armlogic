@@ -9,11 +9,14 @@ from PIL import Image
 
 from ctypes import *
 # sys.path.append("HikMvImport")
-from HikMvImport.MvCameraControl_class import *
+from lib.HikMvImport.MvCameraControl_class import *
 
 g_bExit = False
 # 设置保存的帧间隔
 per_frame = 2
+# 状态常量 ERR:-1 OK:0
+OK = 0
+ERR = -1
 
 
 np.set_printoptions(threshold=np.inf)  # 设置numpy数组完全显示
@@ -67,18 +70,17 @@ class Camera(object):
             if g_bExit == True:
                 break
 
-
     def get_device_num(self):
         # ch:枚举设备 | en:Enum device
         ret = MvCamera.MV_CC_EnumDevices(tlayerType, deviceList)
         if ret != 0:
             print("enum devices fail! ret[0x%x]" % ret)
-            sys.exit()
-
+            # sys.exit()
+            return ERR, ERR, ERR
         if deviceList.nDeviceNum == 0:
             print("相机初始化失败！|find no device!Make sure you have connected your camera via netline")
-            sys.exit()
-
+            # sys.exit()
+            return ERR, ERR, ERR
         print("Find %d devices!" % deviceList.nDeviceNum)
 
         for i in range(0, deviceList.nDeviceNum):
@@ -95,6 +97,7 @@ class Camera(object):
                 nip3 = ((mvcc_dev_info.SpecialInfo.stGigEInfo.nCurrentIp & 0x0000ff00) >> 8)
                 nip4 = (mvcc_dev_info.SpecialInfo.stGigEInfo.nCurrentIp & 0x000000ff)
                 print("current ip: %d.%d.%d.%d\n" % (nip1, nip2, nip3, nip4))
+                return i
             elif mvcc_dev_info.nTLayerType == MV_USB_DEVICE:
                 print("\nu3v device: [%d]" % i)
                 strModeName = ""
@@ -110,11 +113,9 @@ class Camera(object):
                         break
                     strSerialNumber = strSerialNumber + chr(per)
                 print("user serial number: %s" % strSerialNumber)
-
         # return input("please input the number of the device to connect:")
 
-
-    def connect_cam(self, nConnectionNum=0):
+    def connect_cam(self, nConnectionNum):
         """
         :param nConnectionNum: 选择检测到得相机序号,默认是0
         :return: cam实例对象， 数据流data_buf
@@ -122,8 +123,8 @@ class Camera(object):
         print("Default use the first device found！")
         if int(nConnectionNum) >= deviceList.nDeviceNum:
             print("intput error!")
-            sys.exit()
-
+            # sys.exit()
+            return ERR, ERR, ERR
         # ch:创建相机实例 | en:Creat Camera Object
         cam = MvCamera()
 
@@ -133,15 +134,17 @@ class Camera(object):
         ret = cam.MV_CC_CreateHandle(stDeviceList)
         if ret != 0:
             print("create handle fail! ret[0x%x]" % ret)
-            sys.exit()
+            # sys.exit()
+            return ERR, ERR, ERR
 
         # ch:打开设备 | en:Open device
         ret = cam.MV_CC_OpenDevice(MV_ACCESS_Exclusive, 0)
         # print(ret)
         if ret != 0:
             print("open device fail! ret[0x%x]" % ret)
-            sys.exit()
-
+            # sys.exit()
+            # error code -1 初始化失败
+            return ERR, ERR, ERR
         # ch:探测网络最佳包大小(只对GigE相机有效) | en:Detection network optimal package size(It only works for the GigE camera)
         if stDeviceList.nTLayerType == MV_GIGE_DEVICE:
             nPacketSize = cam.MV_CC_GetOptimalPacketSize()
@@ -156,7 +159,8 @@ class Camera(object):
         ret = cam.MV_CC_SetEnumValue("TriggerMode", MV_TRIGGER_MODE_OFF)
         if ret != 0:
             print("set trigger mode fail! ret[0x%x]" % ret)
-            sys.exit()
+            # sys.exit()
+            return ERR, ERR, ERR
 
         # ch:获取数据包大小 | en:Get payload size
         stParam = MVCC_INTVALUE()
@@ -167,15 +171,16 @@ class Camera(object):
         ret = cam.MV_CC_GetIntValue("PayloadSize", stParam)
         if ret != 0:
             print("get payload size fail! ret[0x%x]" % ret)
-            sys.exit()
+            # sys.exit()
+            return ERR, ERR, ERR
         nPayloadSize = stParam.nCurValue
 
         # ch:开始取流 | en:Start grab image
         ret = cam.MV_CC_StartGrabbing()
         if ret != 0:
             print("start grabbing fail! ret[0x%x]" % ret)
-            sys.exit()
-
+            # sys.exit()
+            return ERR, ERR, ERR
         data_buf = (c_ubyte * nPayloadSize)()
         return cam, data_buf, nPayloadSize
 
@@ -186,22 +191,23 @@ class Camera(object):
         if ret != 0:
             print("stop grabbing fail! ret[0x%x]" % ret)
             del _data_buf
-            sys.exit()
+            # sys.exit()
+            return ERR, ERR, ERR
 
         # ch:关闭设备 | Close device
         ret = _cam.MV_CC_CloseDevice()
         if ret != 0:
             print("close deivce fail! ret[0x%x]" % ret)
             del _data_buf
-            sys.exit()
-
+            # sys.exit()
+            return ERR, ERR, ERR
         # ch:销毁句柄 | Destroy handle
         ret = _cam.MV_CC_DestroyHandle()
         if ret != 0:
             print("destroy handle fail! ret[0x%x]" % ret)
             del _data_buf
-            sys.exit()
-
+            # sys.exit()
+            return ERR, ERR, ERR
         del _data_buf
 
 
@@ -209,7 +215,8 @@ def main():
     """主程序"""
     cam = Camera()
     nConnectionNum = cam.get_device_num()
-    _cam, _data_buf, _nPayloadSize = cam.connect_cam()
+    # cam.get_device_num()
+    _cam, _data_buf, _nPayloadSize = cam.connect_cam(nConnectionNum)
 
     # work_thread(_cam, _data_buf, _nPayloadSize)
 
