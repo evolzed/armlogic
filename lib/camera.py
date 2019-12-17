@@ -1,5 +1,5 @@
 # -- coding: utf-8 --
-
+#!/bin/python
 import sys
 import threading
 import msvcrt
@@ -8,9 +8,6 @@ import numpy as np
 from PIL import Image
 
 from ctypes import *
-
-from lib.HikMvImport.utils.CameraParams_header import MV_CC_DEVICE_INFO_LIST
-
 sys.path.append("../HikMvImport")
 from HikMvImport.MvCameraControl_class import *
 
@@ -41,14 +38,13 @@ class Camera(object):
             # print(temp.shape)
             temp = cv2.cvtColor(temp, cv2.COLOR_BGR2RGB)
             # 利用opencv进行抽帧采集数据
-            if stFrameInfo.nFrameNum % per_frame == 1:
-                cv2.imwrite("DataSet/" + str(n) + ".jpg", temp)
-                print("已保存{}张图片".format((n+1)/per_frame))
+            # if stFrameInfo.nFrameNum % per_frame == 1:
+            #     cv2.imwrite("DataSet/" + str(n) + ".jpg", temp)
+            #     print("已保存{}张图片".format((n+1)/per_frame))
             cv2.namedWindow("ytt", cv2.WINDOW_AUTOSIZE)
             cv2.imshow("ytt", temp)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-
 
             # 利用opencv进行视频保存
             # temp = cv2.flip(temp, 0)
@@ -80,7 +76,7 @@ class Camera(object):
             sys.exit()
 
         if deviceList.nDeviceNum == 0:
-            print("find no device!")
+            print("相机初始化失败！|find no device!Make sure you have connected your camera via netline")
             sys.exit()
 
         print("Find %d devices!" % deviceList.nDeviceNum)
@@ -115,16 +111,15 @@ class Camera(object):
                     strSerialNumber = strSerialNumber + chr(per)
                 print("user serial number: %s" % strSerialNumber)
 
-        # nConnectionNum = input("please input the number of the device to connect:")
-        return input("please input the number of the device to connect:")
+        # return input("please input the number of the device to connect:")
 
 
-    def connect_cam(self, nConnectionNum):
+    def connect_cam(self, nConnectionNum=0):
         """
-        :param nConnectionNum: 选择检测到得相机序号
+        :param nConnectionNum: 选择检测到得相机序号,默认是0
         :return: cam实例对象， 数据流data_buf
         """
-
+        print("Default use the first device found！")
         if int(nConnectionNum) >= deviceList.nDeviceNum:
             print("intput error!")
             sys.exit()
@@ -214,7 +209,7 @@ def main():
     """主程序"""
     cam = Camera()
     nConnectionNum = cam.get_device_num()
-    _cam, _data_buf, _nPayloadSize = cam.connect_cam(nConnectionNum)
+    _cam, _data_buf, _nPayloadSize = cam.connect_cam()
 
     # work_thread(_cam, _data_buf, _nPayloadSize)
 
