@@ -1,5 +1,5 @@
 # -- coding: utf-8 --
-
+#!/bin/python
 import sys
 import threading
 import msvcrt
@@ -8,11 +8,8 @@ import numpy as np
 from PIL import Image
 
 from ctypes import *
-
-from lib.HikMvImport.utils.CameraParams_header import MV_CC_DEVICE_INFO_LIST
-
-sys.path.append("../HikMvImport")
-from HikMvImport.MvCameraControl_class import *
+# sys.path.append("HikMvImport")
+from lib.HikMvImport.MvCameraControl_class import *
 
 g_bExit = False
 # 设置保存的帧间隔
@@ -28,6 +25,9 @@ tlayerType = MV_GIGE_DEVICE | MV_USB_DEVICE
 class Camera(object):
     """海康相机类"""
     # 为线程定义一个函数
+    def __init__(self):
+        self.stFrameInfo = MV_FRAME_OUT_INFO_EX()
+        memset(byref(self.stFrameInfo), 0, sizeof(self.stFrameInfo))
     def work_thread(self, cam=0, pData=0, nDataSize=0):
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
         memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
@@ -41,14 +41,13 @@ class Camera(object):
             # print(temp.shape)
             temp = cv2.cvtColor(temp, cv2.COLOR_BGR2RGB)
             # 利用opencv进行抽帧采集数据
-            if stFrameInfo.nFrameNum % per_frame == 1:
-                cv2.imwrite("DataSet/" + str(n) + ".jpg", temp)
-                print("已保存{}张图片".format((n+1)/per_frame))
+            # if stFrameInfo.nFrameNum % per_frame == 1:
+            #     cv2.imwrite("DataSet/" + str(n) + ".jpg", temp)
+            #     print("已保存{}张图片".format((n+1)/per_frame))
             cv2.namedWindow("ytt", cv2.WINDOW_AUTOSIZE)
             cv2.imshow("ytt", temp)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-
 
             # 利用opencv进行视频保存
             # temp = cv2.flip(temp, 0)
@@ -71,6 +70,20 @@ class Camera(object):
             if g_bExit == True:
                 break
 
+    """海康相机类"""
+
+    # 为线程定义一个函数
+    def getImage(self, cam=0, pData=0, nDataSize=0):
+        ret = cam.MV_CC_GetOneFrameTimeout(byref(pData), nDataSize, self.stFrameInfo, 1000)
+        if ret == 0:
+            print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
+                self.stFrameInfo.nWidth, self.stFrameInfo.nHeight, self.stFrameInfo.nFrameNum))
+        else:
+            print("no data[0x%x]" % ret)
+        temp = np.asarray(pData)
+        temp = temp.reshape((960, 1280, 3))
+        temp = cv2.cvtColor(temp, cv2.COLOR_BGR2RGB)
+        return temp
 
     def get_device_num(self):
         # ch:枚举设备 | en:Enum device
@@ -80,7 +93,7 @@ class Camera(object):
             sys.exit()
 
         if deviceList.nDeviceNum == 0:
-            print("find no device!")
+            print("相机初始化失败！|find no device!Make sure you have connected your camera via netline")
             sys.exit()
 
         print("Find %d devices!" % deviceList.nDeviceNum)
@@ -115,16 +128,15 @@ class Camera(object):
                     strSerialNumber = strSerialNumber + chr(per)
                 print("user serial number: %s" % strSerialNumber)
 
-        # nConnectionNum = input("please input the number of the device to connect:")
-        return input("please input the number of the device to connect:")
+        # return input("please input the number of the device to connect:")
 
 
-    def connect_cam(self, nConnectionNum):
+    def connect_cam(self, nConnectionNum=0):
         """
-        :param nConnectionNum: 选择检测到得相机序号
+        :param nConnectionNum: 选择检测到得相机序号,默认是0
         :return: cam实例对象， 数据流data_buf
         """
-
+        print("Default use the first device found！")
         if int(nConnectionNum) >= deviceList.nDeviceNum:
             print("intput error!")
             sys.exit()
@@ -182,6 +194,9 @@ class Camera(object):
             sys.exit()
 
         data_buf = (c_ubyte * nPayloadSize)()
+
+        stFrameInfo = MV_FRAME_OUT_INFO_EX()
+        memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
         return cam, data_buf, nPayloadSize
 
 
@@ -214,7 +229,7 @@ def main():
     """主程序"""
     cam = Camera()
     nConnectionNum = cam.get_device_num()
-    _cam, _data_buf, _nPayloadSize = cam.connect_cam(nConnectionNum)
+    _cam, _data_buf, _nPayloadSize = cam.connect_cam()
 
     # work_thread(_cam, _data_buf, _nPayloadSize)
 
@@ -245,4 +260,13 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    #main()
+    cam = Camera()
+    nConnectionNum = cam.get_device_num()
+    _cam, _data_buf, _nPayloadSize = cam.connect_cam()
+    while 1:
+        frame = cam.getImage(_cam, _data_buf, _nPayloadSize)
+        cv2.imshow("cam",frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+        cv2.waitKey(10)

@@ -62,6 +62,7 @@
 | Image |  generate  | 返回预测框列表，评分列表，类别列表, 使用load_model()、yolo_eval() | | | |
 | Image |  connectCam  | 获取检测到的设备编号，连接设备GrabVideo.get_device_num()、GrabVideo.connect_cam() | | | |
 | Image |  grabVideo  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 | | %bgPic.JPG | |
+| Camera |  getImage  | get a frame of opencv format from camra | %_cam  %_data_buf %_nPayloadSize|  | %frame|
 | Image |  loadYolo  | Tiny-Yolov3模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | %.py %.pt | | |
 | Image |  detect_image  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Image()[转换成网络需要的imageObject]; | | | |
 | Image |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
