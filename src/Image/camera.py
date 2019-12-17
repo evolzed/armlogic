@@ -9,14 +9,11 @@ from PIL import Image
 
 from ctypes import *
 # sys.path.append("HikMvImport")
-from lib.HikMvImport.MvCameraControl_class import *
+from HikMvImport.MvCameraControl_class import *
 
 g_bExit = False
 # 设置保存的帧间隔
 per_frame = 2
-# 状态常量 ERR:-1 OK:0
-OK = 0
-ERR = -1
 
 
 np.set_printoptions(threshold=np.inf)  # 设置numpy数组完全显示
@@ -27,6 +24,11 @@ tlayerType = MV_GIGE_DEVICE | MV_USB_DEVICE
 
 class Camera(object):
     """海康相机类"""
+
+    def __init__(self):
+        self.stFrameInfo = MV_FRAME_OUT_INFO_EX()
+        memset(byref(self.stFrameInfo), 0, sizeof(self.stFrameInfo))
+
     # 为线程定义一个函数
     def work_thread(self, cam=0, pData=0, nDataSize=0):
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
@@ -37,8 +39,6 @@ class Camera(object):
         while True:
             temp = np.asarray(pData)
             temp = temp.reshape((960, 1280, 3))
-            # print(temp)
-            # print(temp.shape)
             temp = cv2.cvtColor(temp, cv2.COLOR_BGR2RGB)
             # 利用opencv进行抽帧采集数据
             # if stFrameInfo.nFrameNum % per_frame == 1:
