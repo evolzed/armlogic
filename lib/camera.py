@@ -9,7 +9,7 @@ from PIL import Image
 
 from ctypes import *
 # sys.path.append("HikMvImport")
-from HikMvImport.MvCameraControl_class import *
+from lib.HikMvImport.MvCameraControl_class import *
 
 g_bExit = False
 # 设置保存的帧间隔
@@ -25,6 +25,9 @@ tlayerType = MV_GIGE_DEVICE | MV_USB_DEVICE
 class Camera(object):
     """海康相机类"""
     # 为线程定义一个函数
+    def __init__(self):
+        self.stFrameInfo = MV_FRAME_OUT_INFO_EX()
+        memset(byref(self.stFrameInfo), 0, sizeof(self.stFrameInfo))
     def work_thread(self, cam=0, pData=0, nDataSize=0):
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
         memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
@@ -67,6 +70,20 @@ class Camera(object):
             if g_bExit == True:
                 break
 
+    """海康相机类"""
+
+    # 为线程定义一个函数
+    def getImage(self, cam=0, pData=0, nDataSize=0):
+        ret = cam.MV_CC_GetOneFrameTimeout(byref(pData), nDataSize, self.stFrameInfo, 1000)
+        if ret == 0:
+            print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
+                self.stFrameInfo.nWidth, self.stFrameInfo.nHeight, self.stFrameInfo.nFrameNum))
+        else:
+            print("no data[0x%x]" % ret)
+        temp = np.asarray(pData)
+        temp = temp.reshape((960, 1280, 3))
+        temp = cv2.cvtColor(temp, cv2.COLOR_BGR2RGB)
+        return temp
 
     def get_device_num(self):
         # ch:枚举设备 | en:Enum device
@@ -177,6 +194,9 @@ class Camera(object):
             sys.exit()
 
         data_buf = (c_ubyte * nPayloadSize)()
+
+        stFrameInfo = MV_FRAME_OUT_INFO_EX()
+        memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
         return cam, data_buf, nPayloadSize
 
 
@@ -240,4 +260,13 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    #main()
+    cam = Camera()
+    nConnectionNum = cam.get_device_num()
+    _cam, _data_buf, _nPayloadSize = cam.connect_cam()
+    while 1:
+        frame = cam.getImage(_cam, _data_buf, _nPayloadSize)
+        cv2.imshow("cam",frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+        cv2.waitKey(10)
