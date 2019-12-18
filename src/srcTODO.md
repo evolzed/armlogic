@@ -12,7 +12,7 @@ class Image
 
 ​	loadYolo()
 
-​	detect_image()
+​	detectImage()
 
 ​	bgLearn()
 

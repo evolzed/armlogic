@@ -16,13 +16,12 @@ class Image(object):
     def __init__(self, cam):
         """相机自检"""
         self.cam = cam
-        self.deviceNum = cam.get_device_num()
-        self._cam, self._data_buf, self._nPayloadsize = self.cam.connect_cam(self.deviceNum)
-        if -1 == self._cam:
+        self.deviceNum = cam.getDeviceNum()
+        self._data_buf, self._nPayloadsize = self.cam.connectCam(self.deviceNum)
+        if -1 == self._data_buf:
             print("相机初始化失败！退出程序！")
             sys.exit()
         print("相机初始化完成！")
-
 
     def detectVideo(self, yolo, output_path=""):
         """
@@ -33,7 +32,7 @@ class Image(object):
 
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
         memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
-        if self._cam == -1 or self._data_buf is None:
+        if self._data_buf == -1 or self._data_buf is None:
             raise IOError("Couldn't open webcam or video")
         # 视频编码格式
         video_FourCC = 6
@@ -54,7 +53,7 @@ class Image(object):
             frame = frame.reshape((960, 1280, 3))
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = PImage.fromarray(frame)
-            image = yolo.detect_image(image)
+            image = yolo.detectImage(image)
             result = np.asarray(image)
             curr_time = timer()
             exec_time = curr_time - prev_time
@@ -73,7 +72,7 @@ class Image(object):
                 out.write(result)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            ret = self._cam.MV_CC_GetOneFrameTimeout(byref(self._data_buf), self._nPayloadsize, stFrameInfo, 1000)
+            ret = self.cam.MV_CC_GetOneFrameTimeout(byref(self._data_buf), self._nPayloadsize, stFrameInfo, 1000)
             if ret == 0:
                 print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
                     stFrameInfo.nWidth, stFrameInfo.nHeight, stFrameInfo.nFrameNum))
@@ -81,8 +80,8 @@ class Image(object):
                 print("no data[0x%x]" % ret)
             if GrabVideo.g_bExit is True:
                 break
-        self.cam.destroy(self._cam, self._data_buf)
-        yolo.close_session()
+        self.cam.destroy(self.cam, self._data_buf)
+        yolo.closeSession()
 
 
 if __name__ == '__main__':
@@ -90,4 +89,5 @@ if __name__ == '__main__':
     image = Image(cam)
     print("准备载入yolo网络！")
     yolo = YOLO()
+
     image.detectVideo(yolo)
