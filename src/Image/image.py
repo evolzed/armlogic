@@ -90,4 +90,5 @@ if __name__ == '__main__':
     image = Image(cam)
     print("准备载入yolo网络！")
     yolo = YOLO()
+
     image.detectVideo(yolo)

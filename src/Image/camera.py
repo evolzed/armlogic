@@ -23,10 +23,20 @@ tlayerType = MV_GIGE_DEVICE | MV_USB_DEVICE
 class Camera(object):
     """海康相机类"""
 
+    def __init__(self):
+        self.stFrameInfo = MV_FRAME_OUT_INFO_EX()
+        memset(byref(self.stFrameInfo), 0, sizeof(self.stFrameInfo))
+        self.nConnectionNum = self.get_device_num()
+        print("相机初始化···")
+        self.cam = MvCamera()
+        self._data_buf, self._nPayloadSize = self.connect_cam()
+        if self._data_buf == -1:
+            print("相机初始化失败！")
+            sys.exit()
     # 为线程定义一个函数
-    def work_thread(self, cam=0, pData=0, nDataSize=0):
-        stFrameInfo = MV_FRAME_OUT_INFO_EX()
-        memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
+    def work_thread(self):
+        pData = self._data_buf
+        nDataSize = self._nPayloadSize
         n = 0
         # fourcc = cv2.VideoWriter_fourcc(*'XVID')  # 保存视频的编码
         # out = cv2.VideoWriter("out.avi", fourcc, 30.0, (1280, 960))
@@ -51,14 +61,14 @@ class Camera(object):
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
 
-            ret = cam.MV_CC_GetOneFrameTimeout(byref(pData), nDataSize, stFrameInfo, 1000)
+            ret = self.cam.MV_CC_GetOneFrameTimeout(byref(pData), nDataSize, self.stFrameInfo, 1000)
             # 利用PIL进行图片显示，注意位置
             # image = Image.frombytes("RGB", (stFrameInfo.nWidth, stFrameInfo.nHeight), pData)
             # image.show("test")
             n += 1
             if ret == 0:
                 print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
-                    stFrameInfo.nWidth, stFrameInfo.nHeight, stFrameInfo.nFrameNum))
+                    self.stFrameInfo.nWidth, self.stFrameInfo.nHeight, self.stFrameInfo.nFrameNum))
             else:
                 print("no data[0x%x]" % ret)
             if g_bExit == True:
@@ -69,12 +79,10 @@ class Camera(object):
         ret = MvCamera.MV_CC_EnumDevices(tlayerType, deviceList)
         if ret != 0:
             print("enum devices fail! ret[0x%x]" % ret)
-            # sys.exit()
-            return ERR, ERR, ERR
+            sys.exit()
         if deviceList.nDeviceNum == 0:
             print("相机初始化失败！|find no device!Make sure you have connected your camera via netline")
-            # sys.exit()
-            return ERR, ERR, ERR
+            sys.exit()
         print("Find %d devices!" % deviceList.nDeviceNum)
 
         for i in range(0, deviceList.nDeviceNum):
@@ -109,52 +117,52 @@ class Camera(object):
                 print("user serial number: %s" % strSerialNumber)
         # return input("please input the number of the device to connect:")
 
-    def connect_cam(self, nConnectionNum):
+    def connect_cam(self):
         """
         :param nConnectionNum: 选择检测到得相机序号,默认是0
         :return: cam实例对象， 数据流data_buf
         """
         print("Default use the first device found！")
-        if int(nConnectionNum) >= deviceList.nDeviceNum:
+        if int(self.nConnectionNum) >= deviceList.nDeviceNum:
             print("intput error!")
             # sys.exit()
-            return ERR, ERR, ERR
+            return ERR, ERR
         # ch:创建相机实例 | en:Creat Camera Object
-        cam = MvCamera()
+        # cam = MvCamera()
 
         # ch:选择设备并创建句柄 | en:Select device and create handle
-        stDeviceList = cast(deviceList.pDeviceInfo[int(nConnectionNum)], POINTER(MV_CC_DEVICE_INFO)).contents
+        stDeviceList = cast(deviceList.pDeviceInfo[int(self.nConnectionNum)], POINTER(MV_CC_DEVICE_INFO)).contents
 
-        ret = cam.MV_CC_CreateHandle(stDeviceList)
+        ret = self.cam.MV_CC_CreateHandle(stDeviceList)
         if ret != 0:
             print("create handle fail! ret[0x%x]" % ret)
             # sys.exit()
-            return ERR, ERR, ERR
+            return ERR, ERR
 
         # ch:打开设备 | en:Open device
-        ret = cam.MV_CC_OpenDevice(MV_ACCESS_Exclusive, 0)
+        ret = self.cam.MV_CC_OpenDevice(MV_ACCESS_Exclusive, 0)
         # print(ret)
         if ret != 0:
             print("open device fail! ret[0x%x]" % ret)
             # sys.exit()
             # error code -1 初始化失败
-            return ERR, ERR, ERR
+            return ERR, ERR
         # ch:探测网络最佳包大小(只对GigE相机有效) | en:Detection network optimal package size(It only works for the GigE camera)
         if stDeviceList.nTLayerType == MV_GIGE_DEVICE:
-            nPacketSize = cam.MV_CC_GetOptimalPacketSize()
+            nPacketSize = self.cam.MV_CC_GetOptimalPacketSize()
             if int(nPacketSize) > 0:
-                ret = cam.MV_CC_SetIntValue("GevSCPSPacketSize", nPacketSize)
+                ret = self.cam.MV_CC_SetIntValue("GevSCPSPacketSize", nPacketSize)
                 if ret != 0:
                     print("Warning: Set Packet Size fail! ret[0x%x]" % ret)
             else:
                 print("Warning: Get Packet Size fail! ret[0x%x]" % nPacketSize)
 
         # ch:设置触发模式为off | en:Set trigger mode as off
-        ret = cam.MV_CC_SetEnumValue("TriggerMode", MV_TRIGGER_MODE_OFF)
+        ret = self.cam.MV_CC_SetEnumValue("TriggerMode", MV_TRIGGER_MODE_OFF)
         if ret != 0:
             print("set trigger mode fail! ret[0x%x]" % ret)
             # sys.exit()
-            return ERR, ERR, ERR
+            return ERR, ERR
 
         # ch:获取数据包大小 | en:Get payload size
         stParam = MVCC_INTVALUE()
@@ -162,55 +170,64 @@ class Camera(object):
         # print(stParam.nInc)
         memset(byref(stParam), 0, sizeof(MVCC_INTVALUE))
 
-        ret = cam.MV_CC_GetIntValue("PayloadSize", stParam)
+        ret = self.cam.MV_CC_GetIntValue("PayloadSize", stParam)
         if ret != 0:
             print("get payload size fail! ret[0x%x]" % ret)
             # sys.exit()
-            return ERR, ERR, ERR
+            return ERR, ERR
         nPayloadSize = stParam.nCurValue
 
         # ch:开始取流 | en:Start grab image
-        ret = cam.MV_CC_StartGrabbing()
+        ret = self.cam.MV_CC_StartGrabbing()
         if ret != 0:
             print("start grabbing fail! ret[0x%x]" % ret)
             # sys.exit()
-            return ERR, ERR, ERR
+            return ERR, ERR
         data_buf = (c_ubyte * nPayloadSize)()
-        return cam, data_buf, nPayloadSize
+        return data_buf, nPayloadSize
 
+    def getImage(self):
+        ret = self.cam.MV_CC_GetOneFrameTimeout(byref(self._data_buf), self._nPayloadSize, self.stFrameInfo, 1000)
+        if ret == 0:
+            print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
+                self.stFrameInfo.nWidth, self.stFrameInfo.nHeight, self.stFrameInfo.nFrameNum))
+        else:
+            print("no data[0x%x]" % ret)
+        temp = np.asarray(self._data_buf)
+        temp = temp.reshape((960, 1280, 3))
+        temp = cv2.cvtColor(temp, cv2.COLOR_BGR2RGB)
+        return temp
 
-    def destroy(self, _cam, _data_buf):
+    def destroy(self):
+        _data_buf = self._data_buf
         # ch:停止取流 | en:Stop grab image
-        ret = _cam.MV_CC_StopGrabbing()
+        ret = self.cam.MV_CC_StopGrabbing()
         if ret != 0:
             print("stop grabbing fail! ret[0x%x]" % ret)
             del _data_buf
-            # sys.exit()
-            return ERR, ERR, ERR
+            sys.exit()
 
         # ch:关闭设备 | Close device
-        ret = _cam.MV_CC_CloseDevice()
+        ret = self.cam.MV_CC_CloseDevice()
         if ret != 0:
             print("close deivce fail! ret[0x%x]" % ret)
             del _data_buf
-            # sys.exit()
-            return ERR, ERR, ERR
+            sys.exit()
         # ch:销毁句柄 | Destroy handle
-        ret = _cam.MV_CC_DestroyHandle()
+        ret = self.cam.MV_CC_DestroyHandle()
         if ret != 0:
             print("destroy handle fail! ret[0x%x]" % ret)
             del _data_buf
-            # sys.exit()
-            return ERR, ERR, ERR
+            sys.exit()
         del _data_buf
 
 
 def main():
     """主程序"""
     cam = Camera()
-    nConnectionNum = cam.get_device_num()
+    # nConnectionNum = cam.get_device_num()
     # cam.get_device_num()
-    _cam, _data_buf, _nPayloadSize = cam.connect_cam(nConnectionNum)
+    # _data_buf, _nPayloadSize = cam.connect_cam(nConnectionNum)
 
     # work_thread(_cam, _data_buf, _nPayloadSize)
 
@@ -227,7 +244,7 @@ def main():
     #     if cv2.waitKey(1) & 0xFF == ord('q'):
     #         break
     try:
-        hThreadHandle = threading.Thread(target=cam.work_thread, args=(_cam, _data_buf, _nPayloadSize))
+        hThreadHandle = threading.Thread(target=cam.work_thread)
         hThreadHandle.start()
     except:
         print("error: unable to start thread")
@@ -237,7 +254,7 @@ def main():
     global g_bExit
     g_bExit = True
     hThreadHandle.join()
-    cam.destroy(_cam, _data_buf)
+    cam.destroy()
 
 
 if __name__ == "__main__":
