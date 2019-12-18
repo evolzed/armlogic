@@ -22,7 +22,7 @@ def main():
         gState = 2                              #设置给State状态为 2 ；
     elif gState == 2:                           #判断gState状态；若为 2 ，进入run，正常交互状态；
         Image.generate()                        #
-        Image.detect_image()                    #检测输入图像
+        Image.detectImage()                    #检测输入图像
         Image.checkImage()                      #check the cnn detected result by image process and image track and then update the bottle dict
         Image.checkState()                      #检测gState状态，返回 2 ；
         print("gState = 2")                     #打印gState状态；

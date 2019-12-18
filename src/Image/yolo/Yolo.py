@@ -102,7 +102,7 @@ class YOLO(object):
                 score_threshold=self.score, iou_threshold=self.iou)
         return boxes, scores, classes
 
-    def detect_image(self, image):
+    def detectImage(self, image):
         start = timer()
 
         if self.model_image_size != (None, None):
@@ -169,5 +169,5 @@ class YOLO(object):
         print(end - start)
         return image
 
-    def close_session(self):
+    def closeSession(self):
         self.sess.close()
