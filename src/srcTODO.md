@@ -22,7 +22,7 @@ class Image
 
 
 
-**##BS0.2: Control** 
+##BS0.2: Control
 
 class Image
 
@@ -36,12 +36,12 @@ class Control
 
 
 
-**##BS0.3: MySQL**
+##BS0.3: MySQL
 
 class MySQL
 
 ​	
 
-**##BS0.4: Robot**
+##BS0.4: Robot
 
-**##BS0.5: Test**
+##BS0.5: Test
