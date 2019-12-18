@@ -1,11 +1,12 @@
 # -- coding: utf-8 --
 #!/bin/python
 import sys
+import os
 import threading
 import msvcrt
 import cv2
 import numpy as np
-
+sys.path.append(os.path.abspath("../../"))
 from ctypes import *
 # print(sys.path)
 from lib.HikMvImport.MvCameraControl_class import *
@@ -26,10 +27,10 @@ class Camera(object):
     def __init__(self):
         self.stFrameInfo = MV_FRAME_OUT_INFO_EX()
         memset(byref(self.stFrameInfo), 0, sizeof(self.stFrameInfo))
-        self.nConnectionNum = self.get_device_num()
+        self.nConnectionNum = self.getDeviceNum()
         print("相机初始化···")
         self.cam = MvCamera()
-        self._data_buf, self._nPayloadSize = self.connect_cam()
+        self._data_buf, self._nPayloadSize = self.connectCam()
         if self._data_buf == -1:
             print("相机初始化失败！")
             sys.exit()
@@ -74,7 +75,7 @@ class Camera(object):
             if g_bExit == True:
                 break
 
-    def get_device_num(self):
+    def getDeviceNum(self):
         # ch:枚举设备 | en:Enum device
         ret = MvCamera.MV_CC_EnumDevices(tlayerType, deviceList)
         if ret != 0:
@@ -117,10 +118,9 @@ class Camera(object):
                 print("user serial number: %s" % strSerialNumber)
         # return input("please input the number of the device to connect:")
 
-    def connect_cam(self):
+    def connectCam(self):
         """
-        :param nConnectionNum: 选择检测到得相机序号,默认是0
-        :return: cam实例对象， 数据流data_buf
+        连接相机并返回数据：如果连接成功，返回
         """
         print("Default use the first device found！")
         if int(self.nConnectionNum) >= deviceList.nDeviceNum:
@@ -225,9 +225,9 @@ class Camera(object):
 def main():
     """主程序"""
     cam = Camera()
-    # nConnectionNum = cam.get_device_num()
-    # cam.get_device_num()
-    # _data_buf, _nPayloadSize = cam.connect_cam(nConnectionNum)
+    # nConnectionNum = cam.getDeviceNum()
+    # cam.getDeviceNum()
+    # _data_buf, _nPayloadSize = cam.connectCam(nConnectionNum)
 
     # work_thread(_cam, _data_buf, _nPayloadSize)
 

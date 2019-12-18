@@ -17,8 +17,9 @@ string  PICDIR_motion = "E:\\Xscx2019\\OPENCV_PROJ\\picForMotion\\2\\2";
 //E:\Xscx2019\OPENCV_PROJ\picForMotion\2\2
 string  PICDIR_noise = "E:\\DataShare\\ÒÑ¾­±ê×¢Í¼Æ¬\\yuan\\20191120noise\\2019-11-20";
 string PICDIR_ground = "E:\\Xscx2019\\vedio\\5";
-string  PICDIR_roughlabel = "E:\\DataShare\\DataSet6";
-
+//string  PICDIR_roughlabel = "E:\\DataShare\\DataSet6";
+//string  PICDIR_roughlabel = "E:\\DataShare\\xue";
+string  PICDIR_roughlabel = "E:\\DataShare\\DataSet_nonfu_darknet";
 int main(int argc, char **argv)
 {
 	SamplesEnhance obj;
@@ -28,15 +29,16 @@ int main(int argc, char **argv)
 	//obj.frameSubTest(PICDIR_motion);
 
 	//obj.saltTest(PICDIR_noise, 1000);
-	///obj.foreGroundSegmentTest(PICDIR_ground);
+/////obj.foreGroundSegmentTest(PICDIR_ground);
 	//obj.LKlightflow_trackTest(PICDIR_ground);
 	//obj.LKlightflow_trackCamTest();
 
 	//void SamplesEnhance::roughLabelTest(string PICDIR, int init_left, int init_top, int init_right, int init_down)
-	//obj.roughLabelTest(PICDIR_roughlabel, 437, 411, 656, 542);
+	///obj.roughLabelTest(PICDIR_roughlabel, 437, 411, 656, 542);
+	///obj.roughLabelTestforXueB(PICDIR_roughlabel, 491, 397, 719, 476);
 
 	obj.dnnTest();
-	//waitKey(0);
+	waitKey(0);
 	//char c;
 	//cin >> c;
 	return 0;
