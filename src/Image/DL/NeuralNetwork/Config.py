@@ -16,15 +16,18 @@ CATEGORY = ['Farmer',#农夫山泉
             ]
 CLASS_NUM = len(CATEGORY)
 
-
+"""
+32、16、8表示降采样比例
+如果输入图像尺寸为416*416，则32代表13*13的尺寸、16代表26*26的尺寸、8代表52*52的尺寸
+"""
 ANCHORS_GROUP = {
-    13: [[116, 90], [156, 198], [373, 326]],
-    26: [[30, 61], [62, 45], [59, 119]],
-    52: [[10, 13], [16, 30], [33, 23]]
+    32: [[116, 90], [156, 198], [373, 326]],
+    16: [[30, 61], [62, 45], [59, 119]],
+    8: [[10, 13], [16, 30], [33, 23]]
 }
 
 ANCHORS_GROUP_AREA = {
-    13: [x * y for x, y in ANCHORS_GROUP[13]],
-    26: [x * y for x, y in ANCHORS_GROUP[26]],
-    52: [x * y for x, y in ANCHORS_GROUP[52]],
+    32: [x * y for x, y in ANCHORS_GROUP[13]],
+    16: [x * y for x, y in ANCHORS_GROUP[26]],
+    8: [x * y for x, y in ANCHORS_GROUP[52]],
 }

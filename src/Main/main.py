@@ -12,7 +12,7 @@ import Image                                    #导入图像处理的功能包
 
 def main():
     global gState                               #全局变量gState；
-    global gDir                                 #全局变量gDir；
+    #global gDir                                 #全局变量gDir；
     if gState == 1:                             #判断gState状态；若为 1 ，进入init，设备检查部分；
         Image.connectCam()                      #连接相机
         Image.loadYolo()                        #Tiny-Yolov3模型参数初始化;
