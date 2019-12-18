@@ -376,6 +376,8 @@ int  SamplesEnhance::dnnTest()
 
 			Canny(theobj, theobj, 10, 50);
 
+			//找轮廓 找点的集  fitline
+
 			//Canny(gray(rectFlag), gray(rectFlag), 10, 100);
 			//Mat lines;
 			vector<Vec4d> Lines;
@@ -558,7 +560,7 @@ int  SamplesEnhance::dnnTest()
 			*/
 		
 
-		////imshow("and", frame_delimite_bac);
+		imshow("and", frame_delimite_bac);
 
 		////LKlightflow_track(pre_frame, frame);   //track the current frame
 
@@ -1481,7 +1483,7 @@ int FindOptimumContourForBarcode(vector<std::vector<cv::Point>> contours, Rect &
 	{
 		double max = 0;
 		int maxIndex = 0;
-
+		
 		vector<Moments> mom(contours.size());
 		vector<Point2f> m(contours.size());
 		for (int index = 0; index < contours.size(); index++)
@@ -1645,10 +1647,7 @@ void SamplesEnhance::backgroundDiff(Mat I,Mat &Idst,vector<Rect> &rectArray )
 		vector<Point2f> m(contours.size());
 		for (int index = 0; index < contours.size(); index++)
 		{
-			if (contours.size() == 0)
-			{
-				break;
-			}
+
 			double tmp = fabs(contourArea(contours[index]));
 			Rect rect = boundingRect(contours[index]);
 			Point ct = GetCenterPoint(rect);//几何中心
