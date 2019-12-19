@@ -62,7 +62,6 @@ Reset()
 #     Move(220, y, 20, speed)
 
 #吸，调姿态，放
-
 for y in range(-100, 100, 50):
     Move(140, y, 20, speed)
     Suction_On()
