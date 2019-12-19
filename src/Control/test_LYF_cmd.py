@@ -61,14 +61,14 @@ for y in range(-100, 100, 50):   #取离散的y坐标值
     Move(220, y, 20, speed)
 #程序运行计时
 from timeit import default_timer as timer
-# for ti in range(100, -100, -10):
-#     x = 150
-#     y = ti
-#     Move(x, y, 30, 100)
-#     s = time.time()
-#     swift.set_position(x + 50, y, 30, 100)
-#     e = time.time()
-#     print("用时",e - s)
+for ti in range(100, -100, -10):
+    x = 150
+    y = ti
+    Move(x, y, 30, 100)
+    s = time.time()
+    swift.set_position(x + 50, y, 30, 100)
+    e = time.time()
+    print("用时",e - s)
 
 
 #使用30Pin针脚
