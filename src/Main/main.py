@@ -9,7 +9,6 @@ import sys      				#sys模块是python自带系统模块，可通过此模块�
 import os       				#os模块是路径模块，通常用os来完成路径文件的调用和查看，一般和sys合用。
 import Image                                    #导入图像处理的功能包
 
-
 def main():
     global gState                               #全局变量gState；
     #global gDir                                 #全局变量gDir；
