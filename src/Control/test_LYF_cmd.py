@@ -26,14 +26,14 @@ print(swift.get_device_info()) #机械臂固件4.3.2版本为高性能模式，�
 swift.send_cmd_async('M2400 S0')  # 设置机械臂工作模式，为S0常规模式
 swift.send_cmd_async('M2123 V1')  # 开启失步检测功能
 
-resetSpeed = 50
+resetSpeed = 50 #重置位置时，机械臂的运动速度
 speed = 100   #弧线运动的速度，500
 swift.set_acceleration(5)  #设置加速度，20
 
 def Reset():
     swift.set_position(150,0,100,speed = resetSpeed,wait=False,timeout=10,cmd='G0')#G0模式为两点之间以最快方式到达的模式，G1模式为两点之间以直线到达的模式
     swift.flush_cmd()#清除缓存，保证前序指令一定执行完后，再执行下一个指令。
-    time.sleep(1)
+    time.sleep(1) #延时1秒
 
 def Move(x,y,z,speed):
     swift.set_position(x=x,y=y,z=z,speed=speed,wait=False,timeout=10,cmd='G0')
@@ -52,10 +52,10 @@ Reset()
 
 
 #锯齿+门轨迹
-speed =100  #400
-swift.set_acceleration(5)  #20
-for y in range(-100, 100, 50):
-    Move(140, y, 20, speed)
+speed =100  #最大值400
+swift.set_acceleration(5)  #最大值20
+for y in range(-100, 100, 50):   #取离散的y坐标值
+    Move(140, y, 20, speed)  #运动到(x,y,z,速度)
     Move(140, y, 100, speed)
     Move(220, y, 100, speed)
     Move(220, y, 20, speed)
@@ -72,15 +72,14 @@ for ti in range(100, -100, -10):
 
 
 #使用30Pin针脚
-swift.set_digital_direction(pin = 52,value=1) #设置数字口52为输出
-swift.set_digital_output(pin = 52, value=1)   #设置数字口52为高电平
+swift.set_digital_direction(pin = 52,value=1) #设置30Pin数字口D52为输出
+swift.set_digital_output(pin = 52, value=1)   #设置数字口D52为高电平
 time.sleep(2)
-swift.set_digital_output(pin = 52, value=0)   #设置数字口52为低电平
+swift.set_digital_output(pin = 52, value=0)   #设置数字口D52为低电平
 
-#使用末端limit_switch
-speed = 10   #弧线运动的速度，500
-swift.set_acceleration(2)  #设置加速度，20
-Z = 100
+#使用末端limit_switch传感器
+speed = 10
+swift.set_acceleration(2)
 while swift.get_limit_switch() == False and Z >= 10:
     Move(150, 0, Z, speed)
     Z = Z - 2
