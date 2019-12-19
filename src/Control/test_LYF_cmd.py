@@ -61,30 +61,30 @@ for y in range(-100, 100, 50):   #取离散的y坐标值
     Move(220, y, 20, speed)
 #程序运行计时
 from timeit import default_timer as timer
-for ti in range(100, -100, -10):
-    x = 150
-    y = ti
-    Move(x, y, 30, 100)
-    s = time.time()
-    swift.set_position(x + 50, y, 30, 100)
-    e = time.time()
-    print("用时",e - s)
+# for ti in range(100, -100, -10):
+#     x = 150
+#     y = ti
+#     Move(x, y, 30, 100)
+#     s = time.time()
+#     swift.set_position(x + 50, y, 30, 100)
+#     e = time.time()
+#     print("用时",e - s)
 
 
 #使用30Pin针脚
-swift.set_digital_direction(pin = 52,value=1) #设置30Pin数字口D52为输出
-swift.set_digital_output(pin = 52, value=1)   #设置数字口D52为高电平
-time.sleep(2)
-swift.set_digital_output(pin = 52, value=0)   #设置数字口D52为低电平
+# swift.set_digital_direction(pin = 52,value=1) #设置30Pin数字口D52为输出
+# swift.set_digital_output(pin = 52, value=1)   #设置数字口D52为高电平
+# time.sleep(2)
+# swift.set_digital_output(pin = 52, value=0)   #设置数字口D52为低电平
 
 #使用末端limit_switch传感器
-speed = 10
-swift.set_acceleration(2)
-while swift.get_limit_switch() == False and Z >= 10:
-    Move(150, 0, Z, speed)
-    Z = Z - 2
-Suction_On()
-time.sleep(0.2)
-Move(150, 0, Z + 50, speed)
-time.sleep(0.2)
-Suction_Off()
+# speed = 10
+# swift.set_acceleration(2)
+# while swift.get_limit_switch() == False and Z >= 10:
+#     Move(150, 0, Z, speed)
+#     Z = Z - 2
+# Suction_On()
+# time.sleep(0.2)
+# Move(150, 0, Z + 50, speed)
+# time.sleep(0.2)
+# Suction_Off()
