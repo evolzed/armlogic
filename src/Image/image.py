@@ -9,14 +9,16 @@ sys.path.append(os.path.abspath("../../"))
 from lib.HikMvImport.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
 from camera import Camera, g_bExit
 from yolo.Yolo import *
+from src.Image.imageProcess.bgLearn import Bglearn
 
 
 class Image(object):
     """create main Image class for processing images"""
-    def __init__(self, cam, yolo):
+    def __init__(self, cam, yolo, bgLearn):
         """相机自检"""
         self.cam = cam
         self.yolo = yolo
+        self.bgLearn=bgLearn
         self.deviceNum = cam.getDeviceNum()
         self._data_buf, self._nPayloadsize = self.cam.connectCam()
         if -1 == self._data_buf:
@@ -113,13 +115,37 @@ class Image(object):
         cv2.waitKey(1000)
         return dataDict
 
-
+"""
 if __name__ == '__main__':
     cam = Camera()
     _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
     yolo = YOLO()
+
+   
     _image = Image(cam, yolo)
     dataDict = _image.detectSingleImage(_frame, nf)
     print(dataDict)
     # image.detectVideo(yolo)
+"""
+
+if __name__ == '__main__':
+    cam = Camera()
+    print("准备载入yolo网络！")
+    yolo = YOLO()
+    print("准备背景学习！")
+    bgobj = Bglearn()
+    bgobj.studyBackgroundFromCam(cam)
+    bgobj.createModelsfromStats(6.0)
+    _image = Image(cam, yolo, bqgobj)
+    print("开始！")
+    while 1:
+        try:
+            _frame, nf = cam.getImage()
+            frameDelBg = _image.bgobj.delBg(_frame)
+            dataDict = _image.detectSingleImage(frameDelBg, nf)
+            print(dataDict)
+        except Exception as e:
+            print(e)
+            cam.destroy()
+    cam.destroy()
