@@ -27,7 +27,8 @@ def main():
         print("gState = 2")                     #打印gState状态；
     elif gState == 3:                           #判断gState状态；若为 3 ，进入debug，调试阶段；
         print("gState = 3")                     #打印gState状态；
-    
+        #   if ()...
+        gState = 1
 if __name__ == "__main__":                      #main模块
     print("please type the gState: ")
     gState = int(input())                       #手动输入gState
