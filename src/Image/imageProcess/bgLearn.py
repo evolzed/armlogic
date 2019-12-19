@@ -91,8 +91,8 @@ class Bglearn():
         self.IdiffF = cv2.add(self.IdiffF, 1.0)
         # cv2.imshow("avg", IavgF)
         # cv2.imshow("diff", IdiffF)
-        cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\a.jpg", self.IavgF)
-        cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\d.jpg", self.IdiffF)
+        #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\a.jpg", self.IavgF)
+        #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\d.jpg", self.IdiffF)
         # cv2.add(IavgF,IdiffF, IhiF)
 
         self.IdiffF = self.IdiffF * scale
@@ -100,8 +100,8 @@ class Bglearn():
         self.IhiF = cv2.add(self.IavgF, self.IdiffF)
         # cv2.subtract(IavgF, IdiffF, IlowF)
         self.IlowF = cv2.subtract(self.IavgF, self.IdiffF)
-        cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
-        cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
+        #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
+        #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
 
     def studyBackgroundFromCam(self, cam):
         # get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
@@ -248,7 +248,7 @@ if __name__ == "__main__":
     # global show
     cam = Camera()
     # nConnectionNum = cam.get_device_num()
-    _data_buf, _nPayloadSize = cam.connectCam()
+    #_data_buf, _nPayloadSize = cam.connectCam()
     bgobj = Bglearn()
     bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats(6.0)

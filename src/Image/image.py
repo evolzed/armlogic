@@ -132,6 +132,7 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     cam = Camera()
+    _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
     yolo = YOLO()
     print("准备背景学习！")
