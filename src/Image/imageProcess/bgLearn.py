@@ -88,9 +88,7 @@ class Bglearn():
         self.IdiffF = self.IdiffF/self.Icount
         print("IavgF[100,100,0]:", self.IavgF[100, 100, 0])
         print("IdiffF[100,100,0]:", self.IdiffF[100, 100, 0])
-
-        # cv2.add(IdiffF, 1.0, IdiffF)  # 这个必须有
-        self.IdiffF = cv2.add(self.IdiffF, 1.0)  # 这个必须有
+        self.IdiffF = cv2.add(self.IdiffF, 1.0)
         # cv2.imshow("avg", IavgF)
         # cv2.imshow("diff", IdiffF)
         cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\a.jpg", self.IavgF)
@@ -141,13 +139,13 @@ class Bglearn():
             print(e)
             cam.destroy()
 
-    # https://www.cnblogs.com/mrfri/p/8550328.html
-    # rectArray=np.zeros(shape=(1,4),dtype=float)
 
     def backgroundDiff(self, src0, dst):
         # when get pic frame from camera, use the backgroundDiff to  segment the frame pic;
         # if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
         # will change to white,otherwise, it will cover to black.
+        # https://www.cnblogs.com/mrfri/p/8550328.html
+        # rectArray=np.zeros(shape=(1,4),dtype=float)
 
         """
                Parameters
@@ -178,7 +176,7 @@ class Bglearn():
 
         # cv2.inRange(src, IlowF, IhiF, dst)
         dst = cv2.inRange(src, self.IlowF, self.IhiF)
-        cv2.imshow("segment_debug", dst)
+        #cv2.imshow("segment_debug", dst)
         print("is this ok00?")
         dst = cv2.morphologyEx(dst, cv2.MORPH_OPEN, self.kernel7)
         print("is this ok01?")
@@ -231,6 +229,12 @@ class Bglearn():
                 print("rectArray", rectArray)
         return rectArray, dst
 
+    def delBg(self,src):
+        #simply output the frame that delete the background
+        dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
+        resarray, bgMask = self.backgroundDiff(frame, dst)
+        frame_delimite_bac = cv2.bitwise_and(frame, frame, mask=bgMask)
+        return frame_delimite_bac
 
     # checkImage
 
@@ -253,12 +257,16 @@ if __name__ == "__main__":
             frame, nFrameNum = cam.getImage()
             cv2.imshow("cam", frame)
             show = frame.copy()
-            dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
-            resarray, bgMask = bgobj.backgroundDiff(frame, dst)
-            frame_delimite_bac = cv2.bitwise_and(frame, frame, mask=bgMask)
-            cv2.imshow("show0", show)
-            cv2.imshow("show1", bgMask)
-            cv2.imshow("output", frame_delimite_bac)
+            #dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
+            #resarray, bgMask = bgobj.backgroundDiff(frame, dst)
+            #frame_delimite_bac = cv2.bitwise_and(frame, frame, mask=bgMask)
+
+
+            #cv2.imshow("show0", show)
+            #cv2.imshow("show1", bgMask)
+
+            frameDelBg = bgobj.delBg(frame)
+            cv2.imshow("output", frameDelBg)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -266,7 +274,4 @@ if __name__ == "__main__":
         except Exception as e:
             print(e)
             cam.destroy()
-
-    cv2.waitKey(10)
-
     cam.destroy()
