@@ -137,7 +137,7 @@ if __name__ == '__main__':
     bgobj = Bglearn()
     bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats(6.0)
-    _image = Image(cam, yolo, bqgobj)
+    _image = Image(cam, yolo, bgobj)
     print("开始！")
     while 1:
         try:
