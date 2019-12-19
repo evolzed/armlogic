@@ -196,7 +196,7 @@ class Bglearn():
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel13)  # eclipice
         binary, contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        cv2.drawContours(show, contours, -1, (0, 255, 0), 3)
+        cv2.drawContours(self.show, contours, -1, (0, 255, 0), 3)
         contourLen = len(contours)
         print(contourLen)
         momentList = []
@@ -256,7 +256,7 @@ if __name__ == "__main__":
         try:
             frame, nFrameNum = cam.getImage()
             cv2.imshow("cam", frame)
-            show = frame.copy()
+            bgobj.show = frame.copy()
             #dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
             #resarray, bgMask = bgobj.backgroundDiff(frame, dst)
             #frame_delimite_bac = cv2.bitwise_and(frame, frame, mask=bgMask)
