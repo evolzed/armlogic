@@ -60,32 +60,32 @@ for y in range(-100, 100, 50):
     Move(220, y, 100, speed)
     Move(220, y, 20, speed)
 #程序运行计时
-#from timeit import default_timer as timer
-# for ti in range(100, -100, -10):
-#     x = 150
-#     y = ti
-#     Move(x, y, 30, 100)
-#     s = time.time()
-    # swift.set_position(x + 50, y, 30, 100)
-    # e = time.time()
-    # print("用时",e - s)
+from timeit import default_timer as timer
+for ti in range(100, -100, -10):
+    x = 150
+    y = ti
+    Move(x, y, 30, 100)
+    s = time.time()
+    swift.set_position(x + 50, y, 30, 100)
+    e = time.time()
+    print("用时",e - s)
 
 
 #使用30Pin针脚
-# swift.set_digital_direction(pin = 52,value=1) #设置数字口52为输出
-# swift.set_digital_output(pin = 52, value=1)   #设置数字口52为高电平
-# time.sleep(2)
-# swift.set_digital_output(pin = 52, value=0)   #设置数字口52为低电平
+swift.set_digital_direction(pin = 52,value=1) #设置数字口52为输出
+swift.set_digital_output(pin = 52, value=1)   #设置数字口52为高电平
+time.sleep(2)
+swift.set_digital_output(pin = 52, value=0)   #设置数字口52为低电平
 
 #使用末端limit_switch
-# speed = 10   #弧线运动的速度，500
-# swift.set_acceleration(2)  #设置加速度，20
-# Z = 100
-# while swift.get_limit_switch() == False and Z >= 10:
-#     Move(150, 0, Z, speed)
-#     Z = Z - 2
-# Suction_On()
-# time.sleep(0.2)
-# Move(150, 0, Z + 50, speed)
-# time.sleep(0.2)
-# Suction_Off()
+speed = 10   #弧线运动的速度，500
+swift.set_acceleration(2)  #设置加速度，20
+Z = 100
+while swift.get_limit_switch() == False and Z >= 10:
+    Move(150, 0, Z, speed)
+    Z = Z - 2
+Suction_On()
+time.sleep(0.2)
+Move(150, 0, Z + 50, speed)
+time.sleep(0.2)
+Suction_Off()
