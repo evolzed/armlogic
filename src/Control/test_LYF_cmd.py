@@ -13,8 +13,8 @@ import math
 
 import functools
 import threading
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
-from uarm.wrapper import SwiftAPI
+# sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
+from lib.uArmSDK.uarm.wrapper import SwiftAPI
 
 swift = SwiftAPI(filters={'hwid': 'USB VID:PID=2341:0042'}, enable_handle_thread=False)
 # swift = SwiftAPI(filters={'hwid': 'USB VID:PID=2341:0042'}, enable_write_thread=True)
