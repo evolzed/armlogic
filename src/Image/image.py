@@ -130,6 +130,36 @@ if __name__ == '__main__':
     # image.detectVideo(yolo)
 """
 
+def imageInit():
+    cam = Camera()
+    # _frame, nf = cam.getImage()
+    print("准备载入yolo网络！")
+    yolo = YOLO()
+    print("准备背景学习！")
+    bgobj = Bglearn()
+    bgobj.studyBackgroundFromCam(cam)
+    bgobj.createModelsfromStats(6.0)
+    _image = Image(cam, yolo, bgobj)
+    print("开始！")
+    return cam,_image
+
+def imageRun(cam,_image):
+    while 1:
+        try:
+            _frame, nf = cam.getImage()
+            frameDelBg = _image.bgLearn.delBg(_frame)
+            dataDict = _image.detectSingleImage(frameDelBg, nf)
+            dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
+            #cv2.waitKey(10)
+            print(dataDict)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        except Exception as e:
+            print(e)
+            break
+    cam.destroy()
+
+"""
 if __name__ == '__main__':
     cam = Camera()
     # _frame, nf = cam.getImage()
@@ -146,6 +176,7 @@ if __name__ == '__main__':
             _frame, nf = cam.getImage()
             frameDelBg = _image.bgLearn.delBg(_frame)
             dataDict = _image.detectSingleImage(frameDelBg, nf)
+            dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
             #cv2.waitKey(10)
             print(dataDict)
             if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -154,3 +185,8 @@ if __name__ == '__main__':
             print(e)
             break
     cam.destroy()
+"""
+
+if __name__ == '__main__':
+    cam, _image=imageInit()
+    imageRun(cam, _image)

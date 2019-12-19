@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from src.Image.camera import Camera
+from timeit import default_timer as timer
 
 
 # bgLearn
@@ -31,6 +32,7 @@ class Bglearn():
         self.kernel19 = np.ones((19, 19), np.uint8)
         self.kernel25 = np.ones((25, 25), np.uint8)
         self.show = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
+        self.bgTimeCost=0
         #for show
 
     def avgBackground(self, I):
@@ -230,10 +232,16 @@ class Bglearn():
         return rectArray, dst
 
     def delBg(self,src):
+        prev_time = timer()
         #simply output the frame that delete the background
         dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
         resarray, bgMask = self.backgroundDiff(src, dst)
         frame_delimite_bac = cv2.bitwise_and(src, src, mask=bgMask)
+        curr_time = timer()
+        #calculate the cost time
+        exec_time = curr_time - prev_time
+        self.bgTimeCost =exec_time
+        print("Del background Cost time:", self.bgTimeCost)
         return frame_delimite_bac
 
     # checkImage
