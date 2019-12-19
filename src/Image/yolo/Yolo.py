@@ -132,21 +132,24 @@ class YOLO(object):
         font = ImageFont.truetype(font='yolo/font/FiraMono-Medium.otf',
                     size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = (image.size[0] + image.size[1]) // 300
-
+        # 保存需要返回的数据的集合
+        dataDict = {"image": image}
+        boxList = []
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]
             box = out_boxes[i]
             score = out_scores[i]
-
             label = '{} {:.2f}'.format(predicted_class, score)
             draw = ImageDraw.Draw(image)
             label_size = draw.textsize(label, font)
-
+            # left, top, right, bottom == xmin, ymin, xmax, ymax
             top, left, bottom, right = box
             top = max(0, np.floor(top + 0.5).astype('int32'))
             left = max(0, np.floor(left + 0.5).astype('int32'))
             bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
             right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
+            boxList.append((predicted_class, score, left, top, right, bottom))
+            dataDict["box"] = boxList
             print(label, (left, top), (right, bottom))
 
             if top - label_size[1] >= 0:
@@ -166,8 +169,9 @@ class YOLO(object):
             del draw
 
         end = timer()
+        # dataDict["timecost"] = end
         print(end - start)
-        return image
+        return dataDict
 
     def closeSession(self):
         self.sess.close()

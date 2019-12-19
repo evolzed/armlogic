@@ -187,16 +187,22 @@ class Camera(object):
         return data_buf, nPayloadSize
 
     def getImage(self):
+        """
+        :return:返回一帧图像，和帧号
+        """
         ret = self.cam.MV_CC_GetOneFrameTimeout(byref(self._data_buf), self._nPayloadSize, self.stFrameInfo, 1000)
         if ret == 0:
             print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
                 self.stFrameInfo.nWidth, self.stFrameInfo.nHeight, self.stFrameInfo.nFrameNum))
         else:
             print("no data[0x%x]" % ret)
-        temp = np.asarray(self._data_buf)
-        temp = temp.reshape((960, 1280, 3))
-        temp = cv2.cvtColor(temp, cv2.COLOR_BGR2RGB)
-        return temp
+        frame = np.asarray(self._data_buf)
+        frame = frame.reshape((960, 1280, 3))
+        # todo
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # cv2.imshow("rrr", frame)
+        # cv2.waitKey(10)
+        return frame, self.stFrameInfo.nFrameNum
 
     def destroy(self):
         _data_buf = self._data_buf

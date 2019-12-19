@@ -2,10 +2,10 @@ import torch
 from torch import nn
 from .Config import CLASS_NUM
 
-'''上采样，扩大特征尺寸'''
-
 
 class UpSampleLayer(nn.Module):
+    """上采样，扩大特征尺寸"""
+
     def __init__(self):
         super().__init__()
 
@@ -13,10 +13,9 @@ class UpSampleLayer(nn.Module):
         return nn.functional.interpolate(x, scale_factor=2)
 
 
-'''卷积层'''
-
-
 class ConvolutionalLayer(nn.Module):
+    """卷积层"""
+
     def __init__(self, inChannels, outChannels, kernelSize, stride=1, padding=0, groups=1, normalize=True,
                  bias=False):
         super().__init__()
@@ -35,46 +34,42 @@ class ConvolutionalLayer(nn.Module):
         return self.subModule(x)
 
 
-'''Expansion Projection Layer'''
-
-
 class EPLayer(nn.Module):
+    """Expansion Projection Layer"""
+
     def __init__(self, inChannels, outChannels, stride=1):
         super().__init__()
         self.subModule = nn.Sequential(
             ConvolutionalLayer(inChannels, outChannels, 1),  # 逐点卷积扩通道
             ConvolutionalLayer(outChannels, outChannels, 3, stride, 1,
-                               groups=outChannels),
-            # 深度分离卷积
+                               groups=outChannels),  # 深度分离卷积
             ConvolutionalLayer(outChannels, outChannels, 1)  # 逐点卷积进行通道信息融合，通道尺寸保持
         )
 
     def forward(self, x):
-        return self.subModule(x)
-
-
-'''Projection Expansion Projection Layer'''
+        return x + self.subModule(x)
 
 
 class PEPLayer(nn.Module):
-    def __init__(self, inChannels, outChannels, expand_ratio):
+    """Projection Expansion Projection Layer"""
+
+    def __init__(self, inChannels, outChannels, projection):
         super().__init__()
         self.subModule = nn.Sequential(
-            ConvolutionalLayer(inChannels, expand_ratio, 1),  # 逐点卷积扩通道
-            ConvolutionalLayer(expand_ratio, expand_ratio, 1),  # 逐点卷积扩通道
-            ConvolutionalLayer(expand_ratio, expand_ratio, 3, 1, 1,
-                               groups=expand_ratio),  # 深度分离卷积
-            ConvolutionalLayer(expand_ratio, outChannels, 1)  # 逐点卷积进行通道信息融合，通道尺寸保持
+            ConvolutionalLayer(inChannels, projection, 1),  # 逐点卷积扩通道
+            ConvolutionalLayer(projection, projection, 1),  # 逐点卷积扩通道
+            ConvolutionalLayer(projection, projection, 3, 1, 1,
+                               groups=projection),  # 深度分离卷积
+            ConvolutionalLayer(projection, outChannels, 1)  # 逐点卷积进行通道信息融合，通道尺寸保持
         )
 
     def forward(self, x):
-        return self.subModule(x)
-
-
-'''Fully Connected Attention Layer'''
+        return x + self.subModule(x)
 
 
 class FCALayer(nn.Module):
+    """Fully Connected Attention Layer"""
+
     def __init__(self, channels, reduction_ratio):
         super().__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
@@ -92,13 +87,12 @@ class FCALayer(nn.Module):
         return x * out.expand_as(x)
 
 
-'''YOLO Nano主网络'''
-
-
 class YOLONano(nn.Module):
+    """YOLO Nano主网络"""
+
     def __init__(self):
         super().__init__()
-        self.trunk_8 = nn.Sequential(
+        self.zoom_8 = nn.Sequential(
             ConvolutionalLayer(3, 12, 3, 1),
             ConvolutionalLayer(12, 24, 3, 2, 1),
             PEPLayer(24, 24, 7),
@@ -113,7 +107,7 @@ class YOLONano(nn.Module):
             PEPLayer(150, 150, 71),
             PEPLayer(150, 150, 75)
         )
-        self.trunk_16 = nn.Sequential(
+        self.zoom_16 = nn.Sequential(
             EPLayer(150, 325, 2),
             PEPLayer(325, 325, 132),
             PEPLayer(325, 325, 124),
@@ -124,7 +118,7 @@ class YOLONano(nn.Module):
             PEPLayer(325, 325, 133),
             PEPLayer(325, 325, 140)
         )
-        self.trunk_32 = nn.Sequential(
+        self.zoom_32 = nn.Sequential(
             EPLayer(325, 545, 2),
             PEPLayer(545, 545, 276),
             ConvolutionalLayer(545, 230, 1),
@@ -139,16 +133,38 @@ class YOLONano(nn.Module):
         self.up_16 = nn.Sequential(
             ConvolutionalLayer(189, 105, 1),
             UpSampleLayer()
+
+        )
+        self.convset_16 = nn.Sequential(
+            PEPLayer(430, 325, 113),
+            PEPLayer(325, 207, 99),
+            ConvolutionalLayer(207, 98, 1)
         )
         self.detection_16 = nn.Sequential(
-            PEPLayer(294, 325, 113)
+            EPLayer(98, 183),
+            ConvolutionalLayer(183, 3 * (5 + CLASS_NUM), 1)
         )
         self.up_8 = nn.Sequential(
-
+            ConvolutionalLayer(98, 47, 1),
+            UpSampleLayer()
         )
         self.detection_8 = nn.Sequential(
-
+            PEPLayer(197, 122, 58),
+            PEPLayer(122, 87, 52),
+            PEPLayer(87, 93, 47),
+            ConvolutionalLayer(93, 3 * (5 + CLASS_NUM), 1)
         )
 
     def forward(self, x):
-        pass
+        zoom_out_8 = self.zoom_8(x)  # 降采样8倍
+        zoom_out_16 = self.zoom_16(zoom_out_8)
+        zoom_out_32 = self.zoom_32(zoom_out_16)
+
+        up_out_16 = self.up_16(zoom_out_32)
+        route_out_16 = torch.cat((up_out_16, zoom_out_16), 1)
+        conv_out_16 = self.convset_16(route_out_16)
+
+        up_out_8 = self.up_8(conv_out_16)
+        route_out_8 = torch.cat((up_out_8, zoom_out_8), 1)
+
+        return self.detection_32(zoom_out_32), self.detection_16(conv_out_16), self.detection_8(route_out_8)
