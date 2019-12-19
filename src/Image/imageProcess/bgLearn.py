@@ -2,10 +2,10 @@ import cv2
 import numpy as np
 from lib.camera import Camera
 
-#bgLearn
-#Description:
-#Learn the backgroud by pics from cam then get a background model
-#bgLearn is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
+# bgLearn
+# Description:
+# Learn the backgroud by pics from cam then get a background model
+# bgLearn is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
 
 """
 cam = Camera()
@@ -36,7 +36,8 @@ kernel25 = np.ones((25, 25), np.uint8)
 show = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
 
 
-def avgBackground(I):#read background pics from disk,and then calculate every frame difference,and accumulate every frame difference#to a sum of frame difference,and then calculate the average frame difference,meanwhile,accumulate every frame to a sum of frame and#then calculate the average frame.
+def avgBackground(
+        I):  # read background pics from disk,and then calculate every frame difference,and accumulate every frame difference#to a sum of frame difference,and then calculate the average frame difference,meanwhile,accumulate every frame to a sum of frame and#then calculate the average frame.
     """
     Parameters
     --------------
@@ -65,7 +66,7 @@ def avgBackground(I):#read background pics from disk,and then calculate every fr
     IprevF = I.copy()
 
 
-def createModelsfromStats(scale): # average the frame and frame difference to get the background model
+def createModelsfromStats(scale):  # average the frame and frame difference to get the background model
     """
        Parameters
        --------------
@@ -119,7 +120,8 @@ def createModelsfromStats(scale): # average the frame and frame difference to ge
 # setHighThreshold(high_threadhold);
 # setLowThreshold(low_threadhold);
 
-def studyBackgroundFromCam(cam):#get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
+def studyBackgroundFromCam(
+        cam):  # get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
     """
         Parameters
          --------------
@@ -177,7 +179,7 @@ def studyBackgroundFromCam(cam):#get 100 pics for time interval of 60sec by cam 
 rectArray = []
 
 
-def backgroundDiff(src0, dst):# when get pic frame from camera, use the backgroundDiff to  segment the frame pic;
+def backgroundDiff(src0, dst):  # when get pic frame from camera, use the backgroundDiff to  segment the frame pic;
     # if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
     # will change to white,otherwise, it will cover to black.
 
@@ -247,6 +249,8 @@ def backgroundDiff(src0, dst):# when get pic frame from camera, use the backgrou
             contourCenterGy = int(contourM['m01'] / contourM['m00'])
             contourArea = cv2.contourArea(contours[i])
             contourhull = cv2.convexHull(contours[i])  # 凸包
+            cv2.polylines(show, [contourhull], True, (500, 255, 0), 2)
+
             contourBndBox = cv2.boundingRect(contours[i])  # x,y,w,h
             print("contourBndBox type", type(contourBndBox))
             x = contourBndBox[0]
@@ -261,6 +265,7 @@ def backgroundDiff(src0, dst):# when get pic frame from camera, use the backgrou
             print("pre final")
             # rectArray = np.append(rectArray, contourBndBox, axis=0)
             rectArray.append(contourBndBox)
+
             print("final")
             print("rectArray", rectArray)
     return rectArray, dst
@@ -270,12 +275,12 @@ def backgroundDiff(src0, dst):# when get pic frame from camera, use the backgrou
 
 # img = cv2.line(src,(cols-1,righty),(0,lefty),(0,255,0),2)
 
-#checkImage
+# checkImage
 
-#Description:
-#checkImage is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
+# Description:
+# checkImage is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
 
-#checkImage Implemente Details:
+# checkImage Implemente Details:
 
 if __name__ == "__main__":
     # global bgVector
@@ -291,10 +296,13 @@ if __name__ == "__main__":
             frame = cam.getImage(_cam, _data_buf, _nPayloadSize)
             cv2.imshow("cam", frame)
             show = frame.copy()
-            dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
-            resarray, segmat = backgroundDiff(frame, dst)
+            dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)q
+            resarray, bgMask = backgroundDiff(frame, dst)
+            frame_delimite_bac = cv2.bitwise_and(frame, frame, mask=bgMask)
             cv2.imshow("show0", show)
-            cv2.imshow("show1", segmat)
+            cv2.imshow("show1", bgMask)
+            cv2.imshow("output",frame_delimite_bac)
+
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
             cv2.waitKey(10)
