@@ -30,9 +30,11 @@ def main():
             logger.info("this is debug information ...")
             gState = 1
 
+
 if __name__ == "__main__":
     print("please type the gState: ")
     gState = int(input())
+    print("please type the message (debug_test: 1 for bug ; 0 for normal): ")
     message = int(input())
     #n = 0
     while True:
