@@ -142,7 +142,7 @@ if __name__ == '__main__':
     while 1:
         try:
             _frame, nf = cam.getImage()
-            frameDelBg = _image.bgobj.delBg(_frame)
+            frameDelBg = _image.bgLearn.delBg(_frame)
             dataDict = _image.detectSingleImage(frameDelBg, nf)
             print(dataDict)
         except Exception as e:
