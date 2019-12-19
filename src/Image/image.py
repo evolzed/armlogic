@@ -112,7 +112,8 @@ class Image(object):
         dataDict["nFrame"] = nFrame
         arr = np.asarray(dataDict["image"])
         cv2.imshow("ff", arr)
-        cv2.waitKey(1000)
+        #cv2.waitKey(1000)
+        cv2.waitKey(10)
         return dataDict
 
 """
@@ -144,6 +145,7 @@ if __name__ == '__main__':
             _frame, nf = cam.getImage()
             frameDelBg = _image.bgLearn.delBg(_frame)
             dataDict = _image.detectSingleImage(frameDelBg, nf)
+            #cv2.waitKey(10)
             print(dataDict)
         except Exception as e:
             print(e)
