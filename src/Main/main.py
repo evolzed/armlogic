@@ -27,6 +27,7 @@ def main():
         print("gState = 2")                     #打印gState状态；
     elif gState == 3:                           #判断gState状态；若为 3 ，进入debug，调试阶段；
         print("gState = 3")                     #打印gState状态；
+		
 		gState = 1;								#log文档写入设置完成！正常运行，进入初始状态
 if __name__ == "__main__":                      #main模块
     print("please type the gState: ")
