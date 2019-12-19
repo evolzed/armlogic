@@ -232,8 +232,8 @@ class Bglearn():
     def delBg(self,src):
         #simply output the frame that delete the background
         dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
-        resarray, bgMask = self.backgroundDiff(frame, dst)
-        frame_delimite_bac = cv2.bitwise_and(frame, frame, mask=bgMask)
+        resarray, bgMask = self.backgroundDiff(src, dst)
+        frame_delimite_bac = cv2.bitwise_and(src, src, mask=bgMask)
         return frame_delimite_bac
 
     # checkImage
