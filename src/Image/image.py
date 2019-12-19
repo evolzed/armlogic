@@ -19,9 +19,9 @@ class Image(object):
         self.cam = cam
         self.yolo = yolo
         self.bgLearn=bgLearn
-        self.deviceNum = cam.getDeviceNum()
-        self._data_buf, self._nPayloadsize = self.cam.connectCam()
-        if -1 == self._data_buf:
+        # self.deviceNum = cam.getDeviceNum()
+        # cam._data_buf, cam._nPayloadsize = self.cam.connectCam()
+        if -1 == cam._data_buf:
             print("相机初始化失败！退出程序！")
             sys.exit()
         print("相机初始化完成！")
@@ -34,7 +34,7 @@ class Image(object):
         """
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
         memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
-        if self._data_buf == -1 or self._data_buf is None:
+        if cam._data_buf == -1 or cam._data_buf is None:
             raise IOError("Couldn't open webcam or video")
         # 视频编码格式
         video_FourCC = 6
@@ -50,8 +50,8 @@ class Image(object):
         fps = "FPS: ??"
         prev_time = timer()
         while True:
-            # print(self._data_buf)
-            frame = np.asarray(self._data_buf)
+            # print(cam._data_buf)
+            frame = np.asarray(cam._data_buf)
             frame = frame.reshape((960, 1280, 3))
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = PImage.fromarray(frame)  # PImage: from PIL import Image as PImage
@@ -76,7 +76,7 @@ class Image(object):
                 out.write(result)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            ret = self.cam.MV_CC_GetOneFrameTimeout(byref(self._data_buf), self._nPayloadsize, stFrameInfo, 1000)
+            ret = self.cam.MV_CC_GetOneFrameTimeout(byref(cam._data_buf), cam._nPayloadsize, stFrameInfo, 1000)
             if ret == 0:
                 print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
                     stFrameInfo.nWidth, stFrameInfo.nHeight, stFrameInfo.nFrameNum))
@@ -84,7 +84,7 @@ class Image(object):
                 print("no data[0x%x]" % ret)
             if g_bExit is True:
                 break
-        self.cam.destroy(self.cam, self._data_buf)
+        self.cam.destroy(self.cam, cam._data_buf)
         yolo.closeSession()
 
     def detectSingleImage(self, frame, nFrame):
@@ -112,7 +112,8 @@ class Image(object):
         dataDict["nFrame"] = nFrame
         arr = np.asarray(dataDict["image"])
         cv2.imshow("ff", arr)
-        cv2.waitKey(1000)
+        #cv2.waitKey(1000)
+        cv2.waitKey(10)
         return dataDict
 
 """
@@ -131,21 +132,25 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     cam = Camera()
+    # _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
     yolo = YOLO()
     print("准备背景学习！")
     bgobj = Bglearn()
     bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats(6.0)
-    _image = Image(cam, yolo, bqgobj)
+    _image = Image(cam, yolo, bgobj)
     print("开始！")
     while 1:
         try:
             _frame, nf = cam.getImage()
-            frameDelBg = _image.bgobj.delBg(_frame)
+            frameDelBg = _image.bgLearn.delBg(_frame)
             dataDict = _image.detectSingleImage(frameDelBg, nf)
+            #cv2.waitKey(10)
             print(dataDict)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
         except Exception as e:
             print(e)
-            cam.destroy()
+            break
     cam.destroy()

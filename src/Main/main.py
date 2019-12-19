@@ -2,7 +2,7 @@
 #        第一部分为设备检查部分，gState = 1;
 #        第二部分是正常交互模式（是后期用户交互使用），gState = 2;
 #        第三部分是Debug模式（为后面调试阶段做准备），gState = 3
-        
+
 #!/usr/bin/python
 #导入所需工作包
 import sys      				#sys模块是python自带系统模块，可通过此模块方法进行对localhost的cmd操控。
@@ -27,8 +27,9 @@ def main():
         print("gState = 2")                     #打印gState状态；
     elif gState == 3:                           #判断gState状态；若为 3 ，进入debug，调试阶段；
         print("gState = 3")                     #打印gState状态；
-		
-		gState = 1;								#log文档写入设置完成！正常运行，进入初始状态
+        #   if ()...
+        gState = 1;
+        
 if __name__ == "__main__":                      #main模块
     print("please type the gState: ")
     gState = int(input())                       #手动输入gState

@@ -10,6 +10,7 @@ import os
 import sys
 import time
 import math
+import random
 
 import functools
 import threading
@@ -52,13 +53,25 @@ Reset()
 
 
 #锯齿+门轨迹
-speed =100  #最大值400
-swift.set_acceleration(5)  #最大值20
-for y in range(-100, 100, 50):   #取离散的y坐标值
-    Move(140, y, 20, speed)  #运动到(x,y,z,速度)
+# speed =100  #最大值400
+# swift.set_acceleration(5)  #最大值20
+# for y in range(-100, 100, 50):   #取离散的y坐标值
+#     Move(140, y, 20, speed)  #运动到(x,y,z,速度)
+#     Move(140, y, 100, speed)
+#     Move(220, y, 100, speed)
+#     Move(220, y, 20, speed)
+
+#吸，调姿态，放
+for y in range(-100, 100, 50):
+    Move(140, y, 20, speed)
+    Suction_On()
     Move(140, y, 100, speed)
-    Move(220, y, 100, speed)
-    Move(220, y, 20, speed)
+    angle = random.randint(10, 170)
+    swift.set_wrist(angle = angle, speed = 1)
+    print(angle)
+    Move(140, y, 20, speed)
+    Suction_Off()
+
 #程序运行计时
 from timeit import default_timer as timer
 # for ti in range(100, -100, -10):
@@ -69,7 +82,6 @@ from timeit import default_timer as timer
 #     swift.set_position(x + 50, y, 30, 100)
 #     e = time.time()
 #     print("用时",e - s)
-
 
 #使用30Pin针脚
 # swift.set_digital_direction(pin = 52,value=1) #设置30Pin数字口D52为输出

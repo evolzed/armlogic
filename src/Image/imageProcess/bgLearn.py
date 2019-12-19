@@ -91,8 +91,8 @@ class Bglearn():
         self.IdiffF = cv2.add(self.IdiffF, 1.0)
         # cv2.imshow("avg", IavgF)
         # cv2.imshow("diff", IdiffF)
-        cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\a.jpg", self.IavgF)
-        cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\d.jpg", self.IdiffF)
+        #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\a.jpg", self.IavgF)
+        #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\d.jpg", self.IdiffF)
         # cv2.add(IavgF,IdiffF, IhiF)
 
         self.IdiffF = self.IdiffF * scale
@@ -100,8 +100,8 @@ class Bglearn():
         self.IhiF = cv2.add(self.IavgF, self.IdiffF)
         # cv2.subtract(IavgF, IdiffF, IlowF)
         self.IlowF = cv2.subtract(self.IavgF, self.IdiffF)
-        cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
-        cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
+        #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
+        #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
 
     def studyBackgroundFromCam(self, cam):
         # get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
@@ -196,7 +196,7 @@ class Bglearn():
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel13)  # eclipice
         binary, contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        cv2.drawContours(show, contours, -1, (0, 255, 0), 3)
+        cv2.drawContours(self.show, contours, -1, (0, 255, 0), 3)
         contourLen = len(contours)
         print(contourLen)
         momentList = []
@@ -232,8 +232,8 @@ class Bglearn():
     def delBg(self,src):
         #simply output the frame that delete the background
         dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
-        resarray, bgMask = self.backgroundDiff(frame, dst)
-        frame_delimite_bac = cv2.bitwise_and(frame, frame, mask=bgMask)
+        resarray, bgMask = self.backgroundDiff(src, dst)
+        frame_delimite_bac = cv2.bitwise_and(src, src, mask=bgMask)
         return frame_delimite_bac
 
     # checkImage
@@ -248,7 +248,7 @@ if __name__ == "__main__":
     # global show
     cam = Camera()
     # nConnectionNum = cam.get_device_num()
-    _data_buf, _nPayloadSize = cam.connectCam()
+    #_data_buf, _nPayloadSize = cam.connectCam()
     bgobj = Bglearn()
     bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats(6.0)
@@ -256,7 +256,7 @@ if __name__ == "__main__":
         try:
             frame, nFrameNum = cam.getImage()
             cv2.imshow("cam", frame)
-            show = frame.copy()
+            bgobj.show = frame.copy()
             #dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
             #resarray, bgMask = bgobj.backgroundDiff(frame, dst)
             #frame_delimite_bac = cv2.bitwise_and(frame, frame, mask=bgMask)
