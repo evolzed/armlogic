@@ -37,17 +37,17 @@ show = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
 
 
 def avgBackground(I):#read background pics from disk,and then calculate every frame difference,and accumulate every frame difference#to a sum of frame difference,and then calculate the average frame difference,meanwhile,accumulate every frame to a sum of frame and#then calculate the average frame.
-"""
-Parameters
---------------
-img: input  Mat type pic stream
+    """
+    Parameters
+    --------------
+    img: input  Mat type pic stream
 
-Returns
--------
+    Returns
+    -------
 
-Examples
---------
-"""
+    Examples
+    --------
+    """
     global IavgF
     global IprevF
     global Iscratch2
