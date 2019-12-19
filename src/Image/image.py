@@ -147,7 +147,9 @@ if __name__ == '__main__':
             dataDict = _image.detectSingleImage(frameDelBg, nf)
             #cv2.waitKey(10)
             print(dataDict)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
         except Exception as e:
             print(e)
-            cam.destroy()
+            break
     cam.destroy()
