@@ -75,7 +75,7 @@
 ----
 #  3.**测试BS0.1**
 <table><!--此处为注释：<td>要显示的内容需要写在该标签对中</td>-->
-    <th colspan="9">所属项目</th>
+    <th colspan="9" align="center">所属项目</th>
     <tr>
         <th>用例编号</th>
         <th>所属模块</th>
