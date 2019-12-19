@@ -69,7 +69,7 @@ for ti in range(100, -100, -10):
     swift.set_position(x + 50, y, 30, 100)
     e = time.time()
     print("用时",e - s)
-#1
+#1111
 
 #使用30Pin针脚
 # swift.set_digital_direction(pin = 52,value=1) #设置30Pin数字口D52为输出
