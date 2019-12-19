@@ -8,7 +8,7 @@
 
    tensorflow-gpu==1.6.0或tensorflow-gpu==1.9.0
 
-   python-opencv==3.4.2.16（尽量不要使用最新4+版本）
+   opencv-python==3.4.2.16（尽量不要使用最新4+版本）
 
    numpy==1.16.5（win下需要1.16.5+mkl）
 
