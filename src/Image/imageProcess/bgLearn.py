@@ -50,11 +50,7 @@ class Bglearn():
         Examples
         --------
         """
-        global IavgF
-        global IprevF
-        global Iscratch2
-        global IdiffF
-        global Icount
+
 
         cv2.accumulate(I, self.IavgF)
         # cv2.absdiff(I,IprevF, Iscratch2)
@@ -79,11 +75,7 @@ class Bglearn():
            Examples
            --------
            """
-        global IavgF
-        global IdiffF
-        global IhiF
-        global IlowF
-        #global Icount
+
         print("Icount", self.Icount)
         # Icount+=1
         self.IavgF = self.IavgF/self.Icount
@@ -116,8 +108,6 @@ class Bglearn():
                Examples
             --------
             """
-        global bgVector
-        global BG_STUDY_NUM
         try:
             over_flag = 1
             pic_cnt = 0
@@ -160,10 +150,7 @@ class Bglearn():
                Examples
                --------
            """
-        global IlowF
-        global IhiF
-        global rectArray
-        global show
+
         rectArray = []
         src = np.float32(src0)
         print("IlowF.shape", self.IlowF.shape)
@@ -197,7 +184,7 @@ class Bglearn():
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel13)  # eclipice
-        binary, contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         cv2.drawContours(self.show, contours, -1, (0, 255, 0), 3)
         contourLen = len(contours)
         print(contourLen)
@@ -252,8 +239,7 @@ class Bglearn():
     # checkImage Implemente Details:
 
 if __name__ == "__main__":
-    # global bgVector
-    # global show
+
     cam = Camera()
     # nConnectionNum = cam.get_device_num()
     #_data_buf, _nPayloadSize = cam.connectCam()
