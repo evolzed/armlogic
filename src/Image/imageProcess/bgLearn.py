@@ -24,7 +24,7 @@ class Bglearn():
         #private attribute of class
         # how many pics captured for background study
         self.BG_STUDY_NUM = bgStudyNum
-        # a list for store the pics captured waited for study
+        # a list for store the pics captqured waited for study
         self.bgVector = np.zeros(shape=(self.BG_STUDY_NUM, 960, 1280, 3), dtype=np.float32)
         # average of frames
         self.IavgF = np.zeros(shape=(960, 1280, 3), dtype=np.float32)
@@ -41,7 +41,7 @@ class Bglearn():
         # statistic the count of pics captured waited for study
         self.Icount = 0
         # statistic the Frame number Pre One Second
-        self.nFrameNumPreOneSec = 0
+        #self.nFrameNumPreOneSec = 0
 
         # kernel for image morph process
         self.kernel5 = np.ones((5, 5), np.uint8)
@@ -263,8 +263,6 @@ class Bglearn():
 
     def delBg(self,src):
         # use the mask pic bgMask to make bit and operation to the cam frame to get a pic that del the bacground
-
-
         """
                Parameters
                --------------
@@ -302,15 +300,11 @@ if __name__ == "__main__":
     bgobj = Bglearn(50)
     bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats(6.0)
-#init the fps calculate module
-    prev_time = timer()
-    accum_time = 0
-    curr_fps = 0
-    fps = "FPS: ??"
-    fpsnum = 0
+
     while 1:
         try:
             frame, nFrameNum = cam.getImage()
+            """
             # init the fps calculate module
             curr_time = timer()
             exec_time = curr_time - prev_time
@@ -318,17 +312,19 @@ if __name__ == "__main__":
             accum_time = accum_time + exec_time
             curr_fps = curr_fps + 1
             if accum_time > 1:      # time exceed 1 sec and we will update values
-                fpsnum = nFrameNum - bgobj.nFramqeNumPreOneSec
+                fpsnum = nFrameNum - bgobj.nFramNumPreOneSec
                 print("fpsnum",fpsnum)
                 fps = "FPS: " + str(fpsnum)
                 bgobj.nFrameNumPreOneSec = nFrameNum    #update the nFrameNumPreOneSec every 1 second
                 accum_time =0                           #back to origin
-
+            """
             cv2.imshow("cam", frame)
             bgobj.show = frame.copy()
 
+            fps = cam.getFps(nFrameNum)
             # use the background model to del the bacground of cam frame
             frameDelBg = bgobj.delBg(frame)
+
 
             cv2.putText(frameDelBg, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(255, 0, 0), thickness=2)

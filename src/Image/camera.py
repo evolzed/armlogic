@@ -10,6 +10,7 @@ import numpy as np
 from ctypes import *
 # print(sys.path)
 from lib.HikMvImport.MvCameraControl_class import *
+from timeit import default_timer as timer
 
 g_bExit = False
 # 设置保存的帧间隔
@@ -28,9 +29,22 @@ class Camera(object):
         self.stFrameInfo = MV_FRAME_OUT_INFO_EX()
         memset(byref(self.stFrameInfo), 0, sizeof(self.stFrameInfo))
         self.nConnectionNum = self.getDeviceNum()
-        print("相机初始化···")
+        print("相机qq初始化···")
         self.cam = MvCamera()
         self._data_buf, self._nPayloadSize = self.connectCam()
+        self.nFrameNumPreOneSec=0.0
+        self.prev_time = 0.0
+        self.accum_time = 0.0
+        self.curr_fps = 0.0
+        self.fps = "FPS: ??"
+        self.fpsnum = 0.0
+        #self.curr_time = 0
+        self.curr_time = timer()
+        exec_time = self.curr_time - self.prev_time
+        self.prev_time = self.curr_time
+        self.accum_time = self.accum_time + exec_time
+        if self.accum_time > 1.0:  # time exceed 1 sec and we will update values
+            self.accum_time = 0.0  # back to origin
         if self._data_buf == -1:
             print("相机初始化失败！")
             sys.exit()
@@ -226,6 +240,43 @@ class Camera(object):
             del _data_buf
             sys.exit()
         del _data_buf
+
+
+    """
+    def getFpsInit(self):
+        self.prev_time = timer()
+        self.accum_time = 0
+        self.curr_fps = 0
+        self.fps = "FPS: ??"
+        self.fpsnum = 0
+    """
+
+
+    def getFps(self,nFrameNum):
+        # get the frame quantity per second
+        """
+               Parameters
+               --------------
+               nFrameNum:      current frame number
+
+               Returns
+               fps with str type
+               -------
+               Examples
+               --------
+           """
+        self.curr_time = timer()
+        exec_time = self.curr_time - self.prev_time
+        self.prev_time = self.curr_time
+        self.accum_time = self.accum_time + exec_time
+        self.curr_fps = self.curr_fps+ 1
+        if self.accum_time > 1.0:  # time exceed 1 sec and we will update values
+            self.fpsnum = nFrameNum - self.nFrameNumPreOneSec
+            print("fpsnum", self.fpsnum)
+            self.fps = "FPS: " + str(self.fpsnum)
+            self.nFrameNumPreOneSec = nFrameNum  # update the nFrameNumPreOneSec every 1 second
+            self.accum_time = 0.0  # back to origin
+        return self.fps
 
 
 def main():
