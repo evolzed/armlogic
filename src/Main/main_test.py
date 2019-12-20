@@ -2,7 +2,7 @@
 #!/bin/python
 import os
 import sys
-# sys.path.append(os.path.abspath('../../'))
+sys.path.append(os.path.abspath('../../'))
 from lib.Logger.Logger import *
 import time
 import logging

@@ -29,7 +29,7 @@ class Camera(object):
         self.stFrameInfo = MV_FRAME_OUT_INFO_EX()
         memset(byref(self.stFrameInfo), 0, sizeof(self.stFrameInfo))
         self.nConnectionNum = self.getDeviceNum()
-        print("相机qq初始化···")
+        print("相机初始化···")
         self.cam = MvCamera()
         self._data_buf, self._nPayloadSize = self.connectCam()
         self.nFrameNumPreOneSec=0.0

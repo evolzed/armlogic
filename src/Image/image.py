@@ -12,8 +12,6 @@ from src.Image.camera import Camera, g_bExit
 from src.Image.yolo.Yolo import *
 from src.Image.imageProcess.bgLearn import Bglearn
 gState = 1
-
-
 class Image(object):
     """create main Image class for processing images"""
     def __init__(self, cam, yolo, bgLearn):
@@ -62,23 +60,23 @@ class Image(object):
 
             result = np.asarray(image)
             curr_time = timer()
-            exec_time = curr_time - prev_time
-            prev_time = curr_time
+            exec_time = curr_time - prev_time  # 计算图像识别的执行时间
+            prev_time = curr_time  # 重新设置时间节点
             accum_time = accum_time + exec_time
-            curr_fps = curr_fps + 1
-            if accum_time > 1:
-                accum_time = accum_time - 1
+            curr_fps = curr_fps + 1  # 计算每1s内FPS累加数
+            if accum_time > 1:  # 累计时间超过1s，输出1s内处理的图片数（帧数）
+                accum_time = accum_time - 1  # 累计时间超过1s后，重新开始统计
                 fps = "FPS: " + str(curr_fps)
-                curr_fps = 0
+                curr_fps = 0  # 时间超过1s后，清空fps数据，重新开始统计下一秒的帧率
             cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        fontScale=0.50, color=(255, 0, 0), thickness=2)
+                        fontScale=0.50, color=(255, 0, 0), thickness=2)  # 将数据写入到图像
             cv2.namedWindow("result", cv2.WINDOW_AUTOSIZE)
             cv2.imshow("result", result)
             if isOutput:
                 out.write(result)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            ret = self.cam.MV_CC_GetOneFrameTimeout(byref(cam._data_buf), cam._nPayloadsize, stFrameInfo, 1000)
+            ret = self.cam.MV_CC_GetOneFrameTimeout(byref(cam._data_buf), cam._nPayloadSize, stFrameInfo, 1000)
             if ret == 0:
                 print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
                     stFrameInfo.nWidth, stFrameInfo.nHeight, stFrameInfo.nFrameNum))
@@ -89,7 +87,7 @@ class Image(object):
         self.cam.destroy(self.cam, cam._data_buf)
         yolo.closeSession()
 
-    def detectSingleImage(self, frame, nFrame):
+    def detectSingleImage(self, cam):
         """
         用于接受bgLearn返回过来的图片
         :param frame: opencv格式的图片，例如：frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -98,25 +96,55 @@ class Image(object):
         返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
 
         """
-        # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
-        # cv2.imshow("kk", frame)
-        # cv2.waitKey(3000)
-        # 设定计时器, 统计识别图像耗时
         prev_time = timer()
-        # 将opencv格式的图像数据转换成PIL类型的image对象，便于进行标框和识别效果可视化
-        img = PImage.fromarray(frame)  # PImage: from PIL import Image as PImage
-        # img.show()
-        # feed data into model
-        dataDict = self.yolo.detectImage(img)
-        curr_time = timer()
-        exec_time = curr_time - prev_time
-        dataDict["timecost"] = exec_time
-        dataDict["nFrame"] = nFrame
-        arr = np.asarray(dataDict["image"])
-        cv2.imshow("ff", arr)
-        #cv2.waitKey(1000)
-        cv2.waitKey(10)
-        return dataDict
+        accum_time = 0
+        curr_fps = 0
+        fps = "FPS: ??"
+        while True:
+            try:
+                _frame, nFrame = cam.getImage()
+                frame = self.bgLearn.delBg(_frame)
+                # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
+                # cv2.imshow("kk", frame)
+                # cv2.waitKey(3000)
+                # global prev_time
+                # 设定计时器, 统计识别图像耗时
+                # prev_time = timer()
+                # 将opencv格式的图像数据转换成PIL类型的image对象，便于进行标框和识别效果可视化
+                img = PImage.fromarray(frame)  # PImage: from PIL import Image as PImage
+                # img.show()
+                # feed data into model
+                dataDict = self.yolo.detectImage(img)
+                dataDict["bgTimeCost"] = self.bgLearn.bgTimeCost
+                result = np.asarray(dataDict["image"])
+                curr_time = timer()
+                exec_time = curr_time - prev_time
+                prev_time = curr_time
+                accum_time = accum_time + exec_time
+                curr_fps = curr_fps + 1
+                if accum_time > 1:
+                    accum_time = accum_time - 1
+                    fps = "FPS: " + str(curr_fps)
+                    curr_fps = 0
+                cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                            fontScale=0.50, color=(255, 0, 0), thickness=2)
+                dataDict["image"] = result
+                dataDict["timecost"] = exec_time
+                dataDict["nFrame"] = nFrame
+                # arr = np.asarray(dataDict["image"])
+                cv2.imshow("result", result)
+                #cv2.waitKey(1000)
+                cv2.waitKey(10)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+                # return dataDict
+                print(dataDict)
+            except Exception as e:
+                # global gState
+                # gState = 3
+                print(e)
+                break
+        cam.destroy()
 
 """
 if __name__ == '__main__':
@@ -150,22 +178,22 @@ def imageInit():
 
 
 def imageRun(cam,_image):
-    while 1:
-        try:
-            _frame, nf = cam.getImage()
-            frameDelBg = _image.bgLearn.delBg(_frame)
-            dataDict = _image.detectSingleImage(frameDelBg, nf)
-            dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
+    # while 1:
+    #     try:
+    #         _frame, nf = cam.getImage()
+    #         frameDelBg = _image.bgLearn.delBg(_frame)
+    _image.detectSingleImage(cam, )
+            # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
             #cv2.waitKey(10)
-            print(dataDict)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-        except Exception as e:
-            global gState
-            gState = 3
-            print(e)
-            break
-    cam.destroy()
+    #         print(dataDict)
+    #         if cv2.waitKey(1) & 0xFF == ord('q'):
+    #             break
+    #     except Exception as e:
+    #         global gState
+    #         gState = 3
+    #         print(e)
+    #         break
+    # cam.destroy()
     print("系统退出中···")
     sys.exit()
 
