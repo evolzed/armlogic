@@ -4,12 +4,14 @@ import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
-sys.path.append(os.path.abspath("../../"))
+# sys.path.append(os.path.abspath("../../"))
+# sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
 from lib.HikMvImport.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
-from camera import Camera, g_bExit
-from yolo.Yolo import *
+from src.Image.camera import Camera, g_bExit
+from src.Image.yolo.Yolo import *
 from src.Image.imageProcess.bgLearn import Bglearn
+gState = 1
 
 
 class Image(object):
@@ -142,6 +144,8 @@ def imageInit():
     bgobj.createModelsfromStats(6.0)
     _image = Image(cam, yolo, bgobj)
     print("开始！")
+    global gState
+    gState = 2
     return cam,_image
 
 
@@ -157,6 +161,8 @@ def imageRun(cam,_image):
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         except Exception as e:
+            global gState
+            gState = 3
             print(e)
             break
     cam.destroy()
