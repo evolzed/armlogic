@@ -1,5 +1,6 @@
 import colorsys
 import os
+import sys
 from timeit import default_timer as timer
 from ctypes import *
 
@@ -14,13 +15,15 @@ from PIL import Image as PImage, ImageFont, ImageDraw
 # from lib.HikMvImport.CameraParams_header import MV_FRAME_OUT_INFO_EX
 from src.Image.yolo.model import yolo_eval, yolo_body, tiny_yolo_body
 from src.Image.yolo.utils import letterbox_image
-import os
+
 from keras.utils import multi_gpu_model
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 GPU_NUM = 1
 gImgPath = None
+
+# print(sys.path)
 
 
 class YOLO(object):
@@ -33,9 +36,9 @@ class YOLO(object):
         # self.model_path = 'model_data/tiny_yolo_weights.h5' # model path or trained weights path
 
         # 自己的模型
-        self.model_path = 'yolo/1000_416_trained_weights_final.h5' # model path or trained weights path
-        self.anchors_path = 'yolo/tiny_yolo_anchors.txt'
-        self.classes_path = 'yolo/bottle_annotation_classes.txt'
+        self.model_path = '../Image/yolo/1000_416_trained_weights_final.h5' # model path or trained weights path
+        self.anchors_path = '../Image/yolo/tiny_yolo_anchors.txt'
+        self.classes_path = '../Image/yolo/bottle_annotation_classes.txt'
         self.score = 0.3
         self.iou = 0.45
         self.class_names = self._get_class()
@@ -46,6 +49,7 @@ class YOLO(object):
 
     def _get_class(self):
         classes_path = os.path.expanduser(self.classes_path)
+        print(sys.path)
         with open(classes_path) as f:
             class_names = f.readlines()
         class_names = [c.strip() for c in class_names]
