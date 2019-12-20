@@ -12,7 +12,6 @@ import logging
 #logging.basicConfig(filename="test.log",filemode="w", format="%(asctime)s %(name)s:%(levelname)s:%(message)s",
 #                    datefmt="%d-%M-%Y %H:%M:%S", level=logging.INFO)    #设置
 
-
 def main():
     global gState
     global gDir
@@ -34,15 +33,15 @@ def main():
         print("gState = 3")
         time.sleep(1)
         if (message == 1):
-            logger.info("this is debug information ...")
+            #logger.info("this is debug information ...")
             gState = 1
 
 if __name__ == "__main__":
     sys.stdout = Logger("D:\\12.txt")  # 保存到D盘
-    #print("please type the gState: ")
+    print("please type the gState: ")
     gState = int(input())
     print("please type the message (debug_test: 1 for bug ; 0 for normal): ")
-    #message = int(input())
+    message = int(input())
     #n = 0
     #while True:
      #   try:
