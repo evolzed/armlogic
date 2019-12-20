@@ -1,0 +1,1 @@
+import sysfrom Logger import  *sys.stdout = Logger("D:\\12.txt")  # 保存到D盘print('okok')
