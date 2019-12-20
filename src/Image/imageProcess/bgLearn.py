@@ -9,40 +9,61 @@ from timeit import default_timer as timer
 # Learn the backgroud by pics from cam then get a background model
 # bgLearn is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
 
+#背景学习的功能就是事先采集多张图片来学习当前的背景信息，得到当前的背景模型，然后在实际使用中时候，每当采集一张图片，就可以
+#通过背景模型来去掉该图片的背景。
+#具体测试例子见本文件最后的main函数，首先通过bgobj = Bglearn(N)来得到背景学习对象，传入的参数N为采集N张图片来进行背景学习;
+#通过 bgobj.studyBackgroundFromCam(cam)方法来学习背景;
+#通过 bgobj.createModelsfromStats(N）方法来计算得到背景模型;传入的参数N为背景上下阈值之间的区分度
+#通过frameDelBg = bgobj.delBg（frame）方法来将当前帧frame去掉背景，返回去掉背景后的图像frameDelBg.
+
 
 class Bglearn():
 #background learn method class#
 
-    def __init__(self):
+    def __init__(self,bgStudyNum):
         #private attribute of class
-        self.BG_STUDY_NUM = 50
+        # how many pics captured for background study
+        self.BG_STUDY_NUM = bgStudyNum
+        # a list for store the pics captured waited for study
         self.bgVector = np.zeros(shape=(self.BG_STUDY_NUM, 960, 1280, 3), dtype=np.float32)
-        self.IavgF = np.zeros(shape=(960, 1280, 3), dtype=np.float32)
         # average of frames
+        self.IavgF = np.zeros(shape=(960, 1280, 3), dtype=np.float32)
+        # pre frame
         self.IprevF = np.zeros(shape=(960, 1280, 3), dtype=np.float32)
+        # temp frame for calculate
         self.Iscratch2 = np.zeros(shape=(960, 1280, 3), dtype=np.float32)
-        self.IdiffF = np.zeros(shape=(960, 1280, 3), dtype=np.float32)
         # average difference of frames
+        self.IdiffF = np.zeros(shape=(960, 1280, 3), dtype=np.float32)
+        # high threshold of background
         self.IhiF = np.zeros(shape=(960, 1280, 3), dtype=np.float32)
+        # low threshold of background
         self.IlowF = np.zeros(shape=(960, 1280, 3), dtype=np.float32)
+        # statistic the count of pics captured waited for study
         self.Icount = 0
+
+        # kernel for image morph process
         self.kernel5 = np.ones((5, 5), np.uint8)
         self.kernel7 = np.ones((7, 7), np.uint8)
         self.kernel13 = np.ones((13, 13), np.uint8)
         self.kernel19 = np.ones((19, 19), np.uint8)
         self.kernel25 = np.ones((25, 25), np.uint8)
+
+        # for show
         self.show = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
+
+        # time cost of one frame delete the background
         self.bgTimeCost=0
-        #for show
+
 
     def avgBackground(self, I):
-        # read background pics from disk,and then calculate every frame difference,and accumulate every frame difference
-        # #to a sum of frame difference,and then calculate the average frame difference,meanwhile,accumulate every frame to a sum of frame and
-        #then calculate the average frame.
+        # read background pic of I,and then calculate frame difference of current frame and pre frame: I and IprevF
+        # accumulate every frame difference Iscratch2 to sum of differences :IdiffF
+        # meanwhile,accumulate every frame I  to sum of frames :IavgF
+
         """
         Parameters
         --------------
-        img: input  Mat type pic stream
+        I: input  Mat type pic stream
 
         Returns
         -------
@@ -50,7 +71,6 @@ class Bglearn():
         Examples
         --------
         """
-
 
         cv2.accumulate(I, self.IavgF)
         # cv2.absdiff(I,IprevF, Iscratch2)
@@ -63,12 +83,16 @@ class Bglearn():
         self.IprevF = I.copy()
 
     def createModelsfromStats(self, scale):
-        # average the frame and frame difference to get the background model
+        # calculate the average sum of frames to  IavgF
+        # calculate frame difference to IdiffF
+        # then  multiply the scale to the Idiiff,and add the Idiff to IavgF to get the IhiF,
+        # subtract  the Idiff from IavgF to get the IlowF
+        # now we get the background model IhiF and IlowF
         """
            Parameters
            --------------
-           I:      input cam pic waited for segment
-           dst:    segment result
+           scale:   gap of high threshold and low threshold of background model
+
            Returns
            -------
 
@@ -98,7 +122,8 @@ class Bglearn():
         #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
 
     def studyBackgroundFromCam(self, cam):
-        # get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk.
+        # get many pics for time interval of 60sec by cam and store the pics in  bgVector.
+        #then  call the avgBackground method
         """
             Parameters
              --------------
@@ -133,7 +158,7 @@ class Bglearn():
 
 
     def backgroundDiff(self, src0, dst):
-        # when get pic frame from camera, use the backgroundDiff to  segment the frame pic;
+        # when get pic frame from camera, use the backgroundDiff to  segment the frame pic and get a mask pic
         # if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
         # will change to white,otherwise, it will cover to black.
         # https://www.cnblogs.com/mrfri/p/8550328.html
@@ -142,10 +167,12 @@ class Bglearn():
         """
                Parameters
                --------------
-               I:      input cam pic waited for segment
-               dst:    segment result
+               src0:      input cam pic waited for segment
+               dst:       temp store segment result of mask
 
                Returns
+               rectArray,   all boundingboxes of all bottles
+               dst         segment result of mask
                -------
                Examples
                --------
@@ -164,8 +191,11 @@ class Bglearn():
         print("dst.tpye", dst.dtype)
 
         # cv2.inRange(src, IlowF, IhiF, dst)
+        #segment the src through IlowF and IhiF
         dst = cv2.inRange(src, self.IlowF, self.IhiF)
         #cv2.imshow("segment_debug", dst)
+
+        #morph process the frame to clear the noise and highlight our object region
         print("is this ok00?")
         dst = cv2.morphologyEx(dst, cv2.MORPH_OPEN, self.kernel7)
         print("is this ok01?")
@@ -175,10 +205,13 @@ class Bglearn():
         tmp = 255 * np.ones(shape=dst.shape, dtype=dst.dtype)
         # np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
 
+        #inverse the  pixel value to make the mask
         dst = cv2.subtract(255, dst)
         # dst=tmp-dst
         print("is this ok03?")
         # cv2.GaussianBlur(dst, dst, (19, 19), 3)
+
+        #filter  and morph again and then find the bottle contours
         dst = cv2.GaussianBlur(dst, (19, 19), 3)
         print("is this ok04?")
         dst = cv2.dilate(dst, self.kernel19)
@@ -192,6 +225,8 @@ class Bglearn():
         pointList = []
         if contourLen > 0:  # range create a list of interger ,useful in loop
             for i in range(contourLen):
+
+                #calculate all features of contours and draw rectangle of bounding box of contour
                 contourM = cv2.moments(contours[i])  # every contour's  moment
                 contourCenterGx = int(contourM['m10'] / contourM['m00'])
                 contourCenterGy = int(contourM['m01'] / contourM['m00'])
@@ -218,11 +253,30 @@ class Bglearn():
                 print("rectArray", rectArray)
         return rectArray, dst
 
+
+
     def delBg(self,src):
+        # use the mask pic bgMask to make bit and operation to the cam frame to get a pic that del the bacground
+
+
+        """
+               Parameters
+               --------------
+               src:      input cam pic waited for segment
+               dst:       temp store segment result of mask
+
+               Returns
+               rectArray,   all boundingboxes of all bottles
+               dst         segment result of mask
+               -------
+               Examples
+               --------
+           """
         prev_time = timer()
         #simply output the frame that delete the background
         dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
         resarray, bgMask = self.backgroundDiff(src, dst)
+        #bit and operation
         frame_delimite_bac = cv2.bitwise_and(src, src, mask=bgMask)
         curr_time = timer()
         #calculate the cost time
@@ -231,19 +285,15 @@ class Bglearn():
         print("Del background Cost time:", self.bgTimeCost)
         return frame_delimite_bac
 
-    # checkImage
 
-    # Description:
-    # checkImage is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
-
-    # checkImage Implemente Details:
 
 if __name__ == "__main__":
-
+#test case
     cam = Camera()
     # nConnectionNum = cam.get_device_num()
     #_data_buf, _nPayloadSize = cam.connectCam()
-    bgobj = Bglearn()
+#get frames from cam and learn the background model
+    bgobj = Bglearn(50)
     bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats(6.0)
     while 1:
@@ -251,14 +301,8 @@ if __name__ == "__main__":
             frame, nFrameNum = cam.getImage()
             cv2.imshow("cam", frame)
             bgobj.show = frame.copy()
-            #dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
-            #resarray, bgMask = bgobj.backgroundDiff(frame, dst)
-            #frame_delimite_bac = cv2.bitwise_and(frame, frame, mask=bgMask)
 
-
-            #cv2.imshow("show0", show)
-            #cv2.imshow("show1", bgMask)
-
+            # use the background model to del the bacground of cam frame
             frameDelBg = bgobj.delBg(frame)
             cv2.imshow("output", frameDelBg)
 
@@ -269,3 +313,12 @@ if __name__ == "__main__":
             print(e)
             cam.destroy()
     cam.destroy()
+
+
+    # checkImage
+
+    # Description:
+    # checkImage is implemented by sequential procedure, and  theses procedure are  expressed  several functions as below.
+
+    # checkImage Implemente Details:
+
