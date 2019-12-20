@@ -3,19 +3,15 @@
 import os
 import sys
 sys.path.append(os.path.abspath('../../'))
-
 from lib.Logger.Logger import *
-
 import time
 import logging
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.FileHandler("log.txt"))  # 添一个FileHandler
-logging.basicConfig(filename="test.log",filemode="w", format="%(asctime)s %(name)s:%(levelname)s:%(message)s",
-                    datefmt="%d-%M-%Y %H:%M:%S", level=logging.INFO)    #设置
+#logger = logging.getLogger(__name__)
+#logger.addHandler(logging.FileHandler("log.txt"))  # 添一个FileHandler
+#logging.basicConfig(filename="test.log",filemode="w", format="%(asctime)s %(name)s:%(levelname)s:%(message)s",
+#                    datefmt="%d-%M-%Y %H:%M:%S", level=logging.INFO)    #设置
 
-sys.stdout = Logger("D:\\12.txt")  # 保存到D盘
-print('asfasfsaf')
 
 def main():
     global gState
@@ -43,16 +39,15 @@ def main():
 
 if __name__ == "__main__":
     sys.stdout = Logger("D:\\12.txt")  # 保存到D盘
-    print('asfasfsaf')
-    print("please type the gState: ")
+    #print("please type the gState: ")
     gState = int(input())
     print("please type the message (debug_test: 1 for bug ; 0 for normal): ")
-    message = int(input())
+    #message = int(input())
     #n = 0
-    while True:
-        try:
-            main()
-        except KeyboardInterrupt:
-            sys.stderr.write("Keyboard interrupt.\n")
-            sys.exit(main())
+    #while True:
+     #   try:
+    main()
+       # except KeyboardInterrupt:
+        #    sys.stderr.write("Keyboard interrupt.\n")
+         #   sys.exit(main())
         #n += 1

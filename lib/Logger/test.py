@@ -1,1 +1,1 @@
-import sysfrom Logger import  *sys.stdout = Logger("D:\\12.txt")  # 保存到D盘print('okok')
+import sysimport timefrom Logger import  *sys.stdout = Logger("D:\\12.txt")  # 保存到D盘print('okokppppppp')print("jjjjjjjjjjj")while True:    print("1")    time.sleep(1)    break
