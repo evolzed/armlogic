@@ -17,14 +17,14 @@ def main():
     global gDir
 
     if gState == 1:
-        print("gState = 1")
+        print("pass...")
         time.sleep(1)
         #logger.info("info")
         #logger.error("error")
         #logger.addHandler(log)
         gState = 2
     elif gState == 2:
-        print("gState = 2")
+        print("pass...")
         time.sleep(1)
         #logger.error("error2")
         gState = 3
@@ -32,21 +32,20 @@ def main():
     elif gState == 3:
         print("gState = 3")
         time.sleep(1)
-        if (message == 1):
-            #logger.info("this is debug information ...")
-            gState = 1
+        print("this is debug information ...")
+        gState = 1
 
 if __name__ == "__main__":
     sys.stdout = Logger("D:\\12.txt")  # 保存到D盘
     print("please type the gState: ")
     gState = int(input())
-    print("please type the message (debug_test: 1 for bug ; 0 for normal): ")
-    message = int(input())
-    #n = 0
-    #while True:
-     #   try:
-    main()
-       # except KeyboardInterrupt:
-        #    sys.stderr.write("Keyboard interrupt.\n")
-         #   sys.exit(main())
-        #n += 1
+    #print("please type the message (debug_test: 1 for bug ; 0 for normal): ")
+    #message = int(input())
+    # n = 0
+    # while True:
+    #     try:
+    main()  #删除循环，让程序自主退出
+        # except KeyboardInterrupt:
+        #     sys.stderr.write("Keyboard interrupt.\n")
+        #     sys.exit(main())
+        # n += 1
