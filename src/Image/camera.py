@@ -6,7 +6,7 @@ import threading
 import msvcrt
 import cv2
 import numpy as np
-sys.path.append(os.path.abspath("../../"))
+# sys.path.append(os.path.abspath("../../"))
 from ctypes import *
 # print(sys.path)
 from lib.HikMvImport.MvCameraControl_class import *

@@ -217,7 +217,11 @@ class Bglearn():
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel13)  # eclipice
-        contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        # 解决cv2版本3.4.2和4.1.2兼容问题
+        if cv2.__version__.startswith("3"):
+            _, contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        elif cv2.__version__.startswith("4"):
+            contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         cv2.drawContours(self.show, contours, -1, (0, 255, 0), 3)
         contourLen = len(contours)
         print(contourLen)

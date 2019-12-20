@@ -139,7 +139,7 @@ def imageInit():
     print("准备载入yolo网络！")
     yolo = YOLO()
     print("准备背景学习！")
-    bgobj = Bglearn()
+    bgobj = Bglearn(50)
     bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats(6.0)
     _image = Image(cam, yolo, bgobj)
@@ -166,6 +166,8 @@ def imageRun(cam,_image):
             print(e)
             break
     cam.destroy()
+    print("系统退出中···")
+    sys.exit()
 
 """
 if __name__ == '__main__':
