@@ -61,6 +61,7 @@ Reset()
 #     Move(220, y, 20, speed)
 
 #吸，调姿态，放
+
 speed =200  # 弧线运动的速度，500
 swift.set_acceleration(10)  # 设置加速度，20
 n = 0
