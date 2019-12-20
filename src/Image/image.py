@@ -130,6 +130,7 @@ if __name__ == '__main__':
     # image.detectVideo(yolo)
 """
 
+
 def imageInit():
     cam = Camera()
     # _frame, nf = cam.getImage()
@@ -142,6 +143,7 @@ def imageInit():
     _image = Image(cam, yolo, bgobj)
     print("开始！")
     return cam,_image
+
 
 def imageRun(cam,_image):
     while 1:
@@ -188,5 +190,5 @@ if __name__ == '__main__':
 """
 
 if __name__ == '__main__':
-    cam, _image=imageInit()
+    cam, _image = imageInit()
     imageRun(cam, _image)
