@@ -75,7 +75,7 @@
 ----
 #  3.**测试BS0.1**
 <table><!--此处为注释：<td>要显示的内容需要写在该标签对中</td>-->
-    <th colspan="9" align="center">所属项目</th>
+    <th colspan="9" align="center">所属项目</th><!--colspan属性表示一行中要合并几列-->
     <tr>
         <th>用例编号</th>
         <th>所属模块</th>
@@ -88,7 +88,7 @@
         <th>时间</th>
 	</tr>
 	<tr>
-		<td rowspan="5">
+		<td rowspan="5"><!--colspan属性表示一列中要合并几行-->
             SXCX-0.1
 		</td>
 		<td rowspan="5">
