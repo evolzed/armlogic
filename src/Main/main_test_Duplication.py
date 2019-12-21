@@ -35,6 +35,32 @@ def main():
             sys.exit()
 
 
+#     global gState
+#     global gDir
+#
+#     if gState == 1:
+#
+#         print("gState = 1")
+#         time.sleep(1)
+#         #logger.info("info")
+#         #logger.error("error")
+#         #logger.addHandler(log)
+#         gState = 2
+#     elif gState == 2:
+#         print("gState = 2")
+#         image.imageRun(cam, _image)
+#         time.sleep(1)
+#         #logger.error("error2")
+#         gState = 3
+#         #logger.addHandler(log)
+#     elif gState == 3:
+#         print("gState = 3")
+#         time.sleep(1)
+#         # if message == 1:
+#         #     #logger.info("this is debug information ...")
+#         #     gState = 1
+#
+
 if __name__ == "__main__":
     sys.stdout = Logger("D:\\log.txt")  # 保存到D盘
     #print("please type the gState: ")
