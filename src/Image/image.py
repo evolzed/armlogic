@@ -123,7 +123,7 @@ class Image(object):
                 curr_fps = curr_fps + 1
                 if accum_time > 1:
                     accum_time = accum_time - 1
-                    fps = "FPS: " + str(curr_fps)
+                    fps = "NetFPS:" + str(curr_fps) + " CamFPS:" + cam.getFps(nFrame)
                     curr_fps = 0
                 cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                             fontScale=0.50, color=(255, 0, 0), thickness=2)
