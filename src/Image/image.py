@@ -87,7 +87,7 @@ class Image(object):
         self.cam.destroy(self.cam, cam._data_buf)
         yolo.closeSession()
 
-    def detectSingleImage(self, cam):
+    def detectSerialImage(self, cam):
         """
         用于接受bgLearn返回过来的图片
         :param frame: opencv格式的图片，例如：frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -155,7 +155,7 @@ if __name__ == '__main__':
 
    
     _image = Image(cam, yolo)
-    dataDict = _image.detectSingleImage(_frame, nf)
+    dataDict = _image.detectSerialImage(_frame, nf)
     print(dataDict)
     # image.detectVideo(yolo)
 """
@@ -182,7 +182,7 @@ def imageRun(cam,_image):
     #     try:
     #         _frame, nf = cam.getImage()
     #         frameDelBg = _image.bgLearn.delBg(_frame)
-    _image.detectSingleImage(cam, )
+    _image.detectSerialImage(cam, )
             # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
             #cv2.waitKey(10)
     #         print(dataDict)
@@ -213,7 +213,7 @@ if __name__ == '__main__':
         try:
             _frame, nf = cam.getImage()
             frameDelBg = _image.bgLearn.delBg(_frame)
-            dataDict = _image.detectSingleImage(frameDelBg, nf)
+            dataDict = _image.detectSerialImage(frameDelBg, nf)
             dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
             #cv2.waitKey(10)
             print(dataDict)
