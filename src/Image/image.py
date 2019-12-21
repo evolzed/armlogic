@@ -89,9 +89,8 @@ class Image(object):
 
     def detectSerialImage(self, cam):
         """
-        用于接受bgLearn返回过来的图片
-        :param frame: opencv格式的图片，例如：frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        :param nFrame: 图片的帧号，用来确定图像的唯一性
+        获取并处理连续的帧数
+        :param cam: 相机对象
         :return: {"nFrame":nframe,"image":image, "timecost":timecost, "box":[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}
         返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
 
@@ -146,6 +145,33 @@ class Image(object):
                 break
         cam.destroy()
 
+    def detectSingleImage(self, frame, nFrame):
+        """
+        用于接受bgLearn返回过来的图片
+        :param frame: opencv格式的图片，例如：frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        :param nFrame: 图片的帧号，用来确定图像的唯一性
+        :return: {"nFrame":nframe,"image":image, "timecost":timecost, "box":[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}
+        返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
+        """
+        # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
+        # cv2.imshow("kk", frame)
+        # cv2.waitKey(3000)
+        # 设定计时器, 统计识别图像耗时
+        prev_time = timer()
+        # 将opencv格式的图像数据转换成PIL类型的image对象，便于进行标框和识别效果可视化
+        img = PImage.fromarray(frame)  # PImage: from PIL import Image as PImage
+        # img.show()
+        # feed data into model
+        dataDict = self.yolo.detectImage(img)
+        curr_time = timer()
+        exec_time = curr_time - prev_time
+        dataDict["timecost"] = exec_time
+        dataDict["nFrame"] = nFrame
+        arr = np.asarray(dataDict["image"])
+        cv2.imshow("ff", arr)
+        # cv2.waitKey(1000)
+        cv2.waitKey(10)
+        return dataDict
 """
 if __name__ == '__main__':
     cam = Camera()
