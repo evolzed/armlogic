@@ -136,14 +136,18 @@ class Bglearn():
             --------
             """
         try:
+            #set the loop break condition over_flag,when pics waited for study is captured enough,the flag will be changed
             over_flag = 1
             pic_cnt = 0
             while (over_flag):
+                # get image from camera
                 frame, nFrameNum = cam.getImage()
                 fin = np.float32(frame)
                 print("shape", fin.shape)
+                # store the frame in list bgVector
                 self.bgVector[pic_cnt] = fin
                 print("pic_cnt", pic_cnt)
+                # wait about 200 milli seconds
                 cv2.waitKey(200)
                 pic_cnt += 1
                 print("pic_cnt", pic_cnt)
@@ -156,6 +160,7 @@ class Bglearn():
                 self.avgBackground(self.bgVector[i])
         except Exception as e:
             print(e)
+            #when occur exception ,the camera will disconnect
             cam.destroy()
 
 
