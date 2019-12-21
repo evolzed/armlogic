@@ -322,7 +322,7 @@ if __name__ == "__main__":
             bgobj.show = frame.copy()
 
             fps = cam.getCamFps(nFrameNum)
-            # use the background model to del the bacground of cam frame
+            # use the background model to del the bacground of c    qqqam frame
             frameDelBg = bgobj.delBg(frame)
 
 

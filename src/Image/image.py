@@ -102,6 +102,17 @@ class Image(object):
         while True:
             try:
                 _frame, nFrame = cam.getImage()
+                camfps = " Cam" + cam.getCamFps(nFrame)
+                curr_time = timer()
+                exec_time = curr_time - prev_time
+                prev_time = curr_time
+                accum_time = accum_time + exec_time
+                curr_fps = curr_fps + 1
+                if accum_time > 1:
+                    accum_time = accum_time - 1
+                    fps = "NetFPS:" + str(curr_fps)
+                    curr_fps = 0
+
                 frame = self.bgLearn.delBg(_frame)
                 # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
                 # cv2.imshow("kk", frame)
@@ -116,21 +127,17 @@ class Image(object):
                 dataDict = self.yolo.detectImage(img)
                 dataDict["bgTimeCost"] = self.bgLearn.bgTimeCost
                 result = np.asarray(dataDict["image"])
-                curr_time = timer()
-                exec_time = curr_time - prev_time
-                prev_time = curr_time
-                accum_time = accum_time + exec_time
-                curr_fps = curr_fps + 1
-                if accum_time > 1:
-                    accum_time = accum_time - 1
-                    fps = "NetFPS:" + str(curr_fps) + " CamFPS:" + cam.getCamFps(nFrame)
-                    curr_fps = 0
-                cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                            fontScale=0.50, color=(255, 0, 0), thickness=2)
+
+
                 dataDict["image"] = result
                 dataDict["timecost"] = exec_time
                 dataDict["nFrame"] = nFrame
                 # arr = np.asarray(dataDict["image"])
+
+                cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                            fontScale=0.50, color=(255, 0, 0), thickness=2)
+                cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                            fontScale=0.50, color=(0, 255, 255), thickness=2)
                 cv2.imshow("result", result)
                 #cv2.waitKey(1000)
                 cv2.waitKey(10)
