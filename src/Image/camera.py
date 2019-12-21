@@ -252,7 +252,7 @@ class Camera(object):
     """
 
 
-    def getFps(self,nFrameNum):
+    def getCamFps(self,nFrameNum):
         # get the frame quantity per second
         """
                Parameters

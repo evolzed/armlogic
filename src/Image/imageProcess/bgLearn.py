@@ -321,7 +321,7 @@ if __name__ == "__main__":
             cv2.imshow("cam", frame)
             bgobj.show = frame.copy()
 
-            fps = cam.getFps(nFrameNum)
+            fps = cam.getCamFps(nFrameNum)
             # use the background model to del the bacground of cam frame
             frameDelBg = bgobj.delBg(frame)
 
