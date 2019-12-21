@@ -36,7 +36,7 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.stdout = Logger("D:\\12.txt")  # 保存到D盘
+    sys.stdout = Logger("D:\\log.txt")  # 保存到D盘
     #print("please type the gState: ")
     #gState = int(input())
     #print("please type the message (debug_test: 1 for bug ; 0 for normal): ")
