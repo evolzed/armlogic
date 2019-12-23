@@ -11,11 +11,12 @@ class Logger(object):
         self.terminal = sys.stdout
         self.log = open(fileN, "a")
 
+    #filter算法，提取需求信息；
     def write(self, message):
         msg =  currentdatetime + message
-        self.terminal.write(msg)
-        #self.log.write(currenttime + ": ")
-        self.log.write(msg)
+        if (message.find("ok") != -1):  #假如message内包含字符串"ok"，则写入log，否则不记录
+            self.terminal.write(msg)
+            self.log.write(msg)
 
     def flush(self):
         pass
