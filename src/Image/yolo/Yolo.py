@@ -173,7 +173,7 @@ class YOLO(object):
             del draw
 
         end = timer()
-        dataDict["timeCost"] = end
+        dataDict["timeCost"] = end - start
         # print(end - start)
         return dataDict
 
