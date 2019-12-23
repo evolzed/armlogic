@@ -101,6 +101,9 @@
 | :---: | :------------: | :-------------: | -------------------------------------------- | :-------: | :-------: |
 |  PC   | relayService() | #继电器执行模块 | #time<br />#modbus<br />#socket<br />#serial       | gBlasting |     /     |
 |  PC   | listenBlast()  |    #监听模块    | #socket<br />#dataBase                       | gDataBase | gBlasting |
+|  Image   | getBeltSpeed()  | #get belt speed direction and valu e,pixel per second   |   bottleDict                     |  | beltSpeed |
+|  Image   | getBottleDetail()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
+|  Image   | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict                     | beltSpeed | bottleID |
 
 **实现逻辑：**
 
