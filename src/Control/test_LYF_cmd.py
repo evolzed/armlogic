@@ -62,21 +62,20 @@ Reset()
 
 #吸，调姿态，放
 
-speed =200  # 弧线运动的速度，500
-swift.set_acceleration(10)  # 设置加速度，20
+speed =500  # 弧线运动的速度，500
+swift.set_acceleration(20)  # 设置加速度，20
 n = 0
 angle = [45, 135]
 for y in range(1, 5, 1):
-    swift.set_position(180, 0, 58, speed = speed, wait = True,cmd='G0')
-    swift.set_digital_output(pin=32, value=1, wait = True, timeout = 10)  # 设置数字口25为高电平
+    swift.set_position(180, 0, 58, speed = speed, wait = True, cmd='G0')
+    swift.set_digital_output(pin=32, value=1, wait = True, timeout = 10)
     # swift.flush_cmd()
     swift.set_position(180, 0, 120, speed = speed, wait = True, cmd='G0')
     swift.set_wrist(angle=  angle[n])
     # swift.flush_cmd()
     swift.set_position(180, 0, 60, speed=speed, wait = True, cmd='G0')
-    swift.set_digital_output(pin=32, value=0, wait = True, timeout = 10)  # 设置数字口25为低电平
+    swift.set_digital_output(pin=32, value=0, wait = True, timeout= 10)
     # swift.flush_cmd()
-    # time.sleep(0.5)
     if n == 0:
         n = 1
     else:
@@ -84,7 +83,6 @@ for y in range(1, 5, 1):
 time.sleep(3)
 swift.flush_cmd()
 Reset()
-
 #程序运行计时
 from timeit import default_timer as timer
 # for ti in range(100, -100, -10):
