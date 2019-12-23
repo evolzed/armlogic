@@ -71,10 +71,17 @@ class ImageTrack:
         drawimg = featureimg.copy()
         drawimg2 = secondimg_orig.copy()
         secondimg =secondimg_orig.copy()
-        featureimg = cv2.cvtColor(featureimg,  cv2.COLOR_BGR2GRAY )
-        secondimg = cv2.cvtColor(secondimg_orig , cv2.COLOR_BGR2GRAY)
+        featureimg = cv2.cvtColor(featureimg,  cv2.COLOR_BGR2GRAY)
+        secondimg = cv2.cvtColor(secondimg_orig, cv2.COLOR_BGR2GRAY)
+        cv2.imshow("res0", featureimg)
+        cv2.imshow("re1s", secondimg)
+
         corner_count = self.MAX_CORNERS
         cornersA = cv2.goodFeaturesToTrack(featureimg, corner_count, 0.01, 5.0)
+
+        print("cornersA.type()",type(cornersA))
+        print("cornersA.shape", cornersA.shape)
+        #cv2.waitKey()
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
         cv2.cornerSubPix(featureimg, cornersA, (self.win_size, self.win_size), (-1, -1), criteria)
         #corners_cnt = cornersA.size().height
@@ -82,28 +89,28 @@ class ImageTrack:
         corners_cnt = cornersA.shape[0]
         pyramid1 = cv2.buildOpticalFlowPyramid(featureimg, (self.win_size, self.win_size), 3)
         pyramid2 = cv2.buildOpticalFlowPyramid(secondimg,  (self.win_size, self.win_size), 3)
-        cornersB = []
+        print("corners_cnt",corners_cnt)
+        cornersB = np.zeros(shape=cornersA.shape, dtype=cornersA.dtype)
         cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, cornersB)
         for i in range(corners_cnt):
-            p0 = (cornersA[i, 0, 0], cornersA[i, 0, 1])#original
+            p0 = (cornersA[i, 0, 0], cornersA[i, 0, 1])#original  red
             p1 = (cornersB[i, 0, 0], cornersB[i, 0, 1])#now
             cv2.circle(drawimg, p0, 2, (0, 0, 255), -1)
             cv2.circle(drawimg, p1, 2, (0, 255, 0), -1)
 
             cv2.line(drawimg, p0, p1, (0, 255, 255), 1)
+        return corners_cnt, drawimg
+
 
 if __name__ == "__main__":
-    a = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-    b = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-    c = np.dot(a, b)
-    print(c)
-
     obj = ImageTrack()
-    a = np.array([[1, 2]])
-    b = np.array([3, 4])
-    corners_cnt = a.shape[1]
-    #sz, drawimg = obj.LKlightflow_track(a, b)
-    #c = np.zeros(shape=sz, dtype=float)
+    a = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\1.jpg")
+    b = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\2.jpg")
+    #print(a.type())
+    #print(b.type())
+    corners_cnt, drawimg = obj.LKlightflow_track(a, b)
+    cv2.imshow("res", drawimg)
+    cv2.waitKey()
     print("sz:", corners_cnt)
 
 
