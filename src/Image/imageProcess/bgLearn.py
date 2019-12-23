@@ -79,8 +79,8 @@ class Bglearn():
         self.Iscratch2 = cv2.absdiff(I, self.IprevF)
         cv2.accumulate(self.Iscratch2, self.IdiffF)
 
-        print("IavgF[100,100,0]:", self.IavgF[100, 100, 0])
-        print("IdiffF[100,100,0]:", self.IdiffF[100, 100, 0])
+        # print("IavgF[100,100,0]:", self.IavgF[100, 100, 0])
+        # print("IdiffF[100,100,0]:", self.IdiffF[100, 100, 0])
         self.Icount += 1.0
         self.IprevF = I.copy()
 
@@ -102,12 +102,12 @@ class Bglearn():
            --------
            """
 
-        print("Icount", self.Icount)
+        # print("Icount", self.Icount)
         # Icount+=1
         self.IavgF = self.IavgF/self.Icount
         self.IdiffF = self.IdiffF/self.Icount
-        print("IavgF[100,100,0]:", self.IavgF[100, 100, 0])
-        print("IdiffF[100,100,0]:", self.IdiffF[100, 100, 0])
+        # print("IavgF[100,100,0]:", self.IavgF[100, 100, 0])
+        # print("IdiffF[100,100,0]:", self.IdiffF[100, 100, 0])
         self.IdiffF = cv2.add(self.IdiffF, 1.0)
         # cv2.imshow("avg", IavgF)
         # cv2.imshow("diff", IdiffF)
@@ -116,7 +116,7 @@ class Bglearn():
         # cv2.add(IavgF,IdiffF, IhiF)
 
         self.IdiffF = self.IdiffF * scale
-        print("IdiffF[mod:", self.IdiffF[100, 100, 0])
+        # print("IdiffF[mod:", self.IdiffF[100, 100, 0])
         self.IhiF = cv2.add(self.IavgF, self.IdiffF)
         # cv2.subtract(IavgF, IdiffF, IlowF)
         self.IlowF = cv2.subtract(self.IavgF, self.IdiffF)
@@ -143,20 +143,20 @@ class Bglearn():
                 # get image from camera
                 frame, nFrameNum = cam.getImage()
                 fin = np.float32(frame)
-                print("shape", fin.shape)
+                # print("shape", fin.shape)
                 # store the frame in list bgVector
                 self.bgVector[pic_cnt] = fin
-                print("pic_cnt", pic_cnt)
+                # print("pic_cnt", pic_cnt)
                 # wait about 200 milli seconds
                 cv2.waitKey(200)
                 pic_cnt += 1
-                print("pic_cnt", pic_cnt)
+                # print("pic_cnt", pic_cnt)
                 if (pic_cnt == self.BG_STUDY_NUM):
                     over_flag = 0
 
-            print("shapebg", self.bgVector.shape)
+            # print("shapebg", self.bgVector.shape)
             for i in range(self.bgVector.shape[0]):
-                print("i", i)
+                # print("i", i)
                 self.avgBackground(self.bgVector[i])
         except Exception as e:
             print(e)
@@ -187,15 +187,15 @@ class Bglearn():
 
         rectArray = []
         src = np.float32(src0)
-        print("IlowF.shape", self.IlowF.shape)
-        print("IhiF.shape", self.IhiF.shape)
-        print("src.shape", src.shape)
-        print("dst.shape", dst.shape)
+        # print("IlowF.shape", self.IlowF.shape)
+        # print("IhiF.shape", self.IhiF.shape)
+        # print("src.shape", src.shape)
+        # print("dst.shape", dst.shape)
 
-        print("IlowF.tpye", self.IlowF.dtype)
-        print("IhiF.tpye", self.IhiF.dtype)
-        print("src.tpye", src.dtype)
-        print("dst.tpye", dst.dtype)
+        # print("IlowF.tpye", self.IlowF.dtype)
+        # print("IhiF.tpye", self.IhiF.dtype)
+        # print("src.tpye", src.dtype)
+        # print("dst.tpye", dst.dtype)
 
         # cv2.inRange(src, IlowF, IhiF, dst)
         #segment the src through IlowF and IhiF
@@ -203,11 +203,11 @@ class Bglearn():
         #cv2.imshow("segment_debug", dst)
 
         #morph process the frame to clear the noise and highlight our object region
-        print("is this ok00?")
+        # print("is this ok00?")
         dst = cv2.morphologyEx(dst, cv2.MORPH_OPEN, self.kernel7)
-        print("is this ok01?")
+        # print("is this ok01?")
         dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel7)
-        print("is this ok02?")
+        # print("is this ok02?")
 
         tmp = 255 * np.ones(shape=dst.shape, dtype=dst.dtype)
         # np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
@@ -215,12 +215,12 @@ class Bglearn():
         #inverse the  pixel value to make the mask
         dst = cv2.subtract(255, dst)
         # dst=tmp-dst
-        print("is this ok03?")
+        # print("is this ok03?")
         # cv2.GaussianBlur(dst, dst, (19, 19), 3)
 
         #filter  and morph again and then find the bottle contours
         dst = cv2.GaussianBlur(dst, (19, 19), 3)
-        print("is this ok04?")
+        # print("is this ok04?")
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel13)  # eclipice
@@ -231,7 +231,7 @@ class Bglearn():
             contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         cv2.drawContours(self.show, contours, -1, (0, 255, 0), 3)
         contourLen = len(contours)
-        print(contourLen)
+        # print(contourLen)
         momentList = []
         pointList = []
         if contourLen > 0:  # range create a list of interger ,useful in loop
@@ -246,7 +246,7 @@ class Bglearn():
                 cv2.polylines(self.show, [contourhull], True, (500, 255, 0), 2)
 
                 contourBndBox = cv2.boundingRect(contours[i])  # x,y,w,h
-                print("contourBndBox type", type(contourBndBox))
+                # print("contourBndBox type", type(contourBndBox))
                 x = contourBndBox[0]
                 y = contourBndBox[1]
                 w = contourBndBox[2]
@@ -256,12 +256,12 @@ class Bglearn():
                 [vx, vy, x, y] = cv2.fitLine(contours[i], cv2.DIST_L2, 0, 0.01, 0.01)
                 lefty = int((x * vy / vx) + y)
                 righty = int(((cols - x) * vy / vx) + y)
-                print("pre final")
+                # print("pre final")
                 # rectArray = np.append(rectArray, contourBndBox, axis=0)
                 rectArray.append(contourBndBox)
 
-                print("final")
-                print("rectArray", rectArray)
+                # print("final")
+                # print("rectArray", rectArray)
         return rectArray, dst
 
 
@@ -291,7 +291,7 @@ class Bglearn():
         #calculate the cost time
         exec_time = curr_time - prev_time
         self.bgTimeCost =exec_time
-        print("Del background Cost time:", self.bgTimeCost)
+        # print("Del background Cost time:", self.bgTimeCost)
         return frame_delimite_bac
 
 
@@ -318,7 +318,7 @@ if __name__ == "__main__":
             curr_fps = curr_fps + 1
             if accum_time > 1:      # time exceed 1 sec and we will update values
                 fpsnum = nFrameNum - bgobj.nFramNumPreOneSec
-                print("fpsnum",fpsnum)
+                # print("fpsnum",fpsnum)
                 fps = "FPS: " + str(fpsnum)
                 bgobj.nFrameNumPreOneSec = nFrameNum    #update the nFrameNumPreOneSec every 1 second
                 accum_time =0                           #back to origin
@@ -330,7 +330,6 @@ if __name__ == "__main__":
             # use the background model to del the bacground of c    qqqam frame
             frameDelBg = bgobj.delBg(frame)
 
-
             cv2.putText(frameDelBg, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(255, 0, 0), thickness=2)
             cv2.imshow("output", frameDelBg)
@@ -339,7 +338,7 @@ if __name__ == "__main__":
                 break
             cv2.waitKey(10)
         except Exception as e:
-            print(e)
+            # print(e)
             cam.destroy()
     cam.destroy()
 

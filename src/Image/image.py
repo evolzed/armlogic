@@ -127,10 +127,9 @@ class Image(object):
                 dataDict = self.yolo.detectImage(img)
                 dataDict["bgTimeCost"] = self.bgLearn.bgTimeCost
                 result = np.asarray(dataDict["image"])
-
-
-                dataDict["image"] = result
-                dataDict["timecost"] = exec_time
+                # dataDict["image"] = result  # result：cv2.array的图像数据
+                dataDict["image"] = img  # img：Image对象
+                # dataDict["timeCost"] = exec_time
                 dataDict["nFrame"] = nFrame
                 # arr = np.asarray(dataDict["image"])
 
@@ -172,10 +171,10 @@ class Image(object):
         dataDict = self.yolo.detectImage(img)
         curr_time = timer()
         exec_time = curr_time - prev_time
-        dataDict["timecost"] = exec_time
+        # dataDict["timecost"] = exec_time
         dataDict["nFrame"] = nFrame
         arr = np.asarray(dataDict["image"])
-        cv2.imshow("ff", arr)
+        cv2.imshow("result", arr)
         # cv2.waitKey(1000)
         cv2.waitKey(10)
         return dataDict

@@ -51,7 +51,7 @@
 | library |  airDict  | #User input air pressure nozzle locations | int x | int y | int z | int type |
 | library |  bgDict  | #address to image file location and processed flag | #%.JPG | bool processed |
 | global |  gDir  | #direction of the moving belt | int gDir | |
-| library |  bottleDict  | #sorted bottle information | int x | int y | int z | int type | float frame | Time processed |
+| library |  bottleDict  | #sorted bottle information | {"image":imagedata,"box":[(bottletype1, confidence, xmin, ymin, xmax, ymax),(bottletype2, confidence, xmin, ymin, xmax, ymax),···]，"bgTimeCost":time,"timeCost":time,"nFrame":camNumFrame} |  |  | | | Time processed |
 | path | bgPic | #file location for bgPic |
 
 ## 2.4 功能包文档填写说明
@@ -70,8 +70,7 @@
 | Image |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
 | Image |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
 | Image |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
-| Image |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动</td>
-	    <td>GrabVideo.destroy()[清空保存在内存中的相机数据，销毁相机对象]、yolo.closeSession() | | | | |
+| Image |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动
 
 ----
 #  3.**测试BS0.1**
