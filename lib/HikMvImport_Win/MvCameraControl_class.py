@@ -1,19 +1,19 @@
 # -- coding: utf-8 --
-
+import os
 import sys
 import copy
 import ctypes
-import os
-sys.path.append(os.path.abspath("../../"))
 from ctypes import *
-from lib.HikMvImport_TX2.utils.CameraParams_const import *
-from lib.HikMvImport_TX2.utils.CameraParams_header import *
-from lib.HikMvImport_TX2.utils.MvCameraControl_header import *
-from lib.HikMvImport_TX2.utils.MvErrorDefine_const import *
-from lib.HikMvImport_TX2.utils.PixelType_const import *
-from lib.HikMvImport_TX2.utils.PixelType_header import *
 
-MvCamCtrldll = ctypes.cdll.LoadLibrary(os.getenv('MVCAM_COMMON_RUNENV') + "/aarch64/libMvCameraControl.so")
+from lib.HikMvImport_Win.utils.CameraParams_const import *
+from lib.HikMvImport_Win.utils.CameraParams_header import *
+from lib.HikMvImport_Win.utils.MvCameraControl_header import *
+from lib.HikMvImport_Win.utils.MvErrorDefine_const import *
+from lib.HikMvImport_Win.utils.PixelType_const import *
+from lib.HikMvImport_Win.utils.PixelType_header import *
+
+
+MvCamCtrldll = WinDLL("MvCameraControl.dll")
 
 # 用于回调函数传入相机实例
 class _MV_PY_OBJECT_(Structure):
@@ -28,13 +28,6 @@ class MvCamera():
     def __init__(self):
         self._handle = c_void_p()  # 记录当前连接设备的句柄
         self.handle = pointer(self._handle)  # 创建句柄指针
-
-    
-    @staticmethod
-    def MV_CC_GetSDKVersion():
-        MvCamCtrldll.MV_CC_GetSDKVersion.restype = c_uint
-        # C原型:unsigned int MV_CC_GetSDKVersion()
-        return MvCamCtrldll.MV_CC_GetSDKVersion()
 
     # 枚举设备
     @staticmethod
@@ -293,4 +286,3 @@ class MvCamera():
         # C原型:int __stdcall MV_CC_GetOptimalPacketSize(void* handle);
         return MvCamCtrldll.MV_CC_GetOptimalPacketSize(self.handle)
 
-    

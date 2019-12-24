@@ -260,7 +260,7 @@ class _MV_FRAME_OUT_INFO_(Structure):
     pass
 
 # values for enumeration 'MvGvspPixelType'
-MvGvspPixelType = c_int # enum
+MvGvspPixelType = int64_t # enum
 _MV_FRAME_OUT_INFO_._fields_ = [
     # CameraParams.h 110
     ('nWidth', c_ushort),
