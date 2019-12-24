@@ -9,9 +9,16 @@ import numpy as np
 
 from ctypes import *
 
-sys.path.insert(0, "../HikMvImport")
+# sys.path.insert(0, "../HikMvImport_Win")
 # print(sys.path)
-from lib.HikMvImport.MvCameraControl_class import *
+import platform
+sysArc = platform.uname()
+if sysArc[0] == "Windows":
+    from lib.HikMvImport_Win.MvCameraControl_class import *
+elif sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
+    from lib.HikMvImport_TX2.MvCameraControl_class import *
+else:
+    print("不支持的系统架构，仅支持win10_64 和 Ubuntu16.04 ARM aarch64！！")
 
 g_bExit = False
 
