@@ -285,4 +285,3 @@ class MvCamera():
         MvCamCtrldll.MV_CC_GetOptimalPacketSize.restype = c_uint
         # C原型:int __stdcall MV_CC_GetOptimalPacketSize(void* handle);
         return MvCamCtrldll.MV_CC_GetOptimalPacketSize(self.handle)
-
