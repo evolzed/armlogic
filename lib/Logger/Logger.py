@@ -20,9 +20,9 @@ class Logger(object):
         #     self.log.write(msg)
 
         msg = currentdatetime + message
-        #if (message.find("ok") != -1):  #假如message内包含字符串"ok"，则写入log，否则不记录
-        self.terminal.write(msg)
-        self.log.write(msg)
+        if (message.find("box") and (message.find("timeCost") or message.find("bgTimeCost") or message.find("nFrame")) != -1):  #假如message内包含字符串"box"，则写入log，否则不记录
+            self.terminal.write(msg)
+            self.log.write(msg)
 
 
     def flush(self):
