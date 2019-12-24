@@ -1,13 +1,15 @@
 from src.Image.imageProcess.bgLearn import Bglearn
 import cv2
 import numpy as np
+from src.Image.camera import Camera
+from timeit import default_timer as timer
 
 class ImageTrack:
     def __init__(self):
-        self.MAX_CORNERS = 500
+        self.MAX_CORNERS = 50
         self.win_size = 10
 
-    def getBottleDetail(self, dataDict):
+    def getBottleDetail(self, frameOrg,dataDict,bgMask):
         # function description:
         # get Bottle Detail info,include bottle rotate angle and the diameter of bottle
         #implementation detail:
@@ -31,6 +33,41 @@ class ImageTrack:
         Examples
         --------
         """
+        #boxList.append((predicted_class, score, left, top, right, bottom))
+        """
+        cam = Camera()
+        frame, nFrameNum = cam.getImage()
+        bgobj = Bglearn(50)
+        bgobj.studyBackgroundFromCam(cam)
+        bgobj.createModelsfromStats(6.0)
+        """
+        print("in")
+        #print(dataDict)
+        #print(range(dataDict["box"]))
+        if "box" in dataDict:
+            for i in range(len(dataDict["box"])):
+                left = dataDict["box"][i][2]
+                top = dataDict["box"][i][3]
+                right = dataDict["box"][i][4]
+                bottom = dataDict["box"][i][5]
+                rectTop = (left,top)
+                rectBottle = (right-left, bottom - top)
+                #BOX ROI
+                roiImg = frameOrg[left:right, top:bottom]
+                print("h")
+                if (right-left > 1) and (bottom - top > 1):
+                    cv2.imshow("box", bgMask[top:bottom,left:right])
+                print("x")
+                #cv2.waitKey(10)
+
+
+
+
+
+
+
+
+
 
 
     def getBeltSpeed(self, dataDict):
@@ -65,11 +102,29 @@ class ImageTrack:
         --------
         """
 
-    def LKlightflow_track(self,featureimg,secondimg_orig):
+    def LKlightflow_track(self, featureimg,  secondimg_orig):
+        # function description:
+        # LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,
+        # and then track the point of featureimg to get the corresponding point of secondimg_orig
+
+        """
+        Parameters
+        --------------
+        I: featureimg
+           secondimg_orig
+          dataDict
+
+        Returns
+        -------
+
+        Examples
+        --------
+        """
         img_sz = featureimg.shape
         win_size = 10
-        drawimg = featureimg.copy()
-        drawimg2 = secondimg_orig.copy()
+        #drawimg = featureimg.copy()
+        drawimg = secondimg_orig.copy()
+        #drawimg2 = secondimg_orig.copy()
         secondimg =secondimg_orig.copy()
         featureimg = cv2.cvtColor(featureimg,  cv2.COLOR_BGR2GRAY)
         secondimg = cv2.cvtColor(secondimg_orig, cv2.COLOR_BGR2GRAY)
@@ -108,6 +163,7 @@ if __name__ == "__main__":
     b = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\2.jpg")
     #print(a.type())
     #print(b.type())
+    # wait for test multi bottles track
     corners_cnt, drawimg = obj.LKlightflow_track(a, b)
     cv2.imshow("res", drawimg)
     cv2.waitKey()

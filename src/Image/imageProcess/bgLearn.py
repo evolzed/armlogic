@@ -120,6 +120,8 @@ class Bglearn():
         self.IhiF = cv2.add(self.IavgF, self.IdiffF)
         # cv2.subtract(IavgF, IdiffF, IlowF)
         self.IlowF = cv2.subtract(self.IavgF, self.IdiffF)
+        #release the memory
+        self.bgVector = []
         #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
         #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
 
@@ -283,7 +285,8 @@ class Bglearn():
            """
         prev_time = timer()
         #simply output the frame that delete the background
-        dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
+        #dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)  flexible the dst shape to adapt the src shape
+        dst = np.zeros(shape=src.shape, dtype=src.dtype)
         resarray, bgMask = self.backgroundDiff(src, dst)
         #bit and operation
         frame_delimite_bac = cv2.bitwise_and(src, src, mask=bgMask)
@@ -292,7 +295,7 @@ class Bglearn():
         exec_time = curr_time - prev_time
         self.bgTimeCost =exec_time
         # print("Del background Cost time:", self.bgTimeCost)
-        return frame_delimite_bac
+        return frame_delimite_bac,bgMask
 
 
 
