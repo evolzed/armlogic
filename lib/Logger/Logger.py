@@ -21,8 +21,8 @@ class Logger(object):
 
         msg = currentdatetime + message
         self.terminal.write(msg)
-        if (message.find("bottle") and (message.find("timeCost")) != -1):  #假如message内包含字符串"bottle"以及"timeCost"，则写入log，否则不记录
-            self.log.write(msg)
+        #if (message.find("bottle") and (message.find("timeCost")) != -1):  #假如message内包含字符串"bottle"以及"timeCost"，则写入log，否则不记录
+        self.log.write(msg)
 
 
     def flush(self):
