@@ -1,8 +1,8 @@
-一、在TX2上运行报错：Cuda sysnc failed！
-在armlogic/src/image/yolo/Yolo.py上面加上下面三行代码即可
-# 下面三行解决GPU sync failed
+一、TX2上报错Gpu sync failed??
+在armlogic/src/image/yolo/Yolo.py文件中加上下面三行代码
+# 解决 GPU sync failed
 import tensorflow as tf
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 
-二、TX2上运行，需要将armlogic/lib/HikMvImport_tx2文件夹名修改成HikMvImport，然后将armlogic/src/Image/camera.py中的第六行import msvcrt 删除即可
+二、TX2上运行项目需要将armlogic/lib/HikMvImport_tx2文件名改成HikMvImport，然后将armlogic/src/Image/camera.py中的第六行import msvcrt 删除

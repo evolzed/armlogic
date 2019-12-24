@@ -3,13 +3,24 @@
 import sys
 import os
 import threading
-import msvcrt
+import time
+
 import cv2
 import numpy as np
-# sys.path.append(os.path.abspath("../../"))
+sys.path.append(os.path.abspath("../../"))
 from ctypes import *
 # print(sys.path)
-from lib.HikMvImport.MvCameraControl_class import *
+# 获取系统架构
+import platform
+sysArc = platform.uname()
+if sysArc[0] == "Windows":
+    import msvcrt
+    from lib.HikMvImport_Win.MvCameraControl_class import *
+elif sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
+    import termios
+    from lib.HikMvImport_TX2.MvCameraControl_class import *
+else:
+    print("不支持的系统架构，仅支持win10_64 和 Ubuntu16.04 ARM aarch64！！")
 from timeit import default_timer as timer
 
 g_bExit = False
@@ -205,6 +216,7 @@ class Camera(object):
         :return:返回一帧图像，和帧号
         """
         ret = self.cam.MV_CC_GetOneFrameTimeout(byref(self._data_buf), self._nPayloadSize, self.stFrameInfo, 1000)
+        t = time.time()  # 获取当前帧的时间
         if ret == 0:
             print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
                 self.stFrameInfo.nWidth, self.stFrameInfo.nHeight, self.stFrameInfo.nFrameNum))
@@ -216,7 +228,7 @@ class Camera(object):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         # cv2.imshow("rrr", frame)
         # cv2.waitKey(10)
-        return frame, self.stFrameInfo.nFrameNum
+        return frame, self.stFrameInfo.nFrameNum, t
 
     def destroy(self):
         _data_buf = self._data_buf
@@ -278,6 +290,23 @@ class Camera(object):
             self.accum_time = 0.0  # back to origin
         return self.fps
 
+    def press_any_key_exit(self):
+        fd = sys.stdin.fileno()
+        old_ttyinfo = termios.tcgetattr(fd)
+        new_ttyinfo = old_ttyinfo[:]
+        new_ttyinfo[3] &= ~termios.ICANON
+        new_ttyinfo[3] &= ~termios.ECHO
+        #sys.stdout.write(msg)
+        #sys.stdout.flush()
+        termios.tcsetattr(fd, termios.TCSANOW, new_ttyinfo)
+        try:
+                os.read(fd, 7)
+        except:
+                pass
+        finally:
+                termios.tcsetattr(fd, termios.TCSANOW, old_ttyinfo)
+
+
 
 def main():
     """主程序"""
@@ -307,7 +336,10 @@ def main():
         print("error: unable to start thread")
 
     print("press a key to stop grabbing.")
-    msvcrt.getch()
+    if sysArc[0] == "Windows":
+        msvcrt.getch()
+    elif sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
+        cam.press_any_key_exit()
     global g_bExit
     g_bExit = True
     hThreadHandle.join()

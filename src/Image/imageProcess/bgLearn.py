@@ -143,7 +143,7 @@ class Bglearn():
             pic_cnt = 0
             while (over_flag):
                 # get image from camera
-                frame, nFrameNum = cam.getImage()
+                frame, nFrameNum, t = cam.getImage()
                 fin = np.float32(frame)
                 # print("shape", fin.shape)
                 # store the frame in list bgVector
@@ -295,7 +295,7 @@ class Bglearn():
         exec_time = curr_time - prev_time
         self.bgTimeCost =exec_time
         # print("Del background Cost time:", self.bgTimeCost)
-        return frame_delimite_bac,bgMask
+        return frame_delimite_bac, bgMask
 
 
 

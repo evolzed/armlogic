@@ -12,7 +12,7 @@ from keras.layers import Input
 from PIL import Image as PImage, ImageFont, ImageDraw
 
 # from lib.GrabVideo import GrabVideo
-# from lib.HikMvImport.CameraParams_header import MV_FRAME_OUT_INFO_EX
+# from lib.HikMvImport_Win.CameraParams_header import MV_FRAME_OUT_INFO_EX
 from src.Image.yolo.model import yolo_eval, yolo_body, tiny_yolo_body
 from src.Image.yolo.utils import letterbox_image
 
