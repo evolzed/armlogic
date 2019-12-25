@@ -32,34 +32,47 @@ class ImageTrack:
 
         Examples
         --------
+
+        测试方法，该方法不能单独测试，是随着main_test方法一同测试的，运行main_test方法即可测试，观察pos窗口中
+        的瓶子有没有一个紫色可以旋转的框，跟着瓶子的旋转角度在动，然后观察Log,查看dataDict的‘box’条目下的最后
+        两个数字，一个是角度，一个是直径，是否正确，例如
+        'box': [['Transparent bottle', 0.3777146, 568, 378, 679, 465, 0.0, 60.19998931884765]
+        0.0是角度  60.19998931884765是直径
+
+
         """
+        # init a morph kernel
         kernel19 = np.ones((19, 19), np.uint8)
+        #get the frame from cam
         frameOrg = frameOrg0.copy()
-        print("in")
-        #print(dataDict)
-        #print(range(dataDict["box"]))
         if "box" in dataDict:
             for i in range(len(dataDict["box"])):
+                #get the box vertex
                 left = dataDict["box"][i][2]
                 top = dataDict["box"][i][3]
                 right = dataDict["box"][i][4]
                 bottom = dataDict["box"][i][5]
                 rectTop = np.array([left, top])
                 rectBottle = (right-left, bottom - top)
-                #BOX ROI
+                # get the BOX ROI from frame
                 roiImg = frameOrg[left:right, top:bottom]
-                print("h")
+
                 #externd region
                 # right += 40
                 # left -= 40
                 # bottom += 40
                 # top -= 40
+                # get the center of box
                 centerX = (right+left/2)
                 centerY = (top + bottom / 2)
+
+                #prevent beyond the pic limit
                 if (right-left > 1) and (bottom - top > 1) and left > 0 and right < bgMask.shape[1]\
                         and bottom < bgMask.shape[0]and top > 0:
+                    #display the box region of bgMask
                     cv2.imshow("box"+str(i), bgMask[top:bottom, left:right])
                     roi = bgMask[top:bottom, left:right]
+                    # erode and find contour  prevent too fat
                     roi = cv2.erode(roi, kernel19)  # eclipice
                     if cv2.__version__.startswith("3"):
                         _, contours, hierarchy = cv2.findContours(roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -71,7 +84,8 @@ class ImageTrack:
                     momentList = []
                     pointList = []
                     print("contour", contourLen)
-                    if contourLen > 0:  #choose the most propreate contour
+                    # choose the most propreate contour
+                    if contourLen > 0:
                         index = 0
                         for j in range(contourLen):
                             # contourM = cv2.moments(contours[j])
@@ -86,9 +100,10 @@ class ImageTrack:
                                 index = j
 
                         # https: // blog.csdn.net / lanyuelvyun / article / details / 76614872
+                        # find the rotateRect and get the angle and diameter
                         rotateRect = cv2.minAreaRect(contours[index])
                         angle = rotateRect[2]
-                        diameter = min(rotateRect[1][0], rotateRect[1][1])*0.7
+                        diameter = min(rotateRect[1][0], rotateRect[1][1])*0.6
                         rbox = cv2.boxPoints(rotateRect)  # 获取最小外接矩形的4个顶点坐标(ps: cv2.boxPoints(rect) for OpenCV 3.x)
                         #mrbox=np.array(rbox)
 
@@ -96,19 +111,11 @@ class ImageTrack:
                         rbox = np.int0(rbox)
                         # 画出来
                         cv2.drawContours(frameOrg, [rbox], 0, (255, 0, 255), 1)
-                        cv2.imshow("r",frameOrg)
+                        cv2.imshow("pos",frameOrg)
+                        #store angle and diameter to the dataDict
                         dataDict["box"][i][6] = angle
                         dataDict["box"][i][7] = diameter
         return dataDict
-                #cv2.waitKey(10)
-
-
-
-
-
-
-
-
 
 
 
