@@ -147,7 +147,9 @@ class Image(object):
                 dataDict["nFrame"] = nFrame
                 dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
                 # arr = np.asarray(dataDict["image"])
+
                 dataDict = trackObj.getBottlePos(_frame, bgMask, dataDict)
+
                 cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                             fontScale=0.50, color=(255, 0, 0), thickness=2)
                 cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,

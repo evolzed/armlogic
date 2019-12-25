@@ -143,7 +143,7 @@ class Bglearn():
             pic_cnt = 0
             while (over_flag):
                 # get image from camera
-                frame, nFrameNum = cam.getImage()
+                frame, nFrameNum, t = cam.getImage()
                 fin = np.float32(frame)
                 # print("shape", fin.shape)
                 # store the frame in list bgVector
@@ -318,7 +318,7 @@ if __name__ == "__main__":
 
     while 1:
         try:
-            frame, nFrameNum = cam.getImage()
+            frame, nFrameNum, t = cam.getImage()
             """
             # init the fps calculate module
             curr_time = timer()
