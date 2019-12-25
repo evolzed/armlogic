@@ -21,6 +21,7 @@ elif sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
     from lib.HikMvImport_TX2.MvCameraControl_class import *
 else:
     print("不支持的系统架构，仅支持win10_64 和 Ubuntu16.04 ARM aarch64！！")
+    sys.exit()
 from timeit import default_timer as timer
 
 g_bExit = False

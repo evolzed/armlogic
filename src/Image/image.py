@@ -15,7 +15,7 @@ elif sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
     from lib.HikMvImport_TX2.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
 else:
     print("不支持的系统架构，仅支持win10_64 和 Ubuntu16.04 ARM aarch64！！")
-
+    sys.exit()
 from src.Image.camera import Camera, g_bExit
 from src.Image.yolo.Yolo import *
 from src.Image.imageProcess.bgLearn import Bglearn
@@ -23,7 +23,7 @@ from src.Image.imageProcess.imageTrack import ImageTrack
 gState = 1
 class Image(object):
     """create main Image class for processing images"""
-    def __init__(self, cam, yolo, bgLearn):
+    def __init__(self, cam, yolo, bgLearn=None):
         """相机自检"""
         self.cam = cam
         self.yolo = yolo
