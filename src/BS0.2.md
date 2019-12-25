@@ -93,7 +93,7 @@
 
 #  3.**系统总体设计框架**
 ## 3.1 系统流程图
-![FlowChart](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/FlowChart/BS0.2FC.png)
+![FlowChart](http://192.168.0.203:8088/armlogic/BottleSort/blob/BottleSort0.1/docs/pic/FlowChart/bs0.2FC.png)
 ## 3.2 功能包及其实现逻辑
 **PC(代替TX2)**
 
