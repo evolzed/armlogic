@@ -25,8 +25,8 @@ class ImageTrack:
           dataDict
 
         Returns
-        bottleDetail:
-            mainly include bottle rotate angle from belt move direction,0--180 degree,
+        dataDict:
+            add the dataDict bottle rotate angle from belt move direction,-90--0 degree,
             and the diameter of bottle
         -------
 

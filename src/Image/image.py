@@ -19,6 +19,7 @@ else:
 from src.Image.camera import Camera, g_bExit
 from src.Image.yolo.Yolo import *
 from src.Image.imageProcess.bgLearn import Bglearn
+from src.Image.imageProcess.imageTrack import ImageTrack
 gState = 1
 class Image(object):
     """create main Image class for processing images"""
@@ -110,6 +111,8 @@ class Image(object):
         if sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
             print("press_any_key_exit!")
             cam.press_any_key_exit()
+
+        trackObj = ImageTrack()
         while True:
             try:
                 _frame, nFrame, t = cam.getImage()
@@ -144,7 +147,7 @@ class Image(object):
                 dataDict["nFrame"] = nFrame
                 dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
                 # arr = np.asarray(dataDict["image"])
-
+                dataDict = trackObj.getBottlePos(_frame, bgMask, dataDict)
                 cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                             fontScale=0.50, color=(255, 0, 0), thickness=2)
                 cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
