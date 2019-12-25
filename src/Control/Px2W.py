@@ -36,12 +36,12 @@ Zc = 1428.595  # 比例因子
 U1 = 532  # 待求的像素坐标
 V1 = 364  # 待求的像素坐标
 
-U2 = 755  # 待求的像素坐标
-V2 = 443  # 待求的像素坐标
+U2 = 476  # 待求的像素坐标
+V2 = 522  # 待求的像素坐标
 
 PositionMtx1 = Px2World(U1, V1, Zc, IntrinsicMtx, ExtrinsicMtx)  # 调用举例
 PositionMtx2 = Px2World(U2, V2, Zc, IntrinsicMtx, ExtrinsicMtx)  # 调用举例
-Length = np.sqrt((PositionMtx2[0, 0]-PositionMtx1[0, 0])**2+(PositionMtx2[1, 0]-PositionMtx1[1, 0])**2)
+Length = np.sqrt((PositionMtx2[0]-PositionMtx1[0])**2+(PositionMtx2[1]-PositionMtx1[1])**2)
 print("Length =\n", Length)
 
 
