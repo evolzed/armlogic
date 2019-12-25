@@ -22,7 +22,7 @@ from src.Image.imageProcess.bgLearn import Bglearn
 gState = 1
 class Image(object):
     """create main Image class for processing images"""
-    def __init__(self, cam, yolo, bgLearn):
+    def __init__(self, cam, yolo, bgLearn=None):
         """相机自检"""
         self.cam = cam
         self.yolo = yolo
