@@ -120,6 +120,8 @@ class Bglearn():
         self.IhiF = cv2.add(self.IavgF, self.IdiffF)
         # cv2.subtract(IavgF, IdiffF, IlowF)
         self.IlowF = cv2.subtract(self.IavgF, self.IdiffF)
+        #release the memory
+        self.bgVector = []
         #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
         #cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
 
@@ -141,7 +143,7 @@ class Bglearn():
             pic_cnt = 0
             while (over_flag):
                 # get image from camera
-                frame, nFrameNum = cam.getImage()
+                frame, nFrameNum, t = cam.getImage()
                 fin = np.float32(frame)
                 # print("shape", fin.shape)
                 # store the frame in list bgVector
@@ -224,6 +226,7 @@ class Bglearn():
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel13)  # eclipice
+        dst = cv2.erode(dst, self.kernel19)  # eclipice
         # 解决cv2版本3.4.2和4.1.2兼容问题
         if cv2.__version__.startswith("3"):
             _, contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -244,6 +247,12 @@ class Bglearn():
                 contourArea = cv2.contourArea(contours[i])
                 contourhull = cv2.convexHull(contours[i])  # 凸包
                 cv2.polylines(self.show, [contourhull], True, (500, 255, 0), 2)
+
+                #https: // blog.csdn.net / lanyuelvyun / article / details / 76614872
+                rotateRect = cv2.minAreaRect(contours[i])
+                angle = rotateRect[2]
+                diameter = min(rotateRect[1][0], rotateRect[1][1])
+
 
                 contourBndBox = cv2.boundingRect(contours[i])  # x,y,w,h
                 # print("contourBndBox type", type(contourBndBox))
@@ -283,7 +292,8 @@ class Bglearn():
            """
         prev_time = timer()
         #simply output the frame that delete the background
-        dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
+        #dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)  flexible the dst shape to adapt the src shape
+        dst = np.zeros(shape=src.shape, dtype=src.dtype)
         resarray, bgMask = self.backgroundDiff(src, dst)
         #bit and operation
         frame_delimite_bac = cv2.bitwise_and(src, src, mask=bgMask)
@@ -292,7 +302,7 @@ class Bglearn():
         exec_time = curr_time - prev_time
         self.bgTimeCost =exec_time
         # print("Del background Cost time:", self.bgTimeCost)
-        return frame_delimite_bac
+        return frame_delimite_bac,bgMask
 
 
 
@@ -308,7 +318,7 @@ if __name__ == "__main__":
 
     while 1:
         try:
-            frame, nFrameNum = cam.getImage()
+            frame, nFrameNum, t = cam.getImage()
             """
             # init the fps calculate module
             curr_time = timer()

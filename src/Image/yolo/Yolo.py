@@ -152,7 +152,9 @@ class YOLO(object):
             left = max(0, np.floor(left + 0.5).astype('int32'))
             bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
             right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
-            boxList.append((predicted_class, score, left, top, right, bottom))
+            angle = None
+            diameter = None
+            boxList.append([predicted_class, score, left, top, right, bottom, angle, diameter])
             dataDict["box"] = boxList
             # print(label, (left, top), (right, bottom))
 

@@ -4,14 +4,15 @@ import sys
 import copy
 import ctypes
 import os
-
+sys.path.append(os.path.abspath("../../"))
 from ctypes import *
-from lib.HikMvImport.utils.CameraParams_const import *
-from lib.HikMvImport.utils.CameraParams_header import *
-from lib.HikMvImport.utils.MvCameraControl_header import *
-from lib.HikMvImport.utils.MvErrorDefine_const import *
-from lib.HikMvImport.utils.PixelType_const import *
-from lib.HikMvImport.utils.PixelType_header import *
+from lib.HikMvImport_TX2.utils.CameraParams_const import *
+from lib.HikMvImport_TX2.utils.CameraParams_header import *
+from lib.HikMvImport_TX2.utils.MvCameraControl_header import *
+from lib.HikMvImport_TX2.utils.MvErrorDefine_const import *
+from lib.HikMvImport_TX2.utils.PixelType_const import *
+from lib.HikMvImport_TX2.utils.PixelType_header import *
+
 MvCamCtrldll = ctypes.cdll.LoadLibrary(os.getenv('MVCAM_COMMON_RUNENV') + "/aarch64/libMvCameraControl.so")
 
 # 用于回调函数传入相机实例

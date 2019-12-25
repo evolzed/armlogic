@@ -4,13 +4,22 @@ import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
-# sys.path.append(os.path.abspath("../../"))
+sys.path.append(os.path.abspath("../../"))
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
-from lib.HikMvImport.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
+import platform
+sysArc = platform.uname()
+if sysArc[0] == "Windows":
+    from lib.HikMvImport_Win.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
+elif sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
+    from lib.HikMvImport_TX2.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
+else:
+    print("不支持的系统架构，仅支持win10_64 和 Ubuntu16.04 ARM aarch64！！")
+
 from src.Image.camera import Camera, g_bExit
 from src.Image.yolo.Yolo import *
 from src.Image.imageProcess.bgLearn import Bglearn
+from src.Image.imageProcess.imageTrack import ImageTrack
 gState = 1
 class Image(object):
     """create main Image class for processing images"""
@@ -99,9 +108,14 @@ class Image(object):
         accum_time = 0
         curr_fps = 0
         fps = "FPS: ??"
+        if sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
+            print("press_any_key_exit!")
+            cam.press_any_key_exit()
+
+        trackObj = ImageTrack()
         while True:
             try:
-                _frame, nFrame = cam.getImage()
+                _frame, nFrame, t = cam.getImage()
                 camfps = " Cam" + cam.getCamFps(nFrame)
                 curr_time = timer()
                 exec_time = curr_time - prev_time
@@ -113,7 +127,7 @@ class Image(object):
                     fps = "NetFPS:" + str(curr_fps)
                     curr_fps = 0
 
-                frame = self.bgLearn.delBg(_frame)
+                frame, bgMask = self.bgLearn.delBg(_frame)
                 # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
                 # cv2.imshow("kk", frame)
                 # cv2.waitKey(3000)
@@ -131,7 +145,10 @@ class Image(object):
                 dataDict["image"] = img  # img：Image对象
                 # dataDict["timeCost"] = exec_time
                 dataDict["nFrame"] = nFrame
+                dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
                 # arr = np.asarray(dataDict["image"])
+
+                dataDict = trackObj.getBottlePos(_frame, bgMask, dataDict)
 
                 cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                             fontScale=0.50, color=(255, 0, 0), thickness=2)

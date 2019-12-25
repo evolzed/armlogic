@@ -4,12 +4,14 @@ import sys
 import copy
 import ctypes
 from ctypes import *
-from lib.HikMvImport.utils.CameraParams_const import *
-from lib.HikMvImport.utils.CameraParams_header import *
-from lib.HikMvImport.utils.MvCameraControl_header import *
-from lib.HikMvImport.utils.MvErrorDefine_const import *
-from lib.HikMvImport.utils.PixelType_const import *
-from lib.HikMvImport.utils.PixelType_header import *
+
+from lib.HikMvImport_Win.utils.CameraParams_const import *
+from lib.HikMvImport_Win.utils.CameraParams_header import *
+from lib.HikMvImport_Win.utils.MvCameraControl_header import *
+from lib.HikMvImport_Win.utils.MvErrorDefine_const import *
+from lib.HikMvImport_Win.utils.PixelType_const import *
+from lib.HikMvImport_Win.utils.PixelType_header import *
+
 
 MvCamCtrldll = WinDLL("MvCameraControl.dll")
 
@@ -283,4 +285,3 @@ class MvCamera():
         MvCamCtrldll.MV_CC_GetOptimalPacketSize.restype = c_uint
         # C原型:int __stdcall MV_CC_GetOptimalPacketSize(void* handle);
         return MvCamCtrldll.MV_CC_GetOptimalPacketSize(self.handle)
-

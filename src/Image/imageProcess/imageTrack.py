@@ -1,13 +1,15 @@
 from src.Image.imageProcess.bgLearn import Bglearn
 import cv2
 import numpy as np
+from src.Image.camera import Camera
+from timeit import default_timer as timer
 
 class ImageTrack:
     def __init__(self):
-        self.MAX_CORNERS = 500
+        self.MAX_CORNERS = 50
         self.win_size = 10
 
-    def getBottleDetail(self, dataDict):
+    def getBottlePos(self, frameOrg0,bgMask,dataDict):
         # function description:
         # get Bottle Detail info,include bottle rotate angle and the diameter of bottle
         #implementation detail:
@@ -23,14 +25,91 @@ class ImageTrack:
           dataDict
 
         Returns
-        bottleDetail:
-            mainly include bottle rotate angle from belt move direction,0--180 degree,
+        dataDict:
+            add the dataDict bottle rotate angle from belt move direction,-90--0 degree,
             and the diameter of bottle
         -------
 
         Examples
         --------
         """
+        kernel19 = np.ones((19, 19), np.uint8)
+        frameOrg = frameOrg0.copy()
+        print("in")
+        #print(dataDict)
+        #print(range(dataDict["box"]))
+        if "box" in dataDict:
+            for i in range(len(dataDict["box"])):
+                left = dataDict["box"][i][2]
+                top = dataDict["box"][i][3]
+                right = dataDict["box"][i][4]
+                bottom = dataDict["box"][i][5]
+                rectTop = np.array([left, top])
+                rectBottle = (right-left, bottom - top)
+                #BOX ROI
+                roiImg = frameOrg[left:right, top:bottom]
+                print("h")
+                #externd region
+                # right += 40
+                # left -= 40
+                # bottom += 40
+                # top -= 40
+                centerX = (right+left/2)
+                centerY = (top + bottom / 2)
+                if (right-left > 1) and (bottom - top > 1) and left > 0 and right < bgMask.shape[1]\
+                        and bottom < bgMask.shape[0]and top > 0:
+                    cv2.imshow("box"+str(i), bgMask[top:bottom, left:right])
+                    roi = bgMask[top:bottom, left:right]
+                    roi = cv2.erode(roi, kernel19)  # eclipice
+                    if cv2.__version__.startswith("3"):
+                        _, contours, hierarchy = cv2.findContours(roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+                    elif cv2.__version__.startswith("4"):
+                        contours, hierarchy = cv2.findContours(roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+                    #cv2.drawContours(self.show, contours, -1, (0, 255, 0), 3)
+                    contourLen = len(contours)
+                    # print(contourLen)
+                    momentList = []
+                    pointList = []
+                    print("contour", contourLen)
+                    if contourLen > 0:  #choose the most propreate contour
+                        index = 0
+                        for j in range(contourLen):
+                            # contourM = cv2.moments(contours[j])
+                            # contourCenterGx = int(contourM['m10'] / contourM['m00'])
+                            # contourCenterGy = int(contourM['m01'] / contourM['m00'])
+                            contourArea = cv2.contourArea(contours[j])
+                            print("contourArea:", contourArea)
+                           #  print("pixNum:", pixNum)
+                            print("total:", (right - left) * (bottom - top))
+                            if (contourArea/((right-left)*(bottom - top))) > 0.2:
+                            #if (abs(contourCenterGx-centerX)+abs(contourCenterGy-centerY)) < abs(left-right)/4:
+                                index = j
+
+                        # https: // blog.csdn.net / lanyuelvyun / article / details / 76614872
+                        rotateRect = cv2.minAreaRect(contours[index])
+                        angle = rotateRect[2]
+                        diameter = min(rotateRect[1][0], rotateRect[1][1])*0.7
+                        rbox = cv2.boxPoints(rotateRect)  # 获取最小外接矩形的4个顶点坐标(ps: cv2.boxPoints(rect) for OpenCV 3.x)
+                        #mrbox=np.array(rbox)
+
+                        rbox = rbox + rectTop
+                        rbox = np.int0(rbox)
+                        # 画出来
+                        cv2.drawContours(frameOrg, [rbox], 0, (255, 0, 255), 1)
+                        cv2.imshow("r",frameOrg)
+                        dataDict["box"][i][6] = angle
+                        dataDict["box"][i][7] = diameter
+        return dataDict
+                #cv2.waitKey(10)
+
+
+
+
+
+
+
+
+
 
 
     def getBeltSpeed(self, dataDict):
@@ -65,11 +144,29 @@ class ImageTrack:
         --------
         """
 
-    def LKlightflow_track(self,featureimg,secondimg_orig):
+    def LKlightflow_track(self, featureimg,  secondimg_orig):
+        # function description:
+        # LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,
+        # and then track the point of featureimg to get the corresponding point of secondimg_orig
+
+        """
+        Parameters
+        --------------
+        I: featureimg
+           secondimg_orig
+          dataDict
+
+        Returns
+        -------
+
+        Examples
+        --------
+        """
         img_sz = featureimg.shape
         win_size = 10
-        drawimg = featureimg.copy()
-        drawimg2 = secondimg_orig.copy()
+        #drawimg = featureimg.copy()
+        drawimg = secondimg_orig.copy()
+        #drawimg2 = secondimg_orig.copy()
         secondimg =secondimg_orig.copy()
         featureimg = cv2.cvtColor(featureimg,  cv2.COLOR_BGR2GRAY)
         secondimg = cv2.cvtColor(secondimg_orig, cv2.COLOR_BGR2GRAY)
@@ -108,6 +205,7 @@ if __name__ == "__main__":
     b = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\2.jpg")
     #print(a.type())
     #print(b.type())
+    # wait for test multi bottles track
     corners_cnt, drawimg = obj.LKlightflow_track(a, b)
     cv2.imshow("res", drawimg)
     cv2.waitKey()
