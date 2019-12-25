@@ -1,8 +1,11 @@
+import math
 import threading
 import time
 
 from src.Image.camera import Camera
-from src.Image.image import Image, bottleDict
+from src.Image.image import Image
+from src.Image import image
+from src.Image.imageProcess.bgLearn import Bglearn
 from src.Image.yolo.Yolo import YOLO
 import sys, os
 # print(sys.path)
@@ -42,54 +45,118 @@ def getBeltSpeed(dataDict):
     Examples
     --------
     """
-
+    bottleDetail = []
     if not dataDict:
+        print("未检测到物体！--1")
         return None
     # try get info of box in dataDict
     boxInfo = dataDict.get("box", 0)
     nFrame = dataDict["nFrame"]
     frameTime = dataDict["frameTime"]
-    dstList.append(nFrame)
-    dstList.append(frameTime)
+    bottleDetail.append(nFrame)
+    bottleDetail.append(frameTime)
 
-    if boxInfo == 0:
-        print("未检测到运动物体！")
+    if not boxInfo:
+        print("未检测到运动物体！--2")
         return None
     # get the first object which conditional more than 80%
     for i in boxInfo:
+
         if float(i[1]) > 0.8:
-            dstList.append(i[0])  # 瓶子类别
+            bottleDetail.append(i[0])  # 瓶子类别
             # 换算成中心坐标
-            centerX = (dstList.append(i[2]) + dstList.append(i[4])) / 2
-            centerY = (dstList.append(i[3]) + dstList.append(i[5])) / 2
-            dstList.append(centerX)
-            dstList.append(centerY)
-            print("dstList", dstList)
-            # test just one bottle
+            centerX = (i[2] + i[4]) / 2
+            centerY = (i[3] + i[5]) / 2
+            bottleDetail.append((centerX, centerY))
+            # bottleDetail.append(centerY)
+            dstList.append(bottleDetail)
             break
+        # print("dstList", dstList)
+        # return dstList
+            # test just one bottle
+            # break
     if not dstList:
-        print("未检测到运动物体！")
+        print("未检测到运动物体！--3")
         return None
+    return dstList
+
+def getSpeed(dstList):
+    speedList = []
+    angleList = []
+    for i in range(len(dstList)-1):
+        if dstList[i][0] == dstList[i+1][0]:
+            print("物体未运动，速度为0000")
+            continue
+        if dstList[i+1][3][0] == dstList[i][3][0] or dstList[i+1][3][1] == dstList[i][3][1]:
+            print("物体未运动，速度为0000")
+            continue
+        sumTime = dstList[i+1][1] - dstList[i][1]
+        pix_distance = math.sqrt((dstList[i+1][3][0] - dstList[i][3][0]) ** 2 + (dstList[i+1][3][1] - dstList[i][3][1]) ** 2)
+        # 计算速度
+        temSpeed = pix_distance / sumTime
+        speedList.append(temSpeed)
+        # 计算传送带运动速度与相机夹角
+        radian = math.atan((dstList[i+1][3][1] - dstList[i][3][1]) / (dstList[i+1][3][0] - dstList[i][3][0]))
+        # 将弧度转换成角度
+        _angle = radian * 180 / math.pi
+        angleList.append(_angle)
+    # 计算十组的平均速度
+    speed = sum(speedList) / len(speedList)
+    # 计算传送带和相机角度
+    angle = sum(angleList) / len(speedList)
+    return speed, angle
+
+
+def counter():
+    for i in range(500):
+        time.sleep(0.5)
+        if not image.bottleDict:
+            print(i, "未检测到物体！--4")
+            continue
+        print(i, image.bottleDict)
+        dstList = getBeltSpeed(image.bottleDict)
+        if not dstList:
+            print("未检测到运动物体！--5")
+            continue
+        if len(dstList) == 20:
+            # 计算速度
+            speed, angle = getSpeed(dstList)
+            print("*" * 50)
+            print("speed", speed)
+            print("angle", angle)
+            print("*" * 50)
+            break
 
 
 if __name__ == '__main__':
     cam = Camera()
     yolo = YOLO()
-    img = Image(cam, yolo)
-    print("=" * 50)
-    print(bottleDict)
-    print("=" * 50)
+    # bgobj = Bglearn(50)
+    # bgobj.studyBackgroundFromCam(cam)
+    # bgobj.createModelsfromStats(6.0)
+    _image = Image(cam, yolo)
+
+    # print("=" * 50)
+    # print(bottleDict)
+    # print("=" * 50)
+    # counter()
     try:
-        hThreadHandle = threading.Thread(target=img.detectSerialImage, args=(cam,))
+        hThreadHandle = threading.Thread(target=counter, daemon=True)
         hThreadHandle.start()
     except:
         print("error: unable to start thread")
-    # img.detectSerialImage(cam)
-    for i in range(500):
-        time.sleep(1)
-        print(i, bottleDict)
-        getBeltSpeed(bottleDict)
-    hThreadHandle.join()
-    cam.destroy()
 
+    _image.detectSerialImage(cam)
+    hThreadHandle.join()
+    # # img.detectSerialImage(cam)
+    # for i in range(500):
+    #     time.sleep(1)
+    #     if not bottleDict:
+    #         print(i, "未检测到物体！")
+    #         continue
+    #     print(i, bottleDict)
+    # getBeltSpeed(image.bottleDict)
+    # # hThreadHandle.join()
+    # # cam.destroy()
+    #
 

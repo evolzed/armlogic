@@ -128,7 +128,7 @@ class Image(object):
                     fps = "NetFPS:" + str(curr_fps)
                     curr_fps = 0
 
-                frame, bgMask = self.bgLearn.delBg(_frame) if self.bgLearn else _frame, None
+                frame, bgMask = self.bgLearn.delBg(_frame) if self.bgLearn else (_frame, None)
                 # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
                 # cv2.imshow("kk", frame)
                 # cv2.waitKey(3000)
@@ -148,7 +148,7 @@ class Image(object):
                 dataDict["nFrame"] = nFrame
                 dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
                 # arr = np.asarray(dataDict["image"])
-                if not bgMask:
+                if bgMask:
                     dataDict = trackObj.getBottlePos(_frame, bgMask, dataDict)
                 cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                             fontScale=0.50, color=(255, 0, 0), thickness=2)
