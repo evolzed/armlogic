@@ -112,8 +112,8 @@ class ImageTrack:
                         diameter = min(rotateRect[1][0], rotateRect[1][1])*0.6
                         rbox = cv2.boxPoints(rotateRect)  # 获取最小外接矩形的4个顶点坐标(ps: cv2.boxPoints(rect) for OpenCV 3.x)
 
-                        """   
-                        in rbox  out correct angle 
+
+                        #in rbox  out correct angle
                         print("rbox", rbox)
                         print("rboxtype", type(rbox))
                         #mrbox=np.array(rbox)
@@ -122,47 +122,74 @@ class ImageTrack:
                         print("w", w)
                         print("h", h)
                         #钝角 内积小于0
-                        xAxisVector = np.array([0, 1])
+                        xAxisVector = np.array([[0], [1]])
                         #find the long side of rotate rect
                         if w > h:
                             #find the low point the vector is from low to high
                             v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
-                            if rbox[0][1] > rbox[1][1]:
-                                v = rbox[0] - rbox[1]
-                                # 内积大于0 是锐角 小于0是钝角
-                                if v * xAxisVector > 0:
-                                    angle = - angle
-                                if v * xAxisVector < 0:
-                                    angle = - angle + 90
 
-                            if rbox[0][1] < rbox[1][1]:
-                                v = rbox[1] - rbox[0]
-                                # 内积大于0 是锐角 小于0是钝角
-                                if v * xAxisVector > 0:
-                                    angle = - angle
-                                if v * xAxisVector < 0:
-                                    angle = - angle + 90
+                            v = rbox[1] - rbox[0]
+                            print("v:", v)
+                            print("vdet", np.dot(v, xAxisVector)[0])
+                            # 内积大于0 是锐角 小于0是钝角
+                            if np.dot(v, xAxisVector)[0] > 0:
+                                angle = - angle
+                            if np.dot(v, xAxisVector)[0] < 0:
+                                angle = - angle + 90
+                            if angle == 0:
+                                angle = 90
+
+                            # if rbox[0][1] > rbox[1][1]:
+                            #     v = rbox[0] - rbox[1]
+                            #     print("v:",v)
+                            #     print("vdet:", np.dot(v, xAxisVector)[0])
+                            #     # 内积大于0 是锐角 小于0是钝角
+                            #     if np.dot(v, xAxisVector)[0] > 0:
+                            #         angle = - angle
+                            #     if np.dot(v, xAxisVector)[0] < 0:
+                            #         angle = - angle + 90
+                            #
+                            # if rbox[0][1] < rbox[1][1]:
+                            #     v = rbox[1] - rbox[0]
+                            #     print("v:", v)
+                            #     print("vdet", np.dot(v, xAxisVector)[0])
+                            #     # 内积大于0 是锐角 小于0是钝角
+                            #     if np.dot(v, xAxisVector)[0] > 0:
+                            #         angle = - angle
+                            #     if np.dot(v, xAxisVector)[0] < 0:
+                            #         angle = - angle + 90
 
                         # find the long side of rotate rect
                         if h > w:
                             #find the low point the vector is from low to high
                             v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
-                            if rbox[1][1] > rbox[2][1]:
-                                v = rbox[1] - rbox[2]
-                                # 内积大于0 是锐角 小于0是钝角
-                                if v * xAxisVector > 0:
-                                    angle = - angle
-                                if v * xAxisVector < 0:
-                                    angle = - angle + 90
+                            v = rbox[1] - rbox[2]
+                            print("v:", v)
+                            print("vdet", np.dot(v, xAxisVector)[0])
+                            # 内积大于0 是锐角 小于0是钝角
+                            if np.dot(v, xAxisVector)[0] > 0:
+                                angle = - angle
+                            if np.dot(v, xAxisVector)[0] < 0:
+                                angle = - angle + 90
+                            if angle == 0:
+                                angle = 90
 
-                            if rbox[1][1] < rbox[2][1]:
-                                v = rbox[2] - rbox[1]
-                                # 内积大于0 是锐角 小于0是钝角
-                                if v * xAxisVector > 0:
-                                    angle = - angle
-                                if v * xAxisVector < 0:
-                                    angle = - angle + 90
-                        """
+                            # if rbox[1][1] > rbox[2][1]:
+                            #     v = rbox[1] - rbox[2]
+                            #     # 内积大于0 是锐角 小于0是钝角
+                            #     if np.dot(v, xAxisVector)[0] > 0:
+                            #         angle = - angle
+                            #     if np.dot(v, xAxisVector)[0] < 0:
+                            #         angle = - angle + 90
+                            #
+                            # if rbox[1][1] < rbox[2][1]:
+                            #     v = rbox[2] - rbox[1]
+                            #     # 内积大于0 是锐角 小于0是钝角
+                            #     if np.dot(v, xAxisVector)[0] > 0:
+                            #         angle = - angle
+                            #     if np.dot(v, xAxisVector)[0] < 0:
+                            #         angle = - angle + 90
+
                         # rbox[0] rbox[1]
                         # rbox[1] rbox[2]
 
