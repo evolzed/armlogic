@@ -1,7 +1,13 @@
-from src.Image.camera import Camera
-from src.Image.image import Image
-from src.Image.yolo.Yolo import YOLO
+import threading
+import time
 
+from src.Image.camera import Camera
+from src.Image.image import Image, bottleDict
+from src.Image.yolo.Yolo import YOLO
+import sys, os
+# print(sys.path)
+# sys.path.append(os.path.abspath("../../../"))
+# sys.path.insert(0, os.path.abspath("../../../src/Image/yolo"))
 dstList = []  # use for store infomation of per box
 
 def getBeltSpeed(dataDict):
@@ -37,6 +43,8 @@ def getBeltSpeed(dataDict):
     --------
     """
 
+    if not dataDict:
+        return None
     # try get info of box in dataDict
     boxInfo = dataDict.get("box", 0)
     nFrame = dataDict["nFrame"]
@@ -56,6 +64,7 @@ def getBeltSpeed(dataDict):
             centerY = (dstList.append(i[3]) + dstList.append(i[5])) / 2
             dstList.append(centerX)
             dstList.append(centerY)
+            print("dstList", dstList)
             # test just one bottle
             break
     if not dstList:
@@ -67,7 +76,20 @@ if __name__ == '__main__':
     cam = Camera()
     yolo = YOLO()
     img = Image(cam, yolo)
-    dataDict = img.detectSerialImage(cam)
-    getBeltSpeed(dataDict)
+    print("=" * 50)
+    print(bottleDict)
+    print("=" * 50)
+    try:
+        hThreadHandle = threading.Thread(target=img.detectSerialImage, args=(cam,))
+        hThreadHandle.start()
+    except:
+        print("error: unable to start thread")
+    # img.detectSerialImage(cam)
+    for i in range(500):
+        time.sleep(1)
+        print(i, bottleDict)
+        getBeltSpeed(bottleDict)
+    hThreadHandle.join()
+    cam.destroy()
 
 

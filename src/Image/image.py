@@ -21,6 +21,7 @@ from src.Image.yolo.Yolo import *
 from src.Image.imageProcess.bgLearn import Bglearn
 from src.Image.imageProcess.imageTrack import ImageTrack
 gState = 1
+bottleDict = None
 class Image(object):
     """create main Image class for processing images"""
     def __init__(self, cam, yolo, bgLearn=None):
@@ -108,9 +109,9 @@ class Image(object):
         accum_time = 0
         curr_fps = 0
         fps = "FPS: ??"
-        if sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
-            print("press_any_key_exit!")
-            cam.press_any_key_exit()
+        # if sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
+        #     print("press_any_key_exit!")
+        #     cam.press_any_key_exit()
 
         trackObj = ImageTrack()
         while True:
@@ -127,7 +128,7 @@ class Image(object):
                     fps = "NetFPS:" + str(curr_fps)
                     curr_fps = 0
 
-                frame, bgMask = self.bgLearn.delBg(_frame)
+                frame, bgMask = self.bgLearn.delBg(_frame) if self.bgLearn else _frame, None
                 # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
                 # cv2.imshow("kk", frame)
                 # cv2.waitKey(3000)
@@ -139,7 +140,7 @@ class Image(object):
                 # img.show()
                 # feed data into model
                 dataDict = self.yolo.detectImage(img)
-                dataDict["bgTimeCost"] = self.bgLearn.bgTimeCost
+                dataDict["bgTimeCost"] = self.bgLearn.bgTimeCost if self.bgLearn else 0
                 result = np.asarray(dataDict["image"])
                 # dataDict["image"] = result  # result：cv2.array的图像数据
                 dataDict["image"] = img  # img：Image对象
@@ -147,9 +148,8 @@ class Image(object):
                 dataDict["nFrame"] = nFrame
                 dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
                 # arr = np.asarray(dataDict["image"])
-
-                dataDict = trackObj.getBottlePos(_frame, bgMask, dataDict)
-
+                if not bgMask:
+                    dataDict = trackObj.getBottlePos(_frame, bgMask, dataDict)
                 cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                             fontScale=0.50, color=(255, 0, 0), thickness=2)
                 cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -160,6 +160,8 @@ class Image(object):
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
                 # return dataDict
+                global bottleDict
+                bottleDict = dataDict
                 print(dataDict)
             except Exception as e:
                 # global gState
