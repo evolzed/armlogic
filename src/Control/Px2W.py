@@ -20,20 +20,29 @@ def Px2World(u, v, zc, intrinsicMtx, extrinsicMtx):
     return pwMtx
 
 
-U = 966  # 待求的像素坐标
-V = 777  # 待求的像素坐标
-Zc = 570.2425  # 比例因子
+
+
 # 内参数矩阵
-IntrinsicMtx = np.array([[1100.3497, -0.2253, 595.6410, 0.0],
-                         [0.0, 1100.3214, 544.8440, 0.0],
+IntrinsicMtx = np.array([[1.134364021498704e+03, 0.0, 6.161364934322572e+02, 0.0],
+                         [0.0, 1.132974556060971e+03, 5.561652331573952e+02, 0.0],
                          [0.0, 0.0, 1.0, 0.0]])
 # 外参数矩阵
-ExtrinsicMtx = np.array([[0.9994, 0.0315, -0.0176, -61.0168],
-                         [-0.0295, 0.9943, 0.1027, -93.4316],
-                         [0.0207, -0.1021, 0.9946, 523.6375],
+ExtrinsicMtx = np.array([[0.998164450924708, 0.057618607890134, -0.018650065280829, -1.526237021849280e+02],
+                         [-0.057340832759324, 0.998240439069402, 0.015101480225268, -2.109557849387723e+02],
+                         [0.019487375622268, -0.014004350442986, 0.999712018713403, 1.404789115280260e+03],
                          [0.0, 0.0, 0.0, 1.0]])
-PositionMtx = Px2World(U, V, Zc, IntrinsicMtx, ExtrinsicMtx)  # 调用举例
-print("PwMtx =\n", PositionMtx)
+
+Zc = 1428.595  # 比例因子
+U1 = 532  # 待求的像素坐标
+V1 = 364  # 待求的像素坐标
+
+U2 = 755  # 待求的像素坐标
+V2 = 443  # 待求的像素坐标
+
+PositionMtx1 = Px2World(U1, V1, Zc, IntrinsicMtx, ExtrinsicMtx)  # 调用举例
+PositionMtx2 = Px2World(U2, V2, Zc, IntrinsicMtx, ExtrinsicMtx)  # 调用举例
+Length = np.sqrt((PositionMtx2[0, 0]-PositionMtx1[0, 0])**2+(PositionMtx2[1, 0]-PositionMtx1[1, 0])**2)
+print("Length =\n", Length)
 
 
 
