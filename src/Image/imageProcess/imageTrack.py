@@ -27,6 +27,7 @@ class ImageTrack:
         Returns
         dataDict:
             add the dataDict bottle rotate angle from belt move direction,-90--0 degree,
+            when bottle rotated,the angel will change from -90 to 0 then -90 to 0 then -90 to 0 then -90 to 0
             and the diameter of bottle
         -------
 
