@@ -1,6 +1,6 @@
 # BottleSort0.2设计说明书
 
-# Objective：Control using existing libraries to perform simple blast task.
+# Objective：Track Function & Optimize Vision Efficiency
 
 # 1.**环境搭建**
 
@@ -11,18 +11,25 @@
 * 工业相机
 
   + 品牌：HIKVision 
-  + 型号:MV-CE013-50GC
+  + 型号：MV-CE013-50GC
   + 接口协议：Gigabit Ethernet（GigE协议）
-  + **注意：相机完成了Win10下驱动调用，Linux平台未测试**
 
 ## 1.2 软件环境
 * Ubuntu 18.04
 * PyCharm 2018.3.5
+* python==3.6.5
+* opencv==4.4.1
+* tensorflow-gpu==1.6.0或tensorflow-gpu==1.9.0（gpu版本需要配置cuda）
+  - Tips：安装cuda：查看自己的gpu是否支持cuda[点击查看我的GPU是否支持安装cuda](https://developer.nvidia.com/cuda-gpus)，如果不支持，只能使用cpu版本的tensorflow，同样安装tensorflow==1.6.0或tensorflow==1.9.0
+* python-opencv==3.4.2.16（尽量不要使用最新4+版本）
+* numpy==1.16.5（必须要用1.16版本，1.17报错；win下需要1.16.5+mkl）
+* keras==2.1.5（务必使用该版本，否则报错）
+* PIL第三方库
+* 标准库：os模块、ctype(调用c/c++代码)、datetime(日期模块)、colorsys(转换模型模块)、timeit(测试程序运行时间)
 * [GitHub](https://github.com/evolzed/armlogic)
 
 ## 1.3 通讯接口
 * Ethernet
-* RS485
 
 ----
 # 2.**定义及规则**
@@ -37,7 +44,7 @@
   * LICENSE.md   
   
 ----
-## 2.2 数据库结构
+## 2.2 数据变量命名
 
 <table>
 	<tr>
@@ -56,72 +63,41 @@
 	    	<td>gState</td>
 	    	<td>#system state, 1 = INIT, 2 = RUN, 3 = STOP </td>
 		<td>int gState</td>
+        <td> </td>
+        <td> </td>
+        <td> </td>
+        <td> </td>
+        <td> </td>
 	</tr>
 	<tr >
 	    	<td>gDir</td>
 	    	<td>#运动方向的角度 0°~360°  </td>
 		<td>int gDir </td>
-		<td>Time processed </td>	
-	</tr>
-	<tr >
-	    	<td rowspan="4">Dictionary</td>
-	    	<td>airDict</td>
-	    	<td>#喷嘴位置坐标  </td>
-		<td>int x </td>
-		<td>int y </td>	
-		<td>int z </td>	
-		<td>int type </td>
-		<td>int frame </td>
 		<td>Time processed </td>
-</table>
-
-
-## 2.3 功能包文档填写说明
-<table>
-	<tr>
-	    <th>Class</th>
-	    <th>Functions/methods</th>
-	    <th>Description</th>  
-	</tr >
-	<tr >
-	    <td rowspan="9">Control</td>
-	    <td>Blast</td>
-	    <td>#send a signal to air pressure nozzle upon running code</td>
-	</tr>
-</table>
+        <td> </td>
+        <td> </td>
+        <td> </td>
+        <td> </td>
+	</tr></table>
 
 
 #  3.**系统总体设计框架**
 ## 3.1 系统流程图
-![FlowChart](http://192.168.0.203:8088/armlogic/BottleSort/blob/BottleSort0.1/docs/pic/FlowChart/bs0.2FC.png)
+![Flowchart](http://192.168.0.203:8088/armlogic/BottleSort/blob/bottlesort0.2/docs/pic/FlowChart/BS0.2FC.png)
 ## 3.2 功能包及其实现逻辑
-**PC(代替TX2)**
+
 
 | class |    function    |   description   | 依赖包                                       | 输入参数  | 输出参数  |
 | :---: | :------------: | :-------------: | -------------------------------------------- | :-------: | :-------: |
-|  PC   | relayService() | #继电器执行模块 | #time<br />#modbus<br />#socket<br />#serial       | gBlasting |     /     |
-|  PC   | listenBlast()  |    #监听模块    | #socket<br />#dataBase                       | gDataBase | gBlasting |
-|  Image   | getBeltSpeed()  | #get belt speed direction and valu e,pixel per second   |   bottleDict                     |  | beltSpeed |
-|  Image   | getBottleDetail()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
-|  Image   | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict                     | beltSpeed | bottleID |
+| Vision | getBeltSpeed()  | #get belt speed direction and value,pixel per second   |   bottleDict                     |  | beltSpeed |
+| Vision | getBottleAngle() | #get bottle angle (in contrast to belt direction) |bottleDict |  | bottleAngle |
+| Vision | getBottleDiameter() | #get bottle diameter | bottleDict | | bottleDiameter |
+| Vision | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict                     | beltSpeed | bottleID |
 
-**实现逻辑：**
+* 实现逻辑：
 
-* **PC.relayService()**
+  ...
 
-  获取PC.listenBlast()发出的gBlasting；
-
-  调用modbus包中的方法处理gBlasting，并调用serial包完成执行
-
-* **PC.listenBlast()**
-
-  监听dataBase的gDataBase；
-
-  ​	gDir转换成的向量与gBottleDict做处理，转换成瓶子在实际方向上的坐标；
-
-  ​	比较上步转换的坐标值与airDict，
-
-  ​	假如在设定范围内（DELTA_X），输出信号gBlasting；
 #  4.**测试BS0.2**
 | 测试流程 | ---------------描述---------------- |      |
 | :------: | :---------------------------------: | ---- |
