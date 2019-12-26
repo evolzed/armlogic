@@ -265,29 +265,25 @@ class ImageTrack:
         feature_params = dict(maxCorners=100,
                               qualityLevel=0.3,
                               minDistance=7,     #min distance between corners
-                              blockSize=7)
+                              blockSize=7)     #winsize of corner
+        # params for lk track
         lk_params = dict(winSize=(15, 15),
                          maxLevel=2,
                          criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+        #generate array of random colors
         color = np.random.randint(0, 255, (100, 3))
-
-        img_sz = featureimg.shape
-        win_size = 10
         #drawimg = featureimg.copy()
+        #for drawing
         drawimg = secondimg_orig.copy()
         #drawimg2 = secondimg_orig.copy()
-        secondimg =secondimg_orig.copy()
+        #change to gray
         featureimg = cv2.cvtColor(featureimg,  cv2.COLOR_BGR2GRAY)
         secondimg = cv2.cvtColor(secondimg_orig, cv2.COLOR_BGR2GRAY)
         # cv2.imshow("res0", featureimg)
         # cv2.imshow("re1s", secondimg)
-
         corner_count = self.MAX_CORNERS
+        #find the good corners for track
         cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
-        # if cornersA!=None:
-        #     print("cornersA.type()", type(cornersA))
-        #     print("cornersA.shape", cornersA.shape)
-        #cv2.waitKey()
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
         cv2.cornerSubPix(featureimg, cornersA, (self.win_size, self.win_size), (-1, -1), criteria)
         #corners_cnt = cornersA.size().height
@@ -297,11 +293,14 @@ class ImageTrack:
         pyramid2 = cv2.buildOpticalFlowPyramid(secondimg,  (self.win_size, self.win_size), 3)
         print("corners_cnt", corners_cnt)
         cornersB = np.zeros(shape=cornersA.shape, dtype=cornersA.dtype)
-
+        #light flow,pass the featureimg  and secondimg.It returns next points along with some st numbers
+        # which has a value of 1 if next point is found,
         cornersB, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, None, **lk_params)
+        #find the point that concerned to be tracked
         good_new = cornersB[st == 1]
         good_old = cornersA[st == 1]
         mask = np.zeros_like(drawimg)
+        #draw line between the tracked corners of pre frame and current frame
         for i, (new, old) in enumerate(zip(good_new, good_old)):  #fold and enumerate with i
             a, b = new.ravel()  #unfold
             c, d = old.ravel()
@@ -318,7 +317,7 @@ class ImageTrack:
 
             cv2.line(drawimg, p0, p1, (0, 255, 255), 1)
         """
-        return corners_cnt, img
+        return good_new, good_old, img
 
 
 if __name__ == "__main__":
@@ -336,8 +335,9 @@ if __name__ == "__main__":
         #preFrame = np.zeros_like(frame)
         while 1:
             frame, nFrameNum, t = cam.getImage()
-            corners_cnt, drawimg = obj.LKlightflow_track(preFrame, frame)
+            good_new, good_old, drawimg = obj.LKlightflow_track(preFrame, frame)
             cv2.imshow("res", drawimg)
+            #copy the current frame as preFrame for next use
             preFrame = frame.copy()
             cv2.waitKey(50)
             if cv2.waitKey(1) & 0xFF == ord('q'):
