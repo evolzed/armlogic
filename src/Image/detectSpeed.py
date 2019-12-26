@@ -78,17 +78,19 @@ def getBeltSpeed(dataDict):
     if not dstList:
         print("未检测到运动物体！--3")
         return None
+    print("检测到物体====>", dstList)
     return dstList
+
 
 def getSpeed(dstList):
     speedList = []
     angleList = []
     for i in range(len(dstList)-1):
         if dstList[i][0] == dstList[i+1][0]:
-            print("物体未运动，速度为0000")
+            print("物体未运动，速度为0000--1")
             continue
         if dstList[i+1][3][0] == dstList[i][3][0] or dstList[i+1][3][1] == dstList[i][3][1]:
-            print("物体未运动，速度为0000")
+            print("物体未运动，速度为0000--2")
             continue
         sumTime = dstList[i+1][1] - dstList[i][1]
         pix_distance = math.sqrt((dstList[i+1][3][0] - dstList[i][3][0]) ** 2 + (dstList[i+1][3][1] - dstList[i][3][1]) ** 2)
@@ -147,7 +149,7 @@ if __name__ == '__main__':
         print("error: unable to start thread")
 
     _image.detectSerialImage(cam)
-    hThreadHandle.join()
+    # hThreadHandle.join()
     # # img.detectSerialImage(cam)
     # for i in range(500):
     #     time.sleep(1)
