@@ -9,7 +9,12 @@ class ImageTrack:
         self.MAX_CORNERS = 50
         self.win_size = 10
 
-    def getBottlePos(self, frameOrg0,bgMask,dataDict):
+    def eDistance(self, p1, p2):
+        #function description:
+        # get Euclidean distance  between point p1 and p2
+        return np.sqrt(np.sum((p1 - p2) ** 2))
+
+    def getBottlePos(self, frameOrg0, bgMask, dataDict):
         # function description:
         # get Bottle Detail info,include bottle rotate angle and the diameter of bottle
         #implementation detail:
@@ -27,7 +32,6 @@ class ImageTrack:
         Returns
         dataDict:
             add the dataDict bottle rotate angle from belt move direction,-90--0 degree,
-            when bottle rotated,the angel will change from -90 to 0 then -90 to 0 then -90 to 0 then -90 to 0
             and the diameter of bottle
         -------
 
@@ -43,6 +47,7 @@ class ImageTrack:
 
         """
         # init a morph kernel
+        prev_time = timer()
         kernel19 = np.ones((19, 19), np.uint8)
         #get the frame from cam
         frameOrg = frameOrg0.copy()
@@ -71,7 +76,7 @@ class ImageTrack:
                 if (right-left > 1) and (bottom - top > 1) and left > 0 and right < bgMask.shape[1]\
                         and bottom < bgMask.shape[0]and top > 0:
                     #display the box region of bgMask
-                    cv2.imshow("box"+str(i), bgMask[top:bottom, left:right])
+                    #cv2.imshow("box"+str(i), bgMask[top:bottom, left:right])
                     roi = bgMask[top:bottom, left:right]
                     # erode and find contour  prevent too fat
                     roi = cv2.erode(roi, kernel19)  # eclipice
@@ -84,7 +89,7 @@ class ImageTrack:
                     # print(contourLen)
                     momentList = []
                     pointList = []
-                    print("contour", contourLen)
+                    #print("contour", contourLen)
                     # choose the most propreate contour
                     if contourLen > 0:
                         index = 0
@@ -93,9 +98,9 @@ class ImageTrack:
                             # contourCenterGx = int(contourM['m10'] / contourM['m00'])
                             # contourCenterGy = int(contourM['m01'] / contourM['m00'])
                             contourArea = cv2.contourArea(contours[j])
-                            print("contourArea:", contourArea)
+                            #print("contourArea:", contourArea)
                            #  print("pixNum:", pixNum)
-                            print("total:", (right - left) * (bottom - top))
+                            #print("total:", (right - left) * (bottom - top))
                             if (contourArea/((right-left)*(bottom - top))) > 0.2:
                             #if (abs(contourCenterGx-centerX)+abs(contourCenterGy-centerY)) < abs(left-right)/4:
                                 index = j
@@ -106,7 +111,87 @@ class ImageTrack:
                         angle = rotateRect[2]
                         diameter = min(rotateRect[1][0], rotateRect[1][1])*0.6
                         rbox = cv2.boxPoints(rotateRect)  # 获取最小外接矩形的4个顶点坐标(ps: cv2.boxPoints(rect) for OpenCV 3.x)
+
+
+                        #in rbox  out correct angle
+                        print("rbox", rbox)
+                        print("rboxtype", type(rbox))
                         #mrbox=np.array(rbox)
+                        w = self.eDistance(rbox[0], rbox[1])
+                        h = self.eDistance(rbox[1], rbox[2])
+                        print("w", w)
+                        print("h", h)
+                        #钝角 内积小于0
+                        xAxisVector = np.array([[0], [1]])
+                        #find the long side of rotate rect
+                        if w > h:
+                            #find the low point the vector is from low to high
+                            v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
+
+                            v = rbox[1] - rbox[0]
+                            print("v:", v)
+                            print("vdet", np.dot(v, xAxisVector)[0])
+                            # 内积大于0 是锐角 小于0是钝角
+                            if np.dot(v, xAxisVector)[0] > 0:
+                                angle = - angle
+                            if np.dot(v, xAxisVector)[0] < 0:
+                                angle = - angle + 90
+                            if angle == 0:
+                                angle = 90
+
+                            # if rbox[0][1] > rbox[1][1]:
+                            #     v = rbox[0] - rbox[1]
+                            #     print("v:",v)
+                            #     print("vdet:", np.dot(v, xAxisVector)[0])
+                            #     # 内积大于0 是锐角 小于0是钝角
+                            #     if np.dot(v, xAxisVector)[0] > 0:
+                            #         angle = - angle
+                            #     if np.dot(v, xAxisVector)[0] < 0:
+                            #         angle = - angle + 90
+                            #
+                            # if rbox[0][1] < rbox[1][1]:
+                            #     v = rbox[1] - rbox[0]
+                            #     print("v:", v)
+                            #     print("vdet", np.dot(v, xAxisVector)[0])
+                            #     # 内积大于0 是锐角 小于0是钝角
+                            #     if np.dot(v, xAxisVector)[0] > 0:
+                            #         angle = - angle
+                            #     if np.dot(v, xAxisVector)[0] < 0:
+                            #         angle = - angle + 90
+
+                        # find the long side of rotate rect
+                        if h > w:
+                            #find the low point the vector is from low to high
+                            v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
+                            v = rbox[1] - rbox[2]
+                            print("v:", v)
+                            print("vdet", np.dot(v, xAxisVector)[0])
+                            # 内积大于0 是锐角 小于0是钝角
+                            if np.dot(v, xAxisVector)[0] > 0:
+                                angle = - angle
+                            if np.dot(v, xAxisVector)[0] < 0:
+                                angle = - angle + 90
+                            if angle == 0:
+                                angle = 90
+
+                            # if rbox[1][1] > rbox[2][1]:
+                            #     v = rbox[1] - rbox[2]
+                            #     # 内积大于0 是锐角 小于0是钝角
+                            #     if np.dot(v, xAxisVector)[0] > 0:
+                            #         angle = - angle
+                            #     if np.dot(v, xAxisVector)[0] < 0:
+                            #         angle = - angle + 90
+                            #
+                            # if rbox[1][1] < rbox[2][1]:
+                            #     v = rbox[2] - rbox[1]
+                            #     # 内积大于0 是锐角 小于0是钝角
+                            #     if np.dot(v, xAxisVector)[0] > 0:
+                            #         angle = - angle
+                            #     if np.dot(v, xAxisVector)[0] < 0:
+                            #         angle = - angle + 90
+
+                        # rbox[0] rbox[1]
+                        # rbox[1] rbox[2]
 
                         rbox = rbox + rectTop
                         rbox = np.int0(rbox)
@@ -116,6 +201,9 @@ class ImageTrack:
                         #store angle and diameter to the dataDict
                         dataDict["box"][i][6] = angle
                         dataDict["box"][i][7] = diameter
+        curr_time = timer()
+        exec_time = curr_time - prev_time  # 计算图像识别的执行时间
+        dataDict["getPosTimeCost"] = exec_time
         return dataDict
 
 
@@ -157,6 +245,9 @@ class ImageTrack:
         # LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,
         # and then track the point of featureimg to get the corresponding point of secondimg_orig
 
+        #we pass the previous frame, previous points and next frame.It returns next points along with some status numbers
+        # which has a value of 1 if next point is found,
+
         """
         Parameters
         --------------
@@ -170,6 +261,16 @@ class ImageTrack:
         Examples
         --------
         """
+        #params for find good corners
+        feature_params = dict(maxCorners=100,
+                              qualityLevel=0.3,
+                              minDistance=7,     #min distance between corners
+                              blockSize=7)
+        lk_params = dict(winSize=(15, 15),
+                         maxLevel=2,
+                         criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+        color = np.random.randint(0, 255, (100, 3))
+
         img_sz = featureimg.shape
         win_size = 10
         #drawimg = featureimg.copy()
@@ -178,14 +279,14 @@ class ImageTrack:
         secondimg =secondimg_orig.copy()
         featureimg = cv2.cvtColor(featureimg,  cv2.COLOR_BGR2GRAY)
         secondimg = cv2.cvtColor(secondimg_orig, cv2.COLOR_BGR2GRAY)
-        cv2.imshow("res0", featureimg)
-        cv2.imshow("re1s", secondimg)
+        # cv2.imshow("res0", featureimg)
+        # cv2.imshow("re1s", secondimg)
 
         corner_count = self.MAX_CORNERS
-        cornersA = cv2.goodFeaturesToTrack(featureimg, corner_count, 0.01, 5.0)
-
-        print("cornersA.type()",type(cornersA))
-        print("cornersA.shape", cornersA.shape)
+        cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+        # if cornersA!=None:
+        #     print("cornersA.type()", type(cornersA))
+        #     print("cornersA.shape", cornersA.shape)
         #cv2.waitKey()
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
         cv2.cornerSubPix(featureimg, cornersA, (self.win_size, self.win_size), (-1, -1), criteria)
@@ -194,9 +295,21 @@ class ImageTrack:
         corners_cnt = cornersA.shape[0]
         pyramid1 = cv2.buildOpticalFlowPyramid(featureimg, (self.win_size, self.win_size), 3)
         pyramid2 = cv2.buildOpticalFlowPyramid(secondimg,  (self.win_size, self.win_size), 3)
-        print("corners_cnt",corners_cnt)
+        print("corners_cnt", corners_cnt)
         cornersB = np.zeros(shape=cornersA.shape, dtype=cornersA.dtype)
-        cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, cornersB)
+
+        cornersB, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, None, **lk_params)
+        good_new = cornersB[st == 1]
+        good_old = cornersA[st == 1]
+        mask = np.zeros_like(drawimg)
+        for i, (new, old) in enumerate(zip(good_new, good_old)):  #fold and enumerate with i
+            a, b = new.ravel()  #unfold
+            c, d = old.ravel()
+            mask = cv2.line(mask, (a, b), (c, d), color[i].tolist(), 2)
+            frame = cv2.circle(drawimg, (a, b), 5, color[i].tolist(), -1)
+        img = cv2.add(drawimg, mask)
+
+        """
         for i in range(corners_cnt):
             p0 = (cornersA[i, 0, 0], cornersA[i, 0, 1])#original  red
             p1 = (cornersB[i, 0, 0], cornersB[i, 0, 1])#now
@@ -204,20 +317,43 @@ class ImageTrack:
             cv2.circle(drawimg, p1, 2, (0, 255, 0), -1)
 
             cv2.line(drawimg, p0, p1, (0, 255, 255), 1)
-        return corners_cnt, drawimg
+        """
+        return corners_cnt, img
 
 
 if __name__ == "__main__":
-    obj = ImageTrack()
-    a = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\1.jpg")
-    b = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\2.jpg")
+
+    # a = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\1.jpg")
+    # b = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\2.jpg")
     #print(a.type())
     #print(b.type())
     # wait for test multi bottles track
-    corners_cnt, drawimg = obj.LKlightflow_track(a, b)
-    cv2.imshow("res", drawimg)
-    cv2.waitKey()
-    print("sz:", corners_cnt)
+    obj = ImageTrack()
+    try:
+        cam = Camera()
+
+        preFrame, nFrameNum, t = cam.getImage()
+        #preFrame = np.zeros_like(frame)
+        while 1:
+            frame, nFrameNum, t = cam.getImage()
+            corners_cnt, drawimg = obj.LKlightflow_track(preFrame, frame)
+            cv2.imshow("res", drawimg)
+            preFrame = frame.copy()
+            cv2.waitKey(50)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+    except Exception as e:
+        print(e)
+        cam.destroy()
+
+
+
+    # p1 = np.array([0, 0])
+    # p2 = np.array([2, 2])
+    # print("distance:", obj.eDistance(p1, p2))
+    # cv2.imshow("res", drawimg)
+    # cv2.waitKey()
+    # print("sz:", corners_cnt)
 
 
 
