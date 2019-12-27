@@ -57,7 +57,12 @@ class ImageTrack:
                 angle = 90
 
         #while above angle is 0--180
-        #then 
+        #then we will refact the angle to -90----90
+
+        if (0 <= angle <= 90):
+            angle = angle
+        if (0 < angle < 180):
+            angle = angle - 180
         return angle
 
 
