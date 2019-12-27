@@ -14,6 +14,54 @@ class ImageTrack:
         # get Euclidean distance  between point p1 and p2
         return np.sqrt(np.sum((p1 - p2) ** 2))
 
+    def correctAngle(self,rbox):
+        print("rbox", rbox)
+        print("rboxtype", type(rbox))
+        # mrbox=np.array(rbox)
+        w = self.eDistance(rbox[0], rbox[1])
+        h = self.eDistance(rbox[1], rbox[2])
+        print("w", w)
+        print("h", h)
+        # 钝角 内积小于0
+        xAxisVector = np.array([[0], [1]])
+        angle = 0
+        # find the long side of rotate rect
+        if w > h:
+            # find the low point the vector is from low to high
+            v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
+
+            v = rbox[1] - rbox[0]
+            print("v:", v)
+            print("vdet", np.dot(v, xAxisVector)[0])
+            # 内积大于0 是锐角 小于0是钝角
+            if np.dot(v, xAxisVector)[0] > 0:
+                angle = - angle
+            if np.dot(v, xAxisVector)[0] < 0:
+                angle = - angle + 90
+            if angle == 0:
+                angle = 90
+
+        # find the long side of rotate rect
+        if h > w:
+            # find the low point the vector is from low to high
+            v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
+            v = rbox[1] - rbox[2]
+            print("v:", v)
+            print("vdet", np.dot(v, xAxisVector)[0])
+            # 内积大于0 是锐角 小于0是钝角
+            if np.dot(v, xAxisVector)[0] > 0:
+                angle = - angle
+            if np.dot(v, xAxisVector)[0] < 0:
+                angle = - angle + 90
+            if angle == 0:
+                angle = 90
+
+        #while above angle is 0--180
+        #then 
+        return angle
+
+
+
     def getBottlePos(self, frameOrg0, bgMask, dataDict):
         # function description:
         # get Bottle Detail info,include bottle rotate angle and the diameter of bottle
@@ -112,7 +160,9 @@ class ImageTrack:
                         diameter = min(rotateRect[1][0], rotateRect[1][1])*0.6
                         rbox = cv2.boxPoints(rotateRect)  # 获取最小外接矩形的4个顶点坐标(ps: cv2.boxPoints(rect) for OpenCV 3.x)
 
+                        angle = self.correctAngle(rbox)
 
+                        """
                         #in rbox  out correct angle
                         print("rbox", rbox)
                         print("rboxtype", type(rbox))
@@ -192,6 +242,7 @@ class ImageTrack:
 
                         # rbox[0] rbox[1]
                         # rbox[1] rbox[2]
+                        """
 
                         rbox = rbox + rectTop
                         rbox = np.int0(rbox)
@@ -240,7 +291,7 @@ class ImageTrack:
         --------
         """
 
-    def LKlightflow_track(self, featureimg,  secondimg_orig):
+    def lklightflowTrack(self, featureimg,  secondimg_orig):
         # function description:
         # LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,
         # and then track the point of featureimg to get the corresponding point of secondimg_orig

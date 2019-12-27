@@ -74,7 +74,7 @@
 | Image |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
 | Image |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动
 |  Image   | getBeltSpeed()  | #get belt speed direction and valu e,pixel per second   |   bottleDict                     |  | beltSpeed |
-|  Image   | getBottleDetail()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
+|  Image   | getBottlePos()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
 |  Image   | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict                     | beltSpeed | bottleID |
 
 ----
