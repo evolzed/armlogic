@@ -90,8 +90,8 @@
 | class |    function    |   description   | 依赖包                                       | 输入参数  | 输出参数  |
 | :---: | :------------: | :-------------: | -------------------------------------------- | :-------: | :-------: |
 | Vision | getBeltSpeed()  | #get belt speed direction and value,pixel per second   |   bottleDict                     |  | beltSpeed |
-| Vision | getBottleAngle() | #get bottle angle (in contrast to belt direction) |bottleDict |  | bottleAngle |
-| Vision | getBottleDiameter() | #get bottle diameter | bottleDict | | bottleDiameter |
+| Vision | getBottlePos() | #get Bottle Detail info,include bottle rotate angle and the diameter of bottle |bottleDict |  |  |
+| Vision | getBottleTrackID() | #get bottle ID by track|  | | trackDict |
 | Vision | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict                     | beltSpeed | bottleID |
 
 * 实现逻辑：
