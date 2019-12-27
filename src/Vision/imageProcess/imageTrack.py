@@ -1,7 +1,7 @@
-from src.Image.imageProcess.bgLearn import Bglearn
+from src.Vision.imageProcess.bgLearn import Bglearn
 import cv2
 import numpy as np
-from src.Image.camera import Camera
+from src.Vision.camera import Camera
 from timeit import default_timer as timer
 
 class ImageTrack:

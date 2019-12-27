@@ -3,11 +3,11 @@ import threading
 import time
 
 from lib.Logger.Logger import *
-from src.Image.camera import Camera
-from src.Image.image import Image
-from src.Image import image
-from src.Image.imageProcess.bgLearn import Bglearn
-from src.Image.yolo.Yolo import YOLO
+from src.Vision.camera import Camera
+from src.Vision.vision import Image
+from src.Vision import vision
+from src.Vision.imageProcess.bgLearn import Bglearn
+from src.Vision.yolo.Yolo import YOLO
 import sys, os
 
 # print(sys.path)
@@ -110,11 +110,11 @@ def counter():
     # for i in range(500):
     while True:
         time.sleep(0.2)
-        if not image.bottleDict:
+        if not vision.bottleDict:
             # print("未检测到物体！--4")
             continue
         # print(image.bottleDict)
-        retList = getBeltSpeed(image.bottleDict)
+        retList = getBeltSpeed(vision.bottleDict)
         if not retList:
             # print("未检测到运动物体！--5")
             continue
