@@ -73,6 +73,15 @@
 | Image |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
 | Image |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动
 
+
+
+| Class |    Function    |      Description      | Input |  Output   | Return |
+| :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
+| Track | createTarget() | 创建新的trackDict元素 |       | trackDict |        |
+| Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
+
+
+
 ----
 #  3.**测试BS0.1**
 <table><!--此处为注释：<td>要显示的内容需要写在该标签对中</td>-->
