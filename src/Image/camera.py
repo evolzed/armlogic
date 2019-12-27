@@ -219,8 +219,9 @@ class Camera(object):
         ret = self.cam.MV_CC_GetOneFrameTimeout(byref(self._data_buf), self._nPayloadSize, self.stFrameInfo, 1000)
         t = time.time()  # 获取当前帧的时间
         if ret == 0:
-            print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
-                self.stFrameInfo.nWidth, self.stFrameInfo.nHeight, self.stFrameInfo.nFrameNum))
+            pass
+            # print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
+            #     self.stFrameInfo.nWidth, self.stFrameInfo.nHeight, self.stFrameInfo.nFrameNum))
         else:
             print("no data[0x%x]" % ret)
         frame = np.asarray(self._data_buf)
@@ -285,7 +286,7 @@ class Camera(object):
         self.curr_fps = self.curr_fps+ 1
         if self.accum_time > 1.0:  # time exceed 1 sec and we will update values
             self.fpsnum = nFrameNum - self.nFrameNumPreOneSec
-            print("fpsnum", self.fpsnum)
+            # print("fpsnum", self.fpsnum)
             self.fps = "FPS: " + str(self.fpsnum)
             self.nFrameNumPreOneSec = nFrameNum  # update the nFrameNumPreOneSec every 1 second
             self.accum_time = 0.0  # back to origin

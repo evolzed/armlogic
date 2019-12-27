@@ -162,7 +162,7 @@ class Image(object):
                 # return dataDict
                 global bottleDict
                 bottleDict = dataDict
-                print(dataDict)
+                # print(dataDict)
             except Exception as e:
                 # global gState
                 # gState = 3

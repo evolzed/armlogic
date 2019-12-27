@@ -9,10 +9,12 @@ from src.Image import image
 from src.Image.imageProcess.bgLearn import Bglearn
 from src.Image.yolo.Yolo import YOLO
 import sys, os
+
 # print(sys.path)
 # sys.path.append(os.path.abspath("../../../"))
 # sys.path.insert(0, os.path.abspath("../../../src/Image/yolo"))
 dstList = []  # use for store infomation of per box
+
 
 def getBeltSpeed(dataDict):
     # 功能需求描述:
@@ -51,7 +53,7 @@ def getBeltSpeed(dataDict):
     # 获取dataDict中的box信息 | try get info of box in dataDict
     boxInfo = dataDict.get("box", 0)
     if not boxInfo:
-        print("未检测到运动物体！--2")
+        # print("未检测到运动物体！--2")
         return None
     # 获得第一个置信度大于80%的物体 | get the first object which conditional more than 80%
     for i in boxInfo:
@@ -66,35 +68,35 @@ def getBeltSpeed(dataDict):
             dstList.append(bottleDetail)
             break
     if not dstList:
-        print("未检测到运动物体！--3")
+        # print("未检测到运动物体！--3")
         return None
-    print("检测到物体====>", dstList)
-    print("采集目标物个数：", len(dstList))
+    # print("检测到物体====>", dstList)
+    # print("采集目标物个数：", len(dstList))
     return dstList
 
 
 def getSpeed(dstList):
     speedList = []
     angleList = []
-    for i in range(len(dstList)-1):
-        if dstList[i][0] == dstList[i+1][0]:
-            print("物体未运动，速度为0000--1")
+    for i in range(len(dstList) - 1):
+        if dstList[i][0] == dstList[i + 1][0]:
+            # print("物体未运动，速度为0000--1")
             continue
-        if dstList[i+1][3][0] == dstList[i][3][0] and dstList[i+1][3][1] == dstList[i][3][1]:
-            print("物体未运动，速度为0000--2")
+        if dstList[i + 1][3][0] == dstList[i][3][0] and dstList[i + 1][3][1] == dstList[i][3][1]:
+            # print("物体未运动，速度为0000--2")
             continue
-        sumTime = dstList[i+1][1] - dstList[i][1]
+        sumTime = dstList[i + 1][1] - dstList[i][1]
         # 得到x2-x1 和y2-y1的差值
-        vX = dstList[i+1][3][0] - dstList[i][3][0]
-        vY = dstList[i+1][3][1] - dstList[i][3][1]
+        vX = dstList[i + 1][3][0] - dstList[i][3][0]
+        vY = dstList[i + 1][3][1] - dstList[i][3][1]
         # 一旦vX或vY小于阈值，判断
         if 0 <= vX < 5 and 0 <= vY < 5:
-            print("小于阈值，物体静止--1")
+            # print("小于阈值，物体静止--1")
             continue
         # 设置检测物体脱离视野的触发器
-        if vX < 0:
+        if vX <= 0:
             # 一旦检测到i+1个物体坐标的x坐标小于i个物体的x坐标，舍弃该组信息，继续下一组运算
-            print("异常数据，跳过！！！！")
+            # print("异常数据，跳过！！！！")
             continue
         pix_distance = math.sqrt(vX ** 2 + vY ** 2)
         # 计算速度
@@ -120,19 +122,18 @@ def getSpeed(dstList):
 
 
 def counter():
-
     # for i in range(500):
     while True:
         time.sleep(0.2)
         if not image.bottleDict:
-            print("未检测到物体！--4")
+            # print("未检测到物体！--4")
             continue
-        print(image.bottleDict)
+        # print(image.bottleDict)
         retList = getBeltSpeed(image.bottleDict)
         if not retList:
-            print("未检测到运动物体！--5")
+            # print("未检测到运动物体！--5")
             continue
-        if len(retList) == 50:
+        if len(retList) == 20:
             # 计算速度
             speed, angle = getSpeed(retList)
             print(speed)
@@ -147,7 +148,7 @@ def counter():
 
 
 if __name__ == '__main__':
-    sys.stdout = Logger("D:\\log1.txt")
+    # sys.stdout = Logger("D:\\log1.txt")
     cam = Camera()
     yolo = YOLO()
     # bgobj = Bglearn(50)
@@ -177,5 +178,3 @@ if __name__ == '__main__':
     # getBeltSpeed(image.bottleDict)
     # # hThreadHandle.join()
     # # cam.destroy()
-
-
