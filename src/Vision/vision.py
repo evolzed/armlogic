@@ -16,10 +16,10 @@ elif sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
 else:
     print("不支持的系统架构，仅支持win10_64 和 Ubuntu16.04 ARM aarch64！！")
     sys.exit()
-from src.Image.camera import Camera, g_bExit
-from src.Image.yolo.Yolo import *
-from src.Image.imageProcess.bgLearn import Bglearn
-from src.Image.imageProcess.imageTrack import ImageTrack
+from src.Vision.camera import Camera, g_bExit
+from src.Vision.yolo.Yolo import *
+from src.Vision.imageProcess.bgLearn import Bglearn
+from src.Vision.imageProcess.imageTrack import ImageTrack
 gState = 1
 bottleDict = None
 class Image(object):
@@ -162,7 +162,7 @@ class Image(object):
                 # return dataDict
                 global bottleDict
                 bottleDict = dataDict
-                print(dataDict)
+                # print(dataDict)
             except Exception as e:
                 # global gState
                 # gState = 3

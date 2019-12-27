@@ -2,7 +2,7 @@ import gc
 
 import cv2
 import numpy as np
-from src.Image.camera import Camera
+from src.Vision.camera import Camera
 from timeit import default_timer as timer
 
 
