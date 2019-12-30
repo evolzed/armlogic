@@ -122,21 +122,21 @@
 
 |      用例标题       |  测试结构图   |                           测试结果                           |              修改建议              |
 | :-----------------: | :-----------: | :----------------------------------------------------------: | :--------------------------------: |
-| 1个瓶子时的识别时间 | ![识别时间](https://gith``ub.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/1time.jpg) |                       识别时间用时过长                       |       减少识别物体花费的时间       |
-| 1个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/1num.jpg)     |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
-| 1个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/1acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
-| 2个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/2time.jpg)     |                       识别时间用时过长                       |       减少识别物体花费的时间       |
-| 2个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/2num.jpg)     |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
-| 2个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/2acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
-| 3个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/3time.jpg)     |                       识别时间用时过长                       |       减少识别物体花费的时间       |
-| 3个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/3num.jpg)     |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
-| 3个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/3acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
-| 4个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/4time.jpg)     |                       识别时间用时过长                       |       减少识别物体花费的时间       |
-| 4个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/4num.jpg)     |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
-| 4个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/4acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
-| 5个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/5time.jpg)     |                       识别时间用时过长                       |       减少识别物体花费的时间       |
-| 5个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/5num.jpg)     |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
-| 5个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/5acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
+| 1个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/1time.jpg)      |                       识别时间用时过长                       |       减少识别物体花费的时间       |
+| 1个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/1num.jpg)       |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
+| 1个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/1acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
+| 2个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/2time.jpg)      |                       识别时间用时过长                       |       减少识别物体花费的时间       |
+| 2个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/2num.jpg)       |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
+| 2个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/2acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
+| 3个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/3time.jpg)      |                       识别时间用时过长                       |       减少识别物体花费的时间       |
+| 3个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/3num.jpg)       |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
+| 3个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/3acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
+| 4个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/4time.jpg)      |                       识别时间用时过长                       |       减少识别物体花费的时间       |
+| 4个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/4num.jpg)       |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
+| 4个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/4acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
+| 5个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/5time.jpg)      |                       识别时间用时过长                       |       减少识别物体花费的时间       |
+| 5个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/5num.jpg)       |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
+| 5个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/5acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
 
 ----
 # 4.**总结**
