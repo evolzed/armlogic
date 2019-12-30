@@ -22,8 +22,10 @@ from src.Vision.imageProcess.bgLearn import Bglearn
 from src.Vision.imageProcess.imageTrack import ImageTrack
 gState = 1
 bottleDict = None
-class Image(object):
-    """create main Image class for processing images"""
+
+
+class Vision(object):
+    """create main Vision class for processing images"""
     def __init__(self, cam, yolo, bgLearn=None):
         """相机自检"""
         self.cam = cam
@@ -64,7 +66,7 @@ class Image(object):
             frame = np.asarray(cam._data_buf)
             frame = frame.reshape((960, 1280, 3))
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            image = PImage.fromarray(frame)  # PImage: from PIL import Image as PImage
+            image = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
             # image.show()
             image = yolo.detectImage(image)
 
@@ -115,59 +117,59 @@ class Image(object):
 
         trackObj = ImageTrack()
         while True:
-            try:
-                _frame, nFrame, t = cam.getImage()
-                camfps = " Cam" + cam.getCamFps(nFrame)
-                curr_time = timer()
-                exec_time = curr_time - prev_time
-                prev_time = curr_time
-                accum_time = accum_time + exec_time
-                curr_fps = curr_fps + 1
-                if accum_time > 1:
-                    accum_time = accum_time - 1
-                    fps = "NetFPS:" + str(curr_fps)
-                    curr_fps = 0
+            # try:
+            _frame, nFrame, t = cam.getImage()
+            camfps = " Cam" + cam.getCamFps(nFrame)
+            curr_time = timer()
+            exec_time = curr_time - prev_time
+            prev_time = curr_time
+            accum_time = accum_time + exec_time
+            curr_fps = curr_fps + 1
+            if accum_time > 1:
+                accum_time = accum_time - 1
+                fps = "NetFPS:" + str(curr_fps)
+                curr_fps = 0
 
-                frame, bgMask = self.bgLearn.delBg(_frame) if self.bgLearn else (_frame, None)
-                # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
-                # cv2.imshow("kk", frame)
-                # cv2.waitKey(3000)
-                # global prev_time
-                # 设定计时器, 统计识别图像耗时
-                # prev_time = timer()
-                # 将opencv格式的图像数据转换成PIL类型的image对象，便于进行标框和识别效果可视化
-                img = PImage.fromarray(frame)  # PImage: from PIL import Image as PImage
-                # img.show()
-                # feed data into model
-                dataDict = self.yolo.detectImage(img)
-                dataDict["bgTimeCost"] = self.bgLearn.bgTimeCost if self.bgLearn else 0
-                result = np.asarray(dataDict["image"])
-                # dataDict["image"] = result  # result：cv2.array的图像数据
-                dataDict["image"] = img  # img：Image对象
-                # dataDict["timeCost"] = exec_time
-                dataDict["nFrame"] = nFrame
-                dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
-                # arr = np.asarray(dataDict["image"])
-                if bgMask:
-                    dataDict = trackObj.getBottlePos(_frame, bgMask, dataDict)
-                cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                            fontScale=0.50, color=(255, 0, 0), thickness=2)
-                cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                            fontScale=0.50, color=(0, 255, 255), thickness=2)
-                cv2.imshow("result", result)
-                #cv2.waitKey(1000)
-                cv2.waitKey(10)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-                # return dataDict
-                global bottleDict
-                bottleDict = dataDict
-                # print(dataDict)
-            except Exception as e:
-                # global gState
-                # gState = 3
-                print(e)
+            frame, bgMask = self.bgLearn.delBg(_frame) if self.bgLearn else (_frame, None)
+            # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
+            # cv2.imshow("kk", frame)
+            # cv2.waitKey(3000)
+            # global prev_time
+            # 设定计时器, 统计识别图像耗时
+            # prev_time = timer()
+            # 将opencv格式的图像数据转换成PIL类型的image对象，便于进行标框和识别效果可视化
+            img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
+            # img.show()
+            # feed data into model
+            dataDict = self.yolo.detectImage(img)
+            dataDict["bgTimeCost"] = self.bgLearn.bgTimeCost if self.bgLearn else 0
+            result = np.asarray(dataDict["image"])
+            # dataDict["image"] = result  # result：cv2.array的图像数据
+            dataDict["image"] = img  # img：Image对象
+            # dataDict["timeCost"] = exec_time
+            dataDict["nFrame"] = nFrame
+            dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
+            # arr = np.asarray(dataDict["image"])
+            if bgMask is not None:
+                dataDict = trackObj.getBottlePos(_frame, bgMask, dataDict)
+            cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.50, color=(255, 0, 0), thickness=2)
+            cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.50, color=(0, 255, 255), thickness=2)
+            cv2.imshow("result", result)
+            #cv2.waitKey(1000)
+            cv2.waitKey(10)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+            # return dataDict
+            global bottleDict
+            bottleDict = dataDict
+                # print(dataDict)
+            # except Exception as e:
+            #     # global gState
+            #     # gState = 3
+            #     print(e)
+            #     break
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
@@ -184,7 +186,7 @@ class Image(object):
         # 设定计时器, 统计识别图像耗时
         prev_time = timer()
         # 将opencv格式的图像数据转换成PIL类型的image对象，便于进行标框和识别效果可视化
-        img = PImage.fromarray(frame)  # PImage: from PIL import Image as PImage
+        img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
         # img.show()
         # feed data into model
         dataDict = self.yolo.detectImage(img)
@@ -205,7 +207,7 @@ if __name__ == '__main__':
     yolo = YOLO()
 
    
-    _image = Image(cam, yolo)
+    _image = Vision(cam, yolo)
     dataDict = _image.detectSerialImage(_frame, nf)
     print(dataDict)
     # image.detectVideo(yolo)
@@ -221,7 +223,7 @@ def imageInit():
     bgobj = Bglearn(50)
     bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats(6.0)
-    _image = Image(cam, yolo, bgobj)
+    _image = Vision(cam, yolo, bgobj)
     print("开始！")
     global gState
     gState = 2
@@ -258,7 +260,7 @@ if __name__ == '__main__':
     bgobj = Bglearn()
     bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats(6.0)
-    _image = Image(cam, yolo, bgobj)
+    _image = Vision(cam, yolo, bgobj)
     print("开始！")
     while 1:
         try:

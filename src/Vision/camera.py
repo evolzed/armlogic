@@ -90,7 +90,7 @@ class Camera(object):
 
             ret = self.cam.MV_CC_GetOneFrameTimeout(byref(pData), nDataSize, self.stFrameInfo, 1000)
             # 利用PIL进行图片显示，注意位置
-            # image = Image.frombytes("RGB", (stFrameInfo.nWidth, stFrameInfo.nHeight), pData)
+            # image = Vision.frombytes("RGB", (stFrameInfo.nWidth, stFrameInfo.nHeight), pData)
             # image.show("test")
             n += 1
             if ret == 0:

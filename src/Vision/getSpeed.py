@@ -4,7 +4,7 @@ import time
 
 from lib.Logger.Logger import *
 from src.Vision.camera import Camera
-from src.Vision.vision import Image
+from src.Vision.vision import Vision
 from src.Vision import vision
 from src.Vision.imageProcess.bgLearn import Bglearn
 from src.Vision.yolo.Yolo import YOLO
@@ -12,7 +12,7 @@ import sys, os
 
 # print(sys.path)
 # sys.path.append(os.path.abspath("../../../"))
-# sys.path.insert(0, os.path.abspath("../../../src/Image/yolo"))
+# sys.path.insert(0, os.path.abspath("../../../src/Vision/yolo"))
 dstList = []  # use for store infomation of per box
 
 
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     # bgobj = Bglearn(50)
     # bgobj.studyBackgroundFromCam(cam)
     # bgobj.createModelsfromStats(6.0)
-    _image = Image(cam, yolo)
+    _image = Vision(cam, yolo)
 
     # print("=" * 50)
     # print(bottleDict)

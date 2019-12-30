@@ -61,21 +61,21 @@
 |   Class   | Function |           Description          | Input | Output | Return |
 | :------: | :------: | :-----------------------------: | :----: | :----: | :----: |
 | Main |  | 主方法，系统流程 | gState |  |  |
-| Image |  generate  | 返回预测框列表，评分列表，类别列表, 使用load_model()、yolo_eval() | | | |
-| Image |  connectCam  | 获取检测到的设备编号，连接设备GrabVideo.getDeviceNum()、GrabVideo.connectCam() | | | |
-| Image |  grabVideo  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 | | %bgPic.JPG | |
+| Vision |  generate  | 返回预测框列表，评分列表，类别列表, 使用load_model()、yolo_eval() | | | |
+| Vision |  connectCam  | 获取检测到的设备编号，连接设备GrabVideo.getDeviceNum()、GrabVideo.connectCam() | | | |
+| Vision |  grabVideo  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 | | %bgPic.JPG | |
 | Camera |  getImage  | get a frame of opencv format from camra | %_cam  %_data_buf %_nPayloadSize|  | %frame|
 | Camera | getCamFps  | get  fps of camera output in str type  | %nFrameNum  |  | %fps|
-| Image |  loadYolo  | Tiny-Yolov3模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | %.py %.pt | | |
-| Image |  detectImage  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Image()[转换成网络需要的imageObject]; | | | |
-| Image |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
-| Image |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
-| Image |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
-| Image |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
-| Image |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动
-|  Image   | getBeltSpeed()  | #get belt speed direction and valu e,pixel per second   |   bottleDict                     |  | beltSpeed |
-|  Image   | getBottlePos()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
-|  Image   | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict                     | beltSpeed | bottleID |
+| Vision |  loadYolo  | Tiny-Yolov3模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | %.py %.pt | | |
+| Vision |  detectImage  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Vision()[转换成网络需要的imageObject]; | | | |
+| Vision |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
+| Vision |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
+| Vision |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
+| Vision |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
+| Vision |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动
+|  Vision   | getBeltSpeed()  | #get belt speed direction and valu e,pixel per second   |   bottleDict                     |  | beltSpeed |
+|  Vision   | getBottlePos()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
+|  Vision   | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict                     | beltSpeed | bottleID |
 
 ----
 
@@ -122,7 +122,7 @@
 
 |      用例标题       |  测试结构图   |                           测试结果                           |              修改建议              |
 | :-----------------: | :-----------: | :----------------------------------------------------------: | :--------------------------------: |
-| 1个瓶子时的识别时间 | ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/1time.jpg) |                       识别时间用时过长                       |       减少识别物体花费的时间       |
+| 1个瓶子时的识别时间 | ![识别时间](https://gith``ub.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/1time.jpg) |                       识别时间用时过长                       |       减少识别物体花费的时间       |
 | 1个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/1num.jpg)     |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
 | 1个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/1acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
 | 2个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/2time.jpg)     |                       识别时间用时过长                       |       减少识别物体花费的时间       |

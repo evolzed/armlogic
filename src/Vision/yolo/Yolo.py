@@ -36,9 +36,9 @@ class YOLO(object):
         # self.model_path = 'model_data/tiny_yolo_weights.h5' # model path or trained weights path
 
         # 自己的模型
-        self.model_path = '../Image/yolo/1000_416_trained_weights_final.h5' # model path or trained weights path
-        self.anchors_path = '../Image/yolo/tiny_yolo_anchors.txt'
-        self.classes_path = '../Image/yolo/bottle_annotation_classes.txt'
+        self.model_path = '../Vision/yolo/1000_416_trained_weights_final.h5' # model path or trained weights path
+        self.anchors_path = '../Vision/yolo/tiny_yolo_anchors.txt'
+        self.classes_path = '../Vision/yolo/bottle_annotation_classes.txt'
         self.score = 0.3
         self.iou = 0.45
         self.class_names = self._get_class()
@@ -49,7 +49,7 @@ class YOLO(object):
 
     def _get_class(self):
         classes_path = os.path.expanduser(self.classes_path)
-        print(sys.path)
+        # print(sys.path)
         with open(classes_path) as f:
             class_names = f.readlines()
         class_names = [c.strip() for c in class_names]
@@ -133,7 +133,7 @@ class YOLO(object):
 
         # print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 
-        font = ImageFont.truetype(font='../Image/yolo/font/FiraMono-Medium.otf',
+        font = ImageFont.truetype(font='../Vision/yolo/font/FiraMono-Medium.otf',
                     size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = (image.size[0] + image.size[1]) // 300
         # 保存需要返回的数据的集合

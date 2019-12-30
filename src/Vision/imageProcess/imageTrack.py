@@ -378,8 +378,8 @@ class ImageTrack:
 
 if __name__ == "__main__":
 
-    # a = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\1.jpg")
-    # b = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\2.jpg")
+    # a = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Vision\\imageProcess\\1.jpg")
+    # b = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Vision\\imageProcess\\2.jpg")
     #print(a.type())
     #print(b.type())
     # wait for test multi bottles track
