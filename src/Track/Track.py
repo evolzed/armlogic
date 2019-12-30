@@ -5,12 +5,15 @@ import sys
 import json
 import uuid
 
+#提供增加新的Target目标功能
+#提供更新实时Target目标功能
+
 class Track:
 
     def createTarget(self):
         #创建新的target并标记uuid
         trackDict = dict()
-        targetList = list()
+        targetLists = list()
         trackFlag = "0"
         position = "0"
         speed = "0"
@@ -18,20 +21,20 @@ class Track:
         type = "0"
         typeCounter = "0"
 
-        trackDict.setdefault("target", targetList)
+        trackDict.setdefault("target", targetLists)
 
         uuID = str(uuid.uuid1())
-        targetList.append(uuID)
-        targetList.append(trackFlag)
-        targetList.append(position)
-        targetList.append(speed)
-        targetList.append(angle)
-        targetList.append(type)
-        targetList.append(typeCounter)
-        #targetList.append('\n')
+        targetLists.append(uuID)
+        targetLists.append(trackFlag)
+        targetLists.append(position)
+        targetLists.append(speed)
+        targetLists.append(angle)
+        targetLists.append(type)
+        targetLists.append(typeCounter)
+        #targetLists.append('\n')
 
         file = open("trackDict_test.txt", "a")
-        for target in targetList:
+        for target in targetLists:
             file.writelines(target + ", ")
         file.writelines("\n")
         print(trackDict)
@@ -40,16 +43,40 @@ class Track:
     def updateTarget(self,bottleDict):
         #将bottleDict中数据进行换算，并更新至trackDict内相对应的target
         #bottleDict = self.bottleDict
-        file = open("trackDict_test.txt", "a")
+        file = open("trackDict_test.txt", "r+")
 
-        trackDict = json.load(file.read())
-        print(trackDict)
-        return trackDict
+        # 逐行读取多行文件中的trackDict，与更新成UUID为相同一个的bottleDict中的值
+        while True:
+            targetLists = file.readlines(10000)
+
+            if not targetLists:
+                break
+            for targetList in targetLists:
+                # 对比UUID ，假如一样则执行更新
+                #临时tempLists
+                tempLists = bottleDict.get("target")
+                tempSingleList = targetList.split(", ")
+                #print(tempLists)
+                if (tempLists[0] in targetList):
+                    # 赋值：给与每一个tempSingleList
+                    file.write(tempLists[0] + ", ")
+                    print(len(tempSingleList))
+                    for i in range(6):
+                        tempSingleList[i + 1] = tempLists[i + 1]
+
+                        file.write(tempSingleList[i + 1] + ", ")
+                    print(tempSingleList)
+
+                    file.write("\n")
+                    break
+                #print(targetList)
+        file.close()
 
 
 if __name__ == "__main__":
-    #os.mknod("trackDict.txt")
 
-    bottledict1 = {'target': ["2add89f6-2aa8-11ea-921f-985fd3d62bfb", "11", "11", "11", "11", "11", "11"]}
-    track1 = Track().createTarget()
-    #track2 = Track().updateTarget(bottledict1)
+    #测试用例，此处bottleDict使用的非BS0.1中bottledict，而是将来为Main中提供的传参！
+    bottledict1 = {'target': ["de403f6c-2ad8-11ea-bb94-985fd3d62bfb", "11", "66", "11", "11", "11", "11"]}
+
+    track1 = Track().createTarget()        #测试createTarget
+    track2 = Track().updateTarget(bottledict1)      #测试updateTarget
