@@ -141,7 +141,7 @@ class ImgProc:
                 # wait about 200 milli seconds
                 cv2.waitKey(200)
                 pic_cnt += 1
-                # print("pic_cnt", pic_cnt)
+                print("pic_cnt", pic_cnt)
                 if (pic_cnt == self.BG_STUDY_NUM):
                     over_flag = 0
 
@@ -286,7 +286,7 @@ class ImgProc:
         exec_time = curr_time - prev_time
         self.bgTimeCost = exec_time
         # print("Del background Cost time:", self.bgTimeCost)
-        return frame_delimite_bac, bgMask
+        return frame_delimite_bac, bgMask, resarray
 
     def eDistance(self, p1, p2):
         # function description:
@@ -631,7 +631,8 @@ class ImgProc:
         corner_count = self.MAX_CORNERS
         # find the good corners for track
         cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
-
+        if cornersA is None:
+            return None, None, secondimg_orig
         # criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
         #  cv2.cornerSubPix(featureimg, cornersA, (self.win_size, self.win_size), (-1, -1), criteria)
 
@@ -642,7 +643,7 @@ class ImgProc:
         # pyramid1 = cv2.buildOpticalFlowPyramid(featureimg, (self.win_size, self.win_size), 3)
         # pyramid2 = cv2.buildOpticalFlowPyramid(secondimg,  (self.win_size, self.win_size), 3)
         # print("corners_cnt", corners_cnt)
-        cornersB = np.zeros(shape=cornersA.shape, dtype=cornersA.dtype)
+        #cornersB = np.zeros(shape=cornersA.shape, dtype=cornersA.dtype)  if corners A has no
         # light flow,pass the featureimg  and secondimg.It returns next points along with some st numbers
         # which has a value of 1 if next point is found,
         cornersB, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, None, **lk_params)
@@ -683,6 +684,25 @@ class ImgProc:
         return good_new, good_old, img
 
 
+def creatMaskFromROI(src, roi):
+    x = roi[0]
+    y = roi[1]
+    w = roi[2]
+    h = roi[3]
+    left = int(x - w/2)
+    top = int(y + h/2)
+    mask = np.zeros_like(src)
+    mask[y:y+h, x:x+w, :] = 255
+    #cv2.imshow("mask", mask)
+    #mask need to be single channel
+    mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    return mask
+
+
+
+
+
+
 if __name__ == "__main__":
 
     """
@@ -703,7 +723,7 @@ if __name__ == "__main__":
     cv2.imshow("res", drawimg)
     cv2.waitKey()
     """
-    obj = ImgProc(50)
+    obj = ImgProc(5)
     cam = Camera()
     obj.studyBackgroundFromCam(cam)
     obj.createModelsfromStats(6.0)
@@ -711,8 +731,14 @@ if __name__ == "__main__":
     try:
         # cam = Camera()
         preFrame, nFrameNum, t = cam.getImage()
-        # preFrame = np.zeros_like(frame)
+
+        preframeDelBg, bgmask, resarray= obj.delBg(preFrame)
+
+
+        #preFrame = np.zeros_like(frame)
         mask = preFrame.copy()
+
+        premask = preframeDelBg.copy()
         timeStart = timer()
         timeCnt = 0
         while 1:
@@ -722,24 +748,40 @@ if __name__ == "__main__":
             if frame is None:
                 continue
 
+
+
             obj.show = frame.copy()
             # get fps of cam output
             fps = cam.getCamFps(nFrameNum)
-            # use the background model to del the bacground of c    qqqam frame
-            frameDelBg, bgmask = obj.delBg(frame)
+            # use the background model to del the bacground of  frame
+
+            frameDelBg, bgmask, resarray = obj.delBg(frame)
+
+            #print(len(resarray))
+
+            if resarray is not None:
+                print("len：", len(resarray))
+                for i in range(len(resarray)):
+                    print("resarray[i]：", resarray[i])
+                    maskSingle = creatMaskFromROI(frameDelBg, resarray[i])
+                    show = cv2.bitwise_and(preframeDelBg, preframeDelBg, mask=maskSingle)
+                    cv2.imshow(str(i), show)
+
             # put text on frame to display the fps
             cv2.putText(frameDelBg, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(255, 0, 0), thickness=2)
-            cv2.imshow("output", frameDelBg)
+            #cv2.imshow("output", frameDelBg)
 
             # drawimg = mask.copy()
             trakSart = timer()
-            # good_new, good_old, drawimg = obj.lkLightflow_track(preFrame, frame, mask)
-            good_new, good_old, drawimg = obj.lkLightflow_track(preFrame, frameDelBg, mask)
-            print("good_new.shape:", good_new.shape)
-            print("good_old.shape:", good_old.shape)
+            #good_new, good_old, drawimg = obj.lkLightflow_track(preFrame, frame, mask)
+            good_new, good_old, drawimg = obj.lkLightflow_track(preframeDelBg, frameDelBg, premask)
+            #print("good_new.shape:", good_new.shape)
+            #print("good_old.shape:", good_old.shape)
             cv2.imshow("res", drawimg)
             # copy the current frame as preFrame for next use
+            #preFrame = frame.copy()
+            preframeDelBg = frameDelBg.copy()
             preFrame = frame.copy()
             # cv2.waitKey(10)
             ellapseTime = timer() - timeStart
@@ -749,6 +791,7 @@ if __name__ == "__main__":
             if ellapseTime > 3:
                 timeStart = timer()
                 mask = np.zeros_like(preFrame)  # only detect the motion object
+                premask = np.zeros_like(preFrame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 cam.destroy()
@@ -763,9 +806,24 @@ if __name__ == "__main__":
     # cv2.imshow("res", drawimg)
     # cv2.waitKey()
     # print("sz:", corners_cnt)
+"""
+a = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\1.jpg")
+b = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\5.jpg")
+# c = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\5.jpg")
 
 
+# print(a.type())
 
+# print(b.type())
 
+# wait for test multi bottles track
+
+mask = np.zeros_like(a)
+good_new, good_old, drawimg = obj.lkLightflow_track(a, b, mask)
+cv2.imshow("a", a)
+cv2.imshow("b", b)
+cv2.imshow("res", drawimg)
+cv2.waitKey()
+"""
 
 

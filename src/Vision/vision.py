@@ -4,6 +4,7 @@ import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
+from src.Vision.imageProcess.imgProc import ImgProc
 sys.path.append(os.path.abspath("../../"))
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
@@ -18,19 +19,19 @@ else:
     sys.exit()
 from src.Vision.camera import Camera, g_bExit
 from src.Vision.yolo.Yolo import *
-from src.Vision.imageProcess.bgLearn import Bglearn
-from src.Vision.imageProcess.imageTrack import ImageTrack
+# from src.Vision.imageProcess.bgLearn import Bglearn
+# from src.Vision.imageProcess.imageTrack import ImageTrack
 gState = 1
 bottleDict = None
 
 
 class Vision(object):
     """create main Vision class for processing images"""
-    def __init__(self, cam, yolo, bgLearn=None):
+    def __init__(self, cam, yolo, imgproc_=None):
         """相机自检"""
         self.cam = cam
         self.yolo = yolo
-        self.bgLearn=bgLearn
+        self.imgproc=imgproc_
         # self.deviceNum = cam.getDeviceNum()
         # cam._data_buf, cam._nPayloadsize = self.cam.connectCam()
         if -1 == cam._data_buf:
@@ -115,7 +116,7 @@ class Vision(object):
         #     print("press_any_key_exit!")
         #     cam.press_any_key_exit()
 
-        trackObj = ImageTrack()
+        #trackObj = ImageTrack()
         while True:
             # try:
             _frame, nFrame, t = cam.getImage()
@@ -130,7 +131,7 @@ class Vision(object):
                 fps = "NetFPS:" + str(curr_fps)
                 curr_fps = 0
 
-            frame, bgMask = self.bgLearn.delBg(_frame) if self.bgLearn else (_frame, None)
+            frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None)
             # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
             # cv2.imshow("kk", frame)
             # cv2.waitKey(3000)
@@ -142,7 +143,7 @@ class Vision(object):
             # img.show()
             # feed data into model
             dataDict = self.yolo.detectImage(img)
-            dataDict["bgTimeCost"] = self.bgLearn.bgTimeCost if self.bgLearn else 0
+            dataDict["bgTimeCost"] = self.imgproc.bgTimeCost if self.imgproc else 0
             result = np.asarray(dataDict["image"])
             # dataDict["image"] = result  # result：cv2.array的图像数据
             dataDict["image"] = img  # img：Image对象
@@ -151,7 +152,7 @@ class Vision(object):
             dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
             # arr = np.asarray(dataDict["image"])
             if bgMask is not None:
-                dataDict = trackObj.getBottlePos(_frame, bgMask, dataDict)
+                dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)
             cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(255, 0, 0), thickness=2)
             cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -220,7 +221,7 @@ def imageInit():
     print("准备载入yolo网络！")
     yolo = YOLO()
     print("准备背景学习！")
-    bgobj = Bglearn(50)
+    bgobj = ImgProc(50)
     bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats(6.0)
     _image = Vision(cam, yolo, bgobj)
