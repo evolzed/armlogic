@@ -22,11 +22,13 @@ def main():
     if vision.gState == 2:
         print("gState={},系统启动中···".format(vision.gState))
         print("开始获取数据···")
+        vision.imageRun(cam, _image)     #相机运行
         try:
             vision.imageRun(cam, _image)     #相机运行
         except Exception as e:
             print("系统启动失败！--{}".format(e))
             sys.exit()
+
 
 if __name__ == "__main__":
     sys.stdout = Logger("D:\\log.txt")  # 保存到D盘

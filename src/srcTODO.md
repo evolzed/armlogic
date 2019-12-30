@@ -1,10 +1,10 @@
-##BS0.1: Setup data structure and perform Image-related functions**
+##BS0.1: Setup data structure and perform Vision-related functions**
 
 class Main
 
 ​	gState
 
-class Image
+class Vision
 
 ​	generate()
 
@@ -24,7 +24,7 @@ class Image
 
 ##BS0.2: Control
 
-class Image
+class Vision
 
 ​	bgLearn() -> bgPxDiff()
 
