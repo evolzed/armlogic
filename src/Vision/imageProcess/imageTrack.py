@@ -59,17 +59,15 @@ class ImageTrack:
         #while above angle is 0--180
         #then we will refact the angle to -90----90
 
-        if (0 <= angle <= 90):
+        if 0 <= angle <= 90:
             angle = angle
-        if (0 < angle < 180):
+        if 0 < angle < 180:
             angle = angle - 180
         return angle
 
-
-
-    def getBottlePos(self, frameOrg0, bgMask, dataDict):
+    def getBottlePose(self, frameOrg0, bgMask, dataDict):
         # function description:
-        # get Bottle Detail info,include bottle rotate angle and the diameter of bottle
+        # get Bottle Pose info,include bottle rotate angle and the diameter of bottle
         #implementation detail:
         # first use the dataDict to get the bottle bondingbox  cordinates,
         #and then find the bottle contour in the region of bottle bondingbox
@@ -262,7 +260,14 @@ class ImageTrack:
         dataDict["getPosTimeCost"] = exec_time
         return dataDict
 
+    # analyse every point
+    def analyseTrackPoint(self, good_new, good_old):
+        # good_new = cornersB[st == 1]
+        # good_old = cornersA[st == 1]
 
+        #good_new -good_old
+        dis = self.eDistance(good_new, good_old)
+        return dis
 
     def getBeltSpeed(self, dataDict):
         # 功能需求描述:
@@ -296,7 +301,7 @@ class ImageTrack:
         --------
         """
 
-    def lklightflowTrack(self, featureimg,  secondimg_orig):
+    def lkLightflow_track(self, featureimg,  secondimg_orig, mask):
         # function description:
         # LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,
         # and then track the point of featureimg to get the corresponding point of secondimg_orig
@@ -318,7 +323,7 @@ class ImageTrack:
         --------
         """
         #params for find good corners
-        feature_params = dict(maxCorners=100,
+        feature_params = dict(maxCorners=30,
                               qualityLevel=0.3,
                               minDistance=7,     #min distance between corners
                               blockSize=7)     #winsize of corner
@@ -327,10 +332,10 @@ class ImageTrack:
                          maxLevel=2,
                          criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
         #generate array of random colors
-        color = np.random.randint(0, 255, (100, 3))
+        #######color = np.random.randint(0, 255, (100, 3))
         #drawimg = featureimg.copy()
         #for drawing
-        drawimg = secondimg_orig.copy()
+        #drawimg = secondimg_orig.copy()
         #drawimg2 = secondimg_orig.copy()
         #change to gray
         featureimg = cv2.cvtColor(featureimg,  cv2.COLOR_BGR2GRAY)
@@ -340,14 +345,17 @@ class ImageTrack:
         corner_count = self.MAX_CORNERS
         #find the good corners for track
         cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
-        cv2.cornerSubPix(featureimg, cornersA, (self.win_size, self.win_size), (-1, -1), criteria)
+
+       # criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
+      #  cv2.cornerSubPix(featureimg, cornersA, (self.win_size, self.win_size), (-1, -1), criteria)
+
         #corners_cnt = cornersA.size().height
         #get matrix row num
-        corners_cnt = cornersA.shape[0]
-        pyramid1 = cv2.buildOpticalFlowPyramid(featureimg, (self.win_size, self.win_size), 3)
-        pyramid2 = cv2.buildOpticalFlowPyramid(secondimg,  (self.win_size, self.win_size), 3)
-        print("corners_cnt", corners_cnt)
+
+       # corners_cnt = cornersA.shape[0]
+        #pyramid1 = cv2.buildOpticalFlowPyramid(featureimg, (self.win_size, self.win_size), 3)
+        #pyramid2 = cv2.buildOpticalFlowPyramid(secondimg,  (self.win_size, self.win_size), 3)
+        #print("corners_cnt", corners_cnt)
         cornersB = np.zeros(shape=cornersA.shape, dtype=cornersA.dtype)
         #light flow,pass the featureimg  and secondimg.It returns next points along with some st numbers
         # which has a value of 1 if next point is found,
@@ -355,14 +363,29 @@ class ImageTrack:
         #find the point that concerned to be tracked
         good_new = cornersB[st == 1]
         good_old = cornersA[st == 1]
-        mask = np.zeros_like(drawimg)
-        #draw line between the tracked corners of pre frame and current frame
+
+        distance = self.analyseTrackPoint(good_new, good_old)
+        print("distance", distance)
+
+        #mask = np.zeros_like(drawimg)
+        img = np.zeros_like(mask)
+        #drawimg = np.zeros_like(mask) # mask every pic excetp the light flow angle
+        drawimg = secondimg_orig.copy()
+        #mask = drawimg.copy()
+        #draw line between the tracked corners of qpre frame and current frameq
         for i, (new, old) in enumerate(zip(good_new, good_old)):  #fold and enumerate with i
             a, b = new.ravel()  #unfold
             c, d = old.ravel()
-            mask = cv2.line(mask, (a, b), (c, d), color[i].tolist(), 2)
-            frame = cv2.circle(drawimg, (a, b), 5, color[i].tolist(), -1)
-        img = cv2.add(drawimg, mask)
+            # mask = cv2.line(mask, (a, b), (c, d), color[i].tolist(), 1)
+            mask = cv2.line(mask, (a, b), (c, d), (0, 0, 255), 1)
+
+            if self.eDistance(np.array(list((a, b))), np.array(list((c, d)))) > 10:
+                # drawimg = cv2.circle(drawimg, (a, b), 5, color[i].tolist(), -1)
+                drawimg = cv2.circle(drawimg, (a, b), 5, (0, 0, 255), -1)
+
+
+
+            img = cv2.add(drawimg, mask)
 
         """
         for i in range(corners_cnt):
@@ -374,7 +397,6 @@ class ImageTrack:
             cv2.line(drawimg, p0, p1, (0, 255, 255), 1)
         """
         return good_new, good_old, img
-
 
 if __name__ == "__main__":
 
@@ -389,14 +411,34 @@ if __name__ == "__main__":
 
         preFrame, nFrameNum, t = cam.getImage()
         #preFrame = np.zeros_like(frame)
+        mask = preFrame.copy()
+        timeStart = timer()
+        timeCnt = 0
         while 1:
             frame, nFrameNum, t = cam.getImage()
-            good_new, good_old, drawimg = obj.LKlightflow_track(preFrame, frame)
+            # camra fault tolerant
+            # mem addr use is
+            if frame is None:
+                continue
+            #drawimg = mask.copy()
+            trakSart= timer()
+            good_new, good_old, drawimg = obj.lkLightflow_track(preFrame, frame, mask)
+            print("good_new.shape:", good_new.shape)
+            print("good_old.shape:", good_old.shape)
             cv2.imshow("res", drawimg)
             #copy the current frame as preFrame for next use
             preFrame = frame.copy()
-            cv2.waitKey(50)
+            #cv2.waitKey(10)
+            ellapseTime = timer() - timeStart
+            trackCostTime = timer() - trakSart
+            print("trackCostTime:", trackCostTime)
+            # update the timeStart and clear tqqhe mask
+            if ellapseTime > 3:
+                timeStart = timer()
+                mask = np.zeros_like(preFrame)  #only detect the motion object
+
             if cv2.waitKey(1) & 0xFF == ord('q'):
+                cam.destroy()
                 break
     except Exception as e:
         print(e)
