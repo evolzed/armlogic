@@ -112,9 +112,9 @@
 | 用力标题 |                             预期                             |                             实际                             |                 修改建议                 |  优先级  |
 | :------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :--------------------------------------: | :--: |
 |   FPS    | 摄像头的实际的FPS受千兆网传输速率影响较大。目前预期最高可能只达到20帧左右 |                  TX2运行实际达到的帧数只有1                  |             提高运行时的帧率             |  中  |
-| 识别时间 |                  物体识别时间达到项目的需求                  | ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/%E8%AF%86%E5%88%AB%E6%97%B6%E9%97%B4.jpg)塑料瓶识别时间 |       减短识别塑料瓶所用的时间成本       |  高  |
-|  准确率  |                物体识别的准确率达到项目的需求                | ![准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/%E5%87%86%E7%A1%AE%E7%8E%87.jpg)物体识别的准确率低 | 优化代码逻辑，提高识别塑料品的整体准确率 |  高  |
-|  稳定性  |             整体稳定性正常，不影响项目的正常需求             | 识别塑料瓶的稳定性低![瓶子数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/%E7%93%B6%E5%AD%90%E6%95%B0%E9%87%8F.jpg) |          提高塑料瓶识别的稳定性          |  高  |
+| 识别时间 |                  物体识别时间达到项目的需求                  | ![识别时间](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/%E8%AF%86%E5%88%AB%E6%97%B6%E9%97%B4.jpg)塑料瓶识别时间 |       减短识别塑料瓶所用的时间成本       |  高  |
+|  准确率  |                物体识别的准确率达到项目的需求                | ![准确率](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/%E5%87%86%E7%A1%AE%E7%8E%87.jpg)物体识别的准确率低 | 优化代码逻辑，提高识别塑料品的整体准确率 |  高  |
+|  稳定性  |             整体稳定性正常，不影响项目的正常需求             | 识别塑料瓶的稳定性低![瓶子数量](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/%E7%93%B6%E5%AD%90%E6%95%B0%E9%87%8F.jpg) |          提高塑料瓶识别的稳定性          |  高  |
 
 ---------------------------------------------------------------------------------------------------------------
 
