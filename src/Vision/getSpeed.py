@@ -17,6 +17,7 @@ dstList = []  # use for store infomation of per box
 
 
 def getBeltSpeed(dataDict):
+    """
     # 功能需求描述:
     # 获取传送带速度，以speed(Unit:pix/second), angle返回，此格式可以代表速度的大小和方向
 
@@ -25,13 +26,12 @@ def getBeltSpeed(dataDict):
     #   calculate speed use its time & position from dataDict and next frame
     # 2、transfer coordinate(xmin, ymin, xmax, ymax) to center coordinate(vX, vY)
     # 3、then calculate average speed get from step one
-
-    """
     Parameters
     --------------
     dataDict：frame info-dataDict contains time、center coordinate
 
     Returns：speed，angle
+    --------------
     """
     global dstList
     bottleDetail = []
@@ -61,6 +61,11 @@ def getBeltSpeed(dataDict):
 
 
 def getSpeed(dstList):
+    """
+    从dstList中获取帧，计算速度
+    :param dstList: 全局变量，包含每个dataDict中的信息
+    :return: 返回速度和角度
+    """
     speedList = []
     angleList = []
     for i in range(len(dstList) - 1):
@@ -107,6 +112,10 @@ def getSpeed(dstList):
 
 
 def counter():
+    """
+    收集特定帧的照片信息，保存到数据列表
+    :return: None
+    """
     # for i in range(500):
     while True:
         time.sleep(0.2)
@@ -133,6 +142,7 @@ def counter():
 
 
 if __name__ == '__main__':
+    """调试主函数"""
     # sys.stdout = Logger("D:\\log1.txt")
     cam = Camera()
     yolo = YOLO()
