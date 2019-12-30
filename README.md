@@ -1,4 +1,6 @@
-# BottleSort0.1设计说明书
+# BottleSort0.2设计说明书
+
+# Objective：Control using existing libraries to perform simple blast task.
 
 # 1.**环境搭建**
 
@@ -9,7 +11,6 @@
   + 品牌：HIKVision 
   + 接口协议：Gigabit Ethernet（GigE协议）
   + 型号:MV-CE013-50GC
-  + **注意：相机完成了Win10下驱动调用，Linux平台未测试**
   
 ## 1.2 软件环境
 * Ubuntu 18.04
@@ -26,9 +27,9 @@
 * [GitHub](https://github.com/evolzed/armlogic)
 ## 1.3 通讯接口
 * Ethernet
+* RS485
 
 ----
-
 # 2.**定义及规则**
 
 ## 2.1 文件夹
@@ -38,6 +39,7 @@
   * src/          #源代码
   * test/         #测试
   * README.md     
+<<<<<<< HEAD
   * LICENSE.md     
   
 ## 2.2 系统流程图
@@ -72,6 +74,10 @@
 | Image |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
 | Image |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
 | Image |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动
+|  ImageTrack   | getBeltSpeed()  | #get belt speed direction and valu e,pixel per second   |   bottleDict                     |  | beltSpeed |
+|  ImageTrack   | getBottlePose()  | #get Bottle Pose info,include bottle rotate angle and the diameter of bottle   | %frameOrg0 %bgMask  |  | %dataDict |
+|  ImageTrack   | getBottleID()  | #get bottle ID by track and beltSpeed   |   %bottleDict                     |  | %bottleID |
+|  ImageTrack   | getBottleSpeed()  | #get bottle speed by track   |                        |  | %bottleSpeed|
 
 
 
@@ -83,73 +89,69 @@
 
 
 ----
-#  3.**测试BS0.1**
-<table><!--此处为注释：<td>要显示的内容需要写在该标签对中</td>-->
-    <th colspan="9" align="center">所属项目</th><!--colspan属性表示一行中要合并几列-->
-    <tr>
-        <th>用例编号</th>
-        <th>所属模块</th>
-        <th>用例方法</th>
-        <th>用例标题</th>
-        <th>预期</th>
-        <th>实际</th>
-        <th>修改建议</th>
-        <th>优先级</th>
-        <th>时间</th>
-	</tr>
-	<tr>
-		<td rowspan="5"><!--colspan属性表示一列中要合并几行-->
-            SXCX-0.1
-		</td>
-		<td rowspan="5">
-            Model
-		</td>
-		<td rowspan="5">
-            性能测试
-		</td> 
-		<td>内容1
-		</td>
-	    <td>内容2
-		</td>
-		<td>内容3
-		</td>
-		<td>内容4
-		</td> 
-		<td>内容5
-		</td>
-	    <td  rowspan="5">time
-		</td>
-	</tr>
-	<tr>
-	    <td>内容6
-		</td>
-		<td>内容7
-		</td>
-		<td>内容8
-		</td> 
-		<td>内容9
-		</td>
-	    <td>内容10
-		</td>
-	</tr>
-	<tr>
-	    <td>内容11
-		</td>
-		<td>内容12
-		</td>
-		<td>内容13
-		</td> 
-		<td>内容14
-		</td>
-	    <td>内容15
-		</td>
-	</tr>
-</table>
+
+## 3.测试BS0.1
+
+#### 测试环境
+
+|   名称   |       详情        |
+| :------: | :---------------: |
+|   硬件   |        TX2        |
+|   系统   |       Liunx       |
+|   语言   |     python3.6     |
+| 所属模块 | detectSingleImage |
+|   时间   |    2019-12-23     |
+
+
+
+#### 功能测试
+
+|           用例标题           |                           预期                            |                             实际                             |                           修改建议                           | 优先级 |
+| :--------------------------: | :-------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----: |
+|         Camera的启动         | Camera正常启动成功；如果无法启动。控制台输出错误提示信息  | 1.Camera启动过慢。2.没有其他用户使用Camera时会正常启动，如果在启动时其他用户正在使用Camera，则如果无法启动。控制台输出错误提示信息。3.输入启动命令会提示初始化失败，需要多次重试启动 | 1.开启Camera之前确保没有其他用户在使用Camera。2.Camera在命令输入后在短时间正常启动 |   中   |
+|           背景学习           | 初始背景全部涂黑,当物体出现在视野范围，显示出物体的轮廓。 | 实际结果与预期相符，但当开启Camera进行背景学习时如果当前视野中有塑料品或其他物品，初始背景同样会全部涂黑 |                             暂无                             |   低   |
+|  接受bgLearn返回过来的图片   |             接收bgLearnb背景学习后的物体图片              |             正常接收bgLearnb背景学习后的物体图片             |                             暂无                             |   低   |
+| 利用神经网络识别塑料瓶的类别 |                   正确识别塑料瓶的类别                    | 1.视野中出现的塑料瓶，识别的召回率不高。2.识别的准确率高低不一。3.会把视野中其他物品识别成瓶子。4.瓶子数量密集时识别的标注框会变大造成多个瓶子一个标注框 | 提高识别塑料瓶的召回率，瓶子数量密集时标注框独立标注平面的每一个塑料瓶 |   高   |
+|         返回坐标信息         |                返回识别到塑料瓶的坐标信息                 |                 正确返回识别到物体的坐标信息                 |                             暂无                             |   低   |
+|         捕捉到的帧数         |                   捕捉到的帧数每次波动正常+1                   |                捕捉到的帧数（nFrame）没有波动                |            优化代码逻辑，使其捕捉到的帧数正常波动            |   中   |
+|         Camera的关闭         |          当输入Camera的关闭按键，Camera正常关闭           | 1.在Camera开启的页面输入"q"命令,Camera经常无法正常关闭。2.过程中会有一定延迟后关闭或是一直按若干次"q"才可以关闭。3.如果一直s输入"q"还未关闭会出现界面卡死。。 |             保证输入规定的命令时,Camera正常关闭              |   中   |
+
+
+
+#### 性能测试
+
+| 用力标题 |                             预期                             |                             实际                             |                 修改建议                 |  优先级  |
+| :------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :--------------------------------------: | :--: |
+|   FPS    | 摄像头的实际的FPS受千兆网传输速率影响较大。目前预期最高可能只达到20帧左右 |                  TX2运行实际达到的帧数只有1                  |             提高运行时的帧率             |  中  |
+| 识别时间 |                  物体识别时间达到项目的需求                  | ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/%E8%AF%86%E5%88%AB%E6%97%B6%E9%97%B4.jpg)塑料瓶识别时间 |       减短识别塑料瓶所用的时间成本       |  高  |
+|  准确率  |                物体识别的准确率达到项目的需求                | ![准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/%E5%87%86%E7%A1%AE%E7%8E%87.jpg)物体识别的准确率低 | 优化代码逻辑，提高识别塑料品的整体准确率 |  高  |
+|  稳定性  |             整体稳定性正常，不影响项目的正常需求             | 识别塑料瓶的稳定性低![瓶子数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/%E7%93%B6%E5%AD%90%E6%95%B0%E9%87%8F.jpg) |          提高塑料瓶识别的稳定性          |  高  |
+
+---------------------------------------------------------------------------------------------------------------
+
+### 理想状态下固定数量的瓶子识别情况
+
+|      用例标题       |  测试结构图   |                           测试结果                           |              修改建议              |
+| :-----------------: | :-----------: | :----------------------------------------------------------: | :--------------------------------: |
+| 1个瓶子时的识别时间 | ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/1time.jpg) |                       识别时间用时过长                       |       减少识别物体花费的时间       |
+| 1个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/1num.jpg)     |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
+| 1个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/1acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
+| 2个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/2time.jpg)     |                       识别时间用时过长                       |       减少识别物体花费的时间       |
+| 2个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/2num.jpg)     |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
+| 2个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/2acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
+| 3个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/3time.jpg)     |                       识别时间用时过长                       |       减少识别物体花费的时间       |
+| 3个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/3num.jpg)     |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
+| 3个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/3acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
+| 4个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/4time.jpg)     |                       识别时间用时过长                       |       减少识别物体花费的时间       |
+| 4个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/4num.jpg)     |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
+| 4个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/4acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
+| 5个瓶子时的识别时间 |     ![识别时间](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/5time.jpg)     |                       识别时间用时过长                       |       减少识别物体花费的时间       |
+| 5个瓶子时的识别数量 |     ![识别数量](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/5num.jpg)     |   固定数量时的瓶子识别数量不固定，会把其他物体也识别成瓶子   | 提高识别瓶子的精准度，只识别瓶子。 |
+| 5个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/Distinguish/5acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
 
 ----
 # 4.**总结**
-|         项目          | ---------------描述---------------- |      |
-| :-------------------: | :---------------------------------: | ---- |
-|     当前方案优点      |                                     |      |
-|     当前方案缺点      |                                     |      |
-| 改进方案(version 0.2) |                                     |      |
+=======
+  * LICENSE.md   
+  
+----

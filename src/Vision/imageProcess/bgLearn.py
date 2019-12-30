@@ -2,7 +2,7 @@ import gc
 
 import cv2
 import numpy as np
-from src.Image.camera import Camera
+from src.Vision.camera import Camera
 from timeit import default_timer as timer
 
 
@@ -245,32 +245,32 @@ class Bglearn():
 
                 #calculate all features of contours and draw rectangle of bounding box of contour
                 contourM = cv2.moments(contours[i])  # every contour's  moment
-                contourCenterGx = int(contourM['m10'] / contourM['m00'])
+                contourCenterGx = int(contourM['m10'] / contourM['m00'])# 重心
                 contourCenterGy = int(contourM['m01'] / contourM['m00'])
-                contourArea = cv2.contourArea(contours[i])
+                contourArea = cv2.contourArea(contours[i])# 面积
                 contourhull = cv2.convexHull(contours[i])  # 凸包
                 cv2.polylines(self.show, [contourhull], True, (500, 255, 0), 2)
 
                 #https: // blog.csdn.net / lanyuelvyun / article / details / 76614872
-                rotateRect = cv2.minAreaRect(contours[i])
+                rotateRect = cv2.minAreaRect(contours[i]) #旋转外接矩形
                 angle = rotateRect[2]
                 diameter = min(rotateRect[1][0], rotateRect[1][1])
 
 
-                contourBndBox = cv2.boundingRect(contours[i])  # x,y,w,h
+                contourBndBox = cv2.boundingRect(contours[i])  # x,y,w,h  外接矩形
                 # print("contourBndBox type", type(contourBndBox))
                 x = contourBndBox[0]
                 y = contourBndBox[1]
                 w = contourBndBox[2]
                 h = contourBndBox[3]
-                img = cv2.rectangle(self.show, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                rows, cols = src.shape[:2]  # shape 0 1
-                [vx, vy, x, y] = cv2.fitLine(contours[i], cv2.DIST_L2, 0, 0.01, 0.01)
+                img = cv2.rectangle(self.show, (x, y), (x + w, y + h), (0, 255, 0), 2)  #画矩形
+                rows, cols = src.shape[:2]  # shape 0 1 #得出原图的行 列 数
+                [vx, vy, x, y] = cv2.fitLine(contours[i], cv2.DIST_L2, 0, 0.01, 0.01) #对轮廓进行多边形拟合
                 lefty = int((x * vy / vx) + y)
                 righty = int(((cols - x) * vy / vx) + y)
                 # print("pre final")
                 # rectArray = np.append(rectArray, contourBndBox, axis=0)
-                rectArray.append(contourBndBox)
+                rectArray.append(contourBndBox) #存轮廓信息到数组中
 
                 # print("final")
                 # print("rectArray", rectArray)
@@ -297,23 +297,24 @@ class Bglearn():
         #simply output the frame that delete the background
         #dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)  flexible the dst shape to adapt the src shape
         dst = np.zeros(shape=src.shape, dtype=src.dtype)
-        resarray, bgMask = self.backgroundDiff(src, dst)
+        resarray, bgMask = self.backgroundDiff(src, dst)   #对src 帧 减去背景 结果放到dst，获得瓶子的框，和掩膜图像
         #bit and operation
-        frame_delimite_bac = cv2.bitwise_and(src, src, mask=bgMask)
+        frame_delimite_bac = cv2.bitwise_and(src, src, mask=bgMask)#用掩膜图像和原图像做像素与操作，获得只有瓶子的图
         curr_time = timer()
         #calculate the cost time
         exec_time = curr_time - prev_time
         self.bgTimeCost =exec_time
         # print("Del background Cost time:", self.bgTimeCost)
-        return frame_delimite_bac,bgMask
+        return frame_delimite_bac, bgMask
 
 
 
-if __name__ == "__main__":
+if __name__=="__main__":
 #test case
     cam = Camera()
     # nConnectionNum = cam.get_device_num()
     #_data_buf, _nPayloadSize = cam.connectCam()
+
 #get frames from cam and learn the background model
     bgobj = Bglearn(50)
     bgobj.studyBackgroundFromCam(cam)
@@ -321,6 +322,7 @@ if __name__ == "__main__":
 
     while 1:
         try:
+            # get frames from cam realtime
             frame, nFrameNum, t = cam.getImage()
             """
             # init the fps calculate module
@@ -337,12 +339,13 @@ if __name__ == "__main__":
                 accum_time =0                           #back to origin
             """
             cv2.imshow("cam", frame)
+            # copy a frame for show
             bgobj.show = frame.copy()
-
+            # get fps of cam output
             fps = cam.getCamFps(nFrameNum)
             # use the background model to del the bacground of c    qqqam frame
             frameDelBg = bgobj.delBg(frame)
-
+            # put text on frame to display the fps
             cv2.putText(frameDelBg, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(255, 0, 0), thickness=2)
             cv2.imshow("output", frameDelBg)
