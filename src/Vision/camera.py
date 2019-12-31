@@ -106,7 +106,7 @@ class Camera(object):
         """
         ch:枚举设备 | en:Enum device
 
-        :parameter: None
+        :param: None
         :return: 返回检测到的设备号 如果错误 返回None
         """
         ret = MvCamera.MV_CC_EnumDevices(tlayerType, deviceList)
