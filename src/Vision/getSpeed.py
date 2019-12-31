@@ -6,7 +6,7 @@ from lib.Logger.Logger import *
 from src.Vision.camera import Camera
 from src.Vision.vision import Vision
 from src.Vision import vision
-from src.Vision.imageProcess.bgLearn import Bglearn
+from src.Vision.imageProcess.imgProc import ImgProc
 from src.Vision.yolo.Yolo import YOLO
 import sys, os
 
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     # sys.stdout = Logger("D:\\log1.txt")
     cam = Camera()
     yolo = YOLO()
-    # bgobj = Bglearn(50)
+    # bgobj = ImgProc(50)
     # bgobj.studyBackgroundFromCam(cam)
     # bgobj.createModelsfromStats(6.0)
     _image = Vision(cam, yolo)

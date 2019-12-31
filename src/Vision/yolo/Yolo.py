@@ -66,7 +66,8 @@ class YOLO(object):
         """
         载入模型，或构造模型和载入权重|Load model, or construct model and load weights
 
-        :return: boxes:预测框, scores:得分, classes:类别
+        :return:
+                boxes:预测框,scores:得分,classes:类别
         """
         model_path = os.path.expanduser(self.model_path)
         assert model_path.endswith('.h5'), 'Keras model or weights must be a .h5 file.'
