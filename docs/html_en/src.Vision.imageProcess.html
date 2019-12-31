@@ -1,0 +1,518 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.Vision.imageProcess package &mdash; BottleSort 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BottleSort
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">src.Vision.imageProcess package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.Vision.imageProcess.bgLearn">src.Vision.imageProcess.bgLearn module</a></li>
+<li><a class="reference internal" href="#module-src.Vision.imageProcess.imageTrack">src.Vision.imageProcess.imageTrack module</a></li>
+<li><a class="reference internal" href="#module-src.Vision.imageProcess.imgProc">src.Vision.imageProcess.imgProc module</a></li>
+<li><a class="reference internal" href="#module-src.Vision.imageProcess">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BottleSort</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>src.Vision.imageProcess package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/src.Vision.imageProcess.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="src-vision-imageprocess-package">
+<h1>src.Vision.imageProcess package<a class="headerlink" href="#src-vision-imageprocess-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-src.Vision.imageProcess.bgLearn">
+<span id="src-vision-imageprocess-bglearn-module"></span><h2>src.Vision.imageProcess.bgLearn module<a class="headerlink" href="#module-src.Vision.imageProcess.bgLearn" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.Vision.imageProcess.bgLearn.Bglearn">
+<em class="property">class </em><code class="sig-prename descclassname">src.Vision.imageProcess.bgLearn.</code><code class="sig-name descname">Bglearn</code><span class="sig-paren">(</span><em class="sig-param">bgStudyNum</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="src.Vision.imageProcess.bgLearn.Bglearn.avgBackground">
+<code class="sig-name descname">avgBackground</code><span class="sig-paren">(</span><em class="sig-param">I</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn.avgBackground" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>I</strong> (<em>input  Mat type pic stream</em>) – </p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.bgLearn.Bglearn.backgroundDiff">
+<code class="sig-name descname">backgroundDiff</code><span class="sig-paren">(</span><em class="sig-param">src0</em>, <em class="sig-param">dst</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn.backgroundDiff" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src0</strong> (<em>input cam pic waited for segment</em>) – </p></li>
+<li><p><strong>dst</strong> (<em>temp store segment result of mask</em>) – </p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>all boundingboxes of all bottles</strong> (<em>rectArray</em><em>,</em>) – </p></li>
+<li><p><strong>segment result of mask</strong> (<em>dst</em>) – </p></li>
+<li><p><strong>-------</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.bgLearn.Bglearn.createModelsfromStats">
+<code class="sig-name descname">createModelsfromStats</code><span class="sig-paren">(</span><em class="sig-param">scale</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn.createModelsfromStats" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>scale</strong> (<em>gap of high threshold and low threshold of background model</em>) – </p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.bgLearn.Bglearn.delBg">
+<code class="sig-name descname">delBg</code><span class="sig-paren">(</span><em class="sig-param">src</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn.delBg" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>input cam pic waited for segment</em>) – </p></li>
+<li><p><strong>dst</strong> (<em>temp store segment result of mask</em>) – </p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>all boundingboxes of all bottles</strong> (<em>rectArray</em><em>,</em>) – </p></li>
+<li><p><strong>segment result of mask</strong> (<em>dst</em>) – </p></li>
+<li><p><strong>-------</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.bgLearn.Bglearn.studyBackgroundFromCam">
+<code class="sig-name descname">studyBackgroundFromCam</code><span class="sig-paren">(</span><em class="sig-param">cam</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn.studyBackgroundFromCam" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Parameters</dt><dd><dl class="simple">
+<dt>cam: input camera object</dt><dd><p>Returns</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<div><p>Examples</p>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.Vision.imageProcess.imageTrack">
+<span id="src-vision-imageprocess-imagetrack-module"></span><h2>src.Vision.imageProcess.imageTrack module<a class="headerlink" href="#module-src.Vision.imageProcess.imageTrack" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.Vision.imageProcess.imageTrack.ImageTrack">
+<em class="property">class </em><code class="sig-prename descclassname">src.Vision.imageProcess.imageTrack.</code><code class="sig-name descname">ImageTrack</code><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.analyseTrackPoint">
+<code class="sig-name descname">analyseTrackPoint</code><span class="sig-paren">(</span><em class="sig-param">good_new</em>, <em class="sig-param">good_old</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.analyseTrackPoint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.correctAngle">
+<code class="sig-name descname">correctAngle</code><span class="sig-paren">(</span><em class="sig-param">rbox</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.correctAngle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.eDistance">
+<code class="sig-name descname">eDistance</code><span class="sig-paren">(</span><em class="sig-param">p1</em>, <em class="sig-param">p2</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.eDistance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.getBeltSpeed">
+<code class="sig-name descname">getBeltSpeed</code><span class="sig-paren">(</span><em class="sig-param">dataDict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.getBeltSpeed" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>I</strong> (<em>input:</em>) – dataDict</p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>bottleDetail</strong> – mainly include bottle rotate angle from belt move direction,0–180 degree,
+and the diameter of bottle</p></li>
+<li><p><strong>-------</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.getBottlePose">
+<code class="sig-name descname">getBottlePose</code><span class="sig-paren">(</span><em class="sig-param">frameOrg0</em>, <em class="sig-param">bgMask</em>, <em class="sig-param">dataDict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.getBottlePose" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>I</strong> (<em>input:</em>) – dataDict</p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>dataDict</strong> – add the dataDict bottle rotate angle from belt move direction,-90–0 degree,
+and the diameter of bottle</p></li>
+<li><p><strong>-------</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>测试方法，该方法不能单独测试，是随着main_test方法一同测试的，运行main_test方法即可测试，观察pos窗口中
+的瓶子有没有一个紫色可以旋转的框，跟着瓶子的旋转角度在动，然后观察Log,查看dataDict的‘box’条目下的最后
+两个数字，一个是角度，一个是直径，是否正确，例如
+‘box’: [[‘Transparent bottle’, 0.3777146, 568, 378, 679, 465, 0.0, 60.19998931884765]
+0.0是角度  60.19998931884765是直径</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.lkLightflow_track">
+<code class="sig-name descname">lkLightflow_track</code><span class="sig-paren">(</span><em class="sig-param">featureimg</em>, <em class="sig-param">secondimg_orig</em>, <em class="sig-param">mask</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.lkLightflow_track" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>I</strong> (<em>featureimg</em>) – secondimg_orig
+dataDict</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.Vision.imageProcess.imgProc">
+<span id="src-vision-imageprocess-imgproc-module"></span><h2>src.Vision.imageProcess.imgProc module<a class="headerlink" href="#module-src.Vision.imageProcess.imgProc" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc">
+<em class="property">class </em><code class="sig-prename descclassname">src.Vision.imageProcess.imgProc.</code><code class="sig-name descname">ImgProc</code><span class="sig-paren">(</span><em class="sig-param">bgStudyNum</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.analyseTrackPoint">
+<code class="sig-name descname">analyseTrackPoint</code><span class="sig-paren">(</span><em class="sig-param">good_new</em>, <em class="sig-param">good_old</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.analyseTrackPoint" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.avgBackground">
+<code class="sig-name descname">avgBackground</code><span class="sig-paren">(</span><em class="sig-param">I</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.avgBackground" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>I</strong> (<em>input  Mat type pic stream</em>) – </p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.backgroundDiff">
+<code class="sig-name descname">backgroundDiff</code><span class="sig-paren">(</span><em class="sig-param">src0</em>, <em class="sig-param">dst</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.backgroundDiff" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src0</strong> (<em>input cam pic waited for segment</em>) – </p></li>
+<li><p><strong>dst</strong> (<em>temp store segment result of mask</em>) – </p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>all boundingboxes of all bottles</strong> (<em>rectArray</em><em>,</em>) – </p></li>
+<li><p><strong>segment result of mask</strong> (<em>dst</em>) – </p></li>
+<li><p><strong>-------</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.correctAngle">
+<code class="sig-name descname">correctAngle</code><span class="sig-paren">(</span><em class="sig-param">rbox</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.correctAngle" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.createModelsfromStats">
+<code class="sig-name descname">createModelsfromStats</code><span class="sig-paren">(</span><em class="sig-param">scale</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.createModelsfromStats" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>scale</strong> (<em>gap of high threshold and low threshold of background model</em>) – </p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.delBg">
+<code class="sig-name descname">delBg</code><span class="sig-paren">(</span><em class="sig-param">src</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.delBg" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> (<em>input cam pic waited for segment</em>) – </p></li>
+<li><p><strong>dst</strong> (<em>temp store segment result of mask</em>) – </p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>all boundingboxes of all bottles</strong> (<em>rectArray</em><em>,</em>) – </p></li>
+<li><p><strong>segment result of mask</strong> (<em>dst</em>) – </p></li>
+<li><p><strong>-------</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.eDistance">
+<code class="sig-name descname">eDistance</code><span class="sig-paren">(</span><em class="sig-param">p1</em>, <em class="sig-param">p2</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.eDistance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.getBeltSpeed">
+<code class="sig-name descname">getBeltSpeed</code><span class="sig-paren">(</span><em class="sig-param">dataDict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.getBeltSpeed" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>I</strong> (<em>input:</em>) – dataDict</p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>bottleDetail</strong> – mainly include bottle rotate angle from belt move direction,0–180 degree,
+and the diameter of bottle</p></li>
+<li><p><strong>-------</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.getBottlePose">
+<code class="sig-name descname">getBottlePose</code><span class="sig-paren">(</span><em class="sig-param">frameOrg0</em>, <em class="sig-param">bgMask</em>, <em class="sig-param">dataDict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.getBottlePose" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>I</strong> (<em>input:</em>) – dataDict</p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>dataDict</strong> – add the dataDict bottle rotate angle from belt move direction,-90–0 degree,
+and the diameter of bottle</p></li>
+<li><p><strong>-------</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>测试方法，该方法不能单独测试，是随着main_test方法一同测试的，运行main_test方法即可测试，观察pos窗口中
+的瓶子有没有一个紫色可以旋转的框，跟着瓶子的旋转角度在动，然后观察Log,查看dataDict的‘box’条目下的最后
+两个数字，一个是角度，一个是直径，是否正确，例如
+‘box’: [[‘Transparent bottle’, 0.3777146, 568, 378, 679, 465, 0.0, 60.19998931884765]
+0.0是角度  60.19998931884765是直径</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.lkLightflow_track">
+<code class="sig-name descname">lkLightflow_track</code><span class="sig-paren">(</span><em class="sig-param">featureimg</em>, <em class="sig-param">secondimg_orig</em>, <em class="sig-param">mask</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.lkLightflow_track" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>I</strong> (<em>featureimg</em>) – secondimg_orig
+mask for accumulate track lines,usually is preframe</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>good_new</strong> (<em>good tracked point of new frame</em>)</p></li>
+<li><p><strong>good_old</strong> (<em>old tracked point of new frame</em>)</p></li>
+<li><p><strong>img</strong> (<em>image for drawing</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.studyBackgroundFromCam">
+<code class="sig-name descname">studyBackgroundFromCam</code><span class="sig-paren">(</span><em class="sig-param">cam</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.studyBackgroundFromCam" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Parameters</dt><dd><dl class="simple">
+<dt>cam: input camera object</dt><dd><p>Returns</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<div><p>Examples</p>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.Vision.imageProcess">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.Vision.imageProcess" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, BottleSort
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

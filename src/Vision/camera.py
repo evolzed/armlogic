@@ -60,8 +60,9 @@ class Camera(object):
         if self._data_buf == -1:
             print("相机初始化失败！")
             sys.exit()
-    # 为线程定义一个函数
+
     def work_thread(self):
+        """为线程定义一个函数"""
         pData = self._data_buf
         nDataSize = self._nPayloadSize
         n = 0
@@ -102,7 +103,12 @@ class Camera(object):
                 break
 
     def getDeviceNum(self):
-        # ch:枚举设备 | en:Enum device
+        """
+        ch:枚举设备 | en:Enum device
+
+        :param: None
+        :return: 返回检测到的设备号 如果错误 返回None
+        """
         ret = MvCamera.MV_CC_EnumDevices(tlayerType, deviceList)
         if ret != 0:
             print("enum devices fail! ret[0x%x]" % ret)
@@ -146,7 +152,9 @@ class Camera(object):
 
     def connectCam(self):
         """
-        连接相机并返回数据：如果连接成功，返回
+        连接相机并返回数据
+
+        :return: (data_buf:数据流, nPayloadSize：数据流尺寸) | 错误返回
         """
         print("Default use the first device found！")
         if int(self.nConnectionNum) >= deviceList.nDeviceNum:
@@ -214,7 +222,9 @@ class Camera(object):
 
     def getImage(self):
         """
-        :return:返回一帧图像，和帧号
+        获得图像信息
+
+        :return: (frame:图片信息, nframe:帧号, t:改帧的时间)
         """
         ret = self.cam.MV_CC_GetOneFrameTimeout(byref(self._data_buf), self._nPayloadSize, self.stFrameInfo, 1000)
         t = time.time()  # 获取当前帧的时间
@@ -233,6 +243,11 @@ class Camera(object):
         return frame, self.stFrameInfo.nFrameNum, t
 
     def destroy(self):
+        """
+        关闭相机后，删除缓存数据，不然相机需要等待2分钟才能再次使用
+
+        :return: None
+        """
         _data_buf = self._data_buf
         # ch:停止取流 | en:Stop grab image
         ret = self.cam.MV_CC_StopGrabbing()
@@ -267,18 +282,12 @@ class Camera(object):
 
 
     def getCamFps(self,nFrameNum):
-        # get the frame quantity per second
         """
-               Parameters
-               --------------
-               nFrameNum:      current frame number
+        get the frame quantity per second
 
-               Returns
-               fps with str type
-               -------
-               Examples
-               --------
-           """
+        :param nFrameNum: current frame number
+        :return: fps with str type
+        """
         self.curr_time = timer()
         exec_time = self.curr_time - self.prev_time
         self.prev_time = self.curr_time
@@ -293,6 +302,11 @@ class Camera(object):
         return self.fps
 
     def press_any_key_exit(self):
+        """
+        主要用于ubuntu系统下按任意键退出相机
+
+        :return: None
+        """
         fd = sys.stdin.fileno()
         old_ttyinfo = termios.tcgetattr(fd)
         new_ttyinfo = old_ttyinfo[:]
@@ -309,9 +323,12 @@ class Camera(object):
                 termios.tcsetattr(fd, termios.TCSANOW, old_ttyinfo)
 
 
-
 def main():
-    """主程序"""
+    """
+    调试使用主函数入口
+
+    :return: None
+    """
     cam = Camera()
     # nConnectionNum = cam.getDeviceNum()
     # cam.getDeviceNum()

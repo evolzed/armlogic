@@ -27,9 +27,9 @@ gImgPath = None
 
 
 class YOLO(object):
+    """神经网络YOLO类"""
 
     def __init__(self):
-
         # self.model_path = 'model_data/yolo_init.h5' # model path or trained weights path
         # self.anchors_path = 'model_data/yolo_anchors.txt'
         # self.classes_path = 'model_data/coco_classes.txt'
@@ -63,6 +63,11 @@ class YOLO(object):
         return np.array(anchors).reshape(-1, 2)
 
     def generate(self):
+        """
+        载入模型，或构造模型和载入权重|Load model, or construct model and load weights
+
+        :return: boxes:预测框, scores:得分, classes:类别
+        """
         model_path = os.path.expanduser(self.model_path)
         assert model_path.endswith('.h5'), 'Keras model or weights must be a .h5 file.'
 
@@ -107,6 +112,12 @@ class YOLO(object):
         return boxes, scores, classes
 
     def detectImage(self, image):
+        """
+        检测图片，画出识别框，输出识别出的类别
+
+        :param image: 传入的图片
+        :return: dataDict：构造出的图片数据集(image, timeCost, box:识别出的类别信息[(class, confidence, xmin, ymin, xmax, ymax),...])。
+        """
         start = timer()
 
         if self.model_image_size != (None, None):
@@ -180,4 +191,9 @@ class YOLO(object):
         return dataDict
 
     def closeSession(self):
+        """
+        关闭会话
+
+        :return: None
+        """
         self.sess.close()
