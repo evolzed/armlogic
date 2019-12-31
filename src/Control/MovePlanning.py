@@ -85,6 +85,7 @@ if Robot == 1:
         swift.set_wrist(angle=90 + (bottleInfo[i][3] + (bottomAngle1 - bottomAngle0)), wait=True)  # 根据姿态角计算舵机转角并发送给舵机执行
         swift.set_position(180, -bottleInfo[i][6], bottleInfo[i][7], speed=speed, wait=True, timeout=10)  # 把瓶子移动到靠近边缘的轨道
         swift.set_digital_output(pin=32, value=0, wait=True, timeout=10)  # 吸盘放下瓶子
+        swift.set_position(180, -bottleInfo[i][6], bottleInfo[i][7] + 25, speed=speed, wait=True, timeout=10)
 
 
 
