@@ -49,12 +49,13 @@
 
 |   类型   | 命名举例 |              描述               | 第一元素 | 第二元素 |  第三元素 |  第四元素 |  第五元素 |
 | :------: | :------: | :-----------------------------: | :-------: | :-------: | :-------: | :-------: | :-------: |
-| global |  gState  | #1 = 初始阶段, 2 = 运行阶段, 3 = 停止阶段 | int gState |
-| library |  airDict  | #User input air pressure nozzle locations | int x | int y | int z | int type |
-| library |  bgDict  | #address to image file location and processed flag | #%.JPG | bool processed |
-| global |  gDir  | #direction of the moving belt | int gDir | |
-| library |  bottleDict  | #sorted bottle information | {"image":imagedata,"box":[(bottletype1, confidence, xmin, ymin, xmax, ymax),(bottletype2, confidence, xmin, ymin, xmax, ymax),···]，"bgTimeCost":time,"timeCost":time,"nFrame":camNumFrame} |  |  | | | Time processed |
-| path | bgPic | #file location for bgPic |
+| global |  gState  | #1 = 初始阶段, 2 = 运行阶段, 3 = 停止阶段 | int gState |||||
+| library |  airDict  | #User input air pressure nozzle locations | int x | int y | int z | int type ||
+| library |  bgDict  | #address to image file location and processed flag | #%.JPG | bool processed ||||
+| global |  gDir  | #direction of the moving belt | int gDir | ||||
+| library |  bottleDict  | #sorted bottle information | {"image":imagedata,"box":[(bottletype1, confidence, xmin, ymin, xmax, ymax),(bottletype2, confidence, xmin, ymin, xmax, ymax),···]，"bgTimeCost":time,"timeCost":time,"nFrame":camNumFrame} |  |  | | |
+| library | trackDict | #target track information | {"target":[(UUID, trackFlag, postion, speed, angle, type, typeCounter, nFrame, bgTimeCost, timeCost, trackTimeCost)]} | | | | |
+| path | bgPic | #file location for bgPic ||||||
 
 ## 2.4 功能包文档填写说明
 
@@ -77,6 +78,15 @@
 |  ImgProc   | getBottlePose()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
 |  ImgProc   | ()  |   | |  |  |
 |  Vision   | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict                     | beltSpeed | bottleID |
+
+
+
+| Class |    Function    |      Description      | Input |  Output   | Return |
+| :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
+| Track | createTarget() | 创建新的trackDict元素 |       | trackDict |        |
+| Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
+
+
 
 ----
 
