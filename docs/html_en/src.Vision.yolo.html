@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>src.Vision.yolo package &mdash; BottleSort 0.1 documentation</title>
+  <title>src.Vision.yolo package &mdash; BottleSort0.1 0.1 documentation</title>
   
 
   
@@ -48,7 +48,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> BottleSort
+            <a href="index.html" class="icon icon-home"> BottleSort0.1
           
 
           
@@ -102,7 +102,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">BottleSort</a>
+          <a href="index.html">BottleSort0.1</a>
         
       </nav>
 
@@ -163,20 +163,42 @@
 <dt id="src.Vision.yolo.Yolo.YOLO">
 <em class="property">class </em><code class="sig-prename descclassname">src.Vision.yolo.Yolo.</code><code class="sig-name descname">YOLO</code><a class="headerlink" href="#src.Vision.yolo.Yolo.YOLO" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>神经网络YOLO类</p>
 <dl class="method">
 <dt id="src.Vision.yolo.Yolo.YOLO.closeSession">
 <code class="sig-name descname">closeSession</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.Yolo.YOLO.closeSession" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>关闭会话</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.yolo.Yolo.YOLO.detectImage">
 <code class="sig-name descname">detectImage</code><span class="sig-paren">(</span><em class="sig-param">image</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.Yolo.YOLO.detectImage" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>检测图片，画出识别框，输出识别出的类别</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>image</strong> – 传入的图片</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataDict：构造出的图片数据集(image, timeCost, box:识别出的类别信息[(class, confidence, xmin, ymin, xmax, ymax),…])。</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.yolo.Yolo.YOLO.generate">
 <code class="sig-name descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.Yolo.YOLO.generate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>载入模型，或构造模型和载入权重|Load model, or construct model and load weights</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>boxes:预测框,scores:得分,classes:类别</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -354,7 +376,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, BottleSort
+        &copy; Copyright 2019, BottleSort0.1
 
     </p>
   </div>

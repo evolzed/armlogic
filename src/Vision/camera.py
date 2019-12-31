@@ -224,7 +224,7 @@ class Camera(object):
         """
         获得图像信息
 
-        :return: (frame:图片信息, nframe:帧号, t:改帧的时间)
+        :return: (frame:图片信息, nframe:帧号, t:该帧的时间)
         """
         ret = self.cam.MV_CC_GetOneFrameTimeout(byref(self._data_buf), self._nPayloadSize, self.stFrameInfo, 1000)
         t = time.time()  # 获取当前帧的时间

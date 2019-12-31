@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>src.Vision.imageProcess package &mdash; BottleSort 0.1 documentation</title>
+  <title>src.Vision.imageProcess package &mdash; BottleSort0.1 0.1 documentation</title>
   
 
   
@@ -48,7 +48,7 @@
           
 
           
-            <a href="index.html" class="icon icon-home"> BottleSort
+            <a href="index.html" class="icon icon-home"> BottleSort0.1
           
 
           
@@ -82,8 +82,6 @@
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">src.Vision.imageProcess package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#module-src.Vision.imageProcess.bgLearn">src.Vision.imageProcess.bgLearn module</a></li>
-<li><a class="reference internal" href="#module-src.Vision.imageProcess.imageTrack">src.Vision.imageProcess.imageTrack module</a></li>
 <li><a class="reference internal" href="#module-src.Vision.imageProcess.imgProc">src.Vision.imageProcess.imgProc module</a></li>
 <li><a class="reference internal" href="#module-src.Vision.imageProcess">Module contents</a></li>
 </ul>
@@ -102,7 +100,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">BottleSort</a>
+          <a href="index.html">BottleSort0.1</a>
         
       </nav>
 
@@ -157,163 +155,6 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-src.Vision.imageProcess.bgLearn">
-<span id="src-vision-imageprocess-bglearn-module"></span><h2>src.Vision.imageProcess.bgLearn module<a class="headerlink" href="#module-src.Vision.imageProcess.bgLearn" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="src.Vision.imageProcess.bgLearn.Bglearn">
-<em class="property">class </em><code class="sig-prename descclassname">src.Vision.imageProcess.bgLearn.</code><code class="sig-name descname">Bglearn</code><span class="sig-paren">(</span><em class="sig-param">bgStudyNum</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="method">
-<dt id="src.Vision.imageProcess.bgLearn.Bglearn.avgBackground">
-<code class="sig-name descname">avgBackground</code><span class="sig-paren">(</span><em class="sig-param">I</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn.avgBackground" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>I</strong> (<em>input  Mat type pic stream</em>) – </p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.Vision.imageProcess.bgLearn.Bglearn.backgroundDiff">
-<code class="sig-name descname">backgroundDiff</code><span class="sig-paren">(</span><em class="sig-param">src0</em>, <em class="sig-param">dst</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn.backgroundDiff" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src0</strong> (<em>input cam pic waited for segment</em>) – </p></li>
-<li><p><strong>dst</strong> (<em>temp store segment result of mask</em>) – </p></li>
-<li><p><strong>Returns</strong> – </p></li>
-<li><p><strong>all boundingboxes of all bottles</strong> (<em>rectArray</em><em>,</em>) – </p></li>
-<li><p><strong>segment result of mask</strong> (<em>dst</em>) – </p></li>
-<li><p><strong>-------</strong> – </p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.Vision.imageProcess.bgLearn.Bglearn.createModelsfromStats">
-<code class="sig-name descname">createModelsfromStats</code><span class="sig-paren">(</span><em class="sig-param">scale</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn.createModelsfromStats" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>scale</strong> (<em>gap of high threshold and low threshold of background model</em>) – </p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.Vision.imageProcess.bgLearn.Bglearn.delBg">
-<code class="sig-name descname">delBg</code><span class="sig-paren">(</span><em class="sig-param">src</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn.delBg" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<em>input cam pic waited for segment</em>) – </p></li>
-<li><p><strong>dst</strong> (<em>temp store segment result of mask</em>) – </p></li>
-<li><p><strong>Returns</strong> – </p></li>
-<li><p><strong>all boundingboxes of all bottles</strong> (<em>rectArray</em><em>,</em>) – </p></li>
-<li><p><strong>segment result of mask</strong> (<em>dst</em>) – </p></li>
-<li><p><strong>-------</strong> – </p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.Vision.imageProcess.bgLearn.Bglearn.studyBackgroundFromCam">
-<code class="sig-name descname">studyBackgroundFromCam</code><span class="sig-paren">(</span><em class="sig-param">cam</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.bgLearn.Bglearn.studyBackgroundFromCam" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Parameters</dt><dd><dl class="simple">
-<dt>cam: input camera object</dt><dd><p>Returns</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<blockquote>
-<div><p>Examples</p>
-</div></blockquote>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-src.Vision.imageProcess.imageTrack">
-<span id="src-vision-imageprocess-imagetrack-module"></span><h2>src.Vision.imageProcess.imageTrack module<a class="headerlink" href="#module-src.Vision.imageProcess.imageTrack" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="src.Vision.imageProcess.imageTrack.ImageTrack">
-<em class="property">class </em><code class="sig-prename descclassname">src.Vision.imageProcess.imageTrack.</code><code class="sig-name descname">ImageTrack</code><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="method">
-<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.analyseTrackPoint">
-<code class="sig-name descname">analyseTrackPoint</code><span class="sig-paren">(</span><em class="sig-param">good_new</em>, <em class="sig-param">good_old</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.analyseTrackPoint" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.correctAngle">
-<code class="sig-name descname">correctAngle</code><span class="sig-paren">(</span><em class="sig-param">rbox</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.correctAngle" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.eDistance">
-<code class="sig-name descname">eDistance</code><span class="sig-paren">(</span><em class="sig-param">p1</em>, <em class="sig-param">p2</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.eDistance" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.getBeltSpeed">
-<code class="sig-name descname">getBeltSpeed</code><span class="sig-paren">(</span><em class="sig-param">dataDict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.getBeltSpeed" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>I</strong> (<em>input:</em>) – dataDict</p></li>
-<li><p><strong>Returns</strong> – </p></li>
-<li><p><strong>bottleDetail</strong> – mainly include bottle rotate angle from belt move direction,0–180 degree,
-and the diameter of bottle</p></li>
-<li><p><strong>-------</strong> – </p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.getBottlePose">
-<code class="sig-name descname">getBottlePose</code><span class="sig-paren">(</span><em class="sig-param">frameOrg0</em>, <em class="sig-param">bgMask</em>, <em class="sig-param">dataDict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.getBottlePose" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>I</strong> (<em>input:</em>) – dataDict</p></li>
-<li><p><strong>Returns</strong> – </p></li>
-<li><p><strong>dataDict</strong> – add the dataDict bottle rotate angle from belt move direction,-90–0 degree,
-and the diameter of bottle</p></li>
-<li><p><strong>-------</strong> – </p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<p>测试方法，该方法不能单独测试，是随着main_test方法一同测试的，运行main_test方法即可测试，观察pos窗口中
-的瓶子有没有一个紫色可以旋转的框，跟着瓶子的旋转角度在动，然后观察Log,查看dataDict的‘box’条目下的最后
-两个数字，一个是角度，一个是直径，是否正确，例如
-‘box’: [[‘Transparent bottle’, 0.3777146, 568, 378, 679, 465, 0.0, 60.19998931884765]
-0.0是角度  60.19998931884765是直径</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.Vision.imageProcess.imageTrack.ImageTrack.lkLightflow_track">
-<code class="sig-name descname">lkLightflow_track</code><span class="sig-paren">(</span><em class="sig-param">featureimg</em>, <em class="sig-param">secondimg_orig</em>, <em class="sig-param">mask</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imageTrack.ImageTrack.lkLightflow_track" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>I</strong> (<em>featureimg</em>) – secondimg_orig
-dataDict</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-</dd></dl>
-
-</dd></dl>
-
-</div>
 <div class="section" id="module-src.Vision.imageProcess.imgProc">
 <span id="src-vision-imageprocess-imgproc-module"></span><h2>src.Vision.imageProcess.imgProc module<a class="headerlink" href="#module-src.Vision.imageProcess.imgProc" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -328,145 +169,212 @@ dataDict</p>
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.avgBackground">
 <code class="sig-name descname">avgBackground</code><span class="sig-paren">(</span><em class="sig-param">I</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.avgBackground" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>read background pic of I,and then calculate frame difference of current frame and pre frame: I and IprevF
+accumulate every frame difference Iscratch2 to sum of differences :IdiffF
+meanwhile,accumulate every frame I  to sum of frames :IavgF</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>I</strong> (<em>input  Mat type pic stream</em>) – </p>
+<dd class="field-odd"><p><strong>I</strong> – input  Mat type pic stream</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.backgroundDiff">
 <code class="sig-name descname">backgroundDiff</code><span class="sig-paren">(</span><em class="sig-param">src0</em>, <em class="sig-param">dst</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.backgroundDiff" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>when get pic frame from camera, use the backgroundDiff to  segment the frame pic and get a mask pic
+if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
+will change to white,otherwise, it will cover to black.
+<a class="reference external" href="https://www.cnblogs.com/mrfri/p/8550328.html">https://www.cnblogs.com/mrfri/p/8550328.html</a>
+rectArray=np.zeros(shape=(1,4),dtype=float)</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>src0</strong> (<em>input cam pic waited for segment</em>) – </p></li>
-<li><p><strong>dst</strong> (<em>temp store segment result of mask</em>) – </p></li>
-<li><p><strong>Returns</strong> – </p></li>
-<li><p><strong>all boundingboxes of all bottles</strong> (<em>rectArray</em><em>,</em>) – </p></li>
-<li><p><strong>segment result of mask</strong> (<em>dst</em>) – </p></li>
-<li><p><strong>-------</strong> – </p></li>
+<li><p><strong>src0</strong> – input cam pic waited for segment</p></li>
+<li><p><strong>dst</strong> – temp store segment result of mask</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>rectArray:all boundingboxes of all bottles
+dst:segment result of mask</p>
+</dd>
 </dl>
-<p class="rubric">Examples</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.correctAngle">
 <code class="sig-name descname">correctAngle</code><span class="sig-paren">(</span><em class="sig-param">rbox</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.correctAngle" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>correct the angle to -90 to 90 for get Pose,</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>rbox</strong> – input rotatebox</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>angle that modified</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.createModelsfromStats">
 <code class="sig-name descname">createModelsfromStats</code><span class="sig-paren">(</span><em class="sig-param">scale</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.createModelsfromStats" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>calculate the average sum of frames to  IavgF
+calculate frame difference to IdiffF
+then  multiply the scale to the Idiiff,and add the Idiff to IavgF to get the IhiF,
+subtract  the Idiff from IavgF to get the IlowF
+now we get the background model IhiF and IlowF</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>scale</strong> (<em>gap of high threshold and low threshold of background model</em>) – </p>
+<dd class="field-odd"><p><strong>scale</strong> – gap of high threshold and low threshold of background model</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.delBg">
 <code class="sig-name descname">delBg</code><span class="sig-paren">(</span><em class="sig-param">src</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.delBg" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>use the mask pic bgMask to make bit and operation to the cam frame to get a pic that del the bacground</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>src</strong> (<em>input cam pic waited for segment</em>) – </p></li>
-<li><p><strong>dst</strong> (<em>temp store segment result of mask</em>) – </p></li>
-<li><p><strong>Returns</strong> – </p></li>
-<li><p><strong>all boundingboxes of all bottles</strong> (<em>rectArray</em><em>,</em>) – </p></li>
-<li><p><strong>segment result of mask</strong> (<em>dst</em>) – </p></li>
-<li><p><strong>-------</strong> – </p></li>
-</ul>
+<dd class="field-odd"><p><strong>src</strong> – input cam pic waited for segment</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>rectArray:all boundingboxes of all bottles
+dst:segment result of mask</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.eDistance">
 <code class="sig-name descname">eDistance</code><span class="sig-paren">(</span><em class="sig-param">p1</em>, <em class="sig-param">p2</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.eDistance" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>function description:
+get Euclidean distance  between point p1 and p2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p1</strong> – point</p></li>
+<li><p><strong>p2</strong> – point</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>distance</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.getBeltSpeed">
 <code class="sig-name descname">getBeltSpeed</code><span class="sig-paren">(</span><em class="sig-param">dataDict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.getBeltSpeed" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>功能需求描述:
+获取传送带速度，以 (Vx ,Vy. Vz)的格式返回，此格式可以代表速度的大小和方向
+实现方法：
+首先使用两个连续帧作为一组，得到它们的dataDict，找到两帧中同一类型的瓶子，而且该类瓶子在每帧中只有一个，
+获取第一帧中该瓶子的矩形框的中心点坐标（x1,y1），并将该点根据传送带和水平方向的夹角，
+映射到传送带方向上，得到（x1’,y1’）
+获取第二帧中该瓶子的矩形框的中心点坐标（x2,y2），并将该点根据传送带和水平方向的夹角，
+映射到传送带方向上，得到（x2’,y2’）
+计算出来（x1’,y1’）和（x2’,y2’）的欧氏距离，除以两帧之间的时间，得到速度，并分解到X,Y,Z 方向上
+得到(Vx ,Vy. Vz)，其中Vz默认是0
+然后再继续取10组连续帧，重复上述计算，每组得到得到一个(Vx ,Vy. Vz)，将这些(Vx ,Vy. Vz)都存入
+一个(Vx ,Vy. Vz)数组
+对这个(Vx ,Vy. Vz)数组，剔除过大和过小的异常数据，可以使用np.percentile方法，然后对剩余数据求平均获得
+最终（Vx ,Vy. Vz)</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>I</strong> (<em>input:</em>) – dataDict</p></li>
-<li><p><strong>Returns</strong> – </p></li>
-<li><p><strong>bottleDetail</strong> – mainly include bottle rotate angle from belt move direction,0–180 degree,
-and the diameter of bottle</p></li>
-<li><p><strong>-------</strong> – </p></li>
-</ul>
+<dd class="field-odd"><p><strong>dataDict</strong> – bottle dictionary</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bottleDetail:mainly include bottle rotate angle from belt move direction,0–180 degree,and the diameter of bottle</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.getBottlePose">
 <code class="sig-name descname">getBottlePose</code><span class="sig-paren">(</span><em class="sig-param">frameOrg0</em>, <em class="sig-param">bgMask</em>, <em class="sig-param">dataDict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.getBottlePose" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>I</strong> (<em>input:</em>) – dataDict</p></li>
-<li><p><strong>Returns</strong> – </p></li>
-<li><p><strong>dataDict</strong> – add the dataDict bottle rotate angle from belt move direction,-90–0 degree,
-and the diameter of bottle</p></li>
-<li><p><strong>-------</strong> – </p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<p>测试方法，该方法不能单独测试，是随着main_test方法一同测试的，运行main_test方法即可测试，观察pos窗口中
-的瓶子有没有一个紫色可以旋转的框，跟着瓶子的旋转角度在动，然后观察Log,查看dataDict的‘box’条目下的最后
+<dd><p>function description:
+get Bottle Pose info,include bottle rotate angle and the diameter of bottle
+implementation detail:
+first use the dataDict to get the bottle bondingbox  cordinates,
+and then find the bottle contour in the region of bottle bondingbox
+and then get the rotated box of bottle contour
+finally,get the rotate angle  and width of  rotated box</p>
+<blockquote>
+<div><p>测试方法，该方法不能单独测试，是随着main_test方法一同测试的，运行main_test方法即可测试，观察pos窗口中</p>
+</div></blockquote>
+<p>的瓶子有没有一个紫色可以旋转的框，跟着瓶子的旋转角度在动，然后观察Log,查看dataDict的‘box’条目下的最后
 两个数字，一个是角度，一个是直径，是否正确，例如
 ‘box’: [[‘Transparent bottle’, 0.3777146, 568, 378, 679, 465, 0.0, 60.19998931884765]
 0.0是角度  60.19998931884765是直径</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frameOrg0</strong> – input frame</p></li>
+<li><p><strong>bgMask</strong> – the mask frame that generate from bglearn</p></li>
+<li><p><strong>dataDict</strong> – input dataDict</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dataDict output dataDict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.lkLightflow_track">
 <code class="sig-name descname">lkLightflow_track</code><span class="sig-paren">(</span><em class="sig-param">featureimg</em>, <em class="sig-param">secondimg_orig</em>, <em class="sig-param">mask</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.lkLightflow_track" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>function description:
+LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,
+and then track the point of featureimg to get the corresponding point of secondimg_orig
+we pass the previous frame, previous points and next frame.It returns next points along with some status numbers
+which has a value of 1 if next point is found,</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>I</strong> (<em>featureimg</em>) – secondimg_orig
-mask for accumulate track lines,usually is preframe</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>featureimg</strong> – </p></li>
+<li><p><strong>secondimg_orig</strong> – </p></li>
+<li><p><strong>mask</strong> – mask for accumulate track lines,usually is preframe</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>good_new</strong> (<em>good tracked point of new frame</em>)</p></li>
-<li><p><strong>good_old</strong> (<em>old tracked point of new frame</em>)</p></li>
-<li><p><strong>img</strong> (<em>image for drawing</em>)</p></li>
-</ul>
-</p>
+<dd class="field-even"><p>good_new:good tracked point of new frame
+good_old:old tracked point of new frame
+img : image for drawing</p>
 </dd>
 </dl>
-<p class="rubric">Examples</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.studyBackgroundFromCam">
 <code class="sig-name descname">studyBackgroundFromCam</code><span class="sig-paren">(</span><em class="sig-param">cam</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.studyBackgroundFromCam" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Parameters</dt><dd><dl class="simple">
-<dt>cam: input camera object</dt><dd><p>Returns</p>
+<dd><p>get many pics for time interval of 60sec by cam and store the pics in  bgVector.
+then  call the avgBackground method</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cam</strong> – input camera object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
-</dd>
-</dl>
-<blockquote>
-<div><p>Examples</p>
-</div></blockquote>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.imageProcess.imgProc.creatMaskFromROI">
+<code class="sig-prename descclassname">src.Vision.imageProcess.imgProc.</code><code class="sig-name descname">creatMaskFromROI</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">roi</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.creatMaskFromROI" title="Permalink to this definition">¶</a></dt>
+<dd><p>gernerate mask frame from roi,in roi the pixel will be set to 255,otherwise will set to 0
+:param src:
+:param roi:
+:return: mask</p>
 </dd></dl>
 
 </div>
@@ -486,7 +394,7 @@ mask for accumulate track lines,usually is preframe</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, BottleSort
+        &copy; Copyright 2019, BottleSort0.1
 
     </p>
   </div>
