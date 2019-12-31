@@ -35,7 +35,7 @@ if Robot == 1:
     swift.waiting_ready() #等待手臂完成初始化
     swift.send_cmd_async('M2400 S0')  # 设置机械臂工作模式，为S0常规模式
     swift.send_cmd_async('M2123 V1')  # 开启失步检测功能
-    swift.set_digital_direction(pin=32, value=1) #设置30Pin数字口D25为输出
+    swift.set_digital_direction(pin=32, value=1) #设置30Pin数字口D32为输出
     speed = 250  # 弧线运动的速度，500
     resetSpeed = 50
     swift.set_acceleration(10)  # 设置加速度，20
@@ -53,7 +53,7 @@ world2uarm_R = PI/2  # 世界坐标系绕z轴转90度(实际可能不是准确�
 bottleInfo = bottleDict["box"]  # 瓶子信息矩阵
 
 numRow = np.shape(bottleInfo)  # 瓶子数目
-ratio = 0.5  # 宽度代替高度的比例因子
+ratio = 1.2  # 宽度代替高度时，像素映射到实际物理距离的比值
 #  从像素坐标计算到世界坐标系下的坐标，计算位置矢量，计算物理距离，并放入瓶子信息矩阵
 for i in range(0, numRow[0]):
     world_P = Px2World(bottleInfo[i][1], bottleInfo[i][2], Zc, IntrinsicMtx, ExtrinsicMtx)  # 根据像素信息计算瓶子在世界坐标系下的位置矢量
