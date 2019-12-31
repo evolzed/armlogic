@@ -11,12 +11,10 @@ import uuid
 class Track:
 
     def createTarget(self):
-
         """
         增加新的Target目标功能
 
-        Returns: 新的带UUID的trackDict
-
+        :return: 新的带UUID的trackDict
         """
 
         #创建新的target并标记uuid
@@ -52,13 +50,12 @@ class Track:
         """
         更新实时target功能
 
-        Args:
-            bottleDict: 经过计算的LKTrack 的输出
-
-        Returns: 同一UUID的信息更新；
+        :param bottleDict: 经过计算的LKTrack 的输出
+        :return: 同一UUID的信息更新；
         """
+
         #将bottleDict中数据进行换算，并更新至trackDict内相对应的target
-        #bottleDict = self.bottleDict
+
         file = open("trackDict_test.txt", "r+")
 
         # 逐行读取多行文件中的trackDict，与更新成UUID为相同一个的bottleDict中的值
@@ -80,7 +77,6 @@ class Track:
                     print(len(tempSingleList))
                     for i in range(6):
                         tempSingleList[i + 1] = tempLists[i + 1]
-
                         file.write(tempSingleList[i + 1] + ", ")
                     print(tempSingleList)
 
