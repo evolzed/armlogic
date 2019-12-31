@@ -512,7 +512,7 @@ class ImgProc:
 
 
     # analyse every point
-    def analyseTrackPoint(self, good_new, good_old):
+    def analyseTrackPoint(self, good_new, good_old, precisionThreshold):
         """
         analyse the track point to get the more precision point
 
@@ -528,17 +528,22 @@ class ImgProc:
         # good_new -good_old
         #print("good_new shape", good_new.shape)
         #print("good_new shape[0]", good_new.shape[0])
+        if np.isnan(good_new).sum() >0 or np.isnan(good_old).sum()>0:
+            return good_new, good_old
         good_new0 = np.array([[0, 0]])
         good_old0 = np.array([[0, 0]])
         pointLen = good_new.shape[0]
+        if pointLen == 0:
+            return good_new, good_old
         disarray = np.array([])
         for i in range(pointLen):
             dis = self.eDistance(good_new[i], good_old[i])
             disarray = np.append(disarray, dis)
         #get the low 20% distance point,that is more precision points
-        reduce = np.percentile(disarray, 70, axis=0)
+        reduce = np.percentile(disarray, precisionThreshold, axis=0)
         reducearr = disarray[disarray <= reduce]
         index = np.where(disarray <= reduce)
+        #format need
         index = index[0]
         print("index", index)
         # index_total = np.arrange(pointLen)
@@ -549,11 +554,11 @@ class ImgProc:
         for i in index:
             good_new0 = np.append(good_new0, np.array([good_new[i]]), axis=0)
             good_old0 = np.append(good_old0, np.array([good_old[i]]), axis=0)
-        good_new0 = np.delete(good_new0, 1, axis=0)
-        good_old0 = np.delete(good_old0, 1, axis=0)
+        good_new0 = np.delete(good_new0, 0, axis=0)
+        good_old0 = np.delete(good_old0, 0, axis=0)
         good_new0 = good_new0.astype(int)
         good_old0 = good_old0.astype(int)
-        return disarray, reducearr, index, good_new0, good_old0
+        return good_new0, good_old0
 
 
     def getBeltSpeed(self, dataDict):
@@ -638,7 +643,7 @@ class ImgProc:
         good_new = cornersB[st == 1]
         good_old = cornersA[st == 1]
 
-        distancearr, reduce, indexlist, good_new, good_old = self.analyseTrackPoint(good_new, good_old)
+        good_new, good_old = self.analyseTrackPoint(good_new, good_old, 30)
 
 
 
@@ -715,7 +720,7 @@ if __name__ == "__main__":
     cv2.imshow("res", drawimg)
     cv2.waitKey()
     """
-    obj = ImgProc(5)
+    obj = ImgProc(50)
     cam = Camera()
     obj.studyBackgroundFromCam(cam)
     obj.createModelsfromStats(6.0)
