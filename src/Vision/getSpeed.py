@@ -20,18 +20,14 @@ def getBeltSpeed(dataDict):
     """
     # 功能需求描述:
     # 获取传送带速度，以speed(Unit:pix/second), angle返回，此格式可以代表速度的大小和方向
-
     # 实现方法：
     # 1、 first use 20 frames as destination used，get their dataDicts，
     #   calculate speed use its time & position from dataDict and next frame
     # 2、transfer coordinate(xmin, ymin, xmax, ymax) to center coordinate(vX, vY)
     # 3、then calculate average speed get from step one
-    Parameters
-    --------------
-    dataDict：frame info-dataDict contains time、center coordinate
 
-    Returns：speed，angle
-    --------------
+    :param dataDict: frame info-dataDict contains time、center coordinate
+    :return: dstList:需要计算速度的帧信息（包含dataDict内容）
     """
     global dstList
     bottleDetail = []
@@ -63,8 +59,9 @@ def getBeltSpeed(dataDict):
 def getSpeed(dstList):
     """
     从dstList中获取帧，计算速度
+
     :param dstList: 全局变量，包含每个dataDict中的信息
-    :return: 返回速度和角度
+    :return: speed：速度（pix/s），angle：皮带与相机夹角角度
     """
     speedList = []
     angleList = []
@@ -114,6 +111,8 @@ def getSpeed(dstList):
 def counter():
     """
     收集特定帧的照片信息，保存到数据列表
+    使用线程调用，使得主线程在循环运行过程中，能够不断读取dataDict内容
+
     :return: None
     """
     # for i in range(500):

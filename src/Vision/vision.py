@@ -27,6 +27,7 @@ bottleDict = None
 
 class Vision(object):
     """create main Vision class for processing images"""
+
     def __init__(self, cam, yolo, imgproc_=None):
         """相机自检"""
         self.cam = cam
@@ -42,8 +43,10 @@ class Vision(object):
     def detectVideo(self, yolo, output_path=""):
         """
         进行实时视频检测功能
-        :param yolo:yolo实例对象
-        :return:
+
+        :param yolo: yolo实例对象
+        :param output_path: 识别效果的视频保存位置，如不指定，默认为空
+        :return: None，通过break跳出循环
         """
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
         memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
@@ -103,6 +106,7 @@ class Vision(object):
     def detectSerialImage(self, cam):
         """
         获取并处理连续的帧数
+
         :param cam: 相机对象
         :return: {"nFrame":nframe,"image":image, "timecost":timecost, "box":[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}
         返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
@@ -176,6 +180,7 @@ class Vision(object):
     def detectSingleImage(self, frame, nFrame):
         """
         用于接受bgLearn返回过来的图片
+
         :param frame: opencv格式的图片，例如：frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         :param nFrame: 图片的帧号，用来确定图像的唯一性
         :return: {"nFrame":nframe,"image":image, "timecost":timecost, "box":[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}
@@ -216,6 +221,11 @@ if __name__ == '__main__':
 
 
 def imageInit():
+    """
+    初始化相机对象cam, Vision对象
+
+    :return: (cam：相机对象, _image:Vision对象)
+    """
     cam = Camera()
     # _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
@@ -228,10 +238,17 @@ def imageInit():
     print("开始！")
     global gState
     gState = 2
-    return cam,_image
+    return cam, _image
 
 
 def imageRun(cam,_image):
+    """
+    根据输入的图像数据，进行识别
+
+    :param cam: 相机对象
+    :param _image: Vision对象
+    :return: None | 系统有异常，退出系统
+    """
     # while 1:
     #     try:
     #         _frame, nf = cam.getImage()
