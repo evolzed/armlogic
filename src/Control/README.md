@@ -62,8 +62,8 @@
 	</tr>
 	<tr >
 	    	<td>local</td>
-	    	<td>Robot</td>
-		<td>描述机器人是否连接</td>
+	    	<td>RobotOn</td>
+		<td>机器人是否连接</td>
 		<td>机械臂连接状态(0/1)</td>
 		<td> </td>
 		<td> </td>
