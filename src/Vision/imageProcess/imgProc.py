@@ -7,8 +7,10 @@ from timeit import default_timer as timer
 
 class ImgProc:
     def __init__(self, bgStudyNum):
+        """
+        :param bgStudyNum: how many pics captured for background study
+        """
         # private attribute of class
-        # how many pics captured for background study
         self.BG_STUDY_NUM = bgStudyNum
         # a list for store the pics captqured waited for study
         self.bgVector = np.zeros(shape=(self.BG_STUDY_NUM, 960, 1280, 3), dtype=np.float32)
@@ -46,22 +48,14 @@ class ImgProc:
         self.win_size = 10
 
     def avgBackground(self, I):
-        # read background pic of I,and then calculate frame difference of current frame and pre frame: I and IprevF
-        # accumulate every frame difference Iscratch2 to sum of differences :IdiffF
-        # meanwhile,accumulate every frame I  to sum of frames :IavgF
-
         """
-        Parameters
-        --------------
-        I: input  Mat type pic stream
+        read background pic of I,and then calculate frame difference of current frame and pre frame: I and IprevF
+        accumulate every frame difference Iscratch2 to sum of differences :IdiffF
+        meanwhile,accumulate every frame I  to sum of frames :IavgF
 
-        Returns
-        -------
-
-        Examples
-        --------
+        :param I: input  Mat type pic stream
+        :return: None
         """
-
         cv2.accumulate(I, self.IavgF)
         # cv2.absdiff(I,IprevF, Iscratch2)
         self.Iscratch2 = cv2.absdiff(I, self.IprevF)
@@ -73,23 +67,16 @@ class ImgProc:
         self.IprevF = I.copy()
 
     def createModelsfromStats(self, scale):
-        # calculate the average sum of frames to  IavgF
-        # calculate frame difference to IdiffF
-        # then  multiply the scale to the Idiiff,and add the Idiff to IavgF to get the IhiF,
-        # subtract  the Idiff from IavgF to get the IlowF
-        # now we get the background model IhiF and IlowF
         """
-           Parameters
-           --------------
-           scale:   gap of high threshold and low threshold of background model
+        calculate the average sum of frames to  IavgF
+        calculate frame difference to IdiffF
+        then  multiply the scale to the Idiiff,and add the Idiff to IavgF to get the IhiF,
+        subtract  the Idiff from IavgF to get the IlowF
+        now we get the background model IhiF and IlowF
 
-           Returns
-           -------
-
-           Examples
-           --------
-           """
-
+        :param scale: gap of high threshold and low threshold of background model
+        :return: None
+        """
         # print("Icount", self.Icount)
         # Icount+=1
         self.IavgF = self.IavgF / self.Icount
@@ -115,17 +102,13 @@ class ImgProc:
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
 
     def studyBackgroundFromCam(self, cam):
-        # get many pics for time interval of 60sec by cam and store the pics in  bgVector.
-        # then  call the avgBackground method
         """
-            Parameters
-             --------------
-             cam: input camera object
-               Returns
-            -------
-               Examples
-            --------
-            """
+        get many pics for time interval of 60sec by cam and store the pics in  bgVector.
+        then  call the avgBackground method
+
+        :param cam: input camera object
+        :return: None
+        """
         try:
             # set the loop break condition over_flag,when pics waited for study is captured enough,the flag will be changed
             over_flag = 1
@@ -155,26 +138,18 @@ class ImgProc:
             cam.destroy()
 
     def backgroundDiff(self, src0, dst):
-        # when get pic frame from camera, use the backgroundDiff to  segment the frame pic and get a mask pic
-        # if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
-        # will change to white,otherwise, it will cover to black.
-        # https://www.cnblogs.com/mrfri/p/8550328.html
-        # rectArray=np.zeros(shape=(1,4),dtype=float)
-
         """
-               Parameters
-               --------------
-               src0:      input cam pic waited for segment
-               dst:       temp store segment result of mask
+        when get pic frame from camera, use the backgroundDiff to  segment the frame pic and get a mask pic
+        if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
+        will change to white,otherwise, it will cover to black.
+        https://www.cnblogs.com/mrfri/p/8550328.html
+        rectArray=np.zeros(shape=(1,4),dtype=float)
 
-               Returns
-               rectArray,   all boundingboxes of all bottles
-               dst         segment result of mask
-               -------
-               Examples
-               --------
-           """
-
+        :param src0: input cam pic waited for segment
+        :param dst: temp store segment result of mask
+        :return: rectArray:all boundingboxes of all bottles
+                 dst:segment result of mask
+        """
         rectArray = []
         src = np.float32(src0)
         # print("IlowF.shape", self.IlowF.shape)
@@ -260,20 +235,13 @@ class ImgProc:
         return rectArray, dst
 
     def delBg(self, src):
-        # use the mask pic bgMask to make bit and operation to the cam frame to get a pic that del the bacground
         """
-               Parameters
-               --------------
-               src:      input cam pic waited for segment
-               dst:       temp store segment result of mask
+        use the mask pic bgMask to make bit and operation to the cam frame to get a pic that del the bacground
 
-               Returns
-               rectArray,   all boundingboxes of all bottles
-               dst         segment result of mask
-               -------
-               Examples
-               --------
-           """
+        :param src: input cam pic waited for segment
+        :return: rectArray:all boundingboxes of all bottles
+                dst:segment result of mask
+        """
         prev_time = timer()
         # simply output the frame that delete the background
         # dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)  flexible the dst shape to adapt the src shape
@@ -289,12 +257,25 @@ class ImgProc:
         return frame_delimite_bac, bgMask, resarray
 
     def eDistance(self, p1, p2):
-        # function description:
-        # get Euclidean distance  between point p1 and p2
-        return np.sqrt(np.sum((p1 - p2) ** 2))
+        """
+        function description:
+        get Euclidean distance  between point p1 and p2
+
+        :param p1: point
+        :param p2: point
+        :return: distance
+        """
+        distance = np.sqrt(np.sum((p1 - p2) ** 2))
+        return distance
 
 
     def correctAngle(self, rbox):
+        """
+        correct the angle to -90 to 90 for get Pose,
+
+        :param rbox: input rotatebox
+        :return: angle that modified
+        """
         print("rbox", rbox)
         print("rboxtype", type(rbox))
         # mrbox=np.array(rbox)
@@ -347,36 +328,24 @@ class ImgProc:
 
 
     def getBottlePose(self, frameOrg0, bgMask, dataDict):
-        # function description:
-        # get Bottle Pose info,include bottle rotate angle and the diameter of bottle
-        # implementation detail:
-        # first use the dataDict to get the bottle bondingbox  cordinates,
-        # and then find the bottle contour in the region of bottle bondingbox
-        # and then get the rotated box of bottle contour
-        # finally,get the rotate angle  and width of  rotated box
-
         """
-        Parameters
-        --------------
-        I: input:
-          dataDict
-
-        Returns
-        dataDict:
-            add the dataDict bottle rotate angle from belt move direction,-90--0 degree,
-            and the diameter of bottle
-        -------
-
-        Examples
-        --------
-
-        测试方法，该方法不能单独测试，是随着main_test方法一同测试的，运行main_test方法即可测试，观察pos窗口中
+        function description:
+        get Bottle Pose info,include bottle rotate angle and the diameter of bottle
+        implementation detail:
+        first use the dataDict to get the bottle bondingbox  cordinates,
+        and then find the bottle contour in the region of bottle bondingbox
+        and then get the rotated box of bottle contour
+        finally,get the rotate angle  and width of  rotated box
+           测试方法，该方法不能单独测试，是随着main_test方法一同测试的，运行main_test方法即可测试，观察pos窗口中
         的瓶子有没有一个紫色可以旋转的框，跟着瓶子的旋转角度在动，然后观察Log,查看dataDict的‘box’条目下的最后
         两个数字，一个是角度，一个是直径，是否正确，例如
         'box': [['Transparent bottle', 0.3777146, 568, 378, 679, 465, 0.0, 60.19998931884765]
         0.0是角度  60.19998931884765是直径
 
-
+        :param frameOrg0: input frame
+        :param bgMask:  the mask frame that generate from bglearn
+        :param dataDict:  input dataDict
+        :return: dataDict output dataDict
         """
         # init a morph kernel
         prev_time = timer()
@@ -548,65 +517,70 @@ class ImgProc:
         # good_old = cornersA[st == 1]
 
         # good_new -good_old
-        dis = self.eDistance(good_new, good_old)
-        return dis
+        #print("good_new shape", good_new.shape)
+        #print("good_new shape[0]", good_new.shape[0])
+        good_new0 = np.array([])
+        good_old0 = np.array([])
+        pointLen = good_new.shape[0]
+        disarray = np.array([])
+        for i in range(pointLen):
+            dis = self.eDistance(good_new[i], good_old[i])
+            disarray = np.append(disarray, dis)
+        reduce = np.percentile(disarray, 20, axis=0)
+        reducearr = disarray[disarray <= reduce]
+        index = np.where(disarray <= reduce)
+        index = index[0]
+        print("index", index)
+        # index_total = np.arrange(pointLen)
+        # index = set(index.tolist())
+        # index_total =set(index_total.tolist())
+        # index_del =list(index_total.difference(index))
+        print(np.array([good_new[0]]))
+        for i in index:
+            good_new0 = np.append(good_new0, np.array([good_new[i]]))
+            good_old0 = np.append(good_old0, np.array([good_old[i]]))
+
+
+
+        return disarray, reducearr, index, good_new0, good_old0
 
 
     def getBeltSpeed(self, dataDict):
-        # 功能需求描述:
-        # 获取传送带速度，以 (Vx ,Vy. Vz)的格式返回，此格式可以代表速度的大小和方向
-
-        # 实现方法：
-        # 首先使用两个连续帧作为一组，得到它们的dataDict，找到两帧中同一类型的瓶子，而且该类瓶子在每帧中只有一个，
-        # 获取第一帧中该瓶子的矩形框的中心点坐标（x1,y1），并将该点根据传送带和水平方向的夹角，
-        # 映射到传送带方向上，得到（x1',y1'）
-        # 获取第二帧中该瓶子的矩形框的中心点坐标（x2,y2），并将该点根据传送带和水平方向的夹角，
-        # 映射到传送带方向上，得到（x2',y2'）
-        # 计算出来（x1',y1'）和（x2',y2'）的欧氏距离，除以两帧之间的时间，得到速度，并分解到X,Y,Z 方向上
-        # 得到(Vx ,Vy. Vz)，其中Vz默认是0
-        # 然后再继续取10组连续帧，重复上述计算，每组得到得到一个(Vx ,Vy. Vz)，将这些(Vx ,Vy. Vz)都存入
-        # 一个(Vx ,Vy. Vz)数组
-        # 对这个(Vx ,Vy. Vz)数组，剔除过大和过小的异常数据，可以使用np.percentile方法，然后对剩余数据求平均获得
-        # 最终（Vx ,Vy. Vz)
         """
-        Parameters
-        --------------
-        I: input:
-          dataDict
+        功能需求描述:
+        获取传送带速度，以 (Vx ,Vy. Vz)的格式返回，此格式可以代表速度的大小和方向
+        实现方法：
+        首先使用两个连续帧作为一组，得到它们的dataDict，找到两帧中同一类型的瓶子，而且该类瓶子在每帧中只有一个，
+        获取第一帧中该瓶子的矩形框的中心点坐标（x1,y1），并将该点根据传送带和水平方向的夹角，
+        映射到传送带方向上，得到（x1',y1'）
+        获取第二帧中该瓶子的矩形框的中心点坐标（x2,y2），并将该点根据传送带和水平方向的夹角，
+        映射到传送带方向上，得到（x2',y2'）
+        计算出来（x1',y1'）和（x2',y2'）的欧氏距离，除以两帧之间的时间，得到速度，并分解到X,Y,Z 方向上
+        得到(Vx ,Vy. Vz)，其中Vz默认是0
+        然后再继续取10组连续帧，重复上述计算，每组得到得到一个(Vx ,Vy. Vz)，将这些(Vx ,Vy. Vz)都存入
+        一个(Vx ,Vy. Vz)数组
+        对这个(Vx ,Vy. Vz)数组，剔除过大和过小的异常数据，可以使用np.percentile方法，然后对剩余数据求平均获得
+        最终（Vx ,Vy. Vz)
 
-        Returns
-        bottleDetail:
-            mainly include bottle rotate angle from belt move direction,0--180 degree,
-            and the diameter of bottle
-        -------
-
-        Examples
-        --------
-        """
+        :param dataDict: bottle dictionary
+        :return: bottleDetail:mainly include bottle rotate angle from belt move direction,0--180 degree,and the diameter of bottle
+        """""
 
 
     def lkLightflow_track(self, featureimg, secondimg_orig, mask):
-        # function description:
-        # LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,
-        # and then track the point of featureimg to get the corresponding point of secondimg_orig
-
-        # we pass the previous frame, previous points and next frame.It returns next points along with some status numbers
-        # which has a value of 1 if next point is found,
-
         """
-        Parameters
-        --------------
-        I: featureimg
-           secondimg_orig
-          mask for accumulate track lines,usually is preframe
+        function description:
+        LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,
+        and then track the point of featureimg to get the corresponding point of secondimg_orig
+        we pass the previous frame, previous points and next frame.It returns next points along with some status numbers
+        which has a value of 1 if next point is found,
 
-        Returns
-        -------
-        good_new: good tracked point of new frame
-        good_old:old tracked point of new frame
-        img : image for drawing
-        Examples
-        --------
+        :param featureimg:
+        :param secondimg_orig:
+        :param mask: mask for accumulate track lines,usually is preframe
+        :return:  good_new:good tracked point of new frame
+                  good_old:old tracked point of new frame
+                  img : image for drawing
         """
         # params for find good corners
         feature_params = dict(maxCorners=30,
@@ -651,9 +625,12 @@ class ImgProc:
         good_new = cornersB[st == 1]
         good_old = cornersA[st == 1]
 
-        distance = self.analyseTrackPoint(good_new, good_old)
-        print("distance", distance)
+        #distancearr, reduce, indexlist, good_new, good_old = self.analyseTrackPoint(good_new, good_old)
 
+
+
+        #print("distancearr", distancearr)q
+        #print("reduce", reduce)
         # mask = np.zeros_like(drawimg)
         img = np.zeros_like(mask)
         # drawimg = np.zeros_like(mask) # mask every pic excetp the light flow angle
@@ -685,6 +662,12 @@ class ImgProc:
 
 
 def creatMaskFromROI(src, roi):
+    """
+    gernerate mask frame from roi,in roi the pixel will be set to 255,otherwise will set to 0
+    :param src:
+    :param roi:
+    :return: mask
+    """
     x = roi[0]
     y = roi[1]
     w = roi[2]
@@ -700,11 +683,7 @@ def creatMaskFromROI(src, roi):
 
 
 
-
-
-
 if __name__ == "__main__":
-
     """
     a = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\1.jpg")
     b = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\5.jpg")
@@ -762,10 +741,10 @@ if __name__ == "__main__":
             if resarray is not None:
                 print("len：", len(resarray))
                 for i in range(len(resarray)):
-                    print("resarray[i]：", resarray[i])
+                    #print("resarray[i]：", resarray[i])
                     maskSingle = creatMaskFromROI(frameDelBg, resarray[i])
                     show = cv2.bitwise_and(preframeDelBg, preframeDelBg, mask=maskSingle)
-                    cv2.imshow(str(i), show)
+                    #cv2.imshow(str(i), show)
 
             # put text on frame to display the fps
             cv2.putText(frameDelBg, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
