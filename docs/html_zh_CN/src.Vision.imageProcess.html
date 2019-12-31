@@ -165,7 +165,21 @@
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.analyseTrackPoint">
 <code class="sig-name descname">analyseTrackPoint</code><span class="sig-paren">(</span><em class="sig-param">good_new</em>, <em class="sig-param">good_old</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.analyseTrackPoint" title="永久链接至目标">¶</a></dt>
-<dd></dd></dl>
+<dd><p>analyse the track point to get the more precision point</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>good_new</strong> – current frame point of track</p></li>
+<li><p><strong>good_old</strong> – prev frame point of track</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p><p>good_new0: more precision current frame point of track</p>
+<p>good_old0: more precision prev frame point of track</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="src.Vision.imageProcess.imgProc.ImgProc.avgBackground">
@@ -214,7 +228,7 @@ dst:segment result of mask</p>
 <dd class="field-odd"><p><strong>rbox</strong> – input rotatebox</p>
 </dd>
 <dt class="field-even">返回</dt>
-<dd class="field-even"><p>angle that modified</p>
+<dd class="field-even"><p>angle: angle that modified</p>
 </dd>
 </dl>
 </dd></dl>
@@ -323,7 +337,7 @@ finally,get the rotate angle  and width of  rotated box</p>
 </ul>
 </dd>
 <dt class="field-even">返回</dt>
-<dd class="field-even"><p>dataDict output dataDict</p>
+<dd class="field-even"><p>dataDict:output dataDict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -345,9 +359,10 @@ which has a value of 1 if next point is found,</p>
 </ul>
 </dd>
 <dt class="field-even">返回</dt>
-<dd class="field-even"><p>good_new:good tracked point of new frame
-good_old:old tracked point of new frame
-img : image for drawing</p>
+<dd class="field-even"><p><p>good_new:good tracked point of new frame,</p>
+<p>good_old:old tracked point of new frame,</p>
+<p>img :image for drawing</p>
+</p>
 </dd>
 </dl>
 </dd></dl>
