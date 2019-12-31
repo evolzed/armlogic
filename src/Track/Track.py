@@ -13,6 +13,7 @@ class Track:
     def createTarget(self):
 
         """
+        增加新的Target目标功能
 
         Returns: 新的带UUID的trackDict
 
@@ -50,11 +51,11 @@ class Track:
     def updateTarget(self,bottleDict):
         """
         更新实时target功能
+
         Args:
             bottleDict: 经过计算的LKTrack 的输出
 
         Returns: 同一UUID的信息更新；
-
         """
         #将bottleDict中数据进行换算，并更新至trackDict内相对应的target
         #bottleDict = self.bottleDict
