@@ -518,9 +518,9 @@ class ImgProc:
 
         :param good_new: current frame point of track
         :param good_old: prev frame point of track
-        :return: gooo_new0: more precision current frame point of track
+        :return: good_new0: more precision current frame point of track
 
-                 gooo_old0: more precision prev frame point of track
+                 good_old0: more precision prev frame point of track
         """
         # good_new = cornersB[st == 1]
         # good_old = cornersA[st == 1]
@@ -535,7 +535,8 @@ class ImgProc:
         for i in range(pointLen):
             dis = self.eDistance(good_new[i], good_old[i])
             disarray = np.append(disarray, dis)
-        reduce = np.percentile(disarray, 20, axis=0)
+        #get the low 20% distance point,that is more precision points
+        reduce = np.percentile(disarray, 70, axis=0)
         reducearr = disarray[disarray <= reduce]
         index = np.where(disarray <= reduce)
         index = index[0]
@@ -550,6 +551,8 @@ class ImgProc:
             good_old0 = np.append(good_old0, np.array([good_old[i]]), axis=0)
         good_new0 = np.delete(good_new0, 1, axis=0)
         good_old0 = np.delete(good_old0, 1, axis=0)
+        good_new0 = good_new0.astype(int)
+        good_old0 = good_old0.astype(int)
         return disarray, reducearr, index, good_new0, good_old0
 
 
