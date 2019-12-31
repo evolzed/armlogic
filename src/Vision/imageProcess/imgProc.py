@@ -274,7 +274,7 @@ class ImgProc:
         correct the angle to -90 to 90 for get Pose,
 
         :param rbox: input rotatebox
-        :return: angle that modified
+        :return: angle: angle that modified
         """
         print("rbox", rbox)
         print("rboxtype", type(rbox))
@@ -345,7 +345,7 @@ class ImgProc:
         :param frameOrg0: input frame
         :param bgMask:  the mask frame that generate from bglearn
         :param dataDict:  input dataDict
-        :return: dataDict output dataDict
+        :return: dataDict:output dataDict
         """
         # init a morph kernel
         prev_time = timer()
@@ -519,8 +519,8 @@ class ImgProc:
         # good_new -good_old
         #print("good_new shape", good_new.shape)
         #print("good_new shape[0]", good_new.shape[0])
-        good_new0 = np.array([])
-        good_old0 = np.array([])
+        good_new0 = np.array([[]])
+        good_old0 = np.array([[]])
         pointLen = good_new.shape[0]
         disarray = np.array([])
         for i in range(pointLen):
@@ -537,8 +537,9 @@ class ImgProc:
         # index_del =list(index_total.difference(index))
         print(np.array([good_new[0]]))
         for i in index:
-            good_new0 = np.append(good_new0, np.array([good_new[i]]))
-            good_old0 = np.append(good_old0, np.array([good_old[i]]))
+            good_new0 = np.append(good_new0, np.array([good_new[i]]), axis=0)
+            good_old0 = np.append(good_old0, np.array([good_old[i]]), axis=0)
+
 
 
 
@@ -578,9 +579,11 @@ class ImgProc:
         :param featureimg:
         :param secondimg_orig:
         :param mask: mask for accumulate track lines,usually is preframe
-        :return:  good_new:good tracked point of new frame
-                  good_old:old tracked point of new frame
-                  img : image for drawing
+        :return:  good_new:good tracked point of new frame,
+
+                  good_old:old tracked point of new frame,
+
+                  img :image for drawing
         """
         # params for find good corners
         feature_params = dict(maxCorners=30,
@@ -625,7 +628,7 @@ class ImgProc:
         good_new = cornersB[st == 1]
         good_old = cornersA[st == 1]
 
-        #distancearr, reduce, indexlist, good_new, good_old = self.analyseTrackPoint(good_new, good_old)
+        distancearr, reduce, indexlist, good_new, good_old = self.analyseTrackPoint(good_new, good_old)
 
 
 
