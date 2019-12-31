@@ -11,6 +11,13 @@ import uuid
 class Track:
 
     def createTarget(self):
+
+        """
+
+        Returns: 新的带UUID的trackDict
+
+        """
+
         #创建新的target并标记uuid
         trackDict = dict()
         targetLists = list()
@@ -23,7 +30,7 @@ class Track:
 
         trackDict.setdefault("target", targetLists)
 
-        uuID = str(uuid.uuid1())
+        uuID = str(uuid.uuid1())    #自己创建，后期使用LKTrack打上的UUID
         targetLists.append(uuID)
         targetLists.append(trackFlag)
         targetLists.append(position)
@@ -41,6 +48,14 @@ class Track:
         return trackDict
 
     def updateTarget(self,bottleDict):
+        """
+        更新实时target功能
+        Args:
+            bottleDict: 经过计算的LKTrack 的输出
+
+        Returns: 同一UUID的信息更新；
+
+        """
         #将bottleDict中数据进行换算，并更新至trackDict内相对应的target
         #bottleDict = self.bottleDict
         file = open("trackDict_test.txt", "r+")
@@ -55,6 +70,7 @@ class Track:
                 # 对比UUID ，假如一样则执行更新
                 #临时tempLists
                 tempLists = bottleDict.get("target")
+                print(tempLists)
                 tempSingleList = targetList.split(", ")
                 #print(tempLists)
                 if (tempLists[0] in targetList):
@@ -68,7 +84,7 @@ class Track:
                     print(tempSingleList)
 
                     file.write("\n")
-                    break
+                break
                 #print(targetList)
         file.close()
 
@@ -76,7 +92,7 @@ class Track:
 if __name__ == "__main__":
 
     #测试用例，此处bottleDict使用的非BS0.1中bottledict，而是将来为Main中提供的传参！
-    bottledict1 = {'target': ["de403f6c-2ad8-11ea-bb94-985fd3d62bfb", "11", "66", "11", "11", "11", "11"]}
-
-    track1 = Track().createTarget()        #测试createTarget
-    track2 = Track().updateTarget(bottledict1)      #测试updateTarget
+    bottledict1 = {'target': ["da5b6600-2b6e-11ea-8937-985fd3d62bfb", "11", "66", "11", "11", "11", "11"]}
+    bottledict2 = {'target': ["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", "11", "77", "11", "11", "11", "11"]}
+    #track1 = Track().createTarget()        #测试createTarget
+    track2 = Track().updateTarget(bottledict2)      #测试updateTarget
