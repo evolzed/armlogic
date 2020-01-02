@@ -1,0 +1,465 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.Vision package &mdash; BottleSort0.1 0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BottleSort0.1
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">src.Vision package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.Vision.camera">src.Vision.camera module</a></li>
+<li><a class="reference internal" href="#module-src.Vision.getSpeed">src.Vision.getSpeed module</a></li>
+<li><a class="reference internal" href="#module-src.Vision.vision">src.Vision.vision module</a></li>
+<li><a class="reference internal" href="#module-src.Vision">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BottleSort0.1</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>src.Vision package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/src.Vision.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="src-vision-package">
+<h1>src.Vision package<a class="headerlink" href="#src-vision-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src.Vision.imageProcess.html">src.Vision.imageProcess package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.Vision.imageProcess.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.Vision.imageProcess.html#module-src.Vision.imageProcess.imgProc">src.Vision.imageProcess.imgProc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.Vision.imageProcess.html#module-src.Vision.imageProcess">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.Vision.yolo.html">src.Vision.yolo package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.Vision.yolo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.Vision.yolo.html#module-src.Vision.yolo.Yolo">src.Vision.yolo.Yolo module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.Vision.yolo.html#module-src.Vision.yolo.model">src.Vision.yolo.model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.Vision.yolo.html#module-src.Vision.yolo.utils">src.Vision.yolo.utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.Vision.yolo.html#module-src.Vision.yolo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-src.Vision.camera">
+<span id="src-vision-camera-module"></span><h2>src.Vision.camera module<a class="headerlink" href="#module-src.Vision.camera" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.Vision.camera.Camera">
+<em class="property">class </em><code class="sig-prename descclassname">src.Vision.camera.</code><code class="sig-name descname">Camera</code><a class="headerlink" href="#src.Vision.camera.Camera" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>海康相机类</p>
+<dl class="method">
+<dt id="src.Vision.camera.Camera.connectCam">
+<code class="sig-name descname">connectCam</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.camera.Camera.connectCam" title="Permalink to this definition">¶</a></dt>
+<dd><p>连接相机并返回数据</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(data_buf:数据流, nPayloadSize：数据流尺寸) | 错误返回</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.camera.Camera.destroy">
+<code class="sig-name descname">destroy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.camera.Camera.destroy" title="Permalink to this definition">¶</a></dt>
+<dd><p>关闭相机后，删除缓存数据，不然相机需要等待2分钟才能再次使用</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.camera.Camera.getCamFps">
+<code class="sig-name descname">getCamFps</code><span class="sig-paren">(</span><em class="sig-param">nFrameNum</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.camera.Camera.getCamFps" title="Permalink to this definition">¶</a></dt>
+<dd><p>get the frame quantity per second</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nFrameNum</strong> – current frame number</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>fps with str type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.camera.Camera.getDeviceNum">
+<code class="sig-name descname">getDeviceNum</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.camera.Camera.getDeviceNum" title="Permalink to this definition">¶</a></dt>
+<dd><p>ch:枚举设备 | en:Enum device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Param</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>返回检测到的设备号 如果错误 返回None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.camera.Camera.getImage">
+<code class="sig-name descname">getImage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.camera.Camera.getImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>获得图像信息</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(frame:图片信息, nframe:帧号, t:该帧的时间)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.camera.Camera.press_any_key_exit">
+<code class="sig-name descname">press_any_key_exit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.camera.Camera.press_any_key_exit" title="Permalink to this definition">¶</a></dt>
+<dd><p>主要用于ubuntu系统下按任意键退出相机</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.camera.Camera.work_thread">
+<code class="sig-name descname">work_thread</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.camera.Camera.work_thread" title="Permalink to this definition">¶</a></dt>
+<dd><p>为线程定义一个函数</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.camera.main">
+<code class="sig-prename descclassname">src.Vision.camera.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.camera.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>调试使用主函数入口</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.Vision.getSpeed">
+<span id="src-vision-getspeed-module"></span><h2>src.Vision.getSpeed module<a class="headerlink" href="#module-src.Vision.getSpeed" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="src.Vision.getSpeed.counter">
+<code class="sig-prename descclassname">src.Vision.getSpeed.</code><code class="sig-name descname">counter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.getSpeed.counter" title="Permalink to this definition">¶</a></dt>
+<dd><p>收集特定帧的照片信息，保存到数据列表
+使用线程调用，使得主线程在循环运行过程中，能够不断读取dataDict内容</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.getSpeed.getBeltSpeed">
+<code class="sig-prename descclassname">src.Vision.getSpeed.</code><code class="sig-name descname">getBeltSpeed</code><span class="sig-paren">(</span><em class="sig-param">dataDict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.getSpeed.getBeltSpeed" title="Permalink to this definition">¶</a></dt>
+<dd><p># 功能需求描述:
+# 获取传送带速度，以speed(Unit:pix/second), angle返回，此格式可以代表速度的大小和方向
+# 实现方法：
+# 1、 first use 20 frames as destination used，get their dataDicts，
+#   calculate speed use its time &amp; position from dataDict and next frame
+# 2、transfer coordinate(xmin, ymin, xmax, ymax) to center coordinate(vX, vY)
+# 3、then calculate average speed get from step one</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataDict</strong> – frame info-dataDict contains time、center coordinate</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dstList:需要计算速度的帧信息（包含dataDict内容）</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.getSpeed.getSpeed">
+<code class="sig-prename descclassname">src.Vision.getSpeed.</code><code class="sig-name descname">getSpeed</code><span class="sig-paren">(</span><em class="sig-param">dstList</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.getSpeed.getSpeed" title="Permalink to this definition">¶</a></dt>
+<dd><p>从dstList中获取帧，计算速度</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dstList</strong> – 全局变量，包含每个dataDict中的信息</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>speed：速度（pix/s），angle：皮带与相机夹角角度</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.Vision.vision">
+<span id="src-vision-vision-module"></span><h2>src.Vision.vision module<a class="headerlink" href="#module-src.Vision.vision" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="src.Vision.vision.Vision">
+<em class="property">class </em><code class="sig-prename descclassname">src.Vision.vision.</code><code class="sig-name descname">Vision</code><span class="sig-paren">(</span><em class="sig-param">cam</em>, <em class="sig-param">yolo</em>, <em class="sig-param">imgproc_=None</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.vision.Vision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>create main Vision class for processing images</p>
+<dl class="method">
+<dt id="src.Vision.vision.Vision.detectSerialImage">
+<code class="sig-name descname">detectSerialImage</code><span class="sig-paren">(</span><em class="sig-param">cam</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.vision.Vision.detectSerialImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>获取并处理连续的帧数</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cam</strong> – 相机对象</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>{“nFrame”:nframe,”image”:image, “timecost”:timecost, “box”:[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}</p>
+<p>返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.vision.Vision.detectSingleImage">
+<code class="sig-name descname">detectSingleImage</code><span class="sig-paren">(</span><em class="sig-param">frame</em>, <em class="sig-param">nFrame</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.vision.Vision.detectSingleImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>用于接受bgLearn返回过来的图片</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame</strong> – opencv格式的图片，例如：frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)</p></li>
+<li><p><strong>nFrame</strong> – 图片的帧号，用来确定图像的唯一性</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>{“nFrame”:nframe,”image”:image, “timecost”:timecost, “box”:[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}</p>
+<p>返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.vision.Vision.detectVideo">
+<code class="sig-name descname">detectVideo</code><span class="sig-paren">(</span><em class="sig-param">yolo</em>, <em class="sig-param">output_path=''</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.vision.Vision.detectVideo" title="Permalink to this definition">¶</a></dt>
+<dd><p>进行实时视频检测功能</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yolo</strong> – yolo实例对象</p></li>
+<li><p><strong>output_path</strong> – 识别效果的视频保存位置，如不指定，默认为空</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None，通过break跳出循环</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.vision.imageInit">
+<code class="sig-prename descclassname">src.Vision.vision.</code><code class="sig-name descname">imageInit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.vision.imageInit" title="Permalink to this definition">¶</a></dt>
+<dd><p>初始化相机对象cam, Vision对象</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(cam：相机对象, _image:Vision对象)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.vision.imageRun">
+<code class="sig-prename descclassname">src.Vision.vision.</code><code class="sig-name descname">imageRun</code><span class="sig-paren">(</span><em class="sig-param">cam</em>, <em class="sig-param">_image</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.vision.imageRun" title="Permalink to this definition">¶</a></dt>
+<dd><p>根据输入的图像数据，进行识别</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cam</strong> – 相机对象</p></li>
+<li><p><strong>_image</strong> – Vision对象</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None | 系统有异常，退出系统</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.Vision">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.Vision" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, BottleSort0.1
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

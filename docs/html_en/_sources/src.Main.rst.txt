@@ -1,0 +1,30 @@
+src.Main package
+================
+
+Submodules
+----------
+
+src.Main.main\_test module
+--------------------------
+
+.. automodule:: src.Main.main_test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.Main.main\_test\_Duplication module
+---------------------------------------
+
+.. automodule:: src.Main.main_test_Duplication
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: src.Main
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,8 +1,8 @@
-Ò»¡¢ÔÚTX2ÉÏÔËÐÐ±¨´í£ºCuda sysnc failed£¡
-ÔÚarmlogic/src/image/yolo/Yolo.pyÉÏÃæ¼ÓÉÏÏÂÃæÈýÐÐ´úÂë¼´¿É
-# ÏÂÃæÈýÐÐ½â¾öGPU sync failed
+Ò»ï¿½ï¿½ï¿½ï¿½TX2ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½Cuda sysnc failedï¿½ï¿½
+ï¿½ï¿½armlogic/src/Vision/yolo/Yolo.pyï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ë¼´ï¿½ï¿½
+# ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½GPU sync failed
 import tensorflow as tf
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
 
-¶þ¡¢TX2ÉÏÔËÐÐ£¬ÐèÒª½«armlogic/lib/HikMvImport_tx2ÎÄ¼þ¼ÐÃûÐÞ¸Ä³ÉHikMvImport£¬È»ºó½«armlogic/src/Image/camera.pyÖÐµÄµÚÁùÐÐimport msvcrt É¾³ý¼´¿É
+ï¿½ï¿½ï¿½ï¿½TX2ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½Òªï¿½ï¿½armlogic/lib/HikMvImport_tx2ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸Ä³ï¿½HikMvImportï¿½ï¿½È»ï¿½ï¿½armlogic/src/Vision/camera.pyï¿½ÐµÄµï¿½ï¿½ï¿½ï¿½ï¿½import msvcrt É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
