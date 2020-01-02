@@ -62,30 +62,23 @@
 |   Class   | Function |           Description          | Input | Output | Return |
 | :------: | :------: | :-----------------------------: | :----: | :----: | :----: |
 | Main |  | 主方法，系统流程 | gState |  |  |
-| Image |  generate  | 返回预测框列表，评分列表，类别列表, 使用load_model()、yolo_eval() | | | |
-| Image |  connectCam  | 获取检测到的设备编号，连接设备GrabVideo.getDeviceNum()、GrabVideo.connectCam() | | | |
-| Image |  grabVideo  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 | | %bgPic.JPG | |
+| vision |  generate  | 返回预测框列表，评分列表，类别列表, 使用load_model()、yolo_eval() | | | |
+| vision |  connectCam  | 获取检测到的设备编号，连接设备GrabVideo.getDeviceNum()、GrabVideo.connectCam() | | | |
+| vision |  grabVideo  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 | | %bgPic.JPG | |
 | Camera |  getImage  | get a frame of opencv format from camra | %_cam  %_data_buf %_nPayloadSize|  | %frame|
 | Camera | getCamFps  | get  fps of camera output in str type  | %nFrameNum  |  | %fps|
-| Image |  loadYolo  | Tiny-Yolov3模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | %.py %.pt | | |
-| Image |  detectImage  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Image()[转换成网络需要的imageObject]; | | | |
-| Image |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
-| Image |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
-| Image |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
-| Image |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
-| Image |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动
-|  ImageTrack   | getBeltSpeed()  | #get belt speed direction and valu e,pixel per second   |   bottleDict                     |  | beltSpeed |
-|  ImageTrack   | getBottlePose()  | #get Bottle Pose info,include bottle rotate angle and the diameter of bottle   | %frameOrg0 %bgMask  |  | %dataDict |
-|  ImageTrack   | getBottleID()  | #get bottle ID by track and beltSpeed   |   %bottleDict                     |  | %bottleID |
-|  ImageTrack   | getBottleSpeed()  | #get bottle speed by track   |                        |  | %bottleSpeed|
-
-
-
-| Class |    Function    |      Description      | Input |  Output   | Return |
-| :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
-| Track | createTarget() | 创建新的trackDict元素 |       | trackDict |        |
-| Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
-
+| vision |  loadYolo  | Tiny-Yolov3模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | %.py %.pt | | |
+| vision |  detectImage  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Image()[转换成网络需要的imageObject]; | | | |
+| vision |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
+| vision |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
+| vision |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
+| vision |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
+| Vision | checkState | [1:init 2：run 3：stop], 停止网络，关闭相机驱动 |  | ||
+| Vision | getBeltSpeed() | \#get belt speed direction and valu e,pixel per second | bottleDict | |beltSpeed|
+| Vision | getBottlePos() | \#get belt speed direction and valu e,pixel per second | bottleDict | |bottleDetail|
+| Vision | getBottleID() | \#get bottle ID by track and beltSpeed | bottleDict | beltSpeed |bottleID|
+| Track | createTarget() | 创建新的trackDict元素 |  | trackDict ||
+| Track | updateTarget() | 更新trackDict内的元素 |  | trackDict ||
 
 
 ----
@@ -153,5 +146,5 @@
 # 4.**总结**
 =======
   * LICENSE.md   
-  
+
 ----
