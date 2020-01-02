@@ -88,8 +88,21 @@
 	</tr>
 	<tr>
 	    	<td>local</td>
-	    	<td>uArmbottom_R</td>
-		<td>世界坐标系绕z轴转90度，与机械臂基坐标系重合，生成旋转矩阵</td>
+	    	<td>world2uarm_P</td>
+		<td>世界坐标系原点在机械臂基坐标系下的位置矢量</td>
+		<td> 绕Z轴的转角</td>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+		<td> </td>
+	</tr>
+	<tr>
+	    <td>local</td>
+	    <td>world2uarm_R</td>
+		<td>世界坐标系绕z轴转，与机械臂基坐标系重合的旋转矩阵</td>
 		<td> 绕Z轴的转角</td>
 		<td> </td>
 		<td> </td>

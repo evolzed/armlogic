@@ -39,8 +39,8 @@ def ResetRobotPosition():
 
 
 
-RobotOn = 1  # 机械臂已连接
-# RobotOn = 0  # 机械臂未连接
+# RobotOn = 1  # 机械臂已连接
+RobotOn = 0  # 机械臂未连接
 
 
 # BottleType, u, v, angle2Xw, BottleHeight,Xw, Yw, Zw, isInside |模拟矩阵，angle2Xw的取值范围为-90°到90°
@@ -51,12 +51,12 @@ bottleDict = {"box": [["Bottle1", 745, 439, -45, 55],
 PI = 3.1415926  # 圆周率
 uArmbottom_P = [0, 0, 0]  # 机械臂基坐标系下，机械臂底座中心的位置，单位mm
 
-world2uarm_R = 0.47*PI  # 世界坐标系绕z轴转90度(实际可能不是准确的90°)后，与机械臂基坐标系重合，用来生成旋转矩阵
+world2uarm_R = Rz(0.47*PI)  # 世界坐标系绕z轴转90度(实际可能不是准确的90°)后，与机械臂基坐标系重合的旋转矩阵
 # 方法1：直接从样机系统试验，修改位置矢量
-world2uarm_PR = np.array([[290], [-335], [0]])  # 世界坐标系原点相在机械臂基坐标系的位置矢量，单位mm,uv=750，630
+world2uarm_P = np.array([[290], [-335], [0]])  # 世界坐标系原点相在机械臂基坐标系的位置矢量，单位mm,uv=750，630
 # 方法2： 从图片中找到机械臂基坐标系原点的像素坐标，再转换成世界坐标系下的值
 # world2uarm_P = -Px2World(733, 639, Zc, IntrinsicMtx, ExtrinsicMtx)  # 机械臂基坐标系原点像素坐标系中的坐标转换成世界坐标系下的平移矢量，加负号转换成机械臂基坐标系下的矢量
-# world2uarm_PR = np.dot(Rz(world2uarm_R), world2uarm_P)  # 旋转坐标轴
+# world2uarm_P = np.dot(Rz(world2uarm_R), world2uarm_P)  # 旋转坐标轴
 
 bottleInfo = bottleDict["box"]  # 瓶子信息矩阵
 ratio = 1.2  # 宽度代替高度时，像素映射到实际物理距离的比值
@@ -66,7 +66,7 @@ numRow = np.shape(bottleInfo)  # 瓶子数目
 #  从像素坐标计算到世界坐标系下的坐标，计算位置矢量，计算物理距离，并放入瓶子信息矩阵
 for i in range(0, numRow[0]):
     world_P = Px2World(bottleInfo[i][1], bottleInfo[i][2], Zc, IntrinsicMtx, ExtrinsicMtx)  # 根据像素信息计算瓶子在世界坐标系下的位置矢量
-    uarm_P = world2uarm_PR + np.dot(Rz(world2uarm_R), world_P)  # 机械臂基坐标系下的坐标
+    uarm_P = world2uarm_P + np.dot(world2uarm_R, world_P)  # 机械臂基坐标系下的坐标
     distance2uArm = float(np.sqrt((uarm_P[0] - uArmbottom_P[0]) ** 2 + (uarm_P[1] - uArmbottom_P[1]) ** 2))  # 计算瓶子到机械臂底座中心之间的距离
     for j in range(0, 2):
         bottleInfo[i].append(int(uarm_P[j]))  # 将位置矢量(Z分量不使用)添加到矩阵，转化成整形，否则数据太长，机械臂接收存不下
