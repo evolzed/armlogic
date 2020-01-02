@@ -1,7 +1,10 @@
 from src.Vision.camera import Camera
 # from src.Vision.vision import Image
+# from src.Vision.yolo import *
 import cv2
-from src.Vision.imageProcess.imgProc import ImgProc
+# from src.Vision.imageProcess.imgProc import ImgProc
+from src.Vision.imageProcess.bgLearn import Bglearn
+
 
 
 if __name__ == '__main__':
@@ -9,7 +12,8 @@ if __name__ == '__main__':
     while True:
         _frame, nFrame, t = cam.getImage()
         cv2.imshow("test", _frame)
-        tempImgproc = ImgProc(10)
+        tempImgproc = Bglearn(20)
+        # tempImgproc = ImgProc(10)
         frame, bgMask, resarray = tempImgproc.delBg(_frame) if tempImgproc else (_frame, None)
         dataDict = dict()
         #dataDict = ImageTrack.yolo.detectImage(img)
