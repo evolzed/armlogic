@@ -35,26 +35,28 @@ def ResetRobotPosition():
     '''
     swift.set_position(150, 0, 100, speed=50, wait=True, timeout=10, cmd='G0')  # 初始化机器人末端执行器位置
     swift.flush_cmd()  # 清除缓存，保证前序指令一定执行完后，再执行下一个指令。
+    swift.set_wrist(angle=90, wait=True)
 
 
 
-# RobotOn = 1  # 机械臂已连接
-RobotOn = 0  # 机械臂未连接
+RobotOn = 1  # 机械臂已连接
+# RobotOn = 0  # 机械臂未连接
 
 
 # BottleType, u, v, angle2Xw, BottleHeight,Xw, Yw, Zw, isInside |模拟矩阵，angle2Xw的取值范围为-90°到90°
 #     0       1  2      3          4       5    6   7      8
 bottleDict = {"box": [["Bottle1", 745, 439, -45, 55],
-                      ["Bottle2", 896, 437, -45, 55],
-                      ["Bottle3", 631, 440, 45, 55]], "ABC1": [1, 2, 3], "ABC2": [1, 2, 3]}
+                      ["Bottle2", 896, 437, -90, 55],
+                      ["Bottle3", 631, 440, 90, 55]], "ABC1": [1, 2, 3], "ABC2": [1, 2, 3]}
 PI = 3.1415926  # 圆周率
 uArmbottom_P = [0, 0, 0]  # 机械臂基坐标系下，机械臂底座中心的位置，单位mm
 
 world2uarm_R = 0.47*PI  # 世界坐标系绕z轴转90度(实际可能不是准确的90°)后，与机械臂基坐标系重合，用来生成旋转矩阵
-# world2uarm_P = np.array([[290], [-335], [0]])  # 世界坐标系原点相在机械臂基坐标系的位置矢量，单位mm,uv=750，630
-# uarmMarker_Puv = np.array([750, 630])
-world2uarm_P = -Px2World(750, 630, Zc, IntrinsicMtx, ExtrinsicMtx)  # 机械臂基坐标系原点像素坐标系中的坐标转换成世界坐标系下的平移矢量，加负号转换成机械臂基坐标系下的矢量
-world2uarm_PR = np.dot(Rz(world2uarm_R), world2uarm_P)  # 旋转坐标轴
+# 方法1：直接从样机系统试验，修改位置矢量
+world2uarm_PR = np.array([[290], [-335], [0]])  # 世界坐标系原点相在机械臂基坐标系的位置矢量，单位mm,uv=750，630
+# 方法2： 从图片中找到机械臂基坐标系原点的像素坐标，再转换成世界坐标系下的值
+# world2uarm_P = -Px2World(733, 639, Zc, IntrinsicMtx, ExtrinsicMtx)  # 机械臂基坐标系原点像素坐标系中的坐标转换成世界坐标系下的平移矢量，加负号转换成机械臂基坐标系下的矢量
+# world2uarm_PR = np.dot(Rz(world2uarm_R), world2uarm_P)  # 旋转坐标轴
 
 bottleInfo = bottleDict["box"]  # 瓶子信息矩阵
 ratio = 1.2  # 宽度代替高度时，像素映射到实际物理距离的比值
@@ -70,6 +72,8 @@ for i in range(0, numRow[0]):
         bottleInfo[i].append(int(uarm_P[j]))  # 将位置矢量(Z分量不使用)添加到矩阵，转化成整形，否则数据太长，机械臂接收存不下
     bottleHeight = int(bottleInfo[i][4] * ratio)  # 按比例计算瓶子高度
     bottleInfo[i].append(bottleHeight)  # 将瓶子高度添加进数组
+
+    # Policy 抓取分拣策略
     # 机械臂工作空间筛选
     if distance2uArm <= 100 or distance2uArm >= 340:  # 去除圆环外的区域
         isInside = 0  # 0/1代表是否在规定的工作区间内
@@ -81,19 +85,18 @@ for i in range(0, numRow[0]):
         isInside = 1
     bottleInfo[i].append(isInside)
 
-
 bottleInfo.sort(key=operator.itemgetter(6), reverse=True)  # 对矩阵的第六列的值（Y）进行升序排列，数值大的先取
 # print(bottleInfo)
 
-
+# MovePlanning 运动规划部分
 if RobotOn == 1:
     swift = SwiftAPI(filters={'hwid': 'USB VID:PID=2341:0042'}, enable_handle_thread=False)
     swift.waiting_ready()  # 等待手臂完成初始化
     swift.send_cmd_async('M2400 S0')  # 设置机械臂工作模式，为S0常规模式
     swift.send_cmd_async('M2123 V1')  # 开启失步检测功能
     swift.set_digital_direction(pin=32, value=1)  # 设置30Pin数字口D32为输出(1)
-    speed = 250  # 弧线运动的速度，500
-    swift.set_acceleration(10)  # 设置加速度，20
+    speed = 100  # 弧线运动的速度，500
+    swift.set_acceleration(5)  # 设置加速度，20
 
     ResetRobotPosition()  # 机械臂初始化末端位置
     # 吸，调姿态，放,电磁继电器的CH3可以正常使用，其他可能会有问题
@@ -106,9 +109,15 @@ if RobotOn == 1:
             bottomAngle0 = swift.get_servo_angle(servo_id=0, timeout=10)  # 获取底座关节角0,以机械臂Y轴负方向为基准，且取值范围为-90°~90°
             swift.set_position(180, -bottleInfo[i][6], bottleInfo[i][7] + 25, speed=speed, wait=True)  # 把瓶子移动到靠近边缘的轨道上空
             bottomAngle1 = swift.get_servo_angle(servo_id=0, timeout=10)  # 获取底座关节角1
-            swift.set_wrist(angle=90 + (bottleInfo[i][3] + (bottomAngle1 - bottomAngle0)), wait=True)  # 根据姿态角计算舵机转角并发送给舵机执行
+            cmdWrist = 90 - (bottleInfo[i][3] + (bottomAngle1 - bottomAngle0))  # 电机命令
+            if cmdWrist > 180:  # 超过180取180，不会超多太多
+                cmdWrist = 180
+            if cmdWrist < 0:  # 负角取0
+                cmdWrist = 0
+            swift.set_wrist(angle=cmdWrist, wait=True)  # 根据姿态角计算舵机转角并发送给舵机执行
             swift.set_position(180, -bottleInfo[i][6], bottleInfo[i][7], speed=speed, wait=True)  # 把瓶子移动到靠近边缘的轨道
             swift.set_digital_output(pin=32, value=0, wait=True, timeout=10)  # 吸盘放下瓶子
             swift.set_position(180, -bottleInfo[i][6], bottleInfo[i][7] + 25, speed=speed, wait=True)  # 放完后，上移一些，防止擦到瓶子
 
+    ResetRobotPosition()
 
