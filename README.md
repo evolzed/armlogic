@@ -1,6 +1,6 @@
 # BottleSort0.2设计说明书
 
-# Objective：Control using existing libraries to perform simple blast task.
+# Objective：Track Function & Optimize Vision Efficiency
 
 # 1.**环境搭建**
 
