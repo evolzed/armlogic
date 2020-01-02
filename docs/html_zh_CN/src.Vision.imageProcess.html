@@ -1,0 +1,442 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="zh-CN" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="zh-CN" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.Vision.imageProcess package &mdash; BottleSort0.1 0.1 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script type="text/javascript" src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BottleSort0.1
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">src.Vision.imageProcess package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.Vision.imageProcess.imgProc">src.Vision.imageProcess.imgProc module</a></li>
+<li><a class="reference internal" href="#module-src.Vision.imageProcess">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BottleSort0.1</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>src.Vision.imageProcess package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/src.Vision.imageProcess.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="src-vision-imageprocess-package">
+<h1>src.Vision.imageProcess package<a class="headerlink" href="#src-vision-imageprocess-package" title="永久链接至标题">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="永久链接至标题">¶</a></h2>
+</div>
+<div class="section" id="module-src.Vision.imageProcess.imgProc">
+<span id="src-vision-imageprocess-imgproc-module"></span><h2>src.Vision.imageProcess.imgProc module<a class="headerlink" href="#module-src.Vision.imageProcess.imgProc" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc">
+<em class="property">class </em><code class="sig-prename descclassname">src.Vision.imageProcess.imgProc.</code><code class="sig-name descname">ImgProc</code><span class="sig-paren">(</span><em class="sig-param">bgStudyNum</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc" title="永久链接至目标">¶</a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.analyseTrackPoint">
+<code class="sig-name descname">analyseTrackPoint</code><span class="sig-paren">(</span><em class="sig-param">good_new</em>, <em class="sig-param">good_old</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.analyseTrackPoint" title="永久链接至目标">¶</a></dt>
+<dd><p>analyse the track point to get the more precision point</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>good_new</strong> – current frame point of track</p></li>
+<li><p><strong>good_old</strong> – prev frame point of track</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p><p>good_new0: more precision current frame point of track</p>
+<p>good_old0: more precision prev frame point of track</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.avgBackground">
+<code class="sig-name descname">avgBackground</code><span class="sig-paren">(</span><em class="sig-param">I</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.avgBackground" title="永久链接至目标">¶</a></dt>
+<dd><p>read background pic of I,and then calculate frame difference of current frame and pre frame: I and IprevF
+accumulate every frame difference Iscratch2 to sum of differences :IdiffF
+meanwhile,accumulate every frame I  to sum of frames :IavgF</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>I</strong> – input  Mat type pic stream</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.backgroundDiff">
+<code class="sig-name descname">backgroundDiff</code><span class="sig-paren">(</span><em class="sig-param">src0</em>, <em class="sig-param">dst</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.backgroundDiff" title="永久链接至目标">¶</a></dt>
+<dd><p>when get pic frame from camera, use the backgroundDiff to  segment the frame pic and get a mask pic
+if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
+will change to white,otherwise, it will cover to black.
+<a class="reference external" href="https://www.cnblogs.com/mrfri/p/8550328.html">https://www.cnblogs.com/mrfri/p/8550328.html</a>
+rectArray=np.zeros(shape=(1,4),dtype=float)</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src0</strong> – input cam pic waited for segment</p></li>
+<li><p><strong>dst</strong> – temp store segment result of mask</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>rectArray:all boundingboxes of all bottles
+dst:segment result of mask</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.correctAngle">
+<code class="sig-name descname">correctAngle</code><span class="sig-paren">(</span><em class="sig-param">rbox</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.correctAngle" title="永久链接至目标">¶</a></dt>
+<dd><p>correct the angle to -90 to 90 for get Pose,</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>rbox</strong> – input rotatebox</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>angle: angle that modified</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.createModelsfromStats">
+<code class="sig-name descname">createModelsfromStats</code><span class="sig-paren">(</span><em class="sig-param">scale</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.createModelsfromStats" title="永久链接至目标">¶</a></dt>
+<dd><p>calculate the average sum of frames to  IavgF
+calculate frame difference to IdiffF
+then  multiply the scale to the Idiiff,and add the Idiff to IavgF to get the IhiF,
+subtract  the Idiff from IavgF to get the IlowF
+now we get the background model IhiF and IlowF</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>scale</strong> – gap of high threshold and low threshold of background model</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.delBg">
+<code class="sig-name descname">delBg</code><span class="sig-paren">(</span><em class="sig-param">src</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.delBg" title="永久链接至目标">¶</a></dt>
+<dd><p>use the mask pic bgMask to make bit and operation to the cam frame to get a pic that del the bacground</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>src</strong> – input cam pic waited for segment</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>rectArray:all boundingboxes of all bottles
+dst:segment result of mask</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.eDistance">
+<code class="sig-name descname">eDistance</code><span class="sig-paren">(</span><em class="sig-param">p1</em>, <em class="sig-param">p2</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.eDistance" title="永久链接至目标">¶</a></dt>
+<dd><p>function description:
+get Euclidean distance  between point p1 and p2</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p1</strong> – point</p></li>
+<li><p><strong>p2</strong> – point</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>distance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.getBeltSpeed">
+<code class="sig-name descname">getBeltSpeed</code><span class="sig-paren">(</span><em class="sig-param">dataDict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.getBeltSpeed" title="永久链接至目标">¶</a></dt>
+<dd><p>功能需求描述:
+获取传送带速度，以 (Vx ,Vy. Vz)的格式返回，此格式可以代表速度的大小和方向
+实现方法：
+首先使用两个连续帧作为一组，得到它们的dataDict，找到两帧中同一类型的瓶子，而且该类瓶子在每帧中只有一个，
+获取第一帧中该瓶子的矩形框的中心点坐标（x1,y1），并将该点根据传送带和水平方向的夹角，
+映射到传送带方向上，得到（x1’,y1’）
+获取第二帧中该瓶子的矩形框的中心点坐标（x2,y2），并将该点根据传送带和水平方向的夹角，
+映射到传送带方向上，得到（x2’,y2’）
+计算出来（x1’,y1’）和（x2’,y2’）的欧氏距离，除以两帧之间的时间，得到速度，并分解到X,Y,Z 方向上
+得到(Vx ,Vy. Vz)，其中Vz默认是0
+然后再继续取10组连续帧，重复上述计算，每组得到得到一个(Vx ,Vy. Vz)，将这些(Vx ,Vy. Vz)都存入
+一个(Vx ,Vy. Vz)数组
+对这个(Vx ,Vy. Vz)数组，剔除过大和过小的异常数据，可以使用np.percentile方法，然后对剩余数据求平均获得
+最终（Vx ,Vy. Vz)</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>dataDict</strong> – bottle dictionary</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>bottleDetail:mainly include bottle rotate angle from belt move direction,0–180 degree,and the diameter of bottle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.getBottlePose">
+<code class="sig-name descname">getBottlePose</code><span class="sig-paren">(</span><em class="sig-param">frameOrg0</em>, <em class="sig-param">bgMask</em>, <em class="sig-param">dataDict</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.getBottlePose" title="永久链接至目标">¶</a></dt>
+<dd><p>function description:
+get Bottle Pose info,include bottle rotate angle and the diameter of bottle
+implementation detail:
+first use the dataDict to get the bottle bondingbox  cordinates,
+and then find the bottle contour in the region of bottle bondingbox
+and then get the rotated box of bottle contour
+finally,get the rotate angle  and width of  rotated box</p>
+<blockquote>
+<div><p>测试方法，该方法不能单独测试，是随着main_test方法一同测试的，运行main_test方法即可测试，观察pos窗口中</p>
+</div></blockquote>
+<p>的瓶子有没有一个紫色可以旋转的框，跟着瓶子的旋转角度在动，然后观察Log,查看dataDict的‘box’条目下的最后
+两个数字，一个是角度，一个是直径，是否正确，例如
+‘box’: [[‘Transparent bottle’, 0.3777146, 568, 378, 679, 465, 0.0, 60.19998931884765]
+0.0是角度  60.19998931884765是直径</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frameOrg0</strong> – input frame</p></li>
+<li><p><strong>bgMask</strong> – the mask frame that generate from bglearn</p></li>
+<li><p><strong>dataDict</strong> – input dataDict</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>dataDict:output dataDict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.lkLightflow_track">
+<code class="sig-name descname">lkLightflow_track</code><span class="sig-paren">(</span><em class="sig-param">featureimg</em>, <em class="sig-param">secondimg_orig</em>, <em class="sig-param">mask</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.lkLightflow_track" title="永久链接至目标">¶</a></dt>
+<dd><p>function description:
+LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,
+and then track the point of featureimg to get the corresponding point of secondimg_orig
+we pass the previous frame, previous points and next frame.It returns next points along with some status numbers
+which has a value of 1 if next point is found,</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>featureimg</strong> – </p></li>
+<li><p><strong>secondimg_orig</strong> – </p></li>
+<li><p><strong>mask</strong> – mask for accumulate track lines,usually is preframe</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p><p>good_new:good tracked point of new frame,</p>
+<p>good_old:old tracked point of new frame,</p>
+<p>img :image for drawing</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.imageProcess.imgProc.ImgProc.studyBackgroundFromCam">
+<code class="sig-name descname">studyBackgroundFromCam</code><span class="sig-paren">(</span><em class="sig-param">cam</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.ImgProc.studyBackgroundFromCam" title="永久链接至目标">¶</a></dt>
+<dd><p>get many pics for time interval of 60sec by cam and store the pics in  bgVector.
+then  call the avgBackground method</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>cam</strong> – input camera object</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.imageProcess.imgProc.creatMaskFromROI">
+<code class="sig-prename descclassname">src.Vision.imageProcess.imgProc.</code><code class="sig-name descname">creatMaskFromROI</code><span class="sig-paren">(</span><em class="sig-param">src</em>, <em class="sig-param">roi</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.imageProcess.imgProc.creatMaskFromROI" title="永久链接至目标">¶</a></dt>
+<dd><p>gernerate mask frame from roi,in roi the pixel will be set to 255,otherwise will set to 0
+:param src:
+:param roi:
+:return: mask</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.Vision.imageProcess">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.Vision.imageProcess" title="永久链接至标题">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, BottleSort0.1
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

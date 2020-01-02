@@ -49,12 +49,13 @@
 
 |   类型   | 命名举例 |              描述               | 第一元素 | 第二元素 |  第三元素 |  第四元素 |  第五元素 |
 | :------: | :------: | :-----------------------------: | :-------: | :-------: | :-------: | :-------: | :-------: |
-| global |  gState  | #1 = 初始阶段, 2 = 运行阶段, 3 = 停止阶段 | int gState |
-| library |  airDict  | #User input air pressure nozzle locations | int x | int y | int z | int type |
-| library |  bgDict  | #address to image file location and processed flag | #%.JPG | bool processed |
-| global |  gDir  | #direction of the moving belt | int gDir | |
-| library |  bottleDict  | #sorted bottle information | {"image":imagedata,"box":[(bottletype1, confidence, xmin, ymin, xmax, ymax),(bottletype2, confidence, xmin, ymin, xmax, ymax),···]，"bgTimeCost":time,"timeCost":time,"nFrame":camNumFrame} |  |  | | | Time processed |
-| path | bgPic | #file location for bgPic |
+| global |  gState  | #1 = 初始阶段, 2 = 运行阶段, 3 = 停止阶段 | int gState |||||
+| library |  airDict  | #User input air pressure nozzle locations | int x | int y | int z | int type ||
+| library |  bgDict  | #address to image file location and processed flag | #%.JPG | bool processed ||||
+| global |  gDir  | #direction of the moving belt | int gDir | ||||
+| library |  bottleDict  | #sorted bottle information | {"image":imagedata,"box":[(bottletype1, confidence, xmin, ymin, xmax, ymax),(bottletype2, confidence, xmin, ymin, xmax, ymax),···]，"bgTimeCost":time,"timeCost":time,"nFrame":camNumFrame} |  |  | | |
+| library | trackDict | #target track information | {"target":[(UUID, trackFlag, postion, speed, angle, type, typeCounter, nFrame, bgTimeCost, timeCost, trackTimeCost)]} | | | | |
+| path | bgPic | #file location for bgPic ||||||
 
 ## 2.4 功能包文档填写说明
 
@@ -68,14 +69,24 @@
 | Camera | getCamFps  | get  fps of camera output in str type  | %nFrameNum  |  | %fps|
 | Vision |  loadYolo  | Tiny-Yolov3模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | %.py %.pt | | |
 | Vision |  detectImage  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Vision()[转换成网络需要的imageObject]; | | | |
-| Vision |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
-| Vision |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
-| Vision |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
-| Vision |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
+| ImgProc |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
+| ImgProc |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
+| ImgProc |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
+| ImgProc |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
 | Vision |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动
 |  Vision   | getBeltSpeed()  | #get belt speed direction and valu e,pixel per second   |   bottleDict                     |  | beltSpeed |
-|  Vision   | getBottlePos()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
+|  ImgProc   | getBottlePose()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
+|  ImgProc   | ()  |   | |  |  |
 |  Vision   | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict                     | beltSpeed | bottleID |
+
+
+
+| Class |    Function    |      Description      | Input |  Output   | Return |
+| :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
+| Track | createTarget() | 创建新的trackDict元素 |       | trackDict |        |
+| Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
+
+
 
 ----
 

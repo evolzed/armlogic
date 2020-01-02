@@ -1,0 +1,22 @@
+src.Vision.imageProcess package
+===============================
+
+Submodules
+----------
+
+src.Vision.imageProcess.imgProc module
+--------------------------------------
+
+.. automodule:: src.Vision.imageProcess.imgProc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: src.Vision.imageProcess
+   :members:
+   :undoc-members:
+   :show-inheritance:

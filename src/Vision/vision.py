@@ -4,6 +4,7 @@ import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
+from src.Vision.imageProcess.imgProc import ImgProc
 sys.path.append(os.path.abspath("../../"))
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
@@ -18,19 +19,20 @@ else:
     sys.exit()
 from src.Vision.camera import Camera, g_bExit
 from src.Vision.yolo.Yolo import *
-from src.Vision.imageProcess.bgLearn import Bglearn
-from src.Vision.imageProcess.imageTrack import ImageTrack
+# from src.Vision.imageProcess.bgLearn import Bglearn
+# from src.Vision.imageProcess.imageTrack import ImageTrack
 gState = 1
 bottleDict = None
 
 
 class Vision(object):
     """create main Vision class for processing images"""
-    def __init__(self, cam, yolo, bgLearn=None):
+
+    def __init__(self, cam, yolo, imgproc_=None):
         """相机自检"""
         self.cam = cam
         self.yolo = yolo
-        self.bgLearn=bgLearn
+        self.imgproc=imgproc_
         # self.deviceNum = cam.getDeviceNum()
         # cam._data_buf, cam._nPayloadsize = self.cam.connectCam()
         if -1 == cam._data_buf:
@@ -41,8 +43,10 @@ class Vision(object):
     def detectVideo(self, yolo, output_path=""):
         """
         进行实时视频检测功能
-        :param yolo:yolo实例对象
-        :return:
+
+        :param yolo: yolo实例对象
+        :param output_path: 识别效果的视频保存位置，如不指定，默认为空
+        :return: None，通过break跳出循环
         """
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
         memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
@@ -102,9 +106,11 @@ class Vision(object):
     def detectSerialImage(self, cam):
         """
         获取并处理连续的帧数
+
         :param cam: 相机对象
         :return: {"nFrame":nframe,"image":image, "timecost":timecost, "box":[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}
-        返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
+
+                返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
 
         """
         prev_time = timer()
@@ -115,7 +121,7 @@ class Vision(object):
         #     print("press_any_key_exit!")
         #     cam.press_any_key_exit()
 
-        trackObj = ImageTrack()
+        #trackObj = ImageTrack()
         while True:
             # try:
             _frame, nFrame, t = cam.getImage()
@@ -130,7 +136,7 @@ class Vision(object):
                 fps = "NetFPS:" + str(curr_fps)
                 curr_fps = 0
 
-            frame, bgMask = self.bgLearn.delBg(_frame) if self.bgLearn else (_frame, None)
+            frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None)
             # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
             # cv2.imshow("kk", frame)
             # cv2.waitKey(3000)
@@ -142,7 +148,7 @@ class Vision(object):
             # img.show()
             # feed data into model
             dataDict = self.yolo.detectImage(img)
-            dataDict["bgTimeCost"] = self.bgLearn.bgTimeCost if self.bgLearn else 0
+            dataDict["bgTimeCost"] = self.imgproc.bgTimeCost if self.imgproc else 0
             result = np.asarray(dataDict["image"])
             # dataDict["image"] = result  # result：cv2.array的图像数据
             dataDict["image"] = img  # img：Image对象
@@ -151,7 +157,7 @@ class Vision(object):
             dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
             # arr = np.asarray(dataDict["image"])
             if bgMask is not None:
-                dataDict = trackObj.getBottlePos(_frame, bgMask, dataDict)
+                dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)
             cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(255, 0, 0), thickness=2)
             cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -175,10 +181,12 @@ class Vision(object):
     def detectSingleImage(self, frame, nFrame):
         """
         用于接受bgLearn返回过来的图片
+
         :param frame: opencv格式的图片，例如：frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         :param nFrame: 图片的帧号，用来确定图像的唯一性
         :return: {"nFrame":nframe,"image":image, "timecost":timecost, "box":[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}
-        返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
+
+                返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
         """
         # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
         # cv2.imshow("kk", frame)
@@ -215,22 +223,34 @@ if __name__ == '__main__':
 
 
 def imageInit():
+    """
+    初始化相机对象cam, Vision对象
+
+    :return: (cam：相机对象, _image:Vision对象)
+    """
     cam = Camera()
     # _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
     yolo = YOLO()
     print("准备背景学习！")
-    bgobj = Bglearn(50)
+    bgobj = ImgProc(50)
     bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats(6.0)
     _image = Vision(cam, yolo, bgobj)
     print("开始！")
     global gState
     gState = 2
-    return cam,_image
+    return cam, _image
 
 
 def imageRun(cam,_image):
+    """
+    根据输入的图像数据，进行识别
+
+    :param cam: 相机对象
+    :param _image: Vision对象
+    :return: None | 系统有异常，退出系统
+    """
     # while 1:
     #     try:
     #         _frame, nf = cam.getImage()

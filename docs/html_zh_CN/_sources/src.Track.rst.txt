@@ -1,0 +1,30 @@
+src.Track package
+=================
+
+Submodules
+----------
+
+src.Track.Track module
+----------------------
+
+.. automodule:: src.Track.Track
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.Track.test1 module
+----------------------
+
+.. automodule:: src.Track.test1
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: src.Track
+   :members:
+   :undoc-members:
+   :show-inheritance:

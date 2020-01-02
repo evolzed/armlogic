@@ -1,0 +1,409 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="zh-CN" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="zh-CN" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>src.Vision.yolo package &mdash; BottleSort0.1 0.1 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script type="text/javascript" src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BottleSort0.1
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">src.Vision.yolo package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-src.Vision.yolo.Yolo">src.Vision.yolo.Yolo module</a></li>
+<li><a class="reference internal" href="#module-src.Vision.yolo.model">src.Vision.yolo.model module</a></li>
+<li><a class="reference internal" href="#module-src.Vision.yolo.utils">src.Vision.yolo.utils module</a></li>
+<li><a class="reference internal" href="#module-src.Vision.yolo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BottleSort0.1</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>src.Vision.yolo package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/src.Vision.yolo.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="src-vision-yolo-package">
+<h1>src.Vision.yolo package<a class="headerlink" href="#src-vision-yolo-package" title="永久链接至标题">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="永久链接至标题">¶</a></h2>
+</div>
+<div class="section" id="module-src.Vision.yolo.Yolo">
+<span id="src-vision-yolo-yolo-module"></span><h2>src.Vision.yolo.Yolo module<a class="headerlink" href="#module-src.Vision.yolo.Yolo" title="永久链接至标题">¶</a></h2>
+<dl class="class">
+<dt id="src.Vision.yolo.Yolo.YOLO">
+<em class="property">class </em><code class="sig-prename descclassname">src.Vision.yolo.Yolo.</code><code class="sig-name descname">YOLO</code><a class="headerlink" href="#src.Vision.yolo.Yolo.YOLO" title="永久链接至目标">¶</a></dt>
+<dd><p>基类：<code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>神经网络YOLO类</p>
+<dl class="method">
+<dt id="src.Vision.yolo.Yolo.YOLO.closeSession">
+<code class="sig-name descname">closeSession</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.Yolo.YOLO.closeSession" title="永久链接至目标">¶</a></dt>
+<dd><p>关闭会话</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.yolo.Yolo.YOLO.detectImage">
+<code class="sig-name descname">detectImage</code><span class="sig-paren">(</span><em class="sig-param">image</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.Yolo.YOLO.detectImage" title="永久链接至目标">¶</a></dt>
+<dd><p>检测图片，画出识别框，输出识别出的类别</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><p><strong>image</strong> – 传入的图片</p>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p>dataDict：构造出的图片数据集(image, timeCost, box:识别出的类别信息[(class, confidence, xmin, ymin, xmax, ymax),…])。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="src.Vision.yolo.Yolo.YOLO.generate">
+<code class="sig-name descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.Yolo.YOLO.generate" title="永久链接至目标">¶</a></dt>
+<dd><p>载入模型，或构造模型和载入权重|Load model, or construct model and load weights</p>
+<dl class="field-list simple">
+<dt class="field-odd">返回</dt>
+<dd class="field-odd"><p>boxes:预测框,scores:得分,classes:类别</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.Vision.yolo.model">
+<span id="src-vision-yolo-model-module"></span><h2>src.Vision.yolo.model module<a class="headerlink" href="#module-src.Vision.yolo.model" title="永久链接至标题">¶</a></h2>
+<p>YOLO_v3 Model Defined in Keras.</p>
+<dl class="function">
+<dt id="src.Vision.yolo.model.DarknetConv2D_BN_Leaky">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">DarknetConv2D_BN_Leaky</code><span class="sig-paren">(</span><em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.DarknetConv2D_BN_Leaky" title="永久链接至目标">¶</a></dt>
+<dd><p>Darknet Convolution2D followed by BatchNormalization and LeakyReLU.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.box_iou">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">box_iou</code><span class="sig-paren">(</span><em class="sig-param">b1</em>, <em class="sig-param">b2</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.box_iou" title="永久链接至目标">¶</a></dt>
+<dd><p>Return iou tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b1</strong> (<em>tensor</em><em>, </em><em>shape=</em><em>(</em><em>i1</em><em>,</em><em>..</em><em>,</em><em>iN</em><em>, </em><em>4</em><em>)</em><em>, </em><em>xywh</em>) – </p></li>
+<li><p><strong>b2</strong> (<em>tensor</em><em>, </em><em>shape=</em><em>(</em><em>j</em><em>, </em><em>4</em><em>)</em><em>, </em><em>xywh</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p><strong>iou</strong></p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>tensor, shape=(i1,..,iN, j)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.darknet_body">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">darknet_body</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.darknet_body" title="永久链接至目标">¶</a></dt>
+<dd><p>Darknent body having 52 Convolution2D layers</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.make_last_layers">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">make_last_layers</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">num_filters</em>, <em class="sig-param">out_filters</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.make_last_layers" title="永久链接至目标">¶</a></dt>
+<dd><p>6 Conv2D_BN_Leaky layers followed by a Conv2D_linear layer</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.preprocess_true_boxes">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">preprocess_true_boxes</code><span class="sig-paren">(</span><em class="sig-param">true_boxes</em>, <em class="sig-param">input_shape</em>, <em class="sig-param">anchors</em>, <em class="sig-param">num_classes</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.preprocess_true_boxes" title="永久链接至目标">¶</a></dt>
+<dd><p>Preprocess true boxes to training input format</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>true_boxes</strong> (<em>array</em><em>, </em><em>shape=</em><em>(</em><em>m</em><em>, </em><em>T</em><em>, </em><em>5</em><em>)</em>) – Absolute x_min, y_min, x_max, y_max, class_id relative to input_shape.</p></li>
+<li><p><strong>input_shape</strong> (<em>array-like</em><em>, </em><em>hw</em><em>, </em><em>multiples of 32</em>) – </p></li>
+<li><p><strong>anchors</strong> (<em>array</em><em>, </em><em>shape=</em><em>(</em><em>N</em><em>, </em><em>2</em><em>)</em><em>, </em><em>wh</em>) – </p></li>
+<li><p><strong>num_classes</strong> (<em>integer</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p><strong>y_true</strong></p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>list of array, shape like yolo_outputs, xywh are reletive value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.resblock_body">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">resblock_body</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">num_filters</em>, <em class="sig-param">num_blocks</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.resblock_body" title="永久链接至目标">¶</a></dt>
+<dd><p>A series of resblocks starting with a downsampling Convolution2D</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.tiny_yolo_body">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">tiny_yolo_body</code><span class="sig-paren">(</span><em class="sig-param">inputs</em>, <em class="sig-param">num_anchors</em>, <em class="sig-param">num_classes</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.tiny_yolo_body" title="永久链接至目标">¶</a></dt>
+<dd><p>Create Tiny YOLO_v3 model CNN body in keras.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.yolo_body">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">yolo_body</code><span class="sig-paren">(</span><em class="sig-param">inputs</em>, <em class="sig-param">num_anchors</em>, <em class="sig-param">num_classes</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.yolo_body" title="永久链接至目标">¶</a></dt>
+<dd><p>Create YOLO_V3 model CNN body in Keras.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.yolo_boxes_and_scores">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">yolo_boxes_and_scores</code><span class="sig-paren">(</span><em class="sig-param">feats</em>, <em class="sig-param">anchors</em>, <em class="sig-param">num_classes</em>, <em class="sig-param">input_shape</em>, <em class="sig-param">image_shape</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.yolo_boxes_and_scores" title="永久链接至目标">¶</a></dt>
+<dd><p>Process Conv layer output</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.yolo_correct_boxes">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">yolo_correct_boxes</code><span class="sig-paren">(</span><em class="sig-param">box_xy</em>, <em class="sig-param">box_wh</em>, <em class="sig-param">input_shape</em>, <em class="sig-param">image_shape</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.yolo_correct_boxes" title="永久链接至目标">¶</a></dt>
+<dd><p>Get corrected boxes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.yolo_eval">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">yolo_eval</code><span class="sig-paren">(</span><em class="sig-param">yolo_outputs</em>, <em class="sig-param">anchors</em>, <em class="sig-param">num_classes</em>, <em class="sig-param">image_shape</em>, <em class="sig-param">max_boxes=20</em>, <em class="sig-param">score_threshold=0.6</em>, <em class="sig-param">iou_threshold=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.yolo_eval" title="永久链接至目标">¶</a></dt>
+<dd><p>Evaluate YOLO model on given input and return filtered boxes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.yolo_head">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">yolo_head</code><span class="sig-paren">(</span><em class="sig-param">feats</em>, <em class="sig-param">anchors</em>, <em class="sig-param">num_classes</em>, <em class="sig-param">input_shape</em>, <em class="sig-param">calc_loss=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.yolo_head" title="永久链接至目标">¶</a></dt>
+<dd><p>Convert final layer features to bounding box parameters.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.model.yolo_loss">
+<code class="sig-prename descclassname">src.Vision.yolo.model.</code><code class="sig-name descname">yolo_loss</code><span class="sig-paren">(</span><em class="sig-param">args</em>, <em class="sig-param">anchors</em>, <em class="sig-param">num_classes</em>, <em class="sig-param">ignore_thresh=0.5</em>, <em class="sig-param">print_loss=False</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.model.yolo_loss" title="永久链接至目标">¶</a></dt>
+<dd><p>Return yolo_loss tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>yolo_outputs</strong> (<em>list of tensor</em><em>, </em><em>the output of yolo_body</em><em> or </em><em>tiny_yolo_body</em>) – </p></li>
+<li><p><strong>y_true</strong> (<em>list of array</em><em>, </em><em>the output of preprocess_true_boxes</em>) – </p></li>
+<li><p><strong>anchors</strong> (<em>array</em><em>, </em><em>shape=</em><em>(</em><em>N</em><em>, </em><em>2</em><em>)</em><em>, </em><em>wh</em>) – </p></li>
+<li><p><strong>num_classes</strong> (<em>integer</em>) – </p></li>
+<li><p><strong>ignore_thresh</strong> (<em>float</em><em>, </em><em>the iou threshold whether to ignore object confidence loss</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">返回</dt>
+<dd class="field-even"><p><strong>loss</strong></p>
+</dd>
+<dt class="field-odd">返回类型</dt>
+<dd class="field-odd"><p>tensor, shape=(1,)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-src.Vision.yolo.utils">
+<span id="src-vision-yolo-utils-module"></span><h2>src.Vision.yolo.utils module<a class="headerlink" href="#module-src.Vision.yolo.utils" title="永久链接至标题">¶</a></h2>
+<p>Miscellaneous utility functions.</p>
+<dl class="function">
+<dt id="src.Vision.yolo.utils.compose">
+<code class="sig-prename descclassname">src.Vision.yolo.utils.</code><code class="sig-name descname">compose</code><span class="sig-paren">(</span><em class="sig-param">*funcs</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.utils.compose" title="永久链接至目标">¶</a></dt>
+<dd><p>Compose arbitrarily many functions, evaluated left to right.</p>
+<p>Reference: <a class="reference external" href="https://mathieularose.com/function-composition-in-python/">https://mathieularose.com/function-composition-in-python/</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.utils.get_random_data">
+<code class="sig-prename descclassname">src.Vision.yolo.utils.</code><code class="sig-name descname">get_random_data</code><span class="sig-paren">(</span><em class="sig-param">annotation_line</em>, <em class="sig-param">input_shape</em>, <em class="sig-param">random=True</em>, <em class="sig-param">max_boxes=20</em>, <em class="sig-param">jitter=0.3</em>, <em class="sig-param">hue=0.1</em>, <em class="sig-param">sat=1.5</em>, <em class="sig-param">val=1.5</em>, <em class="sig-param">proc_img=True</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.utils.get_random_data" title="永久链接至目标">¶</a></dt>
+<dd><p>random preprocessing for real-time data augmentation</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.utils.letterbox_image">
+<code class="sig-prename descclassname">src.Vision.yolo.utils.</code><code class="sig-name descname">letterbox_image</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">size</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.utils.letterbox_image" title="永久链接至目标">¶</a></dt>
+<dd><p>resize image with unchanged aspect ratio using padding</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.Vision.yolo.utils.rand">
+<code class="sig-prename descclassname">src.Vision.yolo.utils.</code><code class="sig-name descname">rand</code><span class="sig-paren">(</span><em class="sig-param">a=0</em>, <em class="sig-param">b=1</em><span class="sig-paren">)</span><a class="headerlink" href="#src.Vision.yolo.utils.rand" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-src.Vision.yolo">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.Vision.yolo" title="永久链接至标题">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, BottleSort0.1
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

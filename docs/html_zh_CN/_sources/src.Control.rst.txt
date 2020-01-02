@@ -1,0 +1,38 @@
+src.Control package
+===================
+
+Submodules
+----------
+
+src.Control.Px2W module
+-----------------------
+
+.. automodule:: src.Control.Px2W
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.Control.cameraCalibration module
+------------------------------------
+
+.. automodule:: src.Control.cameraCalibration
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+src.Control.test\_LYF\_cmd module
+---------------------------------
+
+.. automodule:: src.Control.test_LYF_cmd
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: src.Control
+   :members:
+   :undoc-members:
+   :show-inheritance:
