@@ -43,7 +43,7 @@
   * LICENSE.md     
   
 ## 2.2 系统流程图
-![FlowChart](https://github.com/evolzed/armlogic/blob/BottleSort0.1/docs/pic/FlowChart/BS0.1FC.png)
+![FlowChart](http://192.168.0.203:8088/armlogic/BottleSort/raw/Track/docs/pic/FlowChart/Track_20200102.png)
 
 ## 2.3 数据变量命名规则
 
