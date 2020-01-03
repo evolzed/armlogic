@@ -326,6 +326,37 @@ class ImgProc:
             angle = angle - 180
         return angle
 
+    def getBoxOnlyPic(self, dataDict, frameOrg0):
+        frameOrg = frameOrg0.copy()
+        list =[]
+        if "box" in dataDict:
+            for i in range(len(dataDict["box"])):
+                if dataDict["box"][i][1] > 0.8:
+                    # get the box vertex
+                    left = dataDict["box"][i][2]
+                    top = dataDict["box"][i][3]
+                    right = dataDict["box"][i][4]
+                    bottom = dataDict["box"][i][5]
+                    rectTop = np.array([left, top])
+                    rectBottle = (right - left, bottom - top)
+                    # get the BOX ROI from frame
+                    x = int((left + right)/2)
+                    y = int((top + bottom)/2)
+                    w = abs(left - right)
+                    h = abs(bottom - top)
+                    roi = np.zeros(4, dtype=int)
+                    roi[0] = x
+                    roi[1] = y
+                    roi[2] = w
+                    roi[3] = h
+                    maskroi = creatMaskFromROI(frameOrg, roi)
+                    show = cv2.bitwise_and(frameOrg, frameOrg, mask=maskroi)
+                    list.append(show)
+        if len(list) == 0:
+            list.append(frameOrg)
+        return list
+
+
 
     def getBottlePose(self, frameOrg0, bgMask, dataDict):
         """
@@ -528,13 +559,13 @@ class ImgProc:
         # good_new -good_old
         #print("good_new shape", good_new.shape)
         #print("good_new shape[0]", good_new.shape[0])
-        if np.isnan(good_new).sum() >0 or np.isnan(good_old).sum()>0:
-            return good_new, good_old
+        if np.isnan(good_new).sum() > 0 or np.isnan(good_old).sum() > 0:
+            return good_new, good_old,0
         good_new0 = np.array([[0, 0]])
         good_old0 = np.array([[0, 0]])
         pointLen = good_new.shape[0]
         if pointLen == 0:
-            return good_new, good_old
+            return good_new, good_old,0
         disarray = np.array([])
         for i in range(pointLen):
             dis = self.eDistance(good_new[i], good_old[i])
@@ -558,7 +589,24 @@ class ImgProc:
         good_old0 = np.delete(good_old0, 0, axis=0)
         good_new0 = good_new0.astype(int)
         good_old0 = good_old0.astype(int)
-        return good_new0, good_old0
+
+#calcute the ave speed
+        pointLen0 = good_new0.shape[0]
+        if pointLen0 == 0:
+            return good_new0, good_old0, 0
+        #speedarray = np.array([0, 0])
+        # for i in range(pointLen):
+        #     speed = good_new0[i] - good_old0[i]
+        #     speedarray = np.append(speedarray, speed)
+        # speedarray = np.delete(speedarray,0,axis=0)
+        speedarray = good_new0 - good_old0
+        pointLen0 = good_new0.shape[0]
+        print("offset_origg", speedarray)
+        print("offset_orig", np.sum(speedarray, axis=0))
+        speed = np.sum(speedarray, axis=0)/pointLen0
+
+        #print()
+        return good_new0, good_old0, speed
 
 
     def getBeltSpeed(self, dataDict):
@@ -624,7 +672,7 @@ class ImgProc:
         # find the good corners for track
         cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
         if cornersA is None:
-            return None, None, secondimg_orig
+            return None, None, 0,secondimg_orig
         # criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
         #  cv2.cornerSubPix(featureimg, cornersA, (self.win_size, self.win_size), (-1, -1), criteria)
 
@@ -643,9 +691,11 @@ class ImgProc:
         good_new = cornersB[st == 1]
         good_old = cornersA[st == 1]
 
-        good_new, good_old = self.analyseTrackPoint(good_new, good_old, 30)
-
-
+        good_new, good_old, offset = self.analyseTrackPoint(good_new, good_old, 30)
+        if offset is not None:
+            print("offset0", offset[0])
+            print("offset1", offset[1])
+        #drawing  optimal
 
         #print("distancearr", distancearr)q
         #print("reduce", reduce)
@@ -659,13 +709,19 @@ class ImgProc:
             a, b = new.ravel()  # unfold
             c, d = old.ravel()
             # mask = cv2.line(mask, (a, b), (c, d), color[i].tolist(), 1)
-            mask = cv2.line(mask, (a, b), (c, d), (0, 0, 255), 1)
+            if mask is not None:
+                mask = cv2.line(mask, (a, b), (c, d), (0, 0, 255), 1)
 
-            if self.eDistance(np.array(list((a, b))), np.array(list((c, d)))) > 10:
+            if self.eDistance(np.array(list((a, b))), np.array(list((c, d)))) > 1:
                 # drawimg = cv2.circle(drawimg, (a, b), 5, color[i].tolist(), -1)
                 drawimg = cv2.circle(drawimg, (a, b), 5, (0, 0, 255), -1)
-
-            img = cv2.add(drawimg, mask)
+            if mask is not None:
+                img = cv2.add(drawimg, mask)
+                if offset is not None:
+                    cv2.line(drawimg, (a, b), (a-int(offset[0]), b-int(offset[1])), (0, 255, 255), 3)
+            else:
+                cv2.line(drawimg, (a, b), (c, d), (0, 0, 255), 1)
+                img = drawimg
 
         """
         for i in range(corners_cnt):
@@ -676,7 +732,7 @@ class ImgProc:
 
             cv2.line(drawimg, p0, p1, (0, 255, 255), 1)
         """
-        return good_new, good_old, img
+        return good_new, good_old, offset, img
 
 
 def creatMaskFromROI(src, roi):
@@ -772,7 +828,7 @@ if __name__ == "__main__":
             # drawimg = mask.copy()
             trakSart = timer()
             #good_new, good_old, drawimg = obj.lkLightflow_track(preFrame, frame, mask)
-            good_new, good_old, drawimg = obj.lkLightflow_track(preframeDelBg, frameDelBg, premask)
+            good_new, good_old, offset, drawimg = obj.lkLightflow_track(preframeDelBg, frameDelBg, premask)
             #print("good_new.shape:", good_new.shape)
             #print("good_old.shape:", good_old.shape)
             cv2.imshow("res", drawimg)

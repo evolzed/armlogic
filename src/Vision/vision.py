@@ -122,6 +122,8 @@ class Vision(object):
         #     cam.press_any_key_exit()
 
         #trackObj = ImageTrack()
+        preframe, nFrame, t = cam.getImage()
+        k = 1
         while True:
             # try:
             _frame, nFrame, t = cam.getImage()
@@ -156,6 +158,44 @@ class Vision(object):
             dataDict["nFrame"] = nFrame
             dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
             # arr = np.asarray(dataDict["image"])
+            imglist = self.imgproc.getBoxOnlyPic(dataDict, preframe)
+            imglistk = self.imgproc.getBoxOnlyPic(dataDict, _frame)
+            good_new, good_old, offset, img = self.imgproc.lkLightflow_track(imglist[0], imglistk[0], None)
+            print("offset.shape[0]", offset.shape[0])
+            if offset.shape[0] == 2:
+                print("offset0", offset[0])
+                print("offset1", offset[1])
+                print("offset", offset)
+            cv2.imshow("orig", _frame)
+            if "box" in dataDict:
+                left = 0
+                top = 0
+                right = 0
+                bottom = 0
+                if dataDict["box"][0][1] > 0.9:
+                    
+                    if k < 3:
+                        left = dataDict["box"][0][2] + int(offset[0])
+                        top = dataDict["box"][0][3] + int(offset[1])
+                        right = dataDict["box"][0][4] + int(offset[0])
+                        bottom = dataDict["box"][0][5] + int(offset[1])
+                        k = k + 5
+                    else:
+                        left += int(offset[0])
+                        top += int(offset[1])
+                        right += int(offset[0])
+                        bottom += int(offset[1])
+                        k=k-1
+
+
+
+                    myshow = _frame.copy()
+                    cv2.rectangle(img, (left, top), (right, bottom), (0, 0, 255), 2)
+                    # cv2.circle(img, (dataDict["box"][0][2], dataDict["box"][0][3]), 4, (255, 0, 255))
+                    cv2.circle(img, (left, top), 4, (0, 255, 255))
+                    cv2.imshow("my", img)
+
+
             if bgMask is not None:
                 dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)
             cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -176,6 +216,7 @@ class Vision(object):
             #     # gState = 3
             #     print(e)
             #     break
+        preframe = _frame
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
