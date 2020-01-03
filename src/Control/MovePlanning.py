@@ -42,28 +42,28 @@ def ResetRobotPosition():
 # RobotOn = 1  # 机械臂已连接
 RobotOn = 0  # 机械臂未连接
 
-
+# DataBase  数据源
 # BottleType, u, v, angle2Xw, BottleHeight,Xw, Yw, Zw, isInside |模拟矩阵，angle2Xw的取值范围为-90°到90°
 #     0       1  2      3          4       5    6   7      8
 bottleDict = {"box": [["Bottle1", 745, 439, -45, 55],
                       ["Bottle2", 896, 437, -90, 55],
                       ["Bottle3", 631, 440, 90, 55]], "ABC1": [1, 2, 3], "ABC2": [1, 2, 3]}
-PI = 3.1415926  # 圆周率
-uArmbottom_P = [0, 0, 0]  # 机械臂基坐标系下，机械臂底座中心的位置，单位mm
 
+#  LoadData  载入数据
+bottleInfo = bottleDict["box"]  # 瓶子信息
+PI = 3.1415926  # 圆周率
+
+#  Px2World  从像素坐标计算到世界坐标系下的坐标，计算位置矢量，计算物理距离，并放入瓶子信息矩阵
+uArmbottom_P = [0, 0, 0]  # 机械臂基坐标系下，机械臂底座中心的位置，单位mm
 world2uarm_R = Rz(0.47*PI)  # 世界坐标系绕z轴转90度(实际可能不是准确的90°)后，与机械臂基坐标系重合的旋转矩阵
 # 方法1：直接从样机系统试验，修改位置矢量
 world2uarm_P = np.array([[290], [-335], [0]])  # 世界坐标系原点相在机械臂基坐标系的位置矢量，单位mm,uv=750，630
 # 方法2： 从图片中找到机械臂基坐标系原点的像素坐标，再转换成世界坐标系下的值
 # world2uarm_P = -Px2World(733, 639, Zc, IntrinsicMtx, ExtrinsicMtx)  # 机械臂基坐标系原点像素坐标系中的坐标转换成世界坐标系下的平移矢量，加负号转换成机械臂基坐标系下的矢量
 # world2uarm_P = np.dot(Rz(world2uarm_R), world2uarm_P)  # 旋转坐标轴
-
-bottleInfo = bottleDict["box"]  # 瓶子信息矩阵
 ratio = 1.2  # 宽度代替高度时，像素映射到实际物理距离的比值
 numRow = np.shape(bottleInfo)  # 瓶子数目
 
-
-#  从像素坐标计算到世界坐标系下的坐标，计算位置矢量，计算物理距离，并放入瓶子信息矩阵
 for i in range(0, numRow[0]):
     world_P = Px2World(bottleInfo[i][1], bottleInfo[i][2], Zc, IntrinsicMtx, ExtrinsicMtx)  # 根据像素信息计算瓶子在世界坐标系下的位置矢量
     uarm_P = world2uarm_P + np.dot(world2uarm_R, world_P)  # 机械臂基坐标系下的坐标
@@ -73,7 +73,7 @@ for i in range(0, numRow[0]):
     bottleHeight = int(bottleInfo[i][4] * ratio)  # 按比例计算瓶子高度
     bottleInfo[i].append(bottleHeight)  # 将瓶子高度添加进数组
 
-    # Policy 抓取分拣策略
+# MovePolicy 分拣策略
     # 机械臂工作空间筛选
     if distance2uArm <= 100 or distance2uArm >= 340:  # 去除圆环外的区域
         isInside = 0  # 0/1代表是否在规定的工作区间内
@@ -88,7 +88,7 @@ for i in range(0, numRow[0]):
 bottleInfo.sort(key=operator.itemgetter(6), reverse=True)  # 对矩阵的第六列的值（Y）进行升序排列，数值大的先取
 # print(bottleInfo)
 
-# MovePlanning 运动规划部分
+# MovePlanning 运动规划
 if RobotOn == 1:
     swift = SwiftAPI(filters={'hwid': 'USB VID:PID=2341:0042'}, enable_handle_thread=False)
     swift.waiting_ready()  # 等待手臂完成初始化
