@@ -43,7 +43,7 @@
   * LICENSE.md     
   
 ## 2.2 系统流程图
-![FlowChart](http://192.168.0.203:8088/armlogic/BottleSort/raw/Track/docs/pic/FlowChart/Track_20200102.png)
+![FlowChart](http://192.168.0.203:8088/armlogic/BottleSort/raw/Track/docs/pic/FlowChart/Track_20200103.png)
 
 ## 2.3 数据变量命名规则
 
@@ -106,7 +106,6 @@
 | Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
 
 >>>>>>> e37de98efe0758be20affa29c5d30d0aad575bb4
-
 
 ----
 
