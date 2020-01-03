@@ -54,7 +54,7 @@
 | library |  bgDict  | #address to image file location and processed flag | #%.JPG | bool processed ||||
 | global |  gDir  | #direction of the moving belt | int gDir | ||||
 | library |  bottleDict  | #sorted bottle information | {"image":imagedata,"box":[(bottletype1, confidence, xmin, ymin, xmax, ymax),(bottletype2, confidence, xmin, ymin, xmax, ymax),···]，"bgTimeCost":time,"timeCost":time,"nFrame":camNumFrame} |  |  | | |
-| library | targetDict | #target track information | {"target":[(UUID, trackFlag, postion, speed, angle, type, typeCounter, nFrame, bgTimeCost, timeCost, trackTimeCost)]} | | | | |
+| library | targetDict | #target track information | {"target":[(UUID, trackFlag, postion, speed, angle, type, typeCounter, "nFrame":camNumFrame, <br />"bgTimeCost":time, <br />"timeCost":time, <br />"targetTrackTime":time)]} | | | | |
 | path | bgPic | #file location for bgPic ||||||
 
 ## 2.4 功能包文档填写说明
