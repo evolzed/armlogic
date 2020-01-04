@@ -21,12 +21,12 @@ class Track:
         # 创建新的target并标记uuid
         targetDict = dict()
         targetLists = list()
-        trackFlag = "0"
-        position = "0"
-        speed = "0"
-        angle = "0"
-        type = "0"
-        typeCounter = "0"
+        trackFlag = 0
+        position = [300, 300]
+        speed = [10, 10]
+        angle = 0
+        type = 0
+        typeCounter = 0
         nFrame = bottleDict.get("nFrame")
         bgTimeCost = bottleDict.get("bgTimeCost")
         timeCost = bottleDict.get("timeCost")
@@ -60,17 +60,21 @@ class Track:
         :param targetDict: 上一步的目标物的信息
         :return: 同一UUID下的目标物的信息更新；
         """
-        deltaT = 0.02
+        deltaT = 0.8
 
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
-        timeCost = newTargetDict.get("timeCost")
+        frameTime = newTargetDict.get("frameTime")
+        # print(frameTime)
         newTargetDictLists = oldTargetDict.get("target")
         # 循环遍历，更新target
         for i in range(len(newTargetDictLists)):
-            newTargetDictLists[i][2] = str(float(newTargetDictLists[i][3]) * deltaT)
+            newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * deltaT
+            newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * deltaT
 
-        newTargetDict.setdefault("targetTrackTime", str(float(timeCost) + deltaT) )
+        # newTargetDict.setdefault("targetTrackTime", float(frameTime) + deltaT)
+        newTargetDict["targetTrackTime"] = frameTime + deltaT
+        print(str(newTargetDict["frameTime"]) + "    " + str(newTargetDict["targetTrackTime"]))
         # print(newTargetDict)
         # print(float(newTargetDictLists[1][3]) * deltaT)
         return newTargetDict
@@ -119,10 +123,10 @@ class Track:
 if __name__ == "__main__":
 
     # 测试用例，此处bottleDict使用的非BS0.1中bottledict，而是将来为Main中提供的传参！
-    bottledict1 = {'target': ["da5b6600-2b6e-11ea-8937-985fd3d62bfb", "11", "66", "11", "11", "11", "11"],
-                   'bgTimeCost': 0.09634879999999946, 'timeCost': 1578021152.9692435, 'nFrame': 222}
-    bottledict2 = {'target': [["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", "11", "77", "11", "11", "11", "11"],
-                              ["kkkkkkkk-2b6e-11ea-a086-985fd3d62bfb", "11", "88", "11", "11", "11", "11"]],
-                   'bgTimeCost': 0.10440749999999888, 'timeCost': 1578021153.380255, 'nFrame': 229}
+    bottledict1 = {'target': ["da5b6600-2b6e-11ea-8937-985fd3d62bfb", 0, [300, 300], [10, 10], 0, 0, 0],
+                   'bgTimeCost': 0.09634879999999946, 'timeCost': 1578021152.9692435, 'nFrame': 222, 'frameTime': 0}
+    bottledict2 = {'target': [["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", 0, [300, 300], [10, 10], 0, 0, 0],
+                              ["kkkkkkkk-2b6e-11ea-a086-985fd3d62bfb", 0, [400, 400], [10, 10], 0, 0, 0]],
+                   'bgTimeCost': 0.10440749999999888, 'timeCost': 1578021153.380255, 'nFrame': 229, 'frameTime': 0}
     # track1 = Track().createTarget(bottledict1)        # 测试createTarget
     track2 = Track().updateTarget(bottledict2)      # 测试updateTarget
