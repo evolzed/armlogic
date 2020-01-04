@@ -123,7 +123,15 @@ class Vision(object):
 
         #trackObj = ImageTrack()
         preframe, nFrame, t = cam.getImage()
+        preframeb, bgMaskb, resarrayb = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
         k = 1
+        startt = timer()
+        left = 0
+        top = 0
+        right =0
+        bottom =0
+        flag = 1
+
         while True:
             # try:
             _frame, nFrame, t = cam.getImage()
@@ -160,7 +168,77 @@ class Vision(object):
             # arr = np.asarray(dataDict["image"])
             imglist = self.imgproc.getBoxOnlyPic(dataDict, preframe)
             imglistk = self.imgproc.getBoxOnlyPic(dataDict, _frame)
-            good_new, good_old, offset, img = self.imgproc.lkLightflow_track(imglist[0], imglistk[0], None)
+            # good_new, good_old, offset, img = self.img
+            # proc.lkLightflow_track(imglist[0], imglistk[0], None)
+            if flag == 1:
+                good_new, good_old, offset, img = self.imgproc.lkLightflow_track(preframeb, frame, None, None)
+            preframe = _frame
+            preframeb = frame.copy()
+            if "box" in dataDict and dataDict["box"][0][1] > 0.90 and good_new is not None and good_old is not None\
+                    and dataDict["box"][0][3] > 206 and flag == 1:
+                le = dataDict["box"][0][2]
+                t = dataDict["box"][0][3]
+                r = dataDict["box"][0][4]
+                b = dataDict["box"][0][5]
+                #filter the points not in the box
+                good_new = good_new[(le < good_new[:, 0]) & (good_new[:, 0] < r) &
+                                    (b < good_new[:, 1]) & (good_new[:, 1] < t)]
+
+                good_old = good_old[(le < good_old[:, 0]) & (good_old[:, 0] < r) &
+                                    (b < good_old[:, 1]) & (good_old[:, 1] < t)]
+
+                for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
+                    a, b = new.ravel()  # unfold
+                    c, d = old.ravel()
+                    img = cv2.circle(img, (a, b), 4, (100, 100, 155), -1)  #color
+
+                flag =0
+            if flag == 0:
+                good_new, good_old, offset, img = self.imgproc.lkLightflow_track(preframeb, frame, None, good_new)
+                print("*"*50)
+                # speedarray = good_new - good_old
+                # pointLen0 = good_new.shape[0]
+                # print("offset_diff_array", speedarray)
+                # print("offset_array_sum", np.sum(speedarray, axis=0))
+                # speed = np.sum(speedarray, axis=0) / pointLen0
+                # if np.isnan(speed[0]):
+                #     speed = np.array([0, 0])
+                """
+                if timer()-startt < 5:
+                    img = cv2.circle(img, (100, 100), 20, (0, 0, 255), -1)  # color
+                    left = dataDict["box"][0][2]
+                    top = dataDict["box"][0][3]
+                    right = dataDict["box"][0][4]
+                    bottom = dataDict["box"][0][5]
+                    cv2.rectangle(img, (left, top), (right, bottom), (0, 0, 255), 2)  # red is track box
+                else:
+                    img = cv2.circle(img, (100, 100), 20, (255, 0, 0), -1)  # bule
+                    # print("*" * 50)
+                    # print(speed[0])
+                    # print(type(speed[0]))
+                    # print("*" * 50)
+                    # if speed[0] is np.nan:
+                    #     speed = np.array([0, 0])
+                    #only adapt  the fast speed
+                    left += 1*int(offset[0]+0.5)
+                    top += 1*int(offset[1]+0.5)
+                    right += 1*int(offset[0]+0.5)
+                    bottom += 1*int(offset[1]+0.5)
+                    cv2.rectangle(img, (left, top), (right, bottom), (0, 0, 255), 2)  # red is track box
+                    if timer() - startt > 15:
+                        startt =timer()
+
+
+                cv2.rectangle(img, (le, t), (r, b), (255, 0, 0), 2)
+
+                cv2.putText(img, text=str(int(offset[0])), org=(150, 35), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                            fontScale=1, color=(0, 255, 255), thickness=2)
+                cv2.putText(img, text=str(int(offset[1])), org=(400, 35), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                            fontScale=1, color=(0, 255, 255), thickness=2)
+
+                """
+            cv2.imshow("my", img)
+            """
             print("offset.shape[0]", offset.shape[0])
             if offset.shape[0] == 2:
                 print("offset0", offset[0])
@@ -173,7 +251,6 @@ class Vision(object):
                 right = 0
                 bottom = 0
                 if dataDict["box"][0][1] > 0.9:
-                    
                     if k < 3:
                         left = dataDict["box"][0][2] + int(offset[0])
                         top = dataDict["box"][0][3] + int(offset[1])
@@ -187,14 +264,11 @@ class Vision(object):
                         bottom += int(offset[1])
                         k=k-1
 
-
-
                     myshow = _frame.copy()
                     cv2.rectangle(img, (left, top), (right, bottom), (0, 0, 255), 2)
                     # cv2.circle(img, (dataDict["box"][0][2], dataDict["box"][0][3]), 4, (255, 0, 255))
                     cv2.circle(img, (left, top), 4, (0, 255, 255))
-                    cv2.imshow("my", img)
-
+            """
 
             if bgMask is not None:
                 dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)
@@ -211,12 +285,12 @@ class Vision(object):
             global bottleDict
             bottleDict = dataDict
                 # print(dataDict)
-            # except Exception as e:
+            # except Exception as e:offset_diff_array
             #     # global gState
             #     # gState = 3
             #     print(e)
             #     break
-        preframe = _frame
+
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
