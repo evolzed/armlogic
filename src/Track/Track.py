@@ -3,7 +3,10 @@
 import os
 import sys
 import uuid
-
+from src.Vision.camera import Camera
+import cv2
+from src.Vision.imageProcess.imgProc import ImgProc
+import time
 
 class Track:
     """
@@ -80,7 +83,6 @@ class Track:
         # print(float(newTargetDictLists[1][3]) * deltaT)
         return newTargetDict
 
-
     def checkTarget(self,bottleDict):
         """
         检查target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
@@ -123,11 +125,36 @@ class Track:
 
 if __name__ == "__main__":
 
-    # 测试用例，此处bottleDict使用的非BS0.1中bottledict，而是将来为Main中提供的传参！
-    bottledict1 = {'target': ["da5b6600-2b6e-11ea-8937-985fd3d62bfb", 0, [300, 300], [10, 10], 0, 0, 0],
-                   'bgTimeCost': 0.09634879999999946, 'timeCost': 1578021152.9692435, 'nFrame': 222, 'frameTime': 0}
-    bottledict2 = {'target': [["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", 0, [300, 300], [10, 10], 0, 0, 0],
-                              ["kkkkkkkk-2b6e-11ea-a086-985fd3d62bfb", 0, [400, 400], [10, 10], 0, 0, 0]],
-                   'bgTimeCost': 0.10440749999999888, 'timeCost': 1578021153.380255, 'nFrame': 229, 'frameTime': 0}
-    # track1 = Track().createTarget(bottledict1)        # 测试createTarget
-    track2 = Track().updateTarget(bottledict2)      # 测试updateTarget
+    # # 测试用例，此处bottleDict使用的非BS0.1中bottledict，而是将来为Main中提供的传参！
+    # bottledict1 = {'target': ["da5b6600-2b6e-11ea-8937-985fd3d62bfb", 0, [300, 300], [10, 10], 0, 0, 0],
+    #                'bgTimeCost': 0.09634879999999946, 'timeCost': 1578021152.9692435, 'nFrame': 222, 'frameTime': 0}
+    # bottledict2 = {'target': [["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", 0, [300, 300], [10, 10], 0, 0, 0],
+    #                           ["kkkkkkkk-2b6e-11ea-a086-985fd3d62bfb", 0, [400, 400], [10, 10], 0, 0, 0]],
+    #                'bgTimeCost': 0.10440749999999888, 'timeCost': 1578021153.380255, 'nFrame': 229, 'frameTime': 0}
+    # # track1 = Track().createTarget(bottledict1)        # 测试createTarget
+    # track2 = Track().updateTarget(bottledict2)      # 测试updateTarget
+
+    cam = Camera()
+    bottledict = {'target': [["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", 0, [100, 100], [50, 50], 0, 0, 0],
+                              ["kkkkkkkk-2b6e-11ea-a086-985fd3d62bfb", 0, [400, 400], [50, 50], 0, 0, 0]],
+                  'bgTimeCost': 0.10440749999999888, 'timeCost': 1578021153.380255, 'nFrame': 0, 'frameTime': 0, 'targetTrackTime':0}
+    tempdict = bottledict
+
+    while True:
+        _frame, nFrame, t = cam.getImage()
+        tempdict["nFrame"] = nFrame
+        tempdict["frameTime"] = t
+
+        if (tempdict["targetTrackTime"] == 0 or abs(t - tempdict["targetTrackTime"]) < 0.07 ):
+            tempdict = Track().updateTarget(tempdict)
+            [a, b] = tempdict["target"][0][2]
+            cv2.rectangle(_frame, (int(a), int(b)), (int(a) + 50, int(b) + 50), (125, 0, 125), 4)
+            print(time.time())
+        cv2.imshow("test", _frame)
+        tempImgproc = ImgProc(10)
+
+        frame, bgMask, resarray = tempImgproc.delBg(_frame) if tempImgproc else (_frame, None)
+
+        if cv2.waitKey(1) & 0xFF == ord("q"):
+            break
+
