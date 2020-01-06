@@ -12,6 +12,10 @@ from src.Track.Track import Track
 if __name__ == '__main__':
     cam = Camera()
 
+
+
+
+    # test
     bottledict = {'target': [["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", 0, [300, 300], [10, 10], 0, 0, 0],
                               ["kkkkkkkk-2b6e-11ea-a086-985fd3d62bfb", 0, [400, 400], [10, 10], 0, 0, 0]],
                   'bgTimeCost': 0.10440749999999888, 'timeCost': 1578021153.380255, 'nFrame': 0, 'frameTime': 0, 'targetTrackTime':0}
