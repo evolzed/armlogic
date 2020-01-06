@@ -67,13 +67,14 @@ class Track:
         frameTime = newTargetDict.get("frameTime")
         # print(frameTime)
         newTargetDictLists = oldTargetDict.get("target")
-        # 循环遍历，更新target
+        # 循环遍历，更新target，
         for i in range(len(newTargetDictLists)):
             newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * (10 * deltaT)
             newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * (10 * deltaT)
 
         # newTargetDict.setdefault("targetTrackTime", float(frameTime) + deltaT)
-        newTargetDict["targetTrackTime"] = frameTime + deltaT
+        # targetTrackTime 更新为10倍Δt后：
+        newTargetDict["targetTrackTime"] = frameTime + (10 * deltaT)
         print(str(newTargetDict["frameTime"]) + "    " + str(newTargetDict["targetTrackTime"]))
         # print(newTargetDict)
         # print(float(newTargetDictLists[1][3]) * deltaT)
