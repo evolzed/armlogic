@@ -60,7 +60,7 @@ class Track:
         :param targetDict: 上一步的目标物的信息
         :return: 同一UUID下的目标物的信息更新；
         """
-        deltaT = 0.8
+        deltaT = 0.1
 
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
@@ -69,8 +69,8 @@ class Track:
         newTargetDictLists = oldTargetDict.get("target")
         # 循环遍历，更新target
         for i in range(len(newTargetDictLists)):
-            newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * deltaT
-            newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * deltaT
+            newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * (10 * deltaT)
+            newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * (10 * deltaT)
 
         # newTargetDict.setdefault("targetTrackTime", float(frameTime) + deltaT)
         newTargetDict["targetTrackTime"] = frameTime + deltaT
