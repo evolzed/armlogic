@@ -21,40 +21,46 @@ class Track:
         :return: 新的带UUID的targetDict
         """
 
-        # 创建新的target并标记uuid
+        # 创建新的target并标记uuid 返回给bottleDict
         targetDict = dict()
-        targetLists = list()
-        trackFlag = 0
-        position = [300, 300]
-        speed = [10, 10]
-        angle = 0
-        type = 0
-        typeCounter = 0
+
+        targetList = list()
+
         nFrame = bottleDict.get("nFrame")
         bgTimeCost = bottleDict.get("bgTimeCost")
         timeCost = bottleDict.get("timeCost")
 
-        targetDict.setdefault("target", targetLists)
+        targetDict.setdefault("target", targetList)
 
-        uuID = str(uuid.uuid1())    # 自己创建，用uuid1 打上 UUID
-        targetLists.append(uuID)
-        targetLists.append(trackFlag)
-        targetLists.append(position)
-        targetLists.append(speed)
-        targetLists.append(angle)
-        targetLists.append(type)
-        targetLists.append(typeCounter)
+        for i in range(len(bottleDict.get("box"))):
+            tempList = list()
+            trackFlag = 0
+            position = [int((bottleDict["box"][i][2] + bottleDict["box"][i][4]) / 2),
+                        int((bottleDict["box"][i][3] + bottleDict["box"][i][5]) / 2)]
+            speed = [10, 10]
+            angle = 0
+            type = 0
+            typeCounter = 0
+            uuID = str(uuid.uuid1())    # 自己创建，用uuid1 打上 UUID
+            tempList.append(uuID)
+            tempList.append(trackFlag)
+            tempList.append(position)
+            tempList.append(speed)
+            tempList.append(angle)
+            tempList.append(type)
+            tempList.append(typeCounter)
+            targetList.append(tempList)
         targetDict.setdefault("nFrame", nFrame)
         targetDict.setdefault("bgTimeCost", bgTimeCost)
         targetDict.setdefault("timeCost", timeCost)
-        # targetLists.append('\n')
+        # tempList.append('\n')
 
         # file = open("targetDict_test.txt", "a")
-        # for target in targetLists:
+        # for target in tempList:
         #     file.writelines(target + ", ")
         # file.writelines("\n")
-        print(targetDict)
-        return targetDict
+        print(targetDict, uuID)
+        return targetDict, uuID
 
     def updateTarget(self,targetDict):
         """
@@ -73,14 +79,14 @@ class Track:
         for i in range(len(newTargetDictLists)):
             newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * (10 * deltaT)
             newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * (10 * deltaT)
-
+            cv2.rectangle(_frame, (int(newTargetDictLists[i][2][0]), int(newTargetDictLists[i][2][1])),
+                          (int(newTargetDictLists[i][2][0]) + 50, int(newTargetDictLists[i][2][0]) + 50), (125, 0, 125), 4)
+            # print(i)
         # targetTrackTime 更新为10倍Δt后：
         newTargetDict["targetTrackTime"] = frameTime + (10 * deltaT)
-        [a, b] = newTargetDict["target"][0][2]
-        cv2.rectangle(_frame, (int(a), int(b)), (int(a) + 50, int(b) + 50), (125, 0, 125), 4)
-
+        # [a, b] = newTargetDict["target"][0][2]
+        # cv2.rectangle(_frame, (int(a), int(b)), (int(a) + 50, int(b) + 50), (125, 0, 125), 4)
         print("frameTime:" + str(newTargetDict["frameTime"]) + "     targetTrackTime:" + str(newTargetDict["targetTrackTime"])  + "     realTime:" + str(time.time()))
-
         return newTargetDict
 
     def checkTarget(self,bottleDict):
@@ -97,11 +103,11 @@ class Track:
 
         # 逐行读取多行文件中的targetDict，与更新成UUID为相同一个的bottleDict中的值
         while True:
-            targetLists = file.readlines(10000)
+            tempList = file.readlines(10000)
 
-            if not targetLists:
+            if not tempList:
                 break
-            for targetList in targetLists:
+            for targetList in tempList:
                 # 对比UUID ，假如一样则执行更新
                 # 临时tempLists
                 tempLists = bottleDict.get("target")
@@ -135,10 +141,17 @@ if __name__ == "__main__":
     # track2 = Track().updateTarget(bottledict2)      # 测试updateTarget
 
     cam = Camera()
-    bottledict = {'target': [["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", 0, [100, 100], [50, 50], 0, 0, 0],
+
+    bottleDict = {"image": 0, "box": [(3, 0.9, 0, 0, 200, 200),
+                                      (2, 0.9, 0, 0, 500, 500)],
+                  "bgTimeCost": 0, "timeCost": 0, "nFrame": 0}
+
+    targetDict = {'target': [["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", 0, [100, 100], [50, 50], 0, 0, 0],
                               ["kkkkkkkk-2b6e-11ea-a086-985fd3d62bfb", 0, [400, 400], [50, 50], 0, 0, 0]],
                   'bgTimeCost': 0.10440749999999888, 'timeCost': 1578021153.380255, 'nFrame': 0, 'frameTime': 0, 'targetTrackTime':0}
-    tempdict = bottledict
+    tempdict = targetDict
+
+    Track().createTarget(bottleDict)
 
     while True:
         _frame, nFrame, t = cam.getImage()
