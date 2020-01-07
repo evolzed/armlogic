@@ -150,6 +150,24 @@
 | 5个瓶子时识别准确率 |     ![识别准确率](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/5acc.jpg)     | 标准环境中放置固定数量的环境，每帧识别到瓶子的准确率会不稳定 |          提高识别的准确率          |
 
 ----
+#### 测试环境
+| 名称     | 详情                            |
+| -------- | --------------------------------------- |
+| 硬件     | TX2，PC |
+| 系统    | PyCharm 2016.1.5 |
+| 语言     | python3.6 |
+| 测试模块 | MovePlanning     |
+| 时间 | 2019/12/31 |
+
+#### 测试流程
+
+|                         采集图片数据                         |                         测量参数值                          |             测试结果             |
+| :----------------------------------------------------------: | :---------------------------------------------------------: | :------------------------------: |
+| ![第1张图片数据](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/collection1.bmp) | 第一个瓶子：626，433，80，60；第二个瓶子：813，438，-80，60 | 机械臂吸盘精准到达标定的中心位置 |
+| ![第2张图片数据](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/collection2.bmp) | 第一个瓶子：656，463，-3，60；第二个瓶子：845，458，88，60  | 机械臂吸盘精准到达标定的中心位置 |
+| ![第3张图片数据](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/collection3.bmp) | 第一个瓶子：639，448，-42，60；第二个瓶子：825，434，50，60 | 机械臂吸盘精准到达标定的中心位置 |
+| ![第4张图片数据](https://github.com/evolzed/armlogic/blob/master/docs/pic/Distinguish/collection4.bmp) | 第一个瓶子：646，434，87，60；第二个瓶子：823，438，37，60  | 机械臂吸盘精准到达标定的中心位置 |
+---
 # 4.**总结**
 =======
   * LICENSE.md   
