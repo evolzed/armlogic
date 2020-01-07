@@ -23,35 +23,40 @@ class Track:
 
         # 创建新的target并标记uuid 返回给bottleDict
         targetDict = dict()
-        targetLists = list()
-        trackFlag = 0
-        position = [int((bottleDict["box"][0][2] + bottleDict["box"][0][4]) / 2),
-                    int((bottleDict["box"][0][3] + bottleDict["box"][0][5]) / 2)]
-        speed = [10, 10]
-        angle = 0
-        type = 0
-        typeCounter = 0
+
+        targetList = list()
+
         nFrame = bottleDict.get("nFrame")
         bgTimeCost = bottleDict.get("bgTimeCost")
         timeCost = bottleDict.get("timeCost")
 
-        targetDict.setdefault("target", targetLists)
+        targetDict.setdefault("target", targetList)
 
-        uuID = str(uuid.uuid1())    # 自己创建，用uuid1 打上 UUID
-        targetLists.append(uuID)
-        targetLists.append(trackFlag)
-        targetLists.append(position)
-        targetLists.append(speed)
-        targetLists.append(angle)
-        targetLists.append(type)
-        targetLists.append(typeCounter)
+        for i in range(len(bottleDict.get("box"))):
+            tempList = list()
+            trackFlag = 0
+            position = [int((bottleDict["box"][i][2] + bottleDict["box"][i][4]) / 2),
+                        int((bottleDict["box"][i][3] + bottleDict["box"][i][5]) / 2)]
+            speed = [10, 10]
+            angle = 0
+            type = 0
+            typeCounter = 0
+            uuID = str(uuid.uuid1())    # 自己创建，用uuid1 打上 UUID
+            tempList.append(uuID)
+            tempList.append(trackFlag)
+            tempList.append(position)
+            tempList.append(speed)
+            tempList.append(angle)
+            tempList.append(type)
+            tempList.append(typeCounter)
+            targetList.append(tempList)
         targetDict.setdefault("nFrame", nFrame)
         targetDict.setdefault("bgTimeCost", bgTimeCost)
         targetDict.setdefault("timeCost", timeCost)
-        # targetLists.append('\n')
+        # tempList.append('\n')
 
         # file = open("targetDict_test.txt", "a")
-        # for target in targetLists:
+        # for target in tempList:
         #     file.writelines(target + ", ")
         # file.writelines("\n")
         print(targetDict, uuID)
@@ -98,11 +103,11 @@ class Track:
 
         # 逐行读取多行文件中的targetDict，与更新成UUID为相同一个的bottleDict中的值
         while True:
-            targetLists = file.readlines(10000)
+            tempList = file.readlines(10000)
 
-            if not targetLists:
+            if not tempList:
                 break
-            for targetList in targetLists:
+            for targetList in tempList:
                 # 对比UUID ，假如一样则执行更新
                 # 临时tempLists
                 tempLists = bottleDict.get("target")
