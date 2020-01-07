@@ -128,8 +128,8 @@ class Vision(object):
         startt = timer()
         left = 0
         top = 0
-        right =0
-        bottom =0
+        right = 0
+        bottom = 0
         flag = 1
         inputCorner = np.array([])
 
@@ -143,6 +143,10 @@ class Vision(object):
                          criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
         # good_old = np.array([])
         p0 = np.array([])
+        left = 0
+        top = 0
+        right = 0
+        bottom = 0
         while True:
             # try:
             _frame, nFrame, t = cam.getImage()
@@ -192,16 +196,16 @@ class Vision(object):
                     print("0p0", p0)
                     if "box" in dataDict and dataDict["box"][0][1] > 0.90 and dataDict["box"][0][3] > 180:
                         print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
-                        le = dataDict["box"][0][2]
-                        t = dataDict["box"][0][3]
-                        r = dataDict["box"][0][4]
-                        b = dataDict["box"][0][5]
-                        print("le", le)
-                        print("t", t)
-                        print("r", r)
-                        print("b", b)
+                        left = dataDict["box"][0][2]
+                        top = dataDict["box"][0][3]
+                        right = dataDict["box"][0][4]
+                        bottom = dataDict["box"][0][5]
+                        print("left", left)
+                        print("top", top)
+                        print("right", right)
+                        print("bottom", bottom)
                         # filter the points not in the box
-                        p0 = p0[(le < p0[:, :, 0]) & (p0[:, :, 0] < r) & (t < p0[:, :, 1]) & (p0[:, :, 1] < b)]  #会改变shape
+                        p0 = p0[(left < p0[:, :, 0]) & (p0[:, :, 0] < right) & (top < p0[:, :, 1]) & (p0[:, :, 1] < bottom)]  #会改变shape
                         px = p0.reshape(-1, 1, 2)
                         p0 = px
                         print("1p0.shape", p0.shape)
@@ -259,27 +263,56 @@ class Vision(object):
                 if p0 is not None:
                     p1, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, p0, None, **lk_params)
                     if p1 is not None and st is not None:
-                        print("st.shape", st.shape)
-                        print("good_new.shape", p1.shape)
-                        print("err", err)
+                        # print("st.shape", st.shape)
+                        # print("good_new.shape", p1.shape)
+                        # print("err", err)
                         good_new = p1[st == 1]  # will error when twise  can not use the same
                         good_old = p0[st == 1]  # will error when twise
 
-                        print("pregood_new", good_new)
-                        print("pregood_old", good_old)
+                        # print("pregood_new", good_new)
+                        # print("pregood_old", good_old)
 
                         dis = np.sum((good_new - good_old)**2, axis=1)
                         good_new = good_new[dis.argsort(axis=0)]
                         good_old = good_old[dis.argsort(axis=0)]
+
                         len = good_new.shape[0]
-                        good_new = np.array([good_new[0]])
-                        good_old = np.array([good_old[0]])
+                        if np.size(good_new) > 0:
+                            good_new = np.array([good_new[0]])
+                            good_old = np.array([good_old[0]])
+
+                            offset = good_new - good_old
+                            left +=offset[0, 0]
+                            top += offset[0, 1]
+                            right += offset[0, 0]
+                            bottom += offset[0, 1]
+
+                            print("offset", offset[0, 0])
+                            print("offset", offset[0, 1])
+
+                            print("left", left)
+                            print("top", top)
+                            print("right", right)
+                            print("bottom", bottom)
+                            idd = 1
+                            ID ="ID:" + str(idd)
+                            cv2.rectangle(drawimg, (int(left), int(top)), (int(right), int(bottom)), (0, 0, 255), 2)
+                            cv2.putText(drawimg, text=str(ID), org=(int(left), int(top)),
+                                        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                        fontScale=1, color=(0, 255, 255), thickness=2)
+
+                            cv2.putText(drawimg, text=str(int(offset[0, 0])), org=(150, 35), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                        fontScale=1, color=(0, 255, 255), thickness=2)
+                            cv2.putText(drawimg, text=str(int(offset[0, 1])), org=(400, 35),
+                                        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                        fontScale=1, color=(0, 255, 255), thickness=2)
+
                         # if len > 1:
                         #     good_new = np.delete(good_new, len-1, axis=0)
                         #     good_old = np.delete(good_old, len-1, axis=0)
-                        print("dis", dis)
-                        print("good_new", good_new)
-                        print("good_old", good_old)
+                        # print("dis", dis)
+                        # print("good_new", good_new)
+                        # print("good_old", good_old)
                         print("*" * 50)
                         for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
                             a, b = new.ravel()  # unfold
@@ -291,8 +324,8 @@ class Vision(object):
                             # d = int(d)
                             cv2.line(drawimg, (a, b), (c, d), (0, 255, 255), 1)
                             cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
-                            print("good_new0", good_new)
-                            print("good_old0", good_old)
+                            # print("good_new0", good_new)
+                            # print("good_old0", good_old)
                         # good_old = good_new.copy()
                         p0 = good_new.reshape(-1, 1, 2)
 
@@ -327,6 +360,10 @@ class Vision(object):
                 if "box" not in dataDict or dataDict["box"][0][1] < 0.4:
                     flag = 1
                     cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)#red  track
+                    left = 0
+                    top = 0
+                    right = 0
+                    bottom = 0
 
                 # img = drawimg
 
