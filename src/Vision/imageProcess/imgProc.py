@@ -276,13 +276,13 @@ class ImgProc:
         :param rbox: input rotatebox
         :return: angle: angle that modified
         """
-        print("rbox", rbox)
-        print("rboxtype", type(rbox))
+        # print("rbox", rbox)
+        # print("rboxtype", type(rbox))
         # mrbox=np.array(rbox)
         w = self.eDistance(rbox[0], rbox[1])
         h = self.eDistance(rbox[1], rbox[2])
-        print("w", w)
-        print("h", h)
+        # print("w", w)
+        # print("h", h)
         # 钝角 内积小于0
         xAxisVector = np.array([[0], [1]])
         angle = 0
@@ -292,8 +292,8 @@ class ImgProc:
             v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
 
             v = rbox[1] - rbox[0]
-            print("v:", v)
-            print("vdet", np.dot(v, xAxisVector)[0])
+            # print("v:", v)
+            # print("vdet", np.dot(v, xAxisVector)[0])
             # 内积大于0 是锐角 小于0是钝角
             if np.dot(v, xAxisVector)[0] > 0:
                 angle = - angle
@@ -307,8 +307,8 @@ class ImgProc:
             # find the low point the vector is from low to high
             v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
             v = rbox[1] - rbox[2]
-            print("v:", v)
-            print("vdet", np.dot(v, xAxisVector)[0])
+            # print("v:", v)
+            # print("vdet", np.dot(v, xAxisVector)[0])
             # 内积大于0 是锐角 小于0是钝角
             if np.dot(v, xAxisVector)[0] > 0:
                 angle = - angle
@@ -532,7 +532,7 @@ class ImgProc:
                         rbox = np.int0(rbox)
                         # 画出来
                         cv2.drawContours(frameOrg, [rbox], 0, (255, 0, 255), 1)
-                        cv2.imshow("pos", frameOrg)
+                        # cv2.imshow("pos", frameOrg)
                         # store angle and diameter to the dataDict
                         dataDict["box"][i][6] = angle
                         dataDict["box"][i][7] = diameter
@@ -544,6 +544,8 @@ class ImgProc:
 
     # analyse every point
     def analyseTrackPoint(self, good_new, good_old, precisionThreshold):
+        # offset = np.array([0, 0])
+        # return good_new, good_old, offset
         """
         analyse the track point to get the more precision point
 
@@ -560,12 +562,12 @@ class ImgProc:
         #print("good_new shape", good_new.shape)
         #print("good_new shape[0]", good_new.shape[0])
         if np.isnan(good_new).sum() > 0 or np.isnan(good_old).sum() > 0:
-            return good_new, good_old,0
+            return good_new, good_old, np.array([0, 0])
         good_new0 = np.array([[0, 0]])
         good_old0 = np.array([[0, 0]])
         pointLen = good_new.shape[0]
         if pointLen == 0:
-            return good_new, good_old,0
+            return good_new, good_old, np.array([0, 0])
         disarray = np.array([])
         for i in range(pointLen):
             dis = self.eDistance(good_new[i], good_old[i])
@@ -576,7 +578,7 @@ class ImgProc:
         index = np.where(disarray <= reduce)
         #format need
         index = index[0]
-        print("index", index)
+        # print("index", index)
         # index_total = np.arrange(pointLen)
         # index = set(index.tolist())
         # index_total =set(index_total.tolist())
@@ -593,7 +595,7 @@ class ImgProc:
 #calcute the ave speed
         pointLen0 = good_new0.shape[0]
         if pointLen0 == 0:
-            return good_new0, good_old0, 0
+            return good_new, good_old, np.array([0, 0])
         #speedarray = np.array([0, 0])
         # for i in range(pointLen):
         #     speed = good_new0[i] - good_old0[i]
@@ -601,8 +603,8 @@ class ImgProc:
         # speedarray = np.delete(speedarray,0,axis=0)
         speedarray = good_new0 - good_old0
         pointLen0 = good_new0.shape[0]
-        print("offset_origg", speedarray)
-        print("offset_orig", np.sum(speedarray, axis=0))
+        print("offset_diff_array", speedarray)
+        print("offset_array_sum", np.sum(speedarray, axis=0))
         speed = np.sum(speedarray, axis=0)/pointLen0
 
         #print()
@@ -631,7 +633,7 @@ class ImgProc:
         """""
 
 
-    def lkLightflow_track(self, featureimg, secondimg_orig, mask):
+    def lkLightflow_track(self, featureimg, secondimg_orig, mask,inputCorner):
         """
         function description:
         LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,
@@ -670,9 +672,13 @@ class ImgProc:
         # cv2.imshow("re1s", secondimg)
         corner_count = self.MAX_CORNERS
         # find the good corners for track
-        cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
-        if cornersA is None:
-            return None, None, 0,secondimg_orig
+        if inputCorner is None:
+            cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+            if cornersA is None:
+                return None, None, 0, secondimg_orig
+        else:
+            cornersA = inputCorner.copy()
+
         # criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
         #  cv2.cornerSubPix(featureimg, cornersA, (self.win_size, self.win_size), (-1, -1), criteria)
 
@@ -688,13 +694,19 @@ class ImgProc:
         # which has a value of 1 if next point is found,
         cornersB, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, None, **lk_params)
         # find the point that concerned to be tracked
+        offset = np.array([0, 0])
+        drawimg = secondimg_orig.copy()
+        if cornersB is None:
+            return None, None, offset, drawimg
         good_new = cornersB[st == 1]
         good_old = cornersA[st == 1]
 
-        good_new, good_old, offset = self.analyseTrackPoint(good_new, good_old, 30)
-        if offset is not None:
-            print("offset0", offset[0])
-            print("offset1", offset[1])
+        # good_new, good_old, offset = self.analyseTrackPoint(good_new, good_old, 30)
+        # if offset is not None:
+        #     print("offset0", offset[0])
+        #     print("offset1", offset[1])
+
+
         #drawing  optimal
 
         #print("distancearr", distancearr)q
@@ -702,7 +714,7 @@ class ImgProc:
         # mask = np.zeros_like(drawimg)
         img = np.zeros_like(mask)
         # drawimg = np.zeros_like(mask) # mask every pic excetp the light flow angle
-        drawimg = secondimg_orig.copy()
+
         # mask = drawimg.copy()
         # draw line between the tracked corners of qpre frame and current frameq
         for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
@@ -714,14 +726,17 @@ class ImgProc:
 
             if self.eDistance(np.array(list((a, b))), np.array(list((c, d)))) > 1:
                 # drawimg = cv2.circle(drawimg, (a, b), 5, color[i].tolist(), -1)
-                drawimg = cv2.circle(drawimg, (a, b), 5, (0, 0, 255), -1)
+                drawimg = cv2.circle(drawimg, (a, b), 5, (0, 0, 255), -1)   #red
             if mask is not None:
                 img = cv2.add(drawimg, mask)
-                if offset is not None:
-                    cv2.line(drawimg, (a, b), (a-int(offset[0]), b-int(offset[1])), (0, 255, 255), 3)
+                print("test:", a-int(offset[0]))
+                print("type:", type(int(a-offset[0])))
+
             else:
                 cv2.line(drawimg, (a, b), (c, d), (0, 0, 255), 1)
-                img = drawimg
+                if offset is not None:
+                    cv2.line(drawimg, (a, b), (int(a - offset[0]), int(b - offset[1])), (0, 255, 255), 1)  # yellow
+        img = drawimg
 
         """
         for i in range(corners_cnt):
@@ -794,6 +809,16 @@ if __name__ == "__main__":
         premask = preframeDelBg.copy()
         timeStart = timer()
         timeCnt = 0
+        flag=1
+        feature_params = dict(maxCorners=30,
+                              qualityLevel=0.3,
+                              minDistance=7,  # min distance between corners
+                              blockSize=7)  # winsize of corner
+        # params for lk track
+        lk_params = dict(winSize=(15, 15),
+                         maxLevel=2,
+                         criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+        good_old = np.array([])
         while 1:
             frame, nFrameNum, t = cam.getImage()
             # camra fault tolerant
@@ -811,7 +836,7 @@ if __name__ == "__main__":
             frameDelBg, bgmask, resarray = obj.delBg(frame)
 
             #print(len(resarray))
-
+            """
             if resarray is not None:
                 print("len：", len(resarray))
                 for i in range(len(resarray)):
@@ -819,7 +844,7 @@ if __name__ == "__main__":
                     maskSingle = creatMaskFromROI(frameDelBg, resarray[i])
                     show = cv2.bitwise_and(preframeDelBg, preframeDelBg, mask=maskSingle)
                     #cv2.imshow(str(i), show)
-
+            """
             # put text on frame to display the fps
             cv2.putText(frameDelBg, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(255, 0, 0), thickness=2)
@@ -828,10 +853,51 @@ if __name__ == "__main__":
             # drawimg = mask.copy()
             trakSart = timer()
             #good_new, good_old, drawimg = obj.lkLightflow_track(preFrame, frame, mask)
-            good_new, good_old, offset, drawimg = obj.lkLightflow_track(preframeDelBg, frameDelBg, premask)
+            #good_new, good_old, offset, drawimg = obj.lkLightflow_track(preframeDelBg, frameDelBg, premask)
+
+            drawimg =frameDelBg.copy()
+            featureimg = cv2.cvtColor(preframeDelBg, cv2.COLOR_BGR2GRAY)
+            secondimg = cv2.cvtColor(frameDelBg, cv2.COLOR_BGR2GRAY)
+            if flag == 1:
+
+                cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+                # print("cornersA",cornersA)
+                if cornersA is not None:
+                    if np.size(cornersA) > 0:
+                        cornersB, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, None, **lk_params)
+                        print("cornersB", cornersB)
+                        good_new = cornersB[st == 1]
+                #good_old = cornersA[st == 1]
+                    if good_new is not None:
+                        if np.size(good_new) > 0:
+                            good_old = good_new.copy()
+                            print("good_new", good_new)
+                            for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
+                                a, b = new.ravel()  # unfold
+                                c, d = old.ravel()
+                                cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
+                            flag = 0
+            else:
+                if np.size(good_old)!=0:
+                    good_new, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, good_old, None, **lk_params)
+                    #good_new = good_new[st == 1]  #will error when twise
+                    good_old = good_new.copy()
+                    print("*" * 50)
+                    for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
+                        a, b = new.ravel()  # unfold
+                        c, d = old.ravel()
+                        print("-" * 50)
+                        cv2.line(drawimg, (a, b), (c, d), (0, 0, 255), 1)
+                        cv2.circle(drawimg, (a, b),3, (0, 0, 255), -1)
+                        print("good_new0", good_new)
+                        print("good_old0", good_new)
+
+            # img = drawimg
+
             #print("good_new.shape:", good_new.shape)
             #print("good_old.shape:", good_old.shape)
             cv2.imshow("res", drawimg)
+            cv2.waitKey(10)
             # copy the current frame as preFrame for next use
             #preFrame = frame.copy()
             preframeDelBg = frameDelBg.copy()

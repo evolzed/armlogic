@@ -131,7 +131,18 @@ class Vision(object):
         right =0
         bottom =0
         flag = 1
+        inputCorner = np.array([])
 
+        feature_params = dict(maxCorners=30,
+                              qualityLevel=0.3,
+                              minDistance=7,  # min distance between corners
+                              blockSize=7)  # winsize of corner
+        # params for lk track
+        lk_params = dict(winSize=(15, 15),
+                         maxLevel=2,
+                         criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+        # good_old = np.array([])
+        p0 = np.array([])
         while True:
             # try:
             _frame, nFrame, t = cam.getImage()
@@ -170,6 +181,162 @@ class Vision(object):
             imglistk = self.imgproc.getBoxOnlyPic(dataDict, _frame)
             # good_new, good_old, offset, img = self.img
             # proc.lkLightflow_track(imglist[0], imglistk[0], None)
+            drawimg = preframeb.copy()
+            featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
+            secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            #detect
+            if flag == 1:
+                p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+                if p0 is not None:
+                    print("0p0.shape", p0.shape)
+                    print("0p0", p0)
+                    if "box" in dataDict and dataDict["box"][0][1] > 0.90 and dataDict["box"][0][3] > 180:
+                        print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
+                        le = dataDict["box"][0][2]
+                        t = dataDict["box"][0][3]
+                        r = dataDict["box"][0][4]
+                        b = dataDict["box"][0][5]
+                        print("le", le)
+                        print("t", t)
+                        print("r", r)
+                        print("b", b)
+                        # filter the points not in the box
+                        p0 = p0[(le < p0[:, :, 0]) & (p0[:, :, 0] < r) & (t < p0[:, :, 1]) & (p0[:, :, 1] < b)]  #会改变shape
+                        px = p0.reshape(-1, 1, 2)
+                        p0 = px
+                        print("1p0.shape", p0.shape)
+                        print("1p0", p0)
+
+                        print("change!!!!!!!!!!!!!!!!!!!!!!!!!change!!!!!!!!!!!!!!!")
+                        flag = 0
+                        # cv2.circle(drawimg, (100, 100), 15, (255, 0, 0), -1)  # blue  detect
+                #cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+                """
+                # print("cornersA",cornersA)
+                if cornersA is not None:
+                    if np.size(cornersA) > 0:
+                        cornersB, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, None, **lk_params)
+                        print("cornersB", cornersB)
+                        good_new = cornersB[st == 1]
+                        good_old = cornersA[st == 1]
+                    if good_new is not None:
+                        if np.size(good_new) > 0:
+                            good_old = good_new.copy()
+                            print("good_old", good_old)
+                            for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
+                                a, b = new.ravel()  # unfold
+                                c, d = old.ravel()
+                                # cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
+
+                            if "box" in dataDict and dataDict["box"][0][1] > 0.90 and dataDict["box"][0][3] > 180:
+                                print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
+                                le = dataDict["box"][0][2]
+                                t = dataDict["box"][0][3]
+                                r = dataDict["box"][0][4]
+                                b = dataDict["box"][0][5]
+                                print("le", le)
+                                print("t", t)
+                                print("r", r)
+                                print("b", b)
+                                # filter the points not in the box
+                                good_new = good_new[(le < good_new[:, 0]) & (good_new[:, 0] < r) &
+                                                    (t < good_new[:, 1]) & (good_new[:, 1] < b)]
+
+                                good_old = good_old[(le < good_old[:, 0]) & (good_old[:, 0] < r) &
+                                                    (t < good_old[:, 1]) & (good_old[:, 1] < b)]
+                                if np.size(good_old) > 0:
+                                    for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
+                                        a, b = new.ravel()  # unfoldq c
+                                        c, d = old.ravel()
+                                        # img = cv2.circle(img, (a, b), 4, (100, 100, 155), -1)  # color
+
+                                    print("change!!!!!!!!!!!!!!!!!!!!!!!!!change!!!!!!!!!!!!!!!")
+                                    flag = 0
+                                    cv2.circle(drawimg, (100, 100), 15, (255, 0, 0), -1) #blue  detect
+                """
+            else:
+                # track
+                if p0 is not None:
+                    p1, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, p0, None, **lk_params)
+                    if p1 is not None and st is not None:
+                        print("st.shape", st.shape)
+                        print("good_new.shape", p1.shape)
+                        print("err", err)
+                        good_new = p1[st == 1]  # will error when twise  can not use the same
+                        good_old = p0[st == 1]  # will error when twise
+
+                        print("pregood_new", good_new)
+                        print("pregood_old", good_old)
+
+                        dis = np.sum((good_new - good_old)**2, axis=1)
+                        good_new = good_new[dis.argsort(axis=0)]
+                        good_old = good_old[dis.argsort(axis=0)]
+                        len = good_new.shape[0]
+                        good_new = np.array([good_new[0]])
+                        good_old = np.array([good_old[0]])
+                        # if len > 1:
+                        #     good_new = np.delete(good_new, len-1, axis=0)
+                        #     good_old = np.delete(good_old, len-1, axis=0)
+                        print("dis", dis)
+                        print("good_new", good_new)
+                        print("good_old", good_old)
+                        print("*" * 50)
+                        for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
+                            a, b = new.ravel()  # unfold
+                            c, d = old.ravel()
+                            print("-" * 50)
+                            # a = int(a)
+                            # b = int(b)
+                            # c = int(c)
+                            # d = int(d)
+                            cv2.line(drawimg, (a, b), (c, d), (0, 255, 255), 1)
+                            cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
+                            print("good_new0", good_new)
+                            print("good_old0", good_old)
+                        # good_old = good_new.copy()
+                        p0 = good_new.reshape(-1, 1, 2)
+
+                    """
+                    #find the small distance
+                    pointLen = good_new.shape[0]
+                    disarray = np.array([])
+                    for i in range(pointLen):
+                        dis = self.imgproc.eDistance(good_new[i], good_old[i])
+                        disarray = np.append(disarray, dis)
+
+                    # get the low 20% distance point,that is more precision points
+                    reduce = np.percentile(disarray, 40, axis=0)
+                    reducearr = disarray[disarray <= reduce]
+                    index = np.where(disarray <= reduce)
+                    index = index[0]
+                    print(np.array([good_new[0]]))
+                    good_new0 = np.array([[0, 0]])
+                    good_old0 = np.array([[0, 0]])
+                    for i in index:
+                        good_new0 = np.append(good_new0, np.array([good_new[i]]), axis=0)
+                        good_old0 = np.append(good_old0, np.array([good_old[i]]), axis=0)
+                    good_new0 = np.delete(good_new0, 0, axis=0)
+                    good_old0 = np.delete(good_old0, 0, axis=0)
+
+                    good_new = good_new0.copy()
+                    good_old = good_old0.copy()
+                    
+                    """
+
+                # detect no bottle,back to detect
+                if "box" not in dataDict or dataDict["box"][0][1] < 0.4:
+                    flag = 1
+                    cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)#red  track
+
+                # img = drawimg
+
+                # print("good_new.shape:", good_new.shape)
+                # print("good_old.shape:", good_old.shape)
+            cv2.imshow("res", drawimg)
+            cv2.waitKey(10)
+            preframeb = frame.copy()
+
+            """
             if flag == 1:
                 good_new, good_old, offset, img = self.imgproc.lkLightflow_track(preframeb, frame, None, None)
             preframe = _frame
@@ -188,13 +355,15 @@ class Vision(object):
                                     (b < good_old[:, 1]) & (good_old[:, 1] < t)]
 
                 for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
-                    a, b = new.ravel()  # unfold
+                    a, b = new.ravel()  # unfoldq c
                     c, d = old.ravel()
                     img = cv2.circle(img, (a, b), 4, (100, 100, 155), -1)  #color
 
-                flag =0
+                flag = 0
+                inputCorner = good_new
             if flag == 0:
-                good_new, good_old, offset, img = self.imgproc.lkLightflow_track(preframeb, frame, None, good_new)
+#                print("0__inputCorner.shape", inputCorner.shape)
+                inputCorner, good_old, offset, img = self.imgproc.lkLightflow_track(preframeb, frame, None, inputCorner)
                 print("*"*50)
                 # speedarray = good_new - good_old
                 # pointLen0 = good_new.shape[0]
@@ -203,7 +372,7 @@ class Vision(object):
                 # speed = np.sum(speedarray, axis=0) / pointLen0
                 # if np.isnan(speed[0]):
                 #     speed = np.array([0, 0])
-                """
+               
                 if timer()-startt < 5:
                     img = cv2.circle(img, (100, 100), 20, (0, 0, 255), -1)  # color
                     left = dataDict["box"][0][2]
@@ -236,9 +405,9 @@ class Vision(object):
                 cv2.putText(img, text=str(int(offset[1])), org=(400, 35), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                             fontScale=1, color=(0, 255, 255), thickness=2)
 
-                """
+  
             cv2.imshow("my", img)
-            """
+     
             print("offset.shape[0]", offset.shape[0])
             if offset.shape[0] == 2:
                 print("offset0", offset[0])
