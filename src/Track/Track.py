@@ -68,19 +68,19 @@ class Track:
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
         frameTime = newTargetDict.get("frameTime")
-        # print(frameTime)
         newTargetDictLists = oldTargetDict.get("target")
         # 循环遍历，更新target，
         for i in range(len(newTargetDictLists)):
             newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * (10 * deltaT)
             newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * (10 * deltaT)
 
-        # newTargetDict.setdefault("targetTrackTime", float(frameTime) + deltaT)
         # targetTrackTime 更新为10倍Δt后：
         newTargetDict["targetTrackTime"] = frameTime + (10 * deltaT)
-        print(str(newTargetDict["frameTime"]) + "    " + str(newTargetDict["targetTrackTime"]))
-        # print(newTargetDict)
-        # print(float(newTargetDictLists[1][3]) * deltaT)
+        [a, b] = newTargetDict["target"][0][2]
+        cv2.rectangle(_frame, (int(a), int(b)), (int(a) + 50, int(b) + 50), (125, 0, 125), 4)
+
+        print("frameTime:" + str(newTargetDict["frameTime"]) + "     targetTrackTime:" + str(newTargetDict["targetTrackTime"])  + "     realTime:" + str(time.time()))
+
         return newTargetDict
 
     def checkTarget(self,bottleDict):
@@ -145,11 +145,8 @@ if __name__ == "__main__":
         tempdict["nFrame"] = nFrame
         tempdict["frameTime"] = t
 
-        if (tempdict["targetTrackTime"] == 0 or abs(t - tempdict["targetTrackTime"]) < 0.07 ):
+        if (tempdict["targetTrackTime"] == 0 or abs(t - tempdict["targetTrackTime"]) < 0.08 ):
             tempdict = Track().updateTarget(tempdict)
-            [a, b] = tempdict["target"][0][2]
-            cv2.rectangle(_frame, (int(a), int(b)), (int(a) + 50, int(b) + 50), (125, 0, 125), 4)
-            print(time.time())
         cv2.imshow("test", _frame)
         tempImgproc = ImgProc(10)
 
@@ -157,4 +154,3 @@ if __name__ == "__main__":
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
-
