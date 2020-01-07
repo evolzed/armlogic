@@ -14,7 +14,7 @@ class Track:
     提供更新实时Target目标功能
     """
 
-    def createTarget(self,bottleDict):
+    def createTarget(self, bottleDict):
         """
         增加新的Target目标功能
 
@@ -23,12 +23,12 @@ class Track:
 
         # 创建新的target并标记uuid 返回给bottleDict
         targetDict = dict()
-
         targetList = list()
-
+        uuIDList = list()
         nFrame = bottleDict.get("nFrame")
         bgTimeCost = bottleDict.get("bgTimeCost")
         timeCost = bottleDict.get("timeCost")
+        targetTrackTime = 0
 
         targetDict.setdefault("target", targetList)
 
@@ -37,11 +37,13 @@ class Track:
             trackFlag = 0
             position = [int((bottleDict["box"][i][2] + bottleDict["box"][i][4]) / 2),
                         int((bottleDict["box"][i][3] + bottleDict["box"][i][5]) / 2)]
-            speed = [10, 10]
+            speed = [50, 50]
             angle = 0
             type = 0
             typeCounter = 0
+
             uuID = str(uuid.uuid1())    # 自己创建，用uuid1 打上 UUID
+            uuIDList.append(uuID)
             tempList.append(uuID)
             tempList.append(trackFlag)
             tempList.append(position)
@@ -53,16 +55,17 @@ class Track:
         targetDict.setdefault("nFrame", nFrame)
         targetDict.setdefault("bgTimeCost", bgTimeCost)
         targetDict.setdefault("timeCost", timeCost)
+        targetDict.setdefault("targetTrackTime", targetTrackTime)
         # tempList.append('\n')
 
         # file = open("targetDict_test.txt", "a")
         # for target in tempList:
         #     file.writelines(target + ", ")
         # file.writelines("\n")
-        print(targetDict, uuID)
-        return targetDict, uuID
+        print(targetDict, uuIDList)
+        return targetDict, uuIDList
 
-    def updateTarget(self,targetDict):
+    def updateTarget(self, targetDict):
         """
         更新target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
 
@@ -89,7 +92,22 @@ class Track:
         print("frameTime:" + str(newTargetDict["frameTime"]) + "     targetTrackTime:" + str(newTargetDict["targetTrackTime"])  + "     realTime:" + str(time.time()))
         return newTargetDict
 
-    def checkTarget(self,bottleDict):
+    def mergeTarget(self, targetDict1, targetDict2):
+        """
+        合并target功能，实现实时运行中为实际镜头图像范围内的所有目标物
+        :param targetDict1: 比较的新创立的target
+        :param targetDict2: 比较的原先的在运行过程中的target
+        :return: 合并后的target
+        """
+        # tempDict = targetDict2
+        tempList = targetDict2.get("target")
+        for i in range(len(targetDict1.get("target"))):
+            tempList.append(targetDict1.get("target")[i])
+        targetDict2.setdefault("target",tempList)
+        print(targetDict2)
+        return 0
+
+    def checkTarget(self, bottleDict):
         """
         检查target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
 
@@ -146,20 +164,28 @@ if __name__ == "__main__":
                                       (2, 0.9, 0, 0, 500, 500)],
                   "bgTimeCost": 0, "timeCost": 0, "nFrame": 0}
 
-    targetDict = {'target': [["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", 0, [100, 100], [50, 50], 0, 0, 0],
+    targetDict = {"target": [["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", 0, [100, 100], [50, 50], 0, 0, 0],
                               ["kkkkkkkk-2b6e-11ea-a086-985fd3d62bfb", 0, [400, 400], [50, 50], 0, 0, 0]],
-                  'bgTimeCost': 0.10440749999999888, 'timeCost': 1578021153.380255, 'nFrame': 0, 'frameTime': 0, 'targetTrackTime':0}
-    tempdict = targetDict
+                  "bgTimeCost": 0.10440749999999888, "timeCost": 1578021153.380255, "Frame": 0, "frameTime": 0, "targetTrackTime":0}
+    # tempDict = targetDict
 
-    Track().createTarget(bottleDict)
+    # tempDict2, uuID = Track().createTarget(bottleDict)
+
+    # tempDict3 = Track().mergeTarget(tempDict, tempDict2)
+
+    tempDict, uuID = Track().createTarget(bottleDict)
 
     while True:
         _frame, nFrame, t = cam.getImage()
-        tempdict["nFrame"] = nFrame
-        tempdict["frameTime"] = t
+        tempDict["nFrame"] = nFrame
+        tempDict["frameTime"] = t
 
-        if (tempdict["targetTrackTime"] == 0 or abs(t - tempdict["targetTrackTime"]) < 0.08 ):
-            tempdict = Track().updateTarget(tempdict)
+        # 判断条件
+        if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
+            tempDict3, uuID2 = Track().createTarget(bottleDict)
+            Track().mergeTarget(tempDict3, tempDict)
+            tempDict = Track().updateTarget(tempDict)
+
         cv2.imshow("test", _frame)
         tempImgproc = ImgProc(10)
 
