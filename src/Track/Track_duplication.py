@@ -174,28 +174,26 @@ if __name__ == "__main__":
     # tempDict3 = Track().mergeTarget(tempDict, tempDict2)
 
     tempDict, uuID = Track().createTarget(bottleDict)
-
+    tempT = None
     while True:
-
         _frame, nFrame, t = cam.getImage()
         tempDict["nFrame"] = nFrame
-        tempT = None
 
-        # 虚拟间隔时间增加targetDict，实际后续由
+        # 虚拟间隔时间10s 增加targetDict，实际后续由vision中api提供
         if tempDict.get("frameTime") is not None:
             print(str(tempDict["frameTime"]) + ",   " + str(t))
-            if tempT is None or tempT == 0 :
-                tempT =0
-                tempT = tempT + t - tempDict.get("frameTime")
-                print(tempT)
-                if tempT > 2:
-                    tempT = 0
-                    tempDict3, uuID2 = Track().createTarget(bottleDict)
-                    Track().mergeTarget(tempDict3, tempDict)
+            if tempT is None:
+                tempT = 0
+            tempT = tempT + t - tempDict.get("frameTime")
+            print(tempT)
+            if tempT > 10:
+                tempT = 0
+                tempDict3, uuID2 = Track().createTarget(bottleDict)
+                Track().mergeTarget(tempDict3, tempDict)
 
         tempDict["frameTime"] = t
 
-        # 判断条件
+        # 判断条件 还有待更改，这里只是粗步判断
         if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
             tempDict = Track().updateTarget(tempDict)
 

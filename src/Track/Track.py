@@ -62,7 +62,7 @@ class Track:
         # for target in tempList:
         #     file.writelines(target + ", ")
         # file.writelines("\n")
-        print(targetDict, uuIDList)
+        # print(targetDict, uuIDList)
         return targetDict, uuIDList
 
     def updateTarget(self, targetDict):
@@ -89,7 +89,7 @@ class Track:
         newTargetDict["targetTrackTime"] = frameTime + (10 * deltaT)
         # [a, b] = newTargetDict["target"][0][2]
         # cv2.rectangle(_frame, (int(a), int(b)), (int(a) + 50, int(b) + 50), (125, 0, 125), 4)
-        print("frameTime:" + str(newTargetDict["frameTime"]) + "     targetTrackTime:" + str(newTargetDict["targetTrackTime"])  + "     realTime:" + str(time.time()))
+        # print("frameTime:" + str(newTargetDict["frameTime"]) + "     targetTrackTime:" + str(newTargetDict["targetTrackTime"])  + "     realTime:" + str(time.time()))
         return newTargetDict
 
     def mergeTarget(self, targetDict1, targetDict2):
@@ -104,7 +104,7 @@ class Track:
         for i in range(len(targetDict1.get("target"))):
             tempList.append(targetDict1.get("target")[i])
         targetDict2.setdefault("target",tempList)
-        print(targetDict2)
+        # print(targetDict2)
         return 0
 
     def checkTarget(self, bottleDict):
@@ -174,16 +174,27 @@ if __name__ == "__main__":
     # tempDict3 = Track().mergeTarget(tempDict, tempDict2)
 
     tempDict, uuID = Track().createTarget(bottleDict)
-
+    tempT = None
     while True:
         _frame, nFrame, t = cam.getImage()
         tempDict["nFrame"] = nFrame
+
+        # 虚拟间隔时间10s 增加targetDict，实际后续由vision中api提供
+        if tempDict.get("frameTime") is not None:
+            print(str(tempDict["frameTime"]) + ",   " + str(t))
+            if tempT is None:
+                tempT = 0
+            tempT = tempT + t - tempDict.get("frameTime")
+            print(tempT)
+            if tempT > 10:
+                tempT = 0
+                tempDict3, uuID2 = Track().createTarget(bottleDict)
+                Track().mergeTarget(tempDict3, tempDict)
+
         tempDict["frameTime"] = t
 
-        # 判断条件
+        # 判断条件 还有待更改，这里只是粗步判断
         if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
-            tempDict3, uuID2 = Track().createTarget(bottleDict)
-            Track().mergeTarget(tempDict3, tempDict)
             tempDict = Track().updateTarget(tempDict)
 
         cv2.imshow("test", _frame)
