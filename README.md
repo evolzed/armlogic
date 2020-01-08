@@ -38,9 +38,8 @@
   * docs/         #技术文档
   * src/          #源代码
   * test/         #测试
-  * README.md     
-<<<<<<< HEAD
-  * LICENSE.md     
+  * README.md 
+* LICENSE.md     
   
 ## 2.2 系统流程图
 ![FlowChart](http://192.168.0.203:8088/armlogic/BottleSort/raw/Track/docs/pic/FlowChart/Track_20200103.png)
@@ -62,50 +61,26 @@
 |   Class   | Function |           Description          | Input | Output | Return |
 | :------: | :------: | :-----------------------------: | :----: | :----: | :----: |
 | Main |  | 主方法，系统流程 | gState |  |  |
-<<<<<<< HEAD
-| vision |  generate  | 返回预测框列表，评分列表，类别列表, 使用load_model()、yolo_eval() | | | |
-| vision |  connectCam  | 获取检测到的设备编号，连接设备GrabVideo.getDeviceNum()、GrabVideo.connectCam() | | | |
-| vision |  grabVideo  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 | | %bgPic.JPG | |
-| Camera |  getImage  | get a frame of opencv format from camra | %_cam  %_data_buf %_nPayloadSize|  | %frame|
-| Camera | getCamFps  | get  fps of camera output in str type  | %nFrameNum  |  | %fps|
-| vision |  loadYolo  | Tiny-Yolov3模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | %.py %.pt | | |
-| vision |  detectImage  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Image()[转换成网络需要的imageObject]; | | | |
-| vision |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
-| vision |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
-| vision |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
-| vision |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
-| Vision | checkState | [1:init 2：run 3：stop], 停止网络，关闭相机驱动 |  | ||
-| Vision | getBeltSpeed() | \#get belt speed direction and valu e,pixel per second | bottleDict | |beltSpeed|
-| Vision | getBottlePos() | \#get belt speed direction and valu e,pixel per second | bottleDict | |bottleDetail|
-| Vision | getBottleID() | \#get bottle ID by track and beltSpeed | bottleDict | beltSpeed |bottleID|
-| Track | createTarget() | 创建新的trackDict元素 |  | trackDict ||
-| Track | updateTarget() | 更新trackDict内的元素 |  | trackDict ||
-=======
-| Vision |  generate  | 返回预测框列表，评分列表，类别列表, 使用load_model()、yolo_eval() | | | |
-| Vision |  connectCam  | 获取检测到的设备编号，连接设备GrabVideo.getDeviceNum()、GrabVideo.connectCam() | | | |
-| Vision |  grabVideo  | 获取相机的视频流,利用封装好的GrabVideo包进行获取 | | %bgPic.JPG | |
-| Camera |  getImage  | get a frame of opencv format from camra | %_cam  %_data_buf %_nPayloadSize|  | %frame|
-| Camera | getCamFps  | get  fps of camera output in str type  | %nFrameNum  |  | %fps|
-| Vision |  loadYolo  | Tiny-Yolov3模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | %.py %.pt | | |
-| Vision |  detectImage  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Vision()[转换成网络需要的imageObject]; | | | |
-| ImgProc |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
-| ImgProc |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
-| ImgProc |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
-| ImgProc |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
-| Vision |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动
-|  Vision   | getBeltSpeed()  | #get belt speed direction and valu e,pixel per second   |   bottleDict                     |  | beltSpeed |
-|  ImgProc   | getBottlePose()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
-|  ImgProc   | ()  |   | |  |  |
-|  Vision   | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict                     | beltSpeed | bottleID |
+| vision | generate | 返回预测框列表，评分列表，类别列表, 使用load_model()、yolo_eval() |  | | |
+| vision | connectCam | 获取检测到的设备编号，连接设备GrabVideo.getDeviceNum()、GrabVideo.connectCam() |  | | |
+| vision | grabVideo | 获取相机的视频流,利用封装好的GrabVideo包进行获取 |  | %bgPic.JPG | |
+| Camera | getImage | get a frame of opencv format from camra | %_cam  %_data_buf %_nPayloadSize | | %frame |
+| Camera | getCamFps | get  fps of camera output in str type | %nFrameNum | | %fps |
+| vision | loadYolo | Tiny-Yolov3模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | %.py %.pt | | |
+| vision | detectImage | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Image()[转换成网络需要的imageObject]; |  | | |
+| ImgProc | studyBackgroundFromCam | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk | %cam | | |
+| ImgProc | avgBackground | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame | %img | | |
+| ImgProc | createModelsfromStats | average the frame and frame difference to get the background model | %I %dst | bottleDict | |
+| ImgProc | backgroundDiff | use the background to segment the frame pic | %src %dst | | |
+| Vision | checkState | [1:init 2：run 3：stop], 停止网络，关闭相机驱动 |  | | |
+| Vision | getBeltSpeed() | \#get belt speed direction and valu e,pixel per second | bottleDict | | beltSpeed |
+| ImgProc | getBottlePose() | \#get belt speed direction and valu e,pixel per second | bottleDict | | bottleDetail |
+| ImgProc | () |                                                              |  | | |
+| Vision | getBottleID() | \#get bottle ID by track and beltSpeed | bottleDict | beltSpeed | bottleID |
+| Track | createTarget() | 创建新的targetDict元素 |  | | targetDict |
+| Track | updateTarget() | 更新targetDict内的元素 | targetDict | | targetDict |
+| Track | mergeTarget() | 合并target功能，实现实时运行中为实际镜头图像范围内的所有目标物 | targetDict1,targetDict2 |  | targetDict |
 
-
-
-| Class |    Function    |      Description      | Input |  Output   | Return |
-| :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
-| Track | createTarget() | 创建新的trackDict元素 |       | trackDict |        |
-| Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
-
->>>>>>> e37de98efe0758be20affa29c5d30d0aad575bb4
 
 ----
 
