@@ -181,11 +181,10 @@ if __name__ == "__main__":
 
         # 虚拟间隔时间10s 增加targetDict，实际后续由vision中api提供
         if tempDict.get("frameTime") is not None:
-            print(str(tempDict["frameTime"]) + ",   " + str(t))
             if tempT is None:
                 tempT = 0
             tempT = tempT + t - tempDict.get("frameTime")
-            print(tempT)
+            print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempT))
             if tempT > 10:
                 tempT = 0
                 tempDict3, uuID2 = Track().createTarget(bottleDict)
@@ -193,7 +192,7 @@ if __name__ == "__main__":
 
         tempDict["frameTime"] = t
 
-        # 判断条件 还有待更改，这里只是粗步判断
+        # 判断条件 还有待更改，这里只是调试本脚本示范用，Main中要重新改写
         if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
             tempDict = Track().updateTarget(tempDict)
 
