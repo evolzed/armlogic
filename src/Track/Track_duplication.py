@@ -72,7 +72,7 @@ class Track:
         :param targetDict: 上一步的目标物的信息
         :return: 同一UUID下的目标物的信息更新；
         """
-        deltaT = 0.1
+        deltaT = 0.01
 
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
@@ -80,13 +80,13 @@ class Track:
         newTargetDictLists = oldTargetDict.get("target")
         # 循环遍历，更新target，
         for i in range(len(newTargetDictLists)):
-            newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * (10 * deltaT)
-            newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * (10 * deltaT)
+            newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * (deltaT)
+            newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * (deltaT)
             cv2.rectangle(_frame, (int(newTargetDictLists[i][2][0]), int(newTargetDictLists[i][2][1])),
                           (int(newTargetDictLists[i][2][0]) + 50, int(newTargetDictLists[i][2][0]) + 50), (125, 0, 125), 4)
             # print(i)
-        # targetTrackTime 更新为10倍Δt后：
-        newTargetDict["targetTrackTime"] = frameTime + (10 * deltaT)
+        # targetTrackTime 更新为Δt后：
+        newTargetDict["targetTrackTime"] = frameTime + (deltaT)
         # [a, b] = newTargetDict["target"][0][2]
         # cv2.rectangle(_frame, (int(a), int(b)), (int(a) + 50, int(b) + 50), (125, 0, 125), 4)
         # print("frameTime:" + str(newTargetDict["frameTime"]) + "     targetTrackTime:" + str(newTargetDict["targetTrackTime"])  + "     realTime:" + str(time.time()))
@@ -184,7 +184,7 @@ if __name__ == "__main__":
             if tempT is None:
                 tempT = 0
             tempT = tempT + t - tempDict.get("frameTime")
-            print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempT))
+            # print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempT))
             if tempT > 10:
                 tempT = 0
                 tempDict3, uuID2 = Track().createTarget(bottleDict)
@@ -193,8 +193,9 @@ if __name__ == "__main__":
         tempDict["frameTime"] = t
 
         # 判断条件 还有待更改，这里只是调试本脚本示范用，Main中要重新改写
-        if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
-            tempDict = Track().updateTarget(tempDict)
+        # if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
+        tempDict = Track().updateTarget(tempDict)
+        print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
 
         cv2.imshow("test", _frame)
         tempImgproc = ImgProc(10)
