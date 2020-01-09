@@ -18,14 +18,13 @@ else:
     print("不支持的系统架构，仅支持win10_64 和 Ubuntu16.04 ARM aarch64！！")
     sys.exit()
 from src.Vision.camera import Camera, g_bExit
-# from src.Vision.yolo.Yolo import *
+from src.Vision.yolo.Yolo import *
 # from src.Vision.imageProcess.bgLearn import Bglearn
 # from src.Vision.imageProcess.imageTrack import ImageTrack
 import time
 from src.Track import Track_duplication
 gState = 1
 bottleDict = None
-import PIL
 
 
 class Vision(object):
@@ -126,7 +125,7 @@ class Vision(object):
 
         #trackObj = ImageTrack()
         preframe, nFrame, t = cam.getImage()
-        preframeb, bgMaskb = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
+        preframeb, bgMaskb, resarrayb  = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
         k = 1
         startt = timer()
         left = 0
@@ -166,7 +165,7 @@ class Vision(object):
                 fps = "NetFPS:" + str(curr_fps)
                 curr_fps = 0
 
-            frame, bgMask = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None)
+            frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None)
             # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
             # cv2.imshow("kk", frame)
             # cv2.waitKey(3000)
@@ -177,8 +176,8 @@ class Vision(object):
             img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
             # img.show()
             # feed data into model
-            # dataDict = self.yolo.detectImage(img)
-            dataDict = {"box":[(1, 0.91, 0, 190, 50, 50, 90, 20)]}
+            dataDict = self.yolo.detectImage(img)
+            # dataDict = {"box":[(1, 0.91, 0, 190, 50, 50, 90, 20)]}
             dataDict["bgTimeCost"] = self.imgproc.bgTimeCost if self.imgproc else 0
             # result = np.asarray(dataDict["image"])
             # dataDict["image"] = result  # result：cv2.array的图像数据
@@ -321,10 +320,10 @@ class Vision(object):
                                     ID ="ID:" + str(idd)
                                     if(posx > 1100):
                                         target[i][2] = False
-                                    # cv2.rectangle(drawimg, (int(left), int(top)), (int(right), int(bottom)), (0, 0, 255), 2)
-                                    # cv2.putText(drawimg, text=str(ID), org=(int(left), int(top)),
-                                    #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    #             fontScale=1, color=(0, 255, 255), thickness=2)
+                                    cv2.rectangle(drawimg, (int(left), int(top)), (int(right), int(bottom)), (0, 0, 255), 2)
+                                    cv2.putText(drawimg, text=str(ID), org=(int(left), int(top)),
+                                                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                                fontScale=1, color=(0, 255, 255), thickness=2)
 
                                     cv2.putText(drawimg, text=str(ID), org=(posx, posy),
                                                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -590,7 +589,7 @@ def imageInit():
     cam = Camera()
     # _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
-#    yolo = YOLO()
+    yolo = YOLO()
     print("准备背景学习！")
     bgobj = ImgProc(50)
     bgobj.studyBackgroundFromCam(cam)
@@ -662,7 +661,7 @@ if __name__ == '__main__':
     # stash test with vision
 
 
-    cam = Camera()
+    cam, _image= imageInit()
 
     bottleDict = {"image": 0, "box": [(3, 0.9, 0, 0, 200, 200),
                                       (2, 0.9, 0, 0, 500, 500)],
@@ -684,7 +683,7 @@ if __name__ == '__main__':
         _frame, nFrame, t = cam.getImage()
         tempDict["nFrame"] = nFrame
 
-        Vision(cam, 0, None).detectSerialImage(cam)
+        imageRun(cam, _image)
 
         # 虚拟间隔时间10s 增加targetDict，实际后续由vision中api提供
         if tempDict.get("frameTime") is not None:
