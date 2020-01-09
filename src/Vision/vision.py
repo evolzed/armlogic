@@ -9,6 +9,11 @@ sys.path.append(os.path.abspath("../../"))
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
 import platform
+
+from lib.Logger.Logger import Logger
+
+sys.stdout = Logger("E:\\12.txt")  # 保存到D盘
+
 sysArc = platform.uname()
 if sysArc[0] == "Windows":
     from lib.HikMvImport_Win.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
@@ -142,14 +147,18 @@ class Vision(object):
                          maxLevel=2,
                          criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
         # good_old = np.array([])
-        p0 = np.array([])
+        # p0 = np.array([])
         left = 0
         top = 0
         right = 0
         bottom = 0
         target=[]
         idd =0
-        # p0 = np.array([])
+        p0 = np.array([])
+        p0_con =np.array([])
+        pk = np.array([])
+        input = np.array([])
+        label = np.array([])
         while True:
             # try:
             _frame, nFrame, t = cam.getImage()
@@ -188,53 +197,127 @@ class Vision(object):
             imglistk = self.imgproc.getBoxOnlyPic(dataDict, _frame)
             # good_new, good_old, offset, img = self.img
             # proc.lkLightflow_track(imglist[0], imglistk[0], None)
-            drawimg = preframeb.copy()
+            drawimg = frame.copy()
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             #detect
             if flag == 0:
                 p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
-                if p0 is not None and "box" in dataDict:
-                    # print("0p0.shape", p0.shape)
-                    # print("0p0", p0)
-                    print("len(dataDict[box]", len(dataDict["box"]))
-                    boxLenth = len(dataDict["box"])
-                    for i in range(len(dataDict["box"])):
-                        if "box" in dataDict and dataDict["box"][i][1] > 0.90 and dataDict["box"][i][3] > 180:
-                            print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
-                            left = dataDict["box"][i][2]
-                            top = dataDict["box"][i][3]
-                            right = dataDict["box"][i][4]
-                            bottom = dataDict["box"][i][5]
-                            p0_sigle = p0[(left <= p0[:, :, 0]) & (p0[:, :, 0] <= right) & (top <= p0[:, :, 1]) & (p0[:, :,1] <= bottom)]  #会改变shape
-                            px = p0_sigle.reshape(-1, 1, 2)
-                            p0_sigle = px.copy()
-                            # print("1p0.shape", p0_sigle.shape)
-                            print("1p0", p0_sigle)
-                            useful = True
-                            infor = [p0_sigle, idd, useful, left, top, right, bottom, i]
-                            idd += 1
-                            print("idd", idd)
-                            target.append(infor)
-                    print("len target:", len(target))
-                    if len(target) == boxLenth:
-                        print("change!!!!!!!!!!!!!!!!!!!!!!!!!change!!!!!!!!!!!!!!!")
-                        print("target:", target)
-                        print("len target:", len(target))
-                        flag = 1
-                    else:
-                        target = []
 
+                if p0 is not None and "box" in dataDict:
+
+                    for k in range(p0.shape[0]):
+                        a = int(p0[k, 0, 0])
+                        b = int(p0[k, 0, 1])
+                        cv2.circle(drawimg, (a, b), 3, (0, 255, 255), -1)
+
+                    label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
+                    print("len(dataDict[box])", len(dataDict["box"]))
+                    boxLenth = len(dataDict["box"])
+                    if boxLenth > 1:
+                        for i in range(len(dataDict["box"])):
+                            if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
+                                print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
+                                left = dataDict["box"][i][2]
+                                top = dataDict["box"][i][3]
+                                right = dataDict["box"][i][4]
+                                bottom = dataDict["box"][i][5]
+                                cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
+                                #store every point label
+                                print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
+                                for k in range(p0.shape[0]):
+                                    print("p0", p0[k, 0, 0])
+                                    print("p1", p0[k, 0, 1])
+                                    if (left-20 <= p0[k, 0, 0]) and \
+                                            (p0[k, 0, 0] <= right+20) and \
+                                            (top-20 <= p0[k, 0, 1]) and \
+                                            (p0[k, 0, 1] <= bottom+20):
+                                        label[k, 0, 0] = i
+                        # print("label",label)
+                        p0_con = np.concatenate((p0, label), axis=2)
+                        p0_con_tmp = p0_con
+                        p0_con = p0_con_tmp.reshape(-1, 1, 3)  #necessary
+                        # print("p0_con", p0_con)
+                        # print("p0", p0)
+                        print("label", label)
+
+                        # for i in range(p0_con.shape[0]):  # fold and enumerate with i
+                        #     a = int(p0_con[i, 0, 0])
+                        #     b = int(p0_con[i, 0, 1])
+                        #     cv2.putText(drawimg, text=str(p0_con[i, 0, 2]), org=(a, b),
+                        #                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        #                 fontScale=1, color=(0, 255, 255), thickness=2)
+
+                        # print("1p0.shape", p0_sigle.shape)
+                        # print("1p0", p0_sigle)
+                    # if len(target) == boxLenth:
+                    #     for k in range(label.shape[0]):
+                    #         if label[k, 0, 0] != -1:
+                    #             flag = 1
+                    #             break
+                        print("unique", np.unique(label[label != -1]))
+                        if (label != -1).any() and np.size(np.unique(label[label != -1])) > 1:
+                            flag = 1
+                        # if np.size(p0_con.shape[0]) > 0:
+                        #     print("change!!!!!!!!!!!!!!!!!!!!!!!!!change!!!!!!!!!!!!!!!")
+                        #     # target.append(p0_con[:, :, 0:2])
+                        #     # print("len target:", len(target))
+                        #     # print("target:", target)
+                        #     # print("len target:", len(target))
+                        #     # input = np.squeeze(p0_con[:, :, 0:2])
+                        #     flag = 1
+                        # else:
+                        #     target = []
             else:
                 # track
-                if len(target) > 0:
-                    print("len(target)", len(target))
-                    print("target", target)
+                if np.size(p0_con.shape[0]) > 0:
+                    # print("len(target)", len(target))
+                    # print("target", target)
+                    # print("input", input)
+                    # p0 = target[0]
+                    # print("p0_chuan", p0)
+                    # print("pk", pk)
+                    # label = p0_con[:, :, 2:3]
+                    # print("label", label)
+
+                    p1, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, p0, None, **lk_params)
+                    if p1 is not None and (label != -1).any() and np.size(p1.shape[0]) > 0:
+                        # print("st", st)
+                        good_new = p1[st == 1]  # will error when twise  can not use the same
+                        good_old = p0[st == 1]  # will error when twise
+
+                        good_label = label[st == 1]
+                        # print("good_label", good_label)
+                        good_new_con = np.concatenate((good_new, good_label), axis=1)
+                        good_old_con = np.concatenate((good_old, good_label), axis=1)
+                        # print("good_new", good_new)
+                        # print("good_old", good_old)
+                        for i, (new, old) in enumerate(zip(good_new_con, good_old_con)):  # fold and enumerate with i
+                            a, b, la = new.ravel()  # unfold
+                            c, d, la = old.ravel()
+                            # print("-" * 50)
+
+                            a = int(a)
+                            b = int(b)
+                            c = int(c)
+                            d = int(d)
+
+                            if la != -1:
+                                cv2.line(drawimg, (a, b), (c, d), (0, 255, 255), 1)
+                                cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
+
+                                cv2.putText(drawimg, text=str(la), org=(a, b),
+                                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                            fontScale=1, color=(0, 255, 255), thickness=2)
+
+                        p0 = good_new.reshape(-1, 1, 2)
+                        label = good_label.reshape(-1, 1, 1)
+
+                    """
                     for i in range(len(target)):
                         if target[i][0] is not None and target[i][2] == True:
                             p0 = target[i][0].copy()
                             print("flag ==2 " * 10)
-                            p1, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, p0, None, **lk_params)
                             if p1 is not None and st is not None:
                                 good_new = p1[st == 1]  # will error when twise  can not use the same
                                 good_old = p0[st == 1]  # will error when twise
@@ -283,17 +366,20 @@ class Vision(object):
 
                                     p0 = good_new.reshape(-1, 1, 2)
                             target[i][0] = p0.copy()
-
-            k = False
-            for x in target:
-                k = k or x[2]
-            if k is False:
-                print("F FF clear the target" * 30)
-                target = []
-                flag = 0
+                            """
+            # k = False
+            # for x in target:
+            #     k = k or x[2]
+            # if k is False:
+            #     print("F FF clear the target" * 30)
+            #     target = []
+            #     flag = 0
             if "box" not in dataDict:
-                print("clear the target" * 30)
+                # print("clear the target" * 30)
                 target = []
+                p0 = np.array([])
+                p0_con = np.array([])
+                label = np.array([])
                 flag = 0
                 cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
                 left = 0
