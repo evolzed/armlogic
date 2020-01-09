@@ -23,6 +23,7 @@
 * numpy==1.16.5（必须要用1.16版本，1.17报错；win下需要1.16.5+mkl）
 * keras==2.1.5（务必使用该版本，否则报错）
 * PIL第三方库
+* h5py==2.10.0
 * 标准库：os模块、ctype(调用c/c++代码)、datetime(日期模块)、colorsys(转换模型模块)、timeit(测试程序运行时间)
 * [GitHub](https://github.com/evolzed/armlogic)
 ## 1.3 通讯接口
@@ -80,7 +81,6 @@
 | Track | createTarget() | 创建新的targetDict元素 |  | | targetDict |
 | Track | updateTarget() | 更新targetDict内的元素 | targetDict | | targetDict |
 | Track | mergeTarget() | 合并target功能，实现实时运行中为实际镜头图像范围内的所有目标物 | targetDict1,targetDict2 |  | targetDict |
-
 
 ----
 
