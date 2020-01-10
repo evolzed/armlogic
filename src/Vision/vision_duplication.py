@@ -5,10 +5,12 @@ from ctypes import *
 from timeit import default_timer as timer
 import cv2
 from src.Vision.imageProcess.imgProc import ImgProc
+
 sys.path.append(os.path.abspath("../../"))
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
 import platform
+
 sysArc = platform.uname()
 if sysArc[0] == "Windows":
     from lib.HikMvImport_Win.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
@@ -19,10 +21,9 @@ else:
     sys.exit()
 from src.Vision.camera import Camera, g_bExit
 from src.Vision.yolo.Yolo import *
+from src.Track.Track_duplication import Track
 # from src.Vision.imageProcess.bgLearn import Bglearn
 # from src.Vision.imageProcess.imageTrack import ImageTrack
-import time
-from src.Track import Track_duplication
 gState = 1
 bottleDict = None
 
@@ -34,7 +35,7 @@ class Vision(object):
         """相机自检"""
         self.cam = cam
         self.yolo = yolo
-        self.imgproc=imgproc_
+        self.imgproc = imgproc_
         # self.deviceNum = cam.getDeviceNum()
         # cam._data_buf, cam._nPayloadsize = self.cam.connectCam()
         if -1 == cam._data_buf:
@@ -115,6 +116,8 @@ class Vision(object):
                 返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
 
         """
+
+        track = Track()
         prev_time = timer()
         accum_time = 0
         curr_fps = 0
@@ -123,9 +126,11 @@ class Vision(object):
         #     print("press_any_key_exit!")
         #     cam.press_any_key_exit()
 
-        #trackObj = ImageTrack()
+        # trackObj = ImageTrack()
         preframe, nFrame, t = cam.getImage()
+
         preframeb, bgMaskb, resarrayb  = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
+
         k = 1
         startt = timer()
         left = 0
@@ -149,8 +154,8 @@ class Vision(object):
         top = 0
         right = 0
         bottom = 0
-        target=[]
-        idd =0
+        target = []
+        idd = 0
         while True:
             # try:
             _frame, nFrame, t = cam.getImage()
@@ -177,9 +182,9 @@ class Vision(object):
             # img.show()
             # feed data into model
             dataDict = self.yolo.detectImage(img)
-            # dataDict = {"box":[(1, 0.91, 0, 190, 50, 50, 90, 20)]}
+
             dataDict["bgTimeCost"] = self.imgproc.bgTimeCost if self.imgproc else 0
-            # result = np.asarray(dataDict["image"])
+            result = np.asarray(dataDict["image"])
             # dataDict["image"] = result  # result：cv2.array的图像数据
             dataDict["image"] = img  # img：Image对象
             # dataDict["timeCost"] = exec_time
@@ -193,7 +198,7 @@ class Vision(object):
             drawimg = preframeb.copy()
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            #detect
+            # detect
             if flag == 1:
                 p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
                 if p0 is not None and "box" in dataDict:
@@ -212,7 +217,8 @@ class Vision(object):
                             # print("right", right)
                             # print("bottom", bottom)
                             # filter the points not in the box
-                            p0_sigle = p0[(left < p0[:, :, 0]) & (p0[:, :, 0] < right) & (top < p0[:, :, 1]) & (p0[:, :,1] < bottom)]  #会改变shape
+                            p0_sigle = p0[(left < p0[:, :, 0]) & (p0[:, :, 0] < right) & (top < p0[:, :, 1]) & (
+                            p0[:, :, 1] < bottom)]  # 会改变shape
                             px = p0_sigle.reshape(-1, 1, 2)
                             p0_sigle = px
                             # print("1p0.shape", p0_sigle.shape)
@@ -226,7 +232,7 @@ class Vision(object):
                         print("change!!!!!!!!!!!!!!!!!!!!!!!!!change!!!!!!!!!!!!!!!")
                         flag = 0
                         # cv2.circle(drawimg, (100, 100), 15, (255, 0, 0), -1)  # blue  detect
-                #cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+                # cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
                 """
                 # print("cornersA",cornersA)
                 if cornersA is not None:
@@ -289,7 +295,7 @@ class Vision(object):
                                 # print("pregood_new", good_new)
                                 # print("pregood_old", good_old)
 
-                                dis = np.sum((good_new - good_old)**2, axis=1)
+                                dis = np.sum((good_new - good_old) ** 2, axis=1)
                                 good_new = good_new[dis.argsort(axis=0)]
                                 good_old = good_old[dis.argsort(axis=0)]
 
@@ -299,7 +305,7 @@ class Vision(object):
                                     good_old = np.array([good_old[0]])
 
                                     offset = good_new - good_old
-                                    left +=offset[0, 0]
+                                    left += offset[0, 0]
                                     top += offset[0, 1]
                                     right += offset[0, 0]
                                     bottom += offset[0, 1]
@@ -317,8 +323,11 @@ class Vision(object):
                                     print("posx", posx)
                                     print("posy", posy)
                                     idd = target[i][1]
-                                    ID ="ID:" + str(idd)
-                                    if(posx > 1100):
+                                    ID = "ID:" + str(idd)
+
+
+
+                                    if (posx > 1100):
                                         target[i][2] = False
                                     cv2.rectangle(drawimg, (int(left), int(top)), (int(right), int(bottom)), (0, 0, 255), 2)
                                     cv2.putText(drawimg, text=str(ID), org=(int(left), int(top)),
@@ -329,20 +338,22 @@ class Vision(object):
                                                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                                 fontScale=1, color=(0, 255, 255), thickness=2)
 
-                                    cv2.putText(drawimg, text=str(int(offset[0, 0])), org=(150, 35), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    cv2.putText(drawimg, text=str(int(offset[0, 0])), org=(150, 35),
+                                                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                                 fontScale=1, color=(0, 255, 255), thickness=2)
                                     cv2.putText(drawimg, text=str(int(offset[0, 1])), org=(400, 35),
                                                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                                 fontScale=1, color=(0, 255, 255), thickness=2)
                                     print("i:", i)
-                                # if len > 1:
-                                #     good_new = np.delete(good_new, len-1, axis=0)
-                                #     good_old = np.delete(good_old, len-1, axis=0)
-                                # print("dis", dis)
-                                # print("good_new", good_new)
-                                # print("good_old", good_old)
+                                    # if len > 1:
+                                    #     good_new = np.delete(good_new, len-1, axis=0)
+                                    #     good_old = np.delete(good_old, len-1, axis=0)
+                                    # print("dis", dis)
+                                    # print("good_new", good_new)
+                                    # print("good_old", good_old)
                                     print("*" * 50)
-                                    for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
+                                    for i, (new, old) in enumerate(
+                                            zip(good_new, good_old)):  # fold and enumerate with i
                                         a, b = new.ravel()  # unfold
                                         c, d = old.ravel()
                                         print("-" * 50)
@@ -356,7 +367,6 @@ class Vision(object):
                                         # print("good_old0", good_old)
                                     # good_old = good_new.copy()
                                     p0 = good_new.reshape(-1, 1, 2)
-
 
                     """
                     #find the small distance
@@ -382,7 +392,7 @@ class Vision(object):
 
                     good_new = good_new0.copy()
                     good_old = good_old0.copy()
-                    
+
                     """
 
                 # detect no bottle,back to detect
@@ -393,21 +403,21 @@ class Vision(object):
                     print("F FF clear the target" * 30)
                     target = []
                 if "box" not in dataDict:
-                    print("clear the target"*30)
-                    target= []
+                    print("clear the target" * 30)
+                    target = []
                     flag = 1
-                    cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)#red  track
+                    cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
                     left = 0
                     top = 0
                     right = 0
                     bottom = 0
 
-                # img = drawimg
+                    # img = drawimg
 
-                # print("good_new.shape:", good_new.shape)
-                # print("good_old.shape:", good_old.shape)
-            cv2.imshow("res", drawimg)
-            cv2.waitKey(10)
+                    # print("good_new.shape:", good_new.shape)
+                    # print("good_old.shape:", good_old.shape)
+            # cv2.imshow("res", drawimg)
+            # cv2.waitKey(10)
             preframeb = frame.copy()
 
             """
@@ -446,7 +456,7 @@ class Vision(object):
                 # speed = np.sum(speedarray, axis=0) / pointLen0
                 # if np.isnan(speed[0]):
                 #     speed = np.array([0, 0])
-               
+
                 if timer()-startt < 5:
                     img = cv2.circle(img, (100, 100), 20, (0, 0, 255), -1)  # color
                     left = dataDict["box"][0][2]
@@ -479,9 +489,9 @@ class Vision(object):
                 cv2.putText(img, text=str(int(offset[1])), org=(400, 35), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                             fontScale=1, color=(0, 255, 255), thickness=2)
 
-  
+
             cv2.imshow("my", img)
-     
+
             print("offset.shape[0]", offset.shape[0])
             if offset.shape[0] == 2:
                 print("offset0", offset[0])
@@ -515,25 +525,42 @@ class Vision(object):
 
             if bgMask is not None:
                 dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)
-            # cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-            #             fontScale=0.50, color=(255, 0, 0), thickness=2)
-            # cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-            #             fontScale=0.50, color=(0, 255, 255), thickness=2)
-            # cv2.imshow("result", result)
-            #cv2.waitKey(1000)
+
+            cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.50, color=(255, 0, 0), thickness=2)
+            cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.50, color=(0, 255, 255), thickness=2)
+            cv2.imshow("result", result)
+            # cv2.waitKey(1000)
+
             cv2.waitKey(10)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
             # return dataDict
             global bottleDict
             bottleDict = dataDict
-                # print(dataDict)
+            # print(dataDict)
             # except Exception as e:offset_diff_array
             #     # global gState
             #     # gState = 3
             #     print(e)
             #     break
+            # return bottleDict
+            # tempDict = {}
+            # uuID = idd
+            # newTempTargetDict, uuID = track.createTarget(bottleDict)
+            if bottleDict.get("box") is not None :
+                newTargetDict, uuID = track.createTarget(bottleDict)
 
+                tempDict = track.updateTarget(newTargetDict, drawimg)
+                # tempDict = track.mergeTarget(tempDict, newTargetDict)
+                # cv2.rectangle(drawimg, (int(tempDict["target"][0][2][0] -100), int(tempDict["target"][0][2][1] -100)),
+                #               (int(tempDict["target"][0][2][0]) + 100, int(tempDict["target"][0][2][1]) + 100),
+                #               (125, 0, 125), 4)
+                # cv2.imshow("res", drawimg)
+                cv2.imshow("res", drawimg)
+                cv2.waitKey(10)
+                print(tempDict)
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
@@ -565,6 +592,8 @@ class Vision(object):
         # cv2.waitKey(1000)
         cv2.waitKey(10)
         return dataDict
+
+
 """
 if __name__ == '__main__':
     cam = Camera()
@@ -572,7 +601,7 @@ if __name__ == '__main__':
     print("准备载入yolo网络！")
     yolo = YOLO()
 
-   
+
     _image = Vision(cam, yolo)
     dataDict = _image.detectSerialImage(_frame, nf)
     print(dataDict)
@@ -601,7 +630,7 @@ def imageInit():
     return cam, _image
 
 
-def imageRun(cam,_image):
+def imageRun(cam, _image):
     """
     根据输入的图像数据，进行识别
 
@@ -614,8 +643,8 @@ def imageRun(cam,_image):
     #         _frame, nf = cam.getImage()
     #         frameDelBg = _image.bgLearn.delBg(_frame)
     _image.detectSerialImage(cam, )
-            # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
-            #cv2.waitKey(10)
+    # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
+    # cv2.waitKey(10)
     #         print(dataDict)
     #         if cv2.waitKey(1) & 0xFF == ord('q'):
     #             break
@@ -627,6 +656,7 @@ def imageRun(cam,_image):
     # cam.destroy()
     print("系统退出中···")
     sys.exit()
+
 
 """
 if __name__ == '__main__':
@@ -658,6 +688,7 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
 
+
     # stash test with vision
 
 
@@ -676,37 +707,6 @@ if __name__ == '__main__':
 
     # tempDict3 = Track().mergeTarget(tempDict, tempDict2)
 
-    track = Track_duplication.Track()
-    tempDict, uuID = track.createTarget(bottleDict)
-    tempT = None
-    while True:
-        _frame, nFrame, t = cam.getImage()
-        tempDict["nFrame"] = nFrame
 
-        imageRun(cam, _image)
+    imageRun(cam, _image)
 
-        # 虚拟间隔时间10s 增加targetDict，实际后续由vision中api提供
-        if tempDict.get("frameTime") is not None:
-            if tempT is None:
-                tempT = 0
-            tempT = tempT + t - tempDict.get("frameTime")
-            # print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempT))
-            if tempT > 10:
-                tempT = 0
-                tempDict3, uuID2 = track.createTarget(bottleDict)
-                track.mergeTarget(tempDict3, tempDict)
-
-        tempDict["frameTime"] = t
-
-        # 判断条件 还有待更改，这里只是调试本脚本示范用，Main中要重新改写
-        # if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
-        tempDict = track.updateTarget(tempDict, _frame)
-        print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
-
-        cv2.imshow("test", _frame)
-        tempImgproc = ImgProc(10)
-
-        frame, bgMask, resarray = tempImgproc.delBg(_frame) if tempImgproc else (_frame, None)
-
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break

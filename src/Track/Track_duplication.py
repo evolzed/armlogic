@@ -28,6 +28,7 @@ class Track:
         nFrame = bottleDict.get("nFrame")
         bgTimeCost = bottleDict.get("bgTimeCost")
         timeCost = bottleDict.get("timeCost")
+        frameTime = bottleDict.get("frameTime")
         targetTrackTime = 0
 
         targetDict.setdefault("target", targetList)
@@ -56,6 +57,7 @@ class Track:
         targetDict.setdefault("bgTimeCost", bgTimeCost)
         targetDict.setdefault("timeCost", timeCost)
         targetDict.setdefault("targetTrackTime", targetTrackTime)
+        targetDict.setdefault("frameTime", frameTime)
         # tempList.append('\n')
 
         # file = open("targetDict_test.txt", "a")
@@ -83,8 +85,8 @@ class Track:
         for i in range(len(newTargetDictLists)):
             newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * (deltaT)
             newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * (deltaT)
-            cv2.rectangle(_frame, (int(newTargetDictLists[i][2][0]), int(newTargetDictLists[i][2][1])),
-                          (int(newTargetDictLists[i][2][0]) + 50, int(newTargetDictLists[i][2][0]) + 50), (125, 0, 125), 4)
+            cv2.rectangle(_frame, (int(newTargetDictLists[i][2][0] - 100), int(newTargetDictLists[i][2][1]) - 100),
+                          (int(newTargetDictLists[i][2][0]) + 100, int(newTargetDictLists[i][2][1]) + 100), (125, 0, 125), 4)
             # print(i)
         # targetTrackTime 更新为Δt后：
         newTargetDict["targetTrackTime"] = frameTime + (deltaT)
@@ -195,7 +197,7 @@ if __name__ == "__main__":
 
         # 判断条件 还有待更改，这里只是调试本脚本示范用，Main中要重新改写
         # if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
-        tempDict = Track().updateTarget(tempDict)
+        tempDict = Track().updateTarget(tempDict, _frame)
         print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
 
         cv2.imshow("test", _frame)
