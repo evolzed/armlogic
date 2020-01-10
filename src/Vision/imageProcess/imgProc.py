@@ -859,7 +859,6 @@ if __name__ == "__main__":
             featureimg = cv2.cvtColor(preframeDelBg, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frameDelBg, cv2.COLOR_BGR2GRAY)
             if flag == 1:
-
                 cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
                 # print("cornersA",cornersA)
                 if cornersA is not None:
