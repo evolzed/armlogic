@@ -33,26 +33,31 @@ class Track:
 
         targetDict.setdefault("target", targetList)
 
-        for i in range(len(bottleDict.get("box"))):
-            tempList = list()
-            trackFlag = 0
-            position = [int((bottleDict["box"][i][2] + bottleDict["box"][i][4]) / 2),
-                        int((bottleDict["box"][i][3] + bottleDict["box"][i][5]) / 2)]
-            speed = [50, 50]
-            angle = 0
-            type = 0
-            typeCounter = 0
+        # 增加检测uuID功能，若检测到为-1，则判定为新target，需要被create；
 
-            uuID = str(uuid.uuid1())    # 自己创建，用uuid1 打上 UUID
-            uuIDList.append(uuID)
-            tempList.append(uuID)
-            tempList.append(trackFlag)
-            tempList.append(position)
-            tempList.append(speed)
-            tempList.append(angle)
-            tempList.append(type)
-            tempList.append(typeCounter)
-            targetList.append(tempList)
+        for i in range(len(bottleDict.get("box"))):
+            # 判断bottlDict中的box的uuID，是否为 -1，先假设该元素位于bottleDict["box"][i][1]
+            if bottleDict["box"][i][1] == -1:
+                tempList = list()
+                trackFlag = 0
+                position = [int((bottleDict["box"][i][2] + bottleDict["box"][i][4]) / 2),
+                            int((bottleDict["box"][i][3] + bottleDict["box"][i][5]) / 2)]
+                # 这里先假定速度以及angle等设置
+                speed = [50, 50]
+                angle = 0
+                type = 0
+                typeCounter = 0
+
+                uuID = str(uuid.uuid1())    # 自己创建，用uuid1 打上 UUID
+                uuIDList.append(uuID)
+                tempList.append(uuID)
+                tempList.append(trackFlag)
+                tempList.append(position)
+                tempList.append(speed)
+                tempList.append(angle)
+                tempList.append(type)
+                tempList.append(typeCounter)
+                targetList.append(tempList)
         targetDict.setdefault("nFrame", nFrame)
         targetDict.setdefault("bgTimeCost", bgTimeCost)
         targetDict.setdefault("timeCost", timeCost)
@@ -90,6 +95,7 @@ class Track:
             # print(i)
         # targetTrackTime 更新为Δt后：
         newTargetDict["targetTrackTime"] = frameTime + (deltaT)
+        cv2.imshow("test", _frame)
         # [a, b] = newTargetDict["target"][0][2]
         # cv2.rectangle(_frame, (int(a), int(b)), (int(a) + 50, int(b) + 50), (125, 0, 125), 4)
         # print("frameTime:" + str(newTargetDict["frameTime"]) + "     targetTrackTime:" + str(newTargetDict["targetTrackTime"])  + "     realTime:" + str(time.time()))
@@ -197,10 +203,11 @@ if __name__ == "__main__":
 
         # 判断条件 还有待更改，这里只是调试本脚本示范用，Main中要重新改写
         # if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
-        tempDict = Track().updateTarget(tempDict, _frame)
-        print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
+        for i in range(10):
+            tempDict = Track().updateTarget(tempDict, _frame)
+            print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
 
-        cv2.imshow("test", _frame)
+        # cv2.imshow("test", _frame)
         tempImgproc = ImgProc(10)
 
         frame, bgMask, resarray = tempImgproc.delBg(_frame) if tempImgproc else (_frame, None)
