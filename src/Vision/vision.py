@@ -214,7 +214,7 @@ class Vision(object):
                     label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
                     print("len(dataDict[box])", len(dataDict["box"]))
                     boxLenth = len(dataDict["box"])
-                    if boxLenth > 1:
+                    if boxLenth > 0:
                         for i in range(len(dataDict["box"])):
                             if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
                                 print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
@@ -270,6 +270,8 @@ class Vision(object):
                         #     target = []
             else:
                 # track
+                p0, label = self.imgproc.trackOneObj(featureimg, secondimg, drawimg, label,  p0, lk_params)
+                """
                 if np.size(p0_con.shape[0]) > 0:
                     # print("len(target)", len(target))
                     # print("target", target)
@@ -312,8 +314,7 @@ class Vision(object):
 
                         p0 = good_new.reshape(-1, 1, 2)
                         label = good_label.reshape(-1, 1, 1)
-
-                    """
+                 -----------------------------------------------------
                     for i in range(len(target)):
                         if target[i][0] is not None and target[i][2] == True:
                             p0 = target[i][0].copy()

@@ -256,6 +256,57 @@ class ImgProc:
         # print("Del background Cost time:", self.bgTimeCost)
         return frame_delimite_bac, bgMask, resarray
 
+    def trackOneObj(self, featureimg, secondimg, drawimg, label, p0,lk_params):
+        if p0 is not None and np.size(p0.shape[0]) > 0:
+            # print("len(target)", len(target))
+            # print("target", target)
+            # print("input", input)
+            # p0 = target[0]
+            # print("p0_chuan", p0)
+            # print("pk", pk)
+            # label = p0_con[:, :, 2:3]
+            # print("label", label)
+
+            p1, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, p0, None, **lk_params)
+            if p1 is not None and (label != -1).any() and np.size(p1.shape[0]) > 0:
+                # print("st", st)
+                good_new = p1[st == 1]  # will error when twise  can not use the same
+                good_old = p0[st == 1]  # will error when twise
+
+                good_label = label[st == 1]
+                # print("good_label", good_label)
+                good_new_con = np.concatenate((good_new, good_label), axis=1)
+                good_old_con = np.concatenate((good_old, good_label), axis=1)
+                # print("good_new", good_new)
+                # print("good_old", good_old)
+                for i, (new, old) in enumerate(zip(good_new_con, good_old_con)):  # fold and enumerate with i
+                    a, b, la = new.ravel()  # unfold
+                    c, d, la = old.ravel()
+                    # print("-" * 50)
+
+                    a = int(a)
+                    b = int(b)
+                    c = int(c)
+                    d = int(d)
+
+                    if la != -1:
+                        cv2.line(drawimg, (a, b), (c, d), (0, 255, 255), 1)
+                        cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
+
+                        cv2.putText(drawimg, text=str(la), org=(a, b),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=1, color=(0, 255, 255), thickness=2)
+
+                p0 = good_new.reshape(-1, 1, 2)
+                label = good_label.reshape(-1, 1, 1)
+                return p0, label
+            else:
+                return None, None
+        else:
+            return None, None
+
+
+
     def eDistance(self, p1, p2):
         """
         function description:
