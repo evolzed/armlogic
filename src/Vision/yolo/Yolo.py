@@ -1,6 +1,7 @@
 import colorsys
 import os
 import sys
+from datetime import datetime
 from timeit import default_timer as timer
 from ctypes import *
 
@@ -142,7 +143,11 @@ class YOLO(object):
                 self.input_image_shape: [image.size[1], image.size[0]],
                 K.learning_phase(): 0
             })
-
+        # TODO //
+        if len(out_boxes) > 0:
+            dataDict = {"isObj": True}
+        #     try:
+        #         image.save("")
         # print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 
         font = ImageFont.truetype(font='../Vision/yolo/font/FiraMono-Medium.otf',

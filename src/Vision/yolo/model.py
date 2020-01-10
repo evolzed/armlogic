@@ -168,7 +168,7 @@ def yolo_correct_boxes(box_xy, box_wh, input_shape, image_shape):
         box_maxes[..., 1:2]  # x_max
     ])
 
-    # Scale boxes back to original image shape.
+    # Scale boxes back to original image shape. boxes映射回原图
     boxes *= K.concatenate([image_shape, image_shape])
     return boxes
 

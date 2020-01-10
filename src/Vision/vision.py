@@ -27,7 +27,17 @@ from src.Vision.yolo.Yolo import *
 # from src.Vision.imageProcess.bgLearn import Bglearn
 # from src.Vision.imageProcess.imageTrack import ImageTrack
 gState = 1
-bottleDict = None
+bottleDict = {
+    "image": None,
+    # "box": ["predicted_class", "score", "left", "top", "right", "bottom", "angle", "diameter"],
+    "box": None,
+    "timeCost": None,
+    "bgTimeCost": None,
+    "nFrame": None,
+    "frameTime": None,
+    "getPosTimeCost": None,
+    "isObj": False  # bool
+    }
 
 
 class Vision(object):
@@ -407,7 +417,6 @@ class Vision(object):
             # return dataDict
             global bottleDict
             bottleDict = dataDict
-
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
