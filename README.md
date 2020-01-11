@@ -40,7 +40,6 @@
   * src/          #源代码
   * test/         #测试
   * README.md     
-<<<<<<< HEAD
   * LICENSE.md     
   
 ## 2.2 系统流程图
