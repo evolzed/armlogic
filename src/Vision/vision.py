@@ -156,21 +156,9 @@ class Vision(object):
         lk_params = dict(winSize=(15, 15),
                          maxLevel=2,
                          criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-        # good_old = np.array([])
-        # p0 = np.array([])
-        left = 0
-        top = 0
-        right = 0
-        bottom = 0
-        target = []
-        idd = 0
         p0 = np.array([])
-        p0_con = np.array([])
-        pk = np.array([])
-        input = np.array([])
         label = np.array([])
         while True:
-            # try:
             _frame, nFrame, t = cam.getImage()
             camfps = " Cam" + cam.getCamFps(nFrame)
             curr_time = timer()
@@ -205,26 +193,23 @@ class Vision(object):
             # arr = np.asarray(dataDict["image"])
             imglist = self.imgproc.getBoxOnlyPic(dataDict, preframe)
             imglistk = self.imgproc.getBoxOnlyPic(dataDict, _frame)
-            # good_new, good_old, offset, img = self.img
-            # proc.lkLightflow_track(imglist[0], imglistk[0], None)
             drawimg = frame.copy()
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             #detect
             if flag == 0:
-                p0, label = self.imgproc.detectObj(featureimg, secondimg, drawimg, dataDict, feature_params)
+                p0, label = self.imgproc.detectObj(featureimg, drawimg, dataDict, feature_params, 3)
                 if p0 is not None and label is not None:
                     flag = 1
+            # track
             else:
-                # track
-                p0, label = self.imgproc.trackOneObj(featureimg, secondimg, drawimg, label,  p0, lk_params)
+                p0, label = self.imgproc.trackObj(featureimg, secondimg, drawimg, label,  p0, lk_params)
+            #clear
             if "box" not in dataDict:
                 p0 = np.array([])
                 label = np.array([])
                 flag = 0
                 cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
-                                        # detect no bottle,back to detect
-
             cv2.imshow("res", drawimg)
             cv2.waitKey(10)
             preframeb = frame.copy()

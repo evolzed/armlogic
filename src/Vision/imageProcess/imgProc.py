@@ -256,17 +256,30 @@ class ImgProc:
         # print("Del background Cost time:", self.bgTimeCost)
         return frame_delimite_bac, bgMask, resarray
 
-    def detectObj(self, featureimg, secondimg, drawimg, dataDict, feature_params):
+
+    def detectObj(self, featureimg, drawimg, dataDict, feature_params, label_num):
+        """
+        :param featureimg: feature image, pre image, the  points of this  image(p0) will be track in the trackObj cycle if the points is labeled
+        :param drawimg: drawing img,which is used for draw
+        :param dataDict: the dataDict retruned by image check
+        :param feature_params:track params
+        :param label_num: the min detected boxes
+        :return:p0, label
+        p0 is detected and labeled points  and will be track in the trackObj cycle ,
+        label is the label of p0 points
+        """
+        #detect the points
         p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
         if p0 is not None and "box" in dataDict:
             for k in range(p0.shape[0]):
                 a = int(p0[k, 0, 0])
                 b = int(p0[k, 0, 1])
                 cv2.circle(drawimg, (a, b), 3, (0, 255, 255), -1)
-            # new label
+            # init the label
             label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
             print("len(dataDict[box])", len(dataDict["box"]))
             boxLenth = len(dataDict["box"])
+            # classify  the label  by the dataDict boxes and label them
             if boxLenth > 0:
                 for i in range(len(dataDict["box"])):
                     if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
@@ -290,7 +303,6 @@ class ImgProc:
                 print("label", label)
                 print("unique", np.unique(label[label != -1]))
                 # num is the detected label number
-                label_num = 1
                 if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
                     # flag = 1
                     return p0, label
@@ -302,29 +314,35 @@ class ImgProc:
             return None, None
 
 
-    def trackOneObj(self, featureimg, secondimg, drawimg, label, p0,lk_params):
-        if p0 is not None and np.size(p0.shape[0]) > 0:
-            # print("len(target)", len(target))
-            # print("target", target)
-            # print("input", input)
-            # p0 = target[0]
-            # print("p0_chuan", p0)
-            # print("pk", pk)
-            # label = p0_con[:, :, 2:3]
-            # print("label", label)
+    def trackObj(self, featureimg, secondimg, drawimg, label, p0,lk_params):
+        """
+        :param featureimg: feature image, pre image,the  points of this  image(p0) will be track in the second image(p1)
+        :param secondimg:  second image,current image, will become pre image in the next cycle
+        the tracked points of this image(p1) will become p0 again in the next cycle
+        :param drawimg:  drawing img,which is used for draw
+        :param label: label of points by detectObj
+        :param p0:  the target points for track by detectObj
+        :param lk_params:  track params
+        :return: p0, label: p0 is tracked points and will be track for next cycle,label is the label of p0 points
 
+        """
+        if p0 is not None and np.size(p0.shape[0]) > 0:
+            # track the pre image points p0 to get the tracked points of p1
             p1, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, p0, None, **lk_params)
             if p1 is not None and (label != -1).any() and np.size(p1.shape[0]) > 0:
                 # print("st", st)
+                #find the good tracked points
                 good_new = p1[st == 1]  # will error when twise  can not use the same
                 good_old = p0[st == 1]  # will error when twise
 
                 good_label = label[st == 1]
                 # print("good_label", good_label)
+                #concatenate the points and their labels not used
                 good_new_con = np.concatenate((good_new, good_label), axis=1)
                 good_old_con = np.concatenate((good_old, good_label), axis=1)
                 # print("good_new", good_new)
                 # print("good_old", good_old)
+                #unfold the points and draw it
                 for i, (new, old) in enumerate(zip(good_new_con, good_old_con)):  # fold and enumerate with i
                     a, b, la = new.ravel()  # unfold
                     c, d, la = old.ravel()
