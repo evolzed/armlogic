@@ -25,7 +25,7 @@
 * PIL第三方库
 * 标准库：os模块、ctype(调用c/c++代码)、datetime(日期模块)、colorsys(转换模型模块)、timeit(测试程序运行时间)
 * [GitHub](https://github.com/evolzed/armlogic)
-* 可能的报错：如果运行出现OSError：[WinError] 找不到指定的模块，尝试安装海康SDK中的Runtime组件包[海康官网下载地址](https://www.hikrobotics.com/service/soft.htm?type=2)，如果安装后依然报错，重启计算机后进行尝试）
+* 可能的报错：如果运行出现OSError：[WinError] 找不到指定的模块，尝试安装海康SDK中的Runtime组件包【[海康官网下载地址](https://www.hikrobotics.com/service/soft.htm?type=2)】，如果安装后依然报错，重启计算机后进行尝试）
 ## 1.3 通讯接口
 * Ethernet
 * RS485
