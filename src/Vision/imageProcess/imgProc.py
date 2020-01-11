@@ -259,6 +259,8 @@ class ImgProc:
 
     def detectObj(self, featureimg, drawimg, dataDict, feature_params, label_num):
         """
+         detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
+
         :param featureimg: feature image, pre image, the  points of this  image(p0) will be track in the trackObj cycle if the points is labeled
         :param drawimg: drawing img,which is used for draw
         :param dataDict: the dataDict retruned by image check
@@ -316,6 +318,8 @@ class ImgProc:
 
     def trackObj(self, featureimg, secondimg, drawimg, label, p0,lk_params):
         """
+        track the obj of deteced, input the deteced points or the last tracked points,output the new tracked points and its labels
+
         :param featureimg: feature image, pre image,the  points of this  image(p0) will be track in the second image(p1)
         :param secondimg:  second image,current image, will become pre image in the next cycle
         the tracked points of this image(p1) will become p0 again in the next cycle
