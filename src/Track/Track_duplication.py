@@ -43,7 +43,7 @@ class Track:
                 position = [int((bottleDict["box"][i][2] + bottleDict["box"][i][4]) / 2),
                             int((bottleDict["box"][i][3] + bottleDict["box"][i][5]) / 2)]
                 # 这里先假定速度以及angle等设置
-                speed = [50, 50]
+                speed = [100, 100]
                 angle = 0
                 type = 0
                 typeCounter = 0
@@ -95,7 +95,7 @@ class Track:
             # print(i)
         # targetTrackTime 更新为Δt后：
         newTargetDict["targetTrackTime"] = frameTime + (deltaT)
-        cv2.imshow("test", _frame)
+        # cv2.imshow("test", _frame)
         # [a, b] = newTargetDict["target"][0][2]
         # cv2.rectangle(_frame, (int(a), int(b)), (int(a) + 50, int(b) + 50), (125, 0, 125), 4)
         # print("frameTime:" + str(newTargetDict["frameTime"]) + "     targetTrackTime:" + str(newTargetDict["targetTrackTime"])  + "     realTime:" + str(time.time()))
@@ -207,7 +207,7 @@ if __name__ == "__main__":
             tempDict = Track().updateTarget(tempDict, _frame)
             print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
 
-        # cv2.imshow("test", _frame)
+            cv2.imshow("test", _frame)
         tempImgproc = ImgProc(10)
 
         frame, bgMask, resarray = tempImgproc.delBg(_frame) if tempImgproc else (_frame, None)
