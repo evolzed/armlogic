@@ -256,6 +256,52 @@ class ImgProc:
         # print("Del background Cost time:", self.bgTimeCost)
         return frame_delimite_bac, bgMask, resarray
 
+    def detectObj(self, featureimg, secondimg, drawimg, dataDict, feature_params):
+        p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+        if p0 is not None and "box" in dataDict:
+            for k in range(p0.shape[0]):
+                a = int(p0[k, 0, 0])
+                b = int(p0[k, 0, 1])
+                cv2.circle(drawimg, (a, b), 3, (0, 255, 255), -1)
+            # new label
+            label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
+            print("len(dataDict[box])", len(dataDict["box"]))
+            boxLenth = len(dataDict["box"])
+            if boxLenth > 0:
+                for i in range(len(dataDict["box"])):
+                    if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
+                        print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
+                        left = dataDict["box"][i][2]
+                        top = dataDict["box"][i][3]
+                        right = dataDict["box"][i][4]
+                        bottom = dataDict["box"][i][5]
+                        cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
+                        # store every point label
+                        print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
+                        for k in range(p0.shape[0]):
+                            print("p0", p0[k, 0, 0])
+                            print("p1", p0[k, 0, 1])
+                            if (left - 20 <= p0[k, 0, 0]) and \
+                                    (p0[k, 0, 0] <= right + 20) and \
+                                    (top - 20 <= p0[k, 0, 1]) and \
+                                    (p0[k, 0, 1] <= bottom + 20):
+                                label[k, 0, 0] = i
+
+                print("label", label)
+                print("unique", np.unique(label[label != -1]))
+                # num is the detected label number
+                label_num = 1
+                if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
+                    # flag = 1
+                    return p0, label
+                else:
+                    return None, None
+            else:
+                return None, None
+        else:
+            return None, None
+
+
     def trackOneObj(self, featureimg, secondimg, drawimg, label, p0,lk_params):
         if p0 is not None and np.size(p0.shape[0]) > 0:
             # print("len(target)", len(target))
