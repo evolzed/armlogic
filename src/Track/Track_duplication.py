@@ -28,34 +28,41 @@ class Track:
         nFrame = bottleDict.get("nFrame")
         bgTimeCost = bottleDict.get("bgTimeCost")
         timeCost = bottleDict.get("timeCost")
+        frameTime = bottleDict.get("frameTime")
         targetTrackTime = 0
 
         targetDict.setdefault("target", targetList)
 
-        for i in range(len(bottleDict.get("box"))):
-            tempList = list()
-            trackFlag = 0
-            position = [int((bottleDict["box"][i][2] + bottleDict["box"][i][4]) / 2),
-                        int((bottleDict["box"][i][3] + bottleDict["box"][i][5]) / 2)]
-            speed = [50, 50]
-            angle = 0
-            type = 0
-            typeCounter = 0
+        # 增加检测uuID功能，若检测到为-1，则判定为新target，需要被create；
 
-            uuID = str(uuid.uuid1())    # 自己创建，用uuid1 打上 UUID
-            uuIDList.append(uuID)
-            tempList.append(uuID)
-            tempList.append(trackFlag)
-            tempList.append(position)
-            tempList.append(speed)
-            tempList.append(angle)
-            tempList.append(type)
-            tempList.append(typeCounter)
-            targetList.append(tempList)
+        for i in range(len(bottleDict.get("box"))):
+            # 判断bottlDict中的box的uuID，是否为 -1，先假设该元素位于bottleDict["box"][i][1]
+            if bottleDict["box"][i][1] == -1:
+                tempList = list()
+                trackFlag = 0
+                position = [int((bottleDict["box"][i][2] + bottleDict["box"][i][4]) / 2),
+                            int((bottleDict["box"][i][3] + bottleDict["box"][i][5]) / 2)]
+                # 这里先假定速度以及angle等设置
+                speed = [100, 100]
+                angle = 0
+                type = 0
+                typeCounter = 0
+
+                uuID = str(uuid.uuid1())    # 自己创建，用uuid1 打上 UUID
+                uuIDList.append(uuID)
+                tempList.append(uuID)
+                tempList.append(trackFlag)
+                tempList.append(position)
+                tempList.append(speed)
+                tempList.append(angle)
+                tempList.append(type)
+                tempList.append(typeCounter)
+                targetList.append(tempList)
         targetDict.setdefault("nFrame", nFrame)
         targetDict.setdefault("bgTimeCost", bgTimeCost)
         targetDict.setdefault("timeCost", timeCost)
         targetDict.setdefault("targetTrackTime", targetTrackTime)
+        targetDict.setdefault("frameTime", frameTime)
         # tempList.append('\n')
 
         # file = open("targetDict_test.txt", "a")
@@ -65,13 +72,14 @@ class Track:
         # print(targetDict, uuIDList)
         return targetDict, uuIDList
 
-    def updateTarget(self, targetDict):
+    def updateTarget(self, targetDict, _frame):
         """
         更新target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
 
         :param targetDict: 上一步的目标物的信息
         :return: 同一UUID下的目标物的信息更新；
         """
+        self._frame = _frame
         deltaT = 0.01
 
         oldTargetDict = targetDict
@@ -82,11 +90,12 @@ class Track:
         for i in range(len(newTargetDictLists)):
             newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * (deltaT)
             newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * (deltaT)
-            cv2.rectangle(_frame, (int(newTargetDictLists[i][2][0]), int(newTargetDictLists[i][2][1])),
-                          (int(newTargetDictLists[i][2][0]) + 50, int(newTargetDictLists[i][2][0]) + 50), (125, 0, 125), 4)
+            cv2.rectangle(_frame, (int(newTargetDictLists[i][2][0] - 100), int(newTargetDictLists[i][2][1]) - 100),
+                          (int(newTargetDictLists[i][2][0]) + 100, int(newTargetDictLists[i][2][1]) + 100), (125, 0, 125), 4)
             # print(i)
         # targetTrackTime 更新为Δt后：
         newTargetDict["targetTrackTime"] = frameTime + (deltaT)
+        # cv2.imshow("test", _frame)
         # [a, b] = newTargetDict["target"][0][2]
         # cv2.rectangle(_frame, (int(a), int(b)), (int(a) + 50, int(b) + 50), (125, 0, 125), 4)
         # print("frameTime:" + str(newTargetDict["frameTime"]) + "     targetTrackTime:" + str(newTargetDict["targetTrackTime"])  + "     realTime:" + str(time.time()))
@@ -194,10 +203,11 @@ if __name__ == "__main__":
 
         # 判断条件 还有待更改，这里只是调试本脚本示范用，Main中要重新改写
         # if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
-        tempDict = Track().updateTarget(tempDict)
-        print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
+        for i in range(10):
+            tempDict = Track().updateTarget(tempDict, _frame)
+            print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
 
-        cv2.imshow("test", _frame)
+            cv2.imshow("test", _frame)
         tempImgproc = ImgProc(10)
 
         frame, bgMask, resarray = tempImgproc.delBg(_frame) if tempImgproc else (_frame, None)
