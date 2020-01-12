@@ -9,6 +9,11 @@ sys.path.append(os.path.abspath("../../"))
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
 import platform
+
+from lib.Logger.Logger import Logger
+
+sys.stdout = Logger("E:\\12.txt")  # 保存到D盘
+
 sysArc = platform.uname()
 if sysArc[0] == "Windows":
     from lib.HikMvImport_Win.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
@@ -22,7 +27,17 @@ from src.Vision.yolo.Yolo import *
 # from src.Vision.imageProcess.bgLearn import Bglearn
 # from src.Vision.imageProcess.imageTrack import ImageTrack
 gState = 1
-bottleDict = None
+bottleDict = {
+    "image": None,
+    # "box": ["predicted_class", "score", "left", "top", "right", "bottom", "angle", "diameter"],
+    "box": None,
+    "timeCost": None,
+    "bgTimeCost": None,
+    "nFrame": None,
+    "frameTime": None,
+    "getPosTimeCost": None,
+    "isObj": False  # bool
+    }
 
 
 class Vision(object):
@@ -122,8 +137,28 @@ class Vision(object):
         #     cam.press_any_key_exit()
 
         #trackObj = ImageTrack()
+        preframe, nFrame, t = cam.getImage()
+        preframeb, bgMaskb, resarrayb = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
+        k = 1
+        startt = timer()
+        left = 0
+        top = 0
+        right = 0
+        bottom = 0
+        flag = 0
+        inputCorner = np.array([])
+
+        feature_params = dict(maxCorners=30,
+                              qualityLevel=0.3,
+                              minDistance=7,  # min distance between corners
+                              blockSize=7)  # winsize of corner
+        # params for lk track
+        lk_params = dict(winSize=(15, 15),
+                         maxLevel=2,
+                         criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+        p0 = np.array([])
+        label = np.array([])
         while True:
-            # try:
             _frame, nFrame, t = cam.getImage()
             camfps = " Cam" + cam.getCamFps(nFrame)
             curr_time = timer()
@@ -156,6 +191,29 @@ class Vision(object):
             dataDict["nFrame"] = nFrame
             dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
             # arr = np.asarray(dataDict["image"])
+            imglist = self.imgproc.getBoxOnlyPic(dataDict, preframe)
+            imglistk = self.imgproc.getBoxOnlyPic(dataDict, _frame)
+            drawimg = frame.copy()
+            featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
+            secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            #detect
+            if flag == 0:
+                p0, label = self.imgproc.detectObj(featureimg, drawimg, dataDict, feature_params, 3)
+                if p0 is not None and label is not None:
+                    flag = 1
+            # track
+            else:
+                p0, label = self.imgproc.trackObj(featureimg, secondimg, drawimg, label,  p0, lk_params)
+            #clear
+            if "box" not in dataDict:
+                p0 = np.array([])
+                label = np.array([])
+                flag = 0
+                cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
+            cv2.imshow("res", drawimg)
+            cv2.waitKey(10)
+            preframeb = frame.copy()
+
             if bgMask is not None:
                 dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)
             cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -170,12 +228,6 @@ class Vision(object):
             # return dataDict
             global bottleDict
             bottleDict = dataDict
-                # print(dataDict)
-            # except Exception as e:
-            #     # global gState
-            #     # gState = 3
-            #     print(e)
-            #     break
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):

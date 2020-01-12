@@ -256,6 +256,125 @@ class ImgProc:
         # print("Del background Cost time:", self.bgTimeCost)
         return frame_delimite_bac, bgMask, resarray
 
+
+    def detectObj(self, featureimg, drawimg, dataDict, feature_params, label_num):
+        """
+         detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
+
+        :param featureimg: feature image, pre image, the  points of this  image(p0) will be track in the trackObj cycle if the points is labeled
+        :param drawimg: drawing img,which is used for draw
+        :param dataDict: the dataDict retruned by image check
+        :param feature_params:track params
+        :param label_num: the min detected boxes
+        :return:p0, label
+        p0 is detected and labeled points  and will be track in the trackObj cycle ,
+        label is the label of p0 points
+        """
+        #detect the points
+        p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+        if p0 is not None and "box" in dataDict:
+            for k in range(p0.shape[0]):
+                a = int(p0[k, 0, 0])
+                b = int(p0[k, 0, 1])
+                cv2.circle(drawimg, (a, b), 3, (0, 255, 255), -1)
+            # init the label
+            label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
+            print("len(dataDict[box])", len(dataDict["box"]))
+            boxLenth = len(dataDict["box"])
+            # classify  the label  by the dataDict boxes and label them
+            if boxLenth > 0:
+                for i in range(len(dataDict["box"])):
+                    if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
+                        print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
+                        left = dataDict["box"][i][2]
+                        top = dataDict["box"][i][3]
+                        right = dataDict["box"][i][4]
+                        bottom = dataDict["box"][i][5]
+                        cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
+                        # store every point label
+                        print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
+                        for k in range(p0.shape[0]):
+                            print("p0", p0[k, 0, 0])
+                            print("p1", p0[k, 0, 1])
+                            if (left - 20 <= p0[k, 0, 0]) and \
+                                    (p0[k, 0, 0] <= right + 20) and \
+                                    (top - 20 <= p0[k, 0, 1]) and \
+                                    (p0[k, 0, 1] <= bottom + 20):
+                                label[k, 0, 0] = i
+
+                print("label", label)
+                print("unique", np.unique(label[label != -1]))
+                # num is the detected label number
+                if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
+                    # flag = 1
+                    return p0, label
+                else:
+                    return None, None
+            else:
+                return None, None
+        else:
+            return None, None
+
+
+    def trackObj(self, featureimg, secondimg, drawimg, label, p0,lk_params):
+        """
+        track the obj of deteced, input the deteced points or the last tracked points,output the new tracked points and its labels
+
+        :param featureimg: feature image, pre image,the  points of this  image(p0) will be track in the second image(p1)
+        :param secondimg:  second image,current image, will become pre image in the next cycle
+        the tracked points of this image(p1) will become p0 again in the next cycle
+        :param drawimg:  drawing img,which is used for draw
+        :param label: label of points by detectObj
+        :param p0:  the target points for track by detectObj
+        :param lk_params:  track params
+        :return: p0, label: p0 is tracked points and will be track for next cycle,label is the label of p0 points
+
+        """
+        if p0 is not None and np.size(p0.shape[0]) > 0:
+            # track the pre image points p0 to get the tracked points of p1
+            p1, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, p0, None, **lk_params)
+            if p1 is not None and (label != -1).any() and np.size(p1.shape[0]) > 0:
+                # print("st", st)
+                #find the good tracked points
+                good_new = p1[st == 1]  # will error when twise  can not use the same
+                good_old = p0[st == 1]  # will error when twise
+
+                good_label = label[st == 1]
+                # print("good_label", good_label)
+                #concatenate the points and their labels not used
+                good_new_con = np.concatenate((good_new, good_label), axis=1)
+                good_old_con = np.concatenate((good_old, good_label), axis=1)
+                # print("good_new", good_new)
+                # print("good_old", good_old)
+                #unfold the points and draw it
+                for i, (new, old) in enumerate(zip(good_new_con, good_old_con)):  # fold and enumerate with i
+                    a, b, la = new.ravel()  # unfold
+                    c, d, la = old.ravel()
+                    # print("-" * 50)
+
+                    a = int(a)
+                    b = int(b)
+                    c = int(c)
+                    d = int(d)
+
+                    if la != -1:
+                        cv2.line(drawimg, (a, b), (c, d), (0, 255, 255), 1)
+                        cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
+
+                        cv2.putText(drawimg, text=str(la), org=(a, b),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=1, color=(0, 255, 255), thickness=2)
+
+                p0 = good_new.reshape(-1, 1, 2)
+                label = good_label.reshape(-1, 1, 1)
+                return p0, label
+            else:
+                return None, None
+        else:
+            return None, None
+
+
+
     def eDistance(self, p1, p2):
         """
         function description:
@@ -276,13 +395,13 @@ class ImgProc:
         :param rbox: input rotatebox
         :return: angle: angle that modified
         """
-        print("rbox", rbox)
-        print("rboxtype", type(rbox))
+        # print("rbox", rbox)
+        # print("rboxtype", type(rbox))
         # mrbox=np.array(rbox)
         w = self.eDistance(rbox[0], rbox[1])
         h = self.eDistance(rbox[1], rbox[2])
-        print("w", w)
-        print("h", h)
+        # print("w", w)
+        # print("h", h)
         # 钝角 内积小于0
         xAxisVector = np.array([[0], [1]])
         angle = 0
@@ -292,8 +411,8 @@ class ImgProc:
             v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
 
             v = rbox[1] - rbox[0]
-            print("v:", v)
-            print("vdet", np.dot(v, xAxisVector)[0])
+            # print("v:", v)
+            # print("vdet", np.dot(v, xAxisVector)[0])
             # 内积大于0 是锐角 小于0是钝角
             if np.dot(v, xAxisVector)[0] > 0:
                 angle = - angle
@@ -307,8 +426,8 @@ class ImgProc:
             # find the low point the vector is from low to high
             v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
             v = rbox[1] - rbox[2]
-            print("v:", v)
-            print("vdet", np.dot(v, xAxisVector)[0])
+            # print("v:", v)
+            # print("vdet", np.dot(v, xAxisVector)[0])
             # 内积大于0 是锐角 小于0是钝角
             if np.dot(v, xAxisVector)[0] > 0:
                 angle = - angle
@@ -325,6 +444,37 @@ class ImgProc:
         if 0 < angle < 180:
             angle = angle - 180
         return angle
+
+    def getBoxOnlyPic(self, dataDict, frameOrg0):
+        frameOrg = frameOrg0.copy()
+        list =[]
+        if "box" in dataDict:
+            for i in range(len(dataDict["box"])):
+                if dataDict["box"][i][1] > 0.8:
+                    # get the box vertex
+                    left = dataDict["box"][i][2]
+                    top = dataDict["box"][i][3]
+                    right = dataDict["box"][i][4]
+                    bottom = dataDict["box"][i][5]
+                    rectTop = np.array([left, top])
+                    rectBottle = (right - left, bottom - top)
+                    # get the BOX ROI from frame
+                    x = int((left + right)/2)
+                    y = int((top + bottom)/2)
+                    w = abs(left - right)
+                    h = abs(bottom - top)
+                    roi = np.zeros(4, dtype=int)
+                    roi[0] = x
+                    roi[1] = y
+                    roi[2] = w
+                    roi[3] = h
+                    maskroi = creatMaskFromROI(frameOrg, roi)
+                    show = cv2.bitwise_and(frameOrg, frameOrg, mask=maskroi)
+                    list.append(show)
+        if len(list) == 0:
+            list.append(frameOrg)
+        return list
+
 
 
     def getBottlePose(self, frameOrg0, bgMask, dataDict):
@@ -501,7 +651,7 @@ class ImgProc:
                         rbox = np.int0(rbox)
                         # 画出来
                         cv2.drawContours(frameOrg, [rbox], 0, (255, 0, 255), 1)
-                        cv2.imshow("pos", frameOrg)
+                        # cv2.imshow("pos", frameOrg)
                         # store angle and diameter to the dataDict
                         dataDict["box"][i][6] = angle
                         dataDict["box"][i][7] = diameter
@@ -513,6 +663,8 @@ class ImgProc:
 
     # analyse every point
     def analyseTrackPoint(self, good_new, good_old, precisionThreshold):
+        # offset = np.array([0, 0])
+        # return good_new, good_old, offset
         """
         analyse the track point to get the more precision point
 
@@ -528,13 +680,13 @@ class ImgProc:
         # good_new -good_old
         #print("good_new shape", good_new.shape)
         #print("good_new shape[0]", good_new.shape[0])
-        if np.isnan(good_new).sum() >0 or np.isnan(good_old).sum()>0:
-            return good_new, good_old
+        if np.isnan(good_new).sum() > 0 or np.isnan(good_old).sum() > 0:
+            return good_new, good_old, np.array([0, 0])
         good_new0 = np.array([[0, 0]])
         good_old0 = np.array([[0, 0]])
         pointLen = good_new.shape[0]
         if pointLen == 0:
-            return good_new, good_old
+            return good_new, good_old, np.array([0, 0])
         disarray = np.array([])
         for i in range(pointLen):
             dis = self.eDistance(good_new[i], good_old[i])
@@ -545,7 +697,7 @@ class ImgProc:
         index = np.where(disarray <= reduce)
         #format need
         index = index[0]
-        print("index", index)
+        # print("index", index)
         # index_total = np.arrange(pointLen)
         # index = set(index.tolist())
         # index_total =set(index_total.tolist())
@@ -558,7 +710,24 @@ class ImgProc:
         good_old0 = np.delete(good_old0, 0, axis=0)
         good_new0 = good_new0.astype(int)
         good_old0 = good_old0.astype(int)
-        return good_new0, good_old0
+
+#calcute the ave speed
+        pointLen0 = good_new0.shape[0]
+        if pointLen0 == 0:
+            return good_new, good_old, np.array([0, 0])
+        #speedarray = np.array([0, 0])
+        # for i in range(pointLen):
+        #     speed = good_new0[i] - good_old0[i]
+        #     speedarray = np.append(speedarray, speed)
+        # speedarray = np.delete(speedarray,0,axis=0)
+        speedarray = good_new0 - good_old0
+        pointLen0 = good_new0.shape[0]
+        print("offset_diff_array", speedarray)
+        print("offset_array_sum", np.sum(speedarray, axis=0))
+        speed = np.sum(speedarray, axis=0)/pointLen0
+
+        #print()
+        return good_new0, good_old0, speed
 
 
     def getBeltSpeed(self, dataDict):
@@ -583,7 +752,7 @@ class ImgProc:
         """""
 
 
-    def lkLightflow_track(self, featureimg, secondimg_orig, mask):
+    def lkLightflow_track(self, featureimg, secondimg_orig, mask,inputCorner):
         """
         function description:
         LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,
@@ -622,9 +791,13 @@ class ImgProc:
         # cv2.imshow("re1s", secondimg)
         corner_count = self.MAX_CORNERS
         # find the good corners for track
-        cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
-        if cornersA is None:
-            return None, None, secondimg_orig
+        if inputCorner is None:
+            cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+            if cornersA is None:
+                return None, None, 0, secondimg_orig
+        else:
+            cornersA = inputCorner.copy()
+
         # criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
         #  cv2.cornerSubPix(featureimg, cornersA, (self.win_size, self.win_size), (-1, -1), criteria)
 
@@ -640,32 +813,49 @@ class ImgProc:
         # which has a value of 1 if next point is found,
         cornersB, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, None, **lk_params)
         # find the point that concerned to be tracked
+        offset = np.array([0, 0])
+        drawimg = secondimg_orig.copy()
+        if cornersB is None:
+            return None, None, offset, drawimg
         good_new = cornersB[st == 1]
         good_old = cornersA[st == 1]
 
-        good_new, good_old = self.analyseTrackPoint(good_new, good_old, 30)
+        # good_new, good_old, offset = self.analyseTrackPoint(good_new, good_old, 30)
+        # if offset is not None:
+        #     print("offset0", offset[0])
+        #     print("offset1", offset[1])
 
 
+        #drawing  optimal
 
         #print("distancearr", distancearr)q
         #print("reduce", reduce)
         # mask = np.zeros_like(drawimg)
         img = np.zeros_like(mask)
         # drawimg = np.zeros_like(mask) # mask every pic excetp the light flow angle
-        drawimg = secondimg_orig.copy()
+
         # mask = drawimg.copy()
         # draw line between the tracked corners of qpre frame and current frameq
         for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
             a, b = new.ravel()  # unfold
             c, d = old.ravel()
             # mask = cv2.line(mask, (a, b), (c, d), color[i].tolist(), 1)
-            mask = cv2.line(mask, (a, b), (c, d), (0, 0, 255), 1)
+            if mask is not None:
+                mask = cv2.line(mask, (a, b), (c, d), (0, 0, 255), 1)
 
-            if self.eDistance(np.array(list((a, b))), np.array(list((c, d)))) > 10:
+            if self.eDistance(np.array(list((a, b))), np.array(list((c, d)))) > 1:
                 # drawimg = cv2.circle(drawimg, (a, b), 5, color[i].tolist(), -1)
-                drawimg = cv2.circle(drawimg, (a, b), 5, (0, 0, 255), -1)
+                drawimg = cv2.circle(drawimg, (a, b), 5, (0, 0, 255), -1)   #red
+            if mask is not None:
+                img = cv2.add(drawimg, mask)
+                print("test:", a-int(offset[0]))
+                print("type:", type(int(a-offset[0])))
 
-            img = cv2.add(drawimg, mask)
+            else:
+                cv2.line(drawimg, (a, b), (c, d), (0, 0, 255), 1)
+                if offset is not None:
+                    cv2.line(drawimg, (a, b), (int(a - offset[0]), int(b - offset[1])), (0, 255, 255), 1)  # yellow
+        img = drawimg
 
         """
         for i in range(corners_cnt):
@@ -676,7 +866,7 @@ class ImgProc:
 
             cv2.line(drawimg, p0, p1, (0, 255, 255), 1)
         """
-        return good_new, good_old, img
+        return good_new, good_old, offset, img
 
 
 def creatMaskFromROI(src, roi):
@@ -738,6 +928,16 @@ if __name__ == "__main__":
         premask = preframeDelBg.copy()
         timeStart = timer()
         timeCnt = 0
+        flag=1
+        feature_params = dict(maxCorners=30,
+                              qualityLevel=0.3,
+                              minDistance=7,  # min distance between corners
+                              blockSize=7)  # winsize of corner
+        # params for lk track
+        lk_params = dict(winSize=(15, 15),
+                         maxLevel=2,
+                         criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+        good_old = np.array([])
         while 1:
             frame, nFrameNum, t = cam.getImage()
             # camra fault tolerant
@@ -755,7 +955,7 @@ if __name__ == "__main__":
             frameDelBg, bgmask, resarray = obj.delBg(frame)
 
             #print(len(resarray))
-
+            """
             if resarray is not None:
                 print("len：", len(resarray))
                 for i in range(len(resarray)):
@@ -763,7 +963,7 @@ if __name__ == "__main__":
                     maskSingle = creatMaskFromROI(frameDelBg, resarray[i])
                     show = cv2.bitwise_and(preframeDelBg, preframeDelBg, mask=maskSingle)
                     #cv2.imshow(str(i), show)
-
+            """
             # put text on frame to display the fps
             cv2.putText(frameDelBg, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(255, 0, 0), thickness=2)
@@ -772,10 +972,50 @@ if __name__ == "__main__":
             # drawimg = mask.copy()
             trakSart = timer()
             #good_new, good_old, drawimg = obj.lkLightflow_track(preFrame, frame, mask)
-            good_new, good_old, drawimg = obj.lkLightflow_track(preframeDelBg, frameDelBg, premask)
+            #good_new, good_old, offset, drawimg = obj.lkLightflow_track(preframeDelBg, frameDelBg, premask)
+
+            drawimg =frameDelBg.copy()
+            featureimg = cv2.cvtColor(preframeDelBg, cv2.COLOR_BGR2GRAY)
+            secondimg = cv2.cvtColor(frameDelBg, cv2.COLOR_BGR2GRAY)
+            if flag == 1:
+                cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+                # print("cornersA",cornersA)
+                if cornersA is not None:
+                    if np.size(cornersA) > 0:
+                        cornersB, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, None, **lk_params)
+                        print("cornersB", cornersB)
+                        good_new = cornersB[st == 1]
+                #good_old = cornersA[st == 1]
+                    if good_new is not None:
+                        if np.size(good_new) > 0:
+                            good_old = good_new.copy()
+                            print("good_new", good_new)
+                            for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
+                                a, b = new.ravel()  # unfold
+                                c, d = old.ravel()
+                                cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
+                            flag = 0
+            else:
+                if np.size(good_old)!=0:
+                    good_new, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, good_old, None, **lk_params)
+                    #good_new = good_new[st == 1]  #will error when twise
+                    good_old = good_new.copy()
+                    print("*" * 50)
+                    for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
+                        a, b = new.ravel()  # unfold
+                        c, d = old.ravel()
+                        print("-" * 50)
+                        cv2.line(drawimg, (a, b), (c, d), (0, 0, 255), 1)
+                        cv2.circle(drawimg, (a, b),3, (0, 0, 255), -1)
+                        print("good_new0", good_new)
+                        print("good_old0", good_new)
+
+            # img = drawimg
+
             #print("good_new.shape:", good_new.shape)
             #print("good_old.shape:", good_old.shape)
             cv2.imshow("res", drawimg)
+            cv2.waitKey(10)
             # copy the current frame as preFrame for next use
             #preFrame = frame.copy()
             preframeDelBg = frameDelBg.copy()
