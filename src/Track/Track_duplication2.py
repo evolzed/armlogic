@@ -251,7 +251,7 @@ if __name__ == "__main__":
         # dataDict["timeCost"] = exec_time
         dataDict["nFrame"] = nFrame
         dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
-
+        dataDict["box"] = []
         dataDict = _vision.yolo.detectImage(img)
         print(tempDict)
         if tempDict["target"] is None:
