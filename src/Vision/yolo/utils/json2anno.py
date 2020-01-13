@@ -42,8 +42,8 @@ def json2anno(json_path="./output/jsons", anno_out_path="output/bottle_annotatio
                         bbox_class = bbox["name"]
                         bbox_xmin = str(bbox["bndbox"]["xmin"] if bbox["bndbox"]["xmin"] >= 0 else 0)
                         bbox_ymin = str(bbox["bndbox"]["ymin"] if bbox["bndbox"]["ymin"] >= 0 else 0)
-                        bbox_xmax = str(bbox["bndbox"]["xmax"] if bbox["bndbox"]["xmax"] >= 0 else 0)
-                        bbox_ymax = str(bbox["bndbox"]["ymax"] if bbox["bndbox"]["ymax"] >= 0 else 0)
+                        bbox_xmax = str(bbox["bndbox"]["xmax"] if bbox["bndbox"]["xmax"] <= 1280 else 1280)
+                        bbox_ymax = str(bbox["bndbox"]["ymax"] if bbox["bndbox"]["ymax"] <= 960 else 960)
                         context += bbox_xmin + "," + bbox_ymin + "," + bbox_xmax + "," + bbox_ymax + "," + bbox_class + " "
                     anno_file.write(os.path.join(cuPath, (i.replace(".json", ".jpg ")) + context + "\n"))
                     n += 1
