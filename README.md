@@ -26,6 +26,7 @@
 * h5py==2.10.0
 * 标准库：os模块、ctype(调用c/c++代码)、datetime(日期模块)、colorsys(转换模型模块)、timeit(测试程序运行时间)
 * [GitHub](https://github.com/evolzed/armlogic)
+* 可能的报错：如果运行出现OSError：[WinError] 找不到指定的模块，尝试安装海康SDK中的Runtime组件包【[海康官网下载地址](https://www.hikrobotics.com/service/soft.htm?type=2)】，如果安装后依然报错，重启计算机后进行尝试）
 ## 1.3 通讯接口
 * Ethernet
 * RS485
@@ -39,8 +40,9 @@
   * docs/         #技术文档
   * src/          #源代码
   * test/         #测试
-  * README.md 
-* LICENSE.md     
+
+  * README.md     
+  * LICENSE.md     
   
 ## 2.2 系统流程图
 ![FlowChart](http://192.168.0.203:8088/armlogic/BottleSort/raw/Track/docs/pic/FlowChart/Track_20200103.png)
@@ -81,6 +83,14 @@
 | Track | createTarget() | 创建新的targetDict元素 |  | | targetDict |
 | Track | updateTarget() | 更新targetDict内的元素 | targetDict | | targetDict |
 | Track | mergeTarget() | 合并target功能，实现实时运行中为实际镜头图像范围内的所有目标物 | targetDict1,targetDict2 |  | targetDict |
+
+
+
+| Class |    Function    |      Description      | Input |  Output   | Return |
+| :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
+| Track | createTarget() | 创建新的trackDict元素 |       | trackDict |        |
+| Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
+
 
 ----
 
