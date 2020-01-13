@@ -41,12 +41,15 @@ class MysqlConnect(object):
         """
         db = pymysql.connect(host='192.168.0.203', user='root', password='rootroot', database='mysql', port=3306)   # 远程连接数据库
         cursor = db.cursor()
-        check = cursor.execute("show tables like '{}'".format())
-        if check == 0:
+        check = cursor.execute("show tables like '{}Table'".format(species))
+        Table = "{}Table".format(species)
+        if check == 0:   # 如果检查到此表数量不等于0，则不创建此表
             create = cursor.execute(
-                "CREATE TABLE {}(Species VARCHAR(20),Brand VARCHAR(20), B_type VARCHAR(20) Iden_time VARCHAR(20), B_status VARCHAR(20), UP_time VARCHAR(20), Pic_name VARCHAR(20), Pic_dir VARCHAR(20), str1 VARCHAR(20), str2 VARCHAR(20), str3 VARCHAR(20))".format())
-        addDate = cursor.execute("insert into {}(Species,Brand,B_type,Iden_time,B_status,UP_time,Pic_name,Pic_dir) values('{}','{}','{}',Now(),'{}','{}','{}','{}',)".format())
+                "CREATE TABLE {}(Species VARCHAR(50),Brand VARCHAR(50),Brand_type VARCHAR(50),Record_time VARCHAR(50),B_status VARCHAR(50),UP_time VARCHAR(50),Pic_name VARCHAR(50),Pic_dir VARCHAR(80),str1 VARCHAR(50),str2 VARCHAR(50),str3 VARCHAR(50))".format(Table))
+        addDate = cursor.execute("insert into {}(Species,Brand,Brand_type,Record_time,B_status,UP_time,Pic_name,Pic_dir,str1) values('{}','{}','{}','{}','{}',Now(),'{}','{}','test')".format(Table, species, brand, brand_type, record_time, b_status, filename, pic_dir))
+        db.commit()
         cursor.close()
+        db.close()
 
 
 if __name__ == "__main__":
@@ -66,11 +69,16 @@ if __name__ == "__main__":
     for capture in list(capturefile.split('\n')):
         if not len(capture) == 0:
             filedir = capture.split()[-1]
-            filename = filedir.split("/")[-1]
+            filename = filedir.split("/")[-1]  # mysql filename
             date, dTime, pic = filename.split("_")[0], filename.split("_")[1], filename.split("_")[2]
-            print(filename, date, dTime, pic)
+            species = "Bottle"
+            brand = None
+            brand_type = None
+            record_time = date + dTime  # mysql Record_time
+            b_status = None
+            pic_dir = "/home/armlogic/data/{}/{}".format(species, filename)
+            print("filedir:", filedir, "\nfilename:",filename, "\nspecies:",species, "\nbrand:", brand, "\nbrand_type:",brand_type, "\nrecord_time:", record_time, "\nb_status:", b_status, "\npic_dir:", pic_dir)
             Mconn = MysqlConnect().connectMysql()
-            scpFile = conn.ssh(host="192.168.0.203", port=22, user="armlogic", passwd="admin", cmd="scp {} armlogic@192.168.0.203:/home/armlogic/data && mv {} /home/armlogic/caspar/test/move".format(filedir, filedir))
+            scpFile = conn.ssh(host="192.168.0.203", port=22, user="armlogic", passwd="admin", cmd="scp {} armlogic@192.168.0.203:/home/armlogic/data/{} && mv {} /home/armlogic/caspar/test/move".format(filedir, species, filedir))
             time.sleep(0.5)
     print("Not File to deal with")
-
