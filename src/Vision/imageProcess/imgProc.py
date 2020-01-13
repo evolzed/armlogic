@@ -243,9 +243,13 @@ class ImgProc:
 
     def findTrackedOffsetOneBottle(self, good_new, good_old):
         offsetArray = good_new - good_old
-
-
-
+        disTemp= np.sum((good_new - good_old) ** 2, axis=1)
+        print("disTemp", disTemp)
+        dis = d.reshape(d.shape[0], 1)
+        print("dis", dis)
+        sortIndex = np.argsort(dis, axis=0)
+        dis_con = np.concatenate((offsetArray, sortIndex), axis=1)
+        offset = dis_con[dis_con[:, 2] == 0]
 
 
     def findTrackedCenterPoint(self, p0, label):
