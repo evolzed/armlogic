@@ -39,7 +39,7 @@
   * src/          #源代码
   * test/         #测试
   * README.md     
-<<<<<<< HEAD
+
   * LICENSE.md     
   
 ## 2.2 系统流程图
@@ -105,7 +105,7 @@
 | Track | createTarget() | 创建新的trackDict元素 |       | trackDict |        |
 | Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
 
->>>>>>> e37de98efe0758be20affa29c5d30d0aad575bb4
+
 
 
 ----
