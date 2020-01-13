@@ -152,36 +152,21 @@ class ImgProc:
         """
         rectArray = []
         src = np.float32(src0)
-        # print("IlowF.shape", self.IlowF.shape)
-        # print("IhiF.shape", self.IhiF.shape)
-        # print("src.shape", src.shape)
-        # print("dst.shape", dst.shape)
 
-        # print("IlowF.tpye", self.IlowF.dtype)
-        # print("IhiF.tpye", self.IhiF.dtype)
-        # print("src.tpye", src.dtype)
-        # print("dst.tpye", dst.dtype)
-
-        # cv2.inRange(src, IlowF, IhiF, dst)
         # segment the src through IlowF and IhiF
         dst = cv2.inRange(src, self.IlowF, self.IhiF)
         # cv2.imshow("segment_debug", dst)
 
         # morph process the frame to clear the noise and highlight our object region
-        # print("is this ok00?")
+
         dst = cv2.morphologyEx(dst, cv2.MORPH_OPEN, self.kernel7)
-        # print("is this ok01?")
+
         dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel7)
-        # print("is this ok02?")
 
         tmp = 255 * np.ones(shape=dst.shape, dtype=dst.dtype)
-        # np.zeros(shape=(960, 1280, 3), dtype=np.uint8)
 
         # inverse the  pixel value to make the mask
         dst = cv2.subtract(255, dst)
-        # dst=tmp-dst
-        # print("is this ok03?")
-        # cv2.GaussianBlur(dst, dst, (19, 19), 3)
 
         # filter  and morph again and then find the bottle contours
         dst = cv2.GaussianBlur(dst, (19, 19), 3)
@@ -255,6 +240,33 @@ class ImgProc:
         self.bgTimeCost = exec_time
         # print("Del background Cost time:", self.bgTimeCost)
         return frame_delimite_bac, bgMask, resarray
+
+    def findTrackedOffsetOneBottle(self, good_new, good_old):
+        offsetArray = good_new - good_old
+
+
+
+
+
+    def findTrackedCenterPoint(self, p0, label):
+        if p0 is None:
+            return None
+        center_list = []
+        p0_con = np.concatenate((p0, label), axis=2)
+        print("p0_con_this", p0_con)
+        label_list = np.unique(label)
+        label_list = label_list[label_list != -1]
+        print("label_list", label_list)
+        for i in label_list:
+            p0_con_i = p0_con[p0_con[:, :, 2] == i]
+            print("p0_con_i", p0_con_i)
+            x = int(np.median(p0_con_i[:, 0]))
+            y = int(np.median(p0_con_i[:, 1]))
+            center_i = [x, y, i]
+            print("center_i",center_i)
+            center_list.append(center_i)
+        return center_list
+
 
 
     def detectObj(self, featureimg, drawimg, dataDict, feature_params, label_num):
@@ -351,7 +363,6 @@ class ImgProc:
                     a, b, la = new.ravel()  # unfold
                     c, d, la = old.ravel()
                     # print("-" * 50)
-
                     a = int(a)
                     b = int(b)
                     c = int(c)
@@ -359,14 +370,25 @@ class ImgProc:
 
                     if la != -1:
                         cv2.line(drawimg, (a, b), (c, d), (0, 255, 255), 1)
-                        cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
+                        # cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
 
-                        cv2.putText(drawimg, text=str(la), org=(a, b),
-                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=1, color=(0, 255, 255), thickness=2)
+                        # cv2.putText(drawimg, text=str(la), org=(a, b),
+                        #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        #             fontScale=1, color=(0, 255, 255), thickness=2)
 
                 p0 = good_new.reshape(-1, 1, 2)
                 label = good_label.reshape(-1, 1, 1)
+
+                centerList = self.findTrackedCenterPoint(p0, label)
+
+                print("centerList", centerList)
+                if centerList is not None:
+                    for center in centerList:
+                        print("center", center)
+                        cv2.circle(drawimg, (center[0], center[1]), 24, (80, 100, 255), 3)
+                        cv2.putText(drawimg, text=str(center[2]), org=(center[0], center[1]),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=3, color=(0, 255, 255), thickness=2)
                 return p0, label
             else:
                 return None, None
@@ -395,13 +417,9 @@ class ImgProc:
         :param rbox: input rotatebox
         :return: angle: angle that modified
         """
-        # print("rbox", rbox)
-        # print("rboxtype", type(rbox))
-        # mrbox=np.array(rbox)
         w = self.eDistance(rbox[0], rbox[1])
         h = self.eDistance(rbox[1], rbox[2])
-        # print("w", w)
-        # print("h", h)
+
         # 钝角 内积小于0
         xAxisVector = np.array([[0], [1]])
         angle = 0
@@ -411,8 +429,6 @@ class ImgProc:
             v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
 
             v = rbox[1] - rbox[0]
-            # print("v:", v)
-            # print("vdet", np.dot(v, xAxisVector)[0])
             # 内积大于0 是锐角 小于0是钝角
             if np.dot(v, xAxisVector)[0] > 0:
                 angle = - angle
@@ -426,8 +442,6 @@ class ImgProc:
             # find the low point the vector is from low to high
             v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
             v = rbox[1] - rbox[2]
-            # print("v:", v)
-            # print("vdet", np.dot(v, xAxisVector)[0])
             # 内积大于0 是锐角 小于0是钝角
             if np.dot(v, xAxisVector)[0] > 0:
                 angle = - angle
@@ -436,9 +450,6 @@ class ImgProc:
             if angle == 0:
                 angle = 90
 
-        # while above angle is 0--180
-        # then we will refact the angle to -90----90
-
         if 0 <= angle <= 90:
             angle = angle
         if 0 < angle < 180:
@@ -446,8 +457,14 @@ class ImgProc:
         return angle
 
     def getBoxOnlyPic(self, dataDict, frameOrg0):
+        """
+        get the pictures of only have one yolo detected box,return the list of these pictures
+        :param dataDict:
+        :param frameOrg0:
+        :return:
+        """
         frameOrg = frameOrg0.copy()
-        list =[]
+        list = []
         if "box" in dataDict:
             for i in range(len(dataDict["box"])):
                 if dataDict["box"][i][1] > 0.8:
@@ -474,7 +491,6 @@ class ImgProc:
         if len(list) == 0:
             list.append(frameOrg)
         return list
-
 
 
     def getBottlePose(self, frameOrg0, bgMask, dataDict):
@@ -514,11 +530,6 @@ class ImgProc:
                 # get the BOX ROI from frame
                 roiImg = frameOrg[left:right, top:bottom]
 
-                # externd region
-                # right += 40
-                # left -= 40
-                # bottom += 40
-                # top -= 40
                 # get the center of box
                 centerX = (right + left / 2)
                 centerY = (top + bottom / 2)
@@ -535,12 +546,7 @@ class ImgProc:
                         _, contours, hierarchy = cv2.findContours(roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
                     elif cv2.__version__.startswith("4"):
                         contours, hierarchy = cv2.findContours(roi, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-                    # cv2.drawContours(self.show, contours, -1, (0, 255, 0), 3)
                     contourLen = len(contours)
-                    # print(contourLen)
-                    momentList = []
-                    pointList = []
-                    # print("contour", contourLen)
                     # choose the most propreate contour
                     if contourLen > 0:
                         index = 0
@@ -564,88 +570,6 @@ class ImgProc:
                         rbox = cv2.boxPoints(rotateRect)  # 获取最小外接矩形的4个顶点坐标(ps: cv2.boxPoints(rect) for OpenCV 3.x)
 
                         angle = self.correctAngle(rbox)
-
-                        """
-                        #in rbox  out correct angle
-                        print("rbox", rbox)
-                        print("rboxtype", type(rbox))
-                        #mrbox=np.array(rbox)
-                        w = self.eDistance(rbox[0], rbox[1])
-                        h = self.eDistance(rbox[1], rbox[2])
-                        print("w", w)
-                        print("h", h)
-                        #钝角 内积小于0
-                        xAxisVector = np.array([[0], [1]])
-                        #find the long side of rotate rect
-                        if w > h:
-                            #find the low point the vector is from low to high
-                            v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
-
-                            v = rbox[1] - rbox[0]
-                            print("v:", v)
-                            print("vdet", np.dot(v, xAxisVector)[0])
-                            # 内积大于0 是锐角 小于0是钝角
-                            if np.dot(v, xAxisVector)[0] > 0:
-                                angle = - angle
-                            if np.dot(v, xAxisVector)[0] < 0:
-                                angle = - angle + 90
-                            if angle == 0:
-                                angle = 90
-
-                            # if rbox[0][1] > rbox[1][1]:
-                            #     v = rbox[0] - rbox[1]
-                            #     print("v:",v)
-                            #     print("vdet:", np.dot(v, xAxisVector)[0])
-                            #     # 内积大于0 是锐角 小于0是钝角
-                            #     if np.dot(v, xAxisVector)[0] > 0:
-                            #         angle = - angle
-                            #     if np.dot(v, xAxisVector)[0] < 0:
-                            #         angle = - angle + 90
-                            #
-                            # if rbox[0][1] < rbox[1][1]:
-                            #     v = rbox[1] - rbox[0]
-                            #     print("v:", v)
-                            #     print("vdet", np.dot(v, xAxisVector)[0])
-                            #     # 内积大于0 是锐角 小于0是钝角
-                            #     if np.dot(v, xAxisVector)[0] > 0:
-                            #         angle = - angle
-                            #     if np.dot(v, xAxisVector)[0] < 0:
-                            #         angle = - angle + 90
-
-                        # find the long side of rotate rect
-                        if h > w:
-                            #find the low point the vector is from low to high
-                            v = np.zeros(rbox[0].shape, dtype=rbox.dtype)
-                            v = rbox[1] - rbox[2]
-                            print("v:", v)
-                            print("vdet", np.dot(v, xAxisVector)[0])
-                            # 内积大于0 是锐角 小于0是钝角
-                            if np.dot(v, xAxisVector)[0] > 0:
-                                angle = - angle
-                            if np.dot(v, xAxisVector)[0] < 0:
-                                angle = - angle + 90
-                            if angle == 0:
-                                angle = 90
-
-                            # if rbox[1][1] > rbox[2][1]:
-                            #     v = rbox[1] - rbox[2]
-                            #     # 内积大于0 是锐角 小于0是钝角
-                            #     if np.dot(v, xAxisVector)[0] > 0:
-                            #         angle = - angle
-                            #     if np.dot(v, xAxisVector)[0] < 0:
-                            #         angle = - angle + 90
-                            #
-                            # if rbox[1][1] < rbox[2][1]:
-                            #     v = rbox[2] - rbox[1]
-                            #     # 内积大于0 是锐角 小于0是钝角
-                            #     if np.dot(v, xAxisVector)[0] > 0:
-                            #         angle = - angle
-                            #     if np.dot(v, xAxisVector)[0] < 0:
-                            #         angle = - angle + 90
-
-                        # rbox[0] rbox[1]
-                        # rbox[1] rbox[2]
-                        """
 
                         rbox = rbox + rectTop
                         rbox = np.int0(rbox)
@@ -697,11 +621,6 @@ class ImgProc:
         index = np.where(disarray <= reduce)
         #format need
         index = index[0]
-        # print("index", index)
-        # index_total = np.arrange(pointLen)
-        # index = set(index.tolist())
-        # index_total =set(index_total.tolist())
-        # index_del =list(index_total.difference(index))
         print(np.array([good_new[0]]))
         for i in index:
             good_new0 = np.append(good_new0, np.array([good_new[i]]), axis=0)
@@ -779,16 +698,9 @@ class ImgProc:
                          maxLevel=2,
                          criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
         # generate array of random colors
-        #######color = np.random.randint(0, 255, (100, 3))
-        # drawimg = featureimg.copy()
-        # for drawing
-        # drawimg = secondimg_orig.copy()
-        # drawimg2 = secondimg_orig.copy()
         # change to gray
         featureimg = cv2.cvtColor(featureimg, cv2.COLOR_BGR2GRAY)
         secondimg = cv2.cvtColor(secondimg_orig, cv2.COLOR_BGR2GRAY)
-        # cv2.imshow("res0", featureimg)
-        # cv2.imshow("re1s", secondimg)
         corner_count = self.MAX_CORNERS
         # find the good corners for track
         if inputCorner is None:
@@ -798,19 +710,6 @@ class ImgProc:
         else:
             cornersA = inputCorner.copy()
 
-        # criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.001)
-        #  cv2.cornerSubPix(featureimg, cornersA, (self.win_size, self.win_size), (-1, -1), criteria)
-
-        # corners_cnt = cornersA.size().height
-        # get matrix row num
-
-        # corners_cnt = cornersA.shape[0]
-        # pyramid1 = cv2.buildOpticalFlowPyramid(featureimg, (self.win_size, self.win_size), 3)
-        # pyramid2 = cv2.buildOpticalFlowPyramid(secondimg,  (self.win_size, self.win_size), 3)
-        # print("corners_cnt", corners_cnt)
-        #cornersB = np.zeros(shape=cornersA.shape, dtype=cornersA.dtype)  if corners A has no
-        # light flow,pass the featureimg  and secondimg.It returns next points along with some st numbers
-        # which has a value of 1 if next point is found,
         cornersB, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, None, **lk_params)
         # find the point that concerned to be tracked
         offset = np.array([0, 0])
@@ -820,21 +719,8 @@ class ImgProc:
         good_new = cornersB[st == 1]
         good_old = cornersA[st == 1]
 
-        # good_new, good_old, offset = self.analyseTrackPoint(good_new, good_old, 30)
-        # if offset is not None:
-        #     print("offset0", offset[0])
-        #     print("offset1", offset[1])
-
-
-        #drawing  optimal
-
-        #print("distancearr", distancearr)q
-        #print("reduce", reduce)
-        # mask = np.zeros_like(drawimg)
         img = np.zeros_like(mask)
-        # drawimg = np.zeros_like(mask) # mask every pic excetp the light flow angle
 
-        # mask = drawimg.copy()
         # draw line between the tracked corners of qpre frame and current frameq
         for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
             a, b = new.ravel()  # unfold
@@ -857,15 +743,6 @@ class ImgProc:
                     cv2.line(drawimg, (a, b), (int(a - offset[0]), int(b - offset[1])), (0, 255, 255), 1)  # yellow
         img = drawimg
 
-        """
-        for i in range(corners_cnt):
-            p0 = (cornersA[i, 0, 0], cornersA[i, 0, 1])#original  red
-            p1 = (cornersB[i, 0, 0], cornersB[i, 0, 1])#now
-            cv2.circle(drawimg, p0, 2, (0, 0, 255), -1)
-            cv2.circle(drawimg, p1, 2, (0, 255, 0), -1)
-
-            cv2.line(drawimg, p0, p1, (0, 255, 255), 1)
-        """
         return good_new, good_old, offset, img
 
 
@@ -890,26 +767,7 @@ def creatMaskFromROI(src, roi):
     return mask
 
 
-
 if __name__ == "__main__":
-    """
-    a = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\1.jpg")
-    b = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\5.jpg")
-    #c = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\5.jpg")
-
-
-    #print(a.type())q
-    #print(b.type())
-
-    # wait for test multi bottles track
-
-    mask = np.zeros_like(a)
-    good_new, good_old, drawimg = obj.lkLightflow_track(a, b, mask)
-    cv2.imshow("a", a)
-    cv2.imshow("b", b)
-    cv2.imshow("res", drawimg)
-    cv2.waitKey()
-    """
     obj = ImgProc(50)
     cam = Camera()
     obj.studyBackgroundFromCam(cam)
@@ -918,9 +776,7 @@ if __name__ == "__main__":
     try:
         # cam = Camera()
         preFrame, nFrameNum, t = cam.getImage()
-
         preframeDelBg, bgmask, resarray= obj.delBg(preFrame)
-
 
         #preFrame = np.zeros_like(frame)
         mask = preFrame.copy()
@@ -928,7 +784,7 @@ if __name__ == "__main__":
         premask = preframeDelBg.copy()
         timeStart = timer()
         timeCnt = 0
-        flag=1
+        flag = 1
         feature_params = dict(maxCorners=30,
                               qualityLevel=0.3,
                               minDistance=7,  # min distance between corners
@@ -945,8 +801,6 @@ if __name__ == "__main__":
             if frame is None:
                 continue
 
-
-
             obj.show = frame.copy()
             # get fps of cam output
             fps = cam.getCamFps(nFrameNum)
@@ -954,26 +808,14 @@ if __name__ == "__main__":
 
             frameDelBg, bgmask, resarray = obj.delBg(frame)
 
-            #print(len(resarray))
-            """
-            if resarray is not None:
-                print("len：", len(resarray))
-                for i in range(len(resarray)):
-                    #print("resarray[i]：", resarray[i])
-                    maskSingle = creatMaskFromROI(frameDelBg, resarray[i])
-                    show = cv2.bitwise_and(preframeDelBg, preframeDelBg, mask=maskSingle)
-                    #cv2.imshow(str(i), show)
-            """
             # put text on frame to display the fps
             cv2.putText(frameDelBg, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(255, 0, 0), thickness=2)
-            #cv2.imshow("output", frameDelBg)
 
             # drawimg = mask.copy()
             trakSart = timer()
             #good_new, good_old, drawimg = obj.lkLightflow_track(preFrame, frame, mask)
             #good_new, good_old, offset, drawimg = obj.lkLightflow_track(preframeDelBg, frameDelBg, premask)
-
             drawimg =frameDelBg.copy()
             featureimg = cv2.cvtColor(preframeDelBg, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frameDelBg, cv2.COLOR_BGR2GRAY)
@@ -1010,10 +852,6 @@ if __name__ == "__main__":
                         print("good_new0", good_new)
                         print("good_old0", good_new)
 
-            # img = drawimg
-
-            #print("good_new.shape:", good_new.shape)
-            #print("good_old.shape:", good_old.shape)
             cv2.imshow("res", drawimg)
             cv2.waitKey(10)
             # copy the current frame as preFrame for next use
@@ -1036,31 +874,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
         cam.destroy()
-
-    # p1 = np.array([0, 0])
-    # p2 = np.array([2, 2])
-    # print("distance:", obj.eDistance(p1, p2))
-    # cv2.imshow("res", drawimg)
-    # cv2.waitKey()
-    # print("sz:", corners_cnt)
-"""
-a = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\1.jpg")
-b = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\5.jpg")
-# c = cv2.imread("E:\\EvolzedArmlogic\\armlogic\\src\\Image\\imageProcess\\5.jpg")
-
-
-# print(a.type())
-
-# print(b.type())
-
-# wait for test multi bottles track
-
-mask = np.zeros_like(a)
-good_new, good_old, drawimg = obj.lkLightflow_track(a, b, mask)
-cv2.imshow("a", a)
-cv2.imshow("b", b)
-cv2.imshow("res", drawimg)
-cv2.waitKey()
-"""
-
 
