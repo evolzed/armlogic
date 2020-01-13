@@ -203,11 +203,11 @@ if __name__ == "__main__":
 
         # 判断条件 还有待更改，这里只是调试本脚本示范用，Main中要重新改写
         # if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
-        for i in range(10):
-            tempDict = Track().updateTarget(tempDict, _frame)
-            print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
 
-            cv2.imshow("test", _frame)
+        tempDict = Track().updateTarget(tempDict, _frame)
+        print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
+
+        cv2.imshow("test", _frame)
         tempImgproc = ImgProc(10)
 
         frame, bgMask, resarray = tempImgproc.delBg(_frame) if tempImgproc else (_frame, None)
