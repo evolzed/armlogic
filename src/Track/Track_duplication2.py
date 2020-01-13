@@ -215,8 +215,11 @@ if __name__ == "__main__":
     dataDict["nFrame"] = nFrame
     dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
     print(dataDict)
-    dataDict["box"] = []
-    tempDict, uuID = Track().createTarget(dataDict)
+    if "box" in dataDict:
+    # dataDict["box"] = []
+        tempDict, uuID = Track().createTarget(dataDict)
+    else:
+        tempDict = {}
 
     while True:
         _frame, nFrame, t = cam.getImage()
@@ -243,7 +246,6 @@ if __name__ == "__main__":
         # # img.show()
         # # feed data into model
 
-
         dataDict["bgTimeCost"] = _imgproc.bgTimeCost if _imgproc else 0
         result = np.asarray(dataDict["image"])
         # dataDict["image"] = result  # result：cv2.array的图像数据
@@ -251,16 +253,21 @@ if __name__ == "__main__":
         # dataDict["timeCost"] = exec_time
         dataDict["nFrame"] = nFrame
         dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
-        dataDict["box"] = []
-        dataDict = _vision.yolo.detectImage(img)
-        print(tempDict)
-        if tempDict["target"] is None:
-            tempDict = Track().updateTarget(tempDict, _frame)
-        else:
-            tempDict2, uuID2 = Track().createTarget(dataDict)
-            Track().mergeTarget(tempDict2, tempDict)
-            tempDict = Track().updateTarget(tempDict, _frame)
 
+        dataDict = _vision.yolo.detectImage(img)
+        # dataDict["box"] = []
+        # print(tempDict)
+        # print(tempDict["target"] == list())
+        if "target" in tempDict:
+            # tempDict2, uuID = Track().createTarget(dataDict)
+            # Track().mergeTarget(tempDict2, tempDict)
+            tempDict = Track().updateTarget(tempDict, _frame)
+        # else:
+        #     dataDict["box"] = []
+        #     tempDict2, uuID2 = Track().createTarget(dataDict)
+        #     Track().mergeTarget(tempDict2, tempDict)
+        #     tempDict = Track().updateTarget(tempDict, _frame)
+        print(tempDict)
         # arr = np.asarray(dataDict["image"])
         imglist = _imgproc.getBoxOnlyPic(dataDict, preframe)
         imglistk = _imgproc.getBoxOnlyPic(dataDict, _frame)
