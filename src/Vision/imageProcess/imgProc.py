@@ -346,6 +346,7 @@ class ImgProc:
         :return: p0, label: p0 is tracked points and will be track for next cycle,label is the label of p0 points
 
         """
+        #num of track
         if p0 is not None and np.size(p0.shape[0]) > 0:
             # track the pre image points p0 to get the tracked points of p1
             p1, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, p0, None, **lk_params)
