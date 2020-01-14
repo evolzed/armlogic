@@ -1,9 +1,12 @@
 import os
 import sys
+import datetime
+import threading
 import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
+
 from src.Vision.imageProcess.imgProc import ImgProc
 sys.path.append(os.path.abspath("../../"))
 # sys.path.insert(0, os.path.split(__file__)[0])
@@ -22,7 +25,17 @@ from src.Vision.yolo.Yolo import *
 # from src.Vision.imageProcess.bgLearn import Bglearn
 # from src.Vision.imageProcess.imageTrack import ImageTrack
 gState = 1
-bottleDict = None
+bottleDict = {
+    "image": None,
+    # "box": ["predicted_class", "score", "left", "top", "right", "bottom", "angle", "diameter"],
+    "box": None,
+    "timeCost": None,
+    "bgTimeCost": None,
+    "nFrame": None,
+    "frameTime": None,
+    "getPosTimeCost": None,
+    "isObj": False  # bool
+    }
 
 
 class Vision(object):
@@ -170,6 +183,7 @@ class Vision(object):
             # return dataDict
             global bottleDict
             bottleDict = dataDict
+            print(bottleDict)
                 # print(dataDict)
             # except Exception as e:
             #     # global gState
@@ -269,6 +283,17 @@ def imageRun(cam,_image):
     # cam.destroy()
     print("系统退出中···")
     sys.exit()
+
+def imageSave():
+    if bottleDict['isObj'] == True:
+        now = datetime.datetime.now()
+        ctime = now.strftime('%Y%m%d_%H:%M:%S')
+        cv2.imwrite("/home/nvidia/data/{}_{}.jpg".format(ctime,), bottleDict['image'])
+
+def saveThread():
+    save = threading.Thread(target=imageSave)
+    save.setDaemon(True)
+    return save
 
 """
 if __name__ == '__main__':
