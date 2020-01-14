@@ -4,8 +4,9 @@ import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
-from src.Vision.imageProcess.imgProc import ImgProc
 sys.path.append(os.path.abspath("../../"))
+from src.Vision.imageProcess.imgProc import ImgProc
+
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
 import platform
@@ -205,11 +206,24 @@ class Vision(object):
             else:
                 p0, label = self.imgproc.trackObj(featureimg, secondimg, drawimg, label,  p0, lk_params)
             #clear
+
             if "box" not in dataDict:
                 p0 = np.array([])
                 label = np.array([])
                 flag = 0
                 cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
+            else:
+                nonBottleFlag = True
+                for x in range(len(dataDict["box"])):
+                    if dataDict["box"][x][1] > 0.9:
+                        nonBottleFlag = False
+                        break
+
+                if nonBottleFlag is True:
+                    p0 = np.array([])
+                    label = np.array([])
+                    flag = 0
+                    cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
             cv2.imshow("res", drawimg)
             cv2.waitKey(10)
             preframeb = frame.copy()
