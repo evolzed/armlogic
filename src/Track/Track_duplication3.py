@@ -35,7 +35,7 @@ class Track:
         bgTimeCost = bottleDict.get("bgTimeCost")
         timeCost = bottleDict.get("timeCost")
         frameTime = bottleDict.get("frameTime")
-        targetTrackTime = 0
+        targetTrackTime = frameTime
 
         targetDict.setdefault("target", targetList)
 
@@ -73,7 +73,7 @@ class Track:
         # print(targetDict, uuIDList)
         return targetDict, uuIDList
 
-    def updateTarget(self, targetDict, _frame, flag = 0):
+    def updateTarget(self, targetDict, _frame, _frameTime, flag):
         """
         更新target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
         :param targetDict: 上一步的目标物的信息
@@ -86,7 +86,7 @@ class Track:
         self._frame = _frame
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
-        frameTime = newTargetDict.get("frameTime")
+        frameTime = _frameTime
         newTargetDictLists = oldTargetDict.get("target")
         # 循环遍历，更新target，
         for i in range(len(newTargetDictLists)):
@@ -195,13 +195,12 @@ if __name__ == "__main__":
 
         # 图像识别出数据
         if "box" in dataDict:
-
             if "target" not in tempDict:
                 tempDict, uuIDList = targetTracking.createTarget(dataDict)
 
-            tempDict = targetTracking.updateTarget(tempDict, frame)  # 更新时，要求在targetTrackTime上做自加，这里updateTarget()还需改进！！
-            print(tempDict)
+            tempDict = targetTracking.updateTarget(tempDict, frame, t, flag=0)  # 更新时，要求在targetTrackTime上做自加，这里updateTarget()还需改进！！
 
+            print(tempDict)
 
         else:
             tempDict = dict()
