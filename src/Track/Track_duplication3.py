@@ -2,18 +2,22 @@
 # !/bin/python
 import os
 import sys
+import cv2
 import uuid
 from src.Vision.camera import Camera
-import cv2
+from src.Vision.vision_duplication import *
 from src.Vision.imageProcess.imgProc_duplication import ImgProc
 import time
 from timeit import default_timer as timer
 import numpy as np
+from src.Vision.yolo.Yolo import *
+
 
 class Track:
     """
-    提供增加新的Target目标功能
-    提供更新实时Target目标功能
+    根据图像api，提供增加新的Target目标功能；
+    提供更新实时Target目标功能；
+
     """
 
     def createTarget(self, bottleDict):
@@ -30,6 +34,7 @@ class Track:
         nFrame = bottleDict.get("nFrame")
         bgTimeCost = bottleDict.get("bgTimeCost")
         timeCost = bottleDict.get("timeCost")
+        frameTime = bottleDict.get("frameTime")
         targetTrackTime = 0
 
         targetDict.setdefault("target", targetList)
@@ -58,6 +63,7 @@ class Track:
         targetDict.setdefault("bgTimeCost", bgTimeCost)
         targetDict.setdefault("timeCost", timeCost)
         targetDict.setdefault("targetTrackTime", targetTrackTime)
+        targetDict.setdefault("frameTime", frameTime)
         # tempList.append('\n')
 
         # file = open("targetDict_test.txt", "a")
@@ -67,7 +73,7 @@ class Track:
         # print(targetDict, uuIDList)
         return targetDict, uuIDList
 
-    def updateTarget(self, targetDict):
+    def updateTarget(self, targetDict, _frame):
         """
         更新target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
 
@@ -75,7 +81,7 @@ class Track:
         :return: 同一UUID下的目标物的信息更新；
         """
         deltaT = 0.01
-
+        self._frame = _frame
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
         frameTime = newTargetDict.get("frameTime")
@@ -150,8 +156,10 @@ class Track:
 
 
 if __name__ == "__main__":
-
+    # cam, _image = imageInit()
     cam = Camera()
+    yolo = YOLO()
+    _vision = Vision(cam, yolo, imgproc_=None)
     _imgproc = ImgProc(10)
     prev_time = timer()
     accum_time = 0
@@ -175,45 +183,64 @@ if __name__ == "__main__":
     p0 = np.array([])
     label = np.array([])
 
-    bottleDict = {"image": 0, "box": [(3, 0.9, 0, 0, 200, 200),
-                                      (2, 0.9, 0, 0, 500, 500)],
-                  "bgTimeCost": 0, "timeCost": 0, "nFrame": 0}
-
-    targetDict = {"target": [["f025d3fe-2b6e-11ea-a086-985fd3d62bfb", 0, [100, 100], [50, 50], 0, 0, 0],
-                              ["kkkkkkkk-2b6e-11ea-a086-985fd3d62bfb", 0, [400, 400], [50, 50], 0, 0, 0]],
-                  "bgTimeCost": 0.10440749999999888, "timeCost": 1578021153.380255, "Frame": 0, "frameTime": 0, "targetTrackTime": 0}
-
-    tempT = None
-    tempDict = None
-
+    dataDict = dict()
+    tempDict = dict()
     while True:
-        tempDict, uuID = Track().createTarget(bottleDict)
+        frame, nFrame, t = cam.getImage()
+        frame, bgMask, resarray = _imgproc.delBg(frame) if _imgproc else (frame, None)
 
-        _frame, nFrame, t = cam.getImage()
-        tempDict["nFrame"] = nFrame
+        targetTracking = Track()
 
-        # 虚拟间隔时间10s 增加targetDict，实际后续由vision中api提供
-        if tempDict is None and tempDict.get("frameTime") is not None:
-            if tempT is None:
-                tempT = 0
-            tempT = tempT + t - tempDict.get("frameTime")
-            # print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempT))
-            if tempT > 10:
-                tempT = 0
-                tempDict3, uuID2 = Track().createTarget(bottleDict)
-                Track().mergeTarget(tempDict3, tempDict)
+        # 图像识别出数据
+        if "box" in dataDict:
 
-        tempDict["frameTime"] = t
+            if "target" not in tempDict:
+                tempDict, uuIDList = targetTracking.createTarget(dataDict)
 
-        # 判断条件 还有待更改，这里只是调试本脚本示范用，Main中要重新改写
-        # if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
-        tempDict = Track().updateTarget(tempDict)
-        print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
+            tempDict = targetTracking.updateTarget(tempDict, frame)
+            print(tempDict)
 
-        cv2.imshow("test", _frame)
-        tempImgproc = ImgProc(10)
 
-        frame, bgMask, resarray = tempImgproc.delBg(_frame) if tempImgproc else (_frame, None)
+        else:
+            tempDict = dict()
+            img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
+            dataDict = _vision.yolo.detectImage(img)
+            dataDict["bgTimeCost"] = _imgproc.bgTimeCost if _imgproc else 0
+            result = np.asarray(dataDict["image"])
+            # dataDict["image"] = result  # result：cv2.array的图像数据
+            dataDict["image"] = img  # img：Image对象
+            dataDict["nFrame"] = nFrame
+            dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
+            print(tempDict)
 
+        # tempDict, uuID = Track().createTarget(bottleDict)
+        #
+        # _frame, nFrame, t = cam.getImage()
+        # tempDict["nFrame"] = nFrame
+        #
+        # # 虚拟间隔时间10s 增加targetDict，实际后续由vision中api提供
+        # if tempDict is None and tempDict.get("frameTime") is not None:
+        #     if tempT is None:
+        #         tempT = 0
+        #     tempT = tempT + t - tempDict.get("frameTime")
+        #     # print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempT))
+        #     if tempT > 10:
+        #         tempT = 0
+        #         tempDict3, uuID2 = Track().createTarget(bottleDict)
+        #         Track().mergeTarget(tempDict3, tempDict)
+        #
+        # tempDict["frameTime"] = t
+        #
+        # # 判断条件 还有待更改，这里只是调试本脚本示范用，Main中要重新改写
+        # # if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
+        # tempDict = Track().updateTarget(tempDict)
+        # print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
+        #
+        cv2.imshow("test", frame)
+        # tempImgproc = ImgProc(10)
+        #
+        # frame, bgMask, resarray = tempImgproc.delBg(_frame) if tempImgproc else (_frame, None)
+        #
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
+    cam.destroy()
