@@ -243,13 +243,50 @@ class ImgProc:
 
     def findTrackedOffsetOneBottle(self, good_new, good_old):
         offsetArray = good_new - good_old
-        disTemp= np.sum((good_new - good_old) ** 2, axis=1)
-        print("disTemp", disTemp)
-        dis = d.reshape(d.shape[0], 1)
-        print("dis", dis)
+        disTemp = np.sum((good_new - good_old) ** 2, axis=1)
+        # print("disTemp", disTemp)
+        dis = disTemp.reshape(disTemp.shape[0], 1)
+        # print("dis", dis)
         sortIndex = np.argsort(dis, axis=0)
+        # print("sortIndex", sortIndex)
         dis_con = np.concatenate((offsetArray, sortIndex), axis=1)
-        offset = dis_con[dis_con[:, 2] == 0]
+        # print("dis_con", dis_con)
+        offsetTemp = dis_con[dis_con[:, 2] == 0]
+        # print("offset", offsetTemp)
+        offset = []
+        offset.append(offsetTemp[0, 0])
+        offset.append(offsetTemp[0, 1])
+        return offset
+        # print(findTrackedOffsets"offset", offset)
+
+    def findTrackedOffsets(self, good_new_con, good_old_con, good_label):
+        label_list = np.unique(good_label)
+        label_list = label_list[label_list != -1]
+        print("label_list", label_list)
+        targetList = []
+        for i in label_list:
+            print("i", i)
+            print("good_new_con[:, 2]", good_new_con[:, 2])
+            good_new_con_i = good_new_con[abs(good_new_con[:, 2] - i) < 0.0001]  # float modify
+            # print("good_new_con", good_new_con)
+            good_new = good_new_con_i[:, 0:2]
+            print("good_new", good_new)
+            good_old_con_i = good_old_con[abs(good_old_con[:, 2] - i) < 0.0001]
+            # print("good_old_con", good_old_con)
+            good_old = good_old_con_i[:, 0:2]
+            print("good_old", good_old)
+            if np.size(good_new) > 0:
+                offset = self.findTrackedOffsetOneBottle(good_new, good_old)
+                print("offset", offset)
+                elem = [offset, i]
+                print("elem", elem)
+                targetList.append(elem)
+        return targetList
+
+
+
+
+
 
 
     def findTrackedCenterPoint(self, p0, label):
@@ -257,17 +294,17 @@ class ImgProc:
             return None
         center_list = []
         p0_con = np.concatenate((p0, label), axis=2)
-        print("p0_con_this", p0_con)
+        # print("p0_con_this", p0_con)
         label_list = np.unique(label)
         label_list = label_list[label_list != -1]
-        print("label_list", label_list)
+        # print("label_list", label_list)
         for i in label_list:
             p0_con_i = p0_con[p0_con[:, :, 2] == i]
-            print("p0_con_i", p0_con_i)
+            # print("p0_con_i", p0_con_i)
             x = int(np.median(p0_con_i[:, 0]))
             y = int(np.median(p0_con_i[:, 1]))
             center_i = [x, y, i]
-            print("center_i",center_i)
+            # print("center_i", center_i)
             center_list.append(center_i)
         return center_list
 
@@ -361,6 +398,11 @@ class ImgProc:
                 #concatenate the points and their labels not used
                 good_new_con = np.concatenate((good_new, good_label), axis=1)
                 good_old_con = np.concatenate((good_old, good_label), axis=1)
+                print("good_new_con", good_new_con)
+                if good_new_con is not None:
+                    targetlist = self.findTrackedOffsets(good_new_con, good_old_con, good_label)
+                    print("targetlist", targetlist)
+
                 # print("good_new", good_new)
                 # print("good_old", good_old)
                 #unfold the points and draw it
@@ -387,8 +429,29 @@ class ImgProc:
                 centerList = self.findTrackedCenterPoint(p0, label)
 
                 print("centerList", centerList)
+
+                # if good_new is not None:
+                #     offset = self.findTrackedOffsetOneBottle(good_new, good_old)
+                #
+                #     cv2.putText(drawimg, text=str(offset[0]), org=(200, 100),
+                #                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #                 fontScale=2, color=(0, 255, 255), thickness=2)
+                #
+                #     cv2.putText(drawimg, text=str(offset[1]), org=(200, 200),
+                #                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #                 fontScale=2, color=(0, 255, 255), thickness=2)
+
                 if centerList is not None:
                     for center in centerList:
+                        for i in range(len(targetlist)):
+                            if center[2] == targetlist[i][1]:
+                                cv2.putText(drawimg, text=str(int(targetlist[i][0][0])), org=(center[0]-20, center[1]),
+                                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                            fontScale=2, color=(255, 255, 255), thickness=2)
+                                cv2.putText(drawimg, text=str(int(targetlist[i][0][1])), org=(center[0]-20, center[1]+50),
+                                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                            fontScale=2, color=(255, 255, 255), thickness=2)
+
                         print("center", center)
                         cv2.circle(drawimg, (center[0], center[1]), 24, (80, 100, 255), 3)
                         cv2.putText(drawimg, text=str(center[2]), org=(center[0], center[1]),
