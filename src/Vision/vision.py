@@ -1,6 +1,6 @@
 import os
 import sys
-import datetime
+# import datetime
 import threading
 import numpy as np
 from ctypes import *
@@ -149,7 +149,7 @@ class Vision(object):
                 fps = "NetFPS:" + str(curr_fps)
                 curr_fps = 0
 
-            frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None)
+            frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None, None)
             # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
             # cv2.imshow("kk", frame)
             # cv2.waitKey(3000)
@@ -164,7 +164,8 @@ class Vision(object):
             dataDict["bgTimeCost"] = self.imgproc.bgTimeCost if self.imgproc else 0
             result = np.asarray(dataDict["image"])
             # dataDict["image"] = result  # result：cv2.array的图像数据
-            dataDict["image"] = img  # img：Image对象
+            # dataDict["image"] = img  # img：Image对象
+            dataDict["image"] = frame  # img：cv2对象
             # dataDict["timeCost"] = exec_time
             dataDict["nFrame"] = nFrame
             dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
@@ -182,8 +183,10 @@ class Vision(object):
                 break
             # return dataDict
             global bottleDict
-            bottleDict = dataDict
+            bottleDict.update(dataDict)
+            print("==" * 50)
             print(bottleDict)
+            print("==" * 50)
                 # print(dataDict)
             # except Exception as e:
             #     # global gState
@@ -221,19 +224,6 @@ class Vision(object):
         # cv2.waitKey(1000)
         cv2.waitKey(10)
         return dataDict
-"""
-if __name__ == '__main__':
-    cam = Camera()
-    _frame, nf = cam.getImage()
-    print("准备载入yolo网络！")
-    yolo = YOLO()
-
-   
-    _image = Vision(cam, yolo)
-    dataDict = _image.detectSerialImage(_frame, nf)
-    print(dataDict)
-    # image.detectVideo(yolo)
-"""
 
 
 def imageInit():
@@ -265,6 +255,9 @@ def imageRun(cam,_image):
     :param _image: Vision对象
     :return: None | 系统有异常，退出系统
     """
+    # 开启存图线程
+    saveThread()
+
     # while 1:
     #     try:
     #         _frame, nf = cam.getImage()
@@ -284,15 +277,22 @@ def imageRun(cam,_image):
     print("系统退出中···")
     sys.exit()
 
+
 def imageSave():
-    if bottleDict['isObj'] == True:
-        now = datetime.datetime.now()
-        ctime = now.strftime('%Y%m%d_%H:%M:%S')
-        cv2.imwrite("/home/nvidia/data/{}_{}.jpg".format(ctime,), bottleDict['image'])
+    while True:
+        if bottleDict['isObj'] is True:
+            now = datetime.now()
+            ctime = now.strftime('%Y%m%d_%H%M%S')
+            # cv2.imshow("eee", np.array(bottleDict['image']))
+            # bottleDict['image'].save("img/{}_{}.jpg".format(ctime, "ss"))
+            cv2.imwrite("img/{}_{}.jpg".format(ctime, "ss"), bottleDict['image'])
+            print("已保存！")
+
 
 def saveThread():
     save = threading.Thread(target=imageSave)
     save.setDaemon(True)
+    save.start()
     return save
 
 """
@@ -323,6 +323,17 @@ if __name__ == '__main__':
     cam.destroy()
 """
 
+# if __name__ == '__main__':
+#     cam, _image = imageInit()
+#     imageRun(cam, _image)
 if __name__ == '__main__':
-    cam, _image = imageInit()
-    imageRun(cam, _image)
+    cam = Camera()
+    # _frame, nf = cam.getImage()
+    print("准备载入yolo网络！")
+    yolo = YOLO()
+
+    _image = Vision(cam, yolo)
+    saveThread()
+    dataDict = _image.detectSerialImage(cam)
+    print(dataDict)
+    # image.detectVideo(yolo)

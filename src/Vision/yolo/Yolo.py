@@ -37,7 +37,7 @@ class YOLO(object):
         # self.model_path = 'model_data/tiny_yolo_weights.h5' # model path or trained weights path
 
         # 自己的模型
-        self.model_path = '../Vision/yolo/600_416_trained_weights_final.h5' # model path or trained weights path
+        self.model_path = '../Vision/yolo/1000_416_trained_weights_final.h5' # model path or trained weights path
         self.anchors_path = '../Vision/yolo/tiny_yolo_anchors.txt'
         self.classes_path = '../Vision/yolo/bottle_annotation_classes.txt'
         self.score = 0.3
@@ -143,18 +143,18 @@ class YOLO(object):
                 self.input_image_shape: [image.size[1], image.size[0]],
                 K.learning_phase(): 0
             })
-        # TODO //
+        # 如果检测到物体，在dataDict中添加字段isObj
+        dataDict = {}
         if len(out_boxes) > 0:
-            dataDict = {"isObj": True}
-        #     try:
-        #         image.save("")
+            dataDict["isObj"] = True
+
         # print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 
         font = ImageFont.truetype(font='../Vision/yolo/font/FiraMono-Medium.otf',
                     size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = (image.size[0] + image.size[1]) // 300
         # 保存需要返回的数据的集合
-        dataDict = {"image": image}
+        dataDict["image"] = image
         boxList = []
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]
