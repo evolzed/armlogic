@@ -197,7 +197,7 @@ if __name__ == "__main__":
             if "target" not in tempDict:
                 tempDict, uuIDList = targetTracking.createTarget(dataDict)
 
-            tempDict = targetTracking.updateTarget(tempDict, frame)
+            tempDict = targetTracking.updateTarget(tempDict, frame)  # 更新时，要求在targetTrackTime上做自加，这里updateTarget()还需改进！！
             print(tempDict)
 
 
