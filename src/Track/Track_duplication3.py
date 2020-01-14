@@ -73,13 +73,15 @@ class Track:
         # print(targetDict, uuIDList)
         return targetDict, uuIDList
 
-    def updateTarget(self, targetDict, _frame):
+    def updateTarget(self, targetDict, _frame, flag = 0):
         """
         更新target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
-
         :param targetDict: 上一步的目标物的信息
+        :param _frame:
+        :param flag: =0：表示更新在间隔内； =1：10次更行完成，置1
         :return: 同一UUID下的目标物的信息更新；
         """
+
         deltaT = 0.01
         self._frame = _frame
         oldTargetDict = targetDict
