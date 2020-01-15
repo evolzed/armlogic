@@ -44,7 +44,7 @@ class Track:
             trackFlag = 0
             position = [int((bottleDict["box"][i][2] + bottleDict["box"][i][4]) / 2),
                         int((bottleDict["box"][i][3] + bottleDict["box"][i][5]) / 2)]
-            speed = [50, 50]
+            speed = [5, 5]
             angle = 0
             type = 0
             typeCounter = 0
@@ -73,7 +73,7 @@ class Track:
         # print(targetDict, uuIDList)
         return targetDict, uuIDList
 
-    def updateTarget(self, targetDict, _frame, _frameTime, flag):
+    def updateTarget(self, targetDict, _currentTime, flag, _nFrame, _frame=None):
         """
         更新target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
         :param targetDict: 上一步的目标物的信息
@@ -83,11 +83,13 @@ class Track:
         """
 
         deltaT = 0.01
-        self._frame = _frame
+        # self._frame = _frame
+        # self._frameTime = _frameTime
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
-        frameTime = _frameTime
+        startTime = _currentTime
         newTargetDictLists = oldTargetDict.get("target")
+
         # 循环遍历，更新target，
         for i in range(len(newTargetDictLists)):
             newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * (deltaT)
@@ -96,10 +98,14 @@ class Track:
                           (int(newTargetDictLists[i][2][0]) + 100, int(newTargetDictLists[i][2][1]) + 100), (125, 0, 125), 4)
             # print(i)
         # targetTrackTime 更新为Δt后：
-        newTargetDict["targetTrackTime"] = frameTime + (deltaT)
+        newTargetDict["targetTrackTime"] = startTime + (deltaT)
+        newTargetDict["nFrame"] = _nFrame
         # [a, b] = newTargetDict["target"][0][2]
         # cv2.rectangle(_frame, (int(a), int(b)), (int(a) + 50, int(b) + 50), (125, 0, 125), 4)
         # print("frameTime:" + str(newTargetDict["frameTime"]) + "     targetTrackTime:" + str(newTargetDict["targetTrackTime"])  + "     realTime:" + str(time.time()))
+        time.sleep(0.001)
+        print(newTargetDict, time.time())
+
         return newTargetDict
 
     def mergeTarget(self, targetDict1, targetDict2):
@@ -187,31 +193,46 @@ if __name__ == "__main__":
 
     dataDict = dict()
     tempDict = dict()
+    frame = None
+    _deltaT = 0.01
     while True:
-        frame, nFrame, t = cam.getImage()
-        frame, bgMask, resarray = _imgproc.delBg(frame) if _imgproc else (frame, None)
 
         targetTracking = Track()
 
         # 图像识别出数据
         if "box" in dataDict:
             if "target" not in tempDict:
+                frame, nFrame, t = cam.getImage()
+                frame, bgMask, resarray = _imgproc.delBg(frame) if _imgproc else (frame, None)
                 tempDict, uuIDList = targetTracking.createTarget(dataDict)
 
-            tempDict = targetTracking.updateTarget(tempDict, frame, t, flag=0)  # 更新时，要求在targetTrackTime上做自加，这里updateTarget()还需改进！！
+            for i in range(10):
+                # 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
+                if i < 9:
+                    currentTime = time.time()
+                    tempDict = targetTracking.updateTarget(tempDict, currentTime, nFrame, flag, frame)
 
-            print(tempDict)
+                if i == 9:
+                    frame, nFrame, t = cam.getImage()
+                    tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)  # 更新时，要求在targetTrackTime上做自加，这里updateTarget()还需改进！！
 
         else:
             tempDict = dict()
+            frame, nFrame, t = cam.getImage()
+            frame, bgMask, resarray = _imgproc.delBg(frame) if _imgproc else (frame, None)
+            drawimg = frame.copy()
+            featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
+            secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
             dataDict = _vision.yolo.detectImage(img)
             dataDict["bgTimeCost"] = _imgproc.bgTimeCost if _imgproc else 0
-            result = np.asarray(dataDict["image"])
+            # result = np.asarray(dataDict["image"])
             # dataDict["image"] = result  # result：cv2.array的图像数据
             dataDict["image"] = img  # img：Image对象
             dataDict["nFrame"] = nFrame
             dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
+            # 获取跟踪点信息
+            p0, label = _imgproc.detectObj(featureimg, drawimg, dataDict, feature_params, 3)
             print(tempDict)
 
         # tempDict, uuID = Track().createTarget(bottleDict)
