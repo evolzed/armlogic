@@ -862,6 +862,10 @@ if __name__ == "__main__":
                          maxLevel=2,
                          criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
         good_old = np.array([])
+        cv2.namedWindow('Canny')
+        cv2.createTrackbar('threshold1', 'Canny', 50, 400, nothing)
+        cv2.createTrackbar('threshold2', 'Canny', 100, 400, nothing)
+
         while 1:
             frame, nFrameNum, t = cam.getImage()
             # camra fault tolerant
@@ -875,25 +879,41 @@ if __name__ == "__main__":
             # use the background model to del the bacground of  frame
 
             frameDelBg, bgmask, resarray = obj.delBg(frame)
-
-            src_copy = frame.copy()
+            src_show = frame.copy()
+            src_copy = frameDelBg.copy()  #float change to np int
+            print("src_copy shape", src_copy.shape)
+            print("src_copy dtype", src_copy.dtype)
 
             src_copy_gray = cv2.cvtColor(src_copy, cv2.COLOR_BGR2GRAY)
 
+            print("src_copy_gray shape", src_copy_gray.shape)
+            print("src_copy_gray dtype", src_copy_gray.dtype)
             # ret, binary = cv2.threshold(src_copy_gray, 127, 255, cv2.THRESH_BINARY)
-            edge = cv2.Canny(src_copy_gray, 10, 40)
 
-            cv2.createTrackbar('threshold1', 'Canny', 50, 400, nothing)
-            cv2.createTrackbar('threshold2', 'Canny', 100, 400, nothing)
+            threshold1 = cv2.getTrackbarPos('threshold1', 'Canny')
+            threshold2 = cv2.getTrackbarPos('threshold2', 'Canny')
+            edge = cv2.Canny(src_copy_gray, threshold1, threshold2)
 
-
-            cv2.imshow("edge", edge)
+            if cv2.__version__.startswith("3"):
+                _, contours, hierarchy = cv2.findContours(edge, cv2.CV_RETR_TREE, cv2.CHAIN_APPROX_NONE)
+            elif cv2.__version__.startswith("4"):
+                contours, hierarchy = cv2.findContours(edge, cv2.CV_RETR_TREE, cv2.CHAIN_APPROX_NONE)
+            cv2.drawContours(src_show, contours, -1, (0, 255, 0), 3)
+            contourLen = len(contours)
+            cv2.imshow("con", src_show)
+            cv2.imshow("Canny", edge)
+            pic = np.array([])
             for k in range(len(resarray)):
                 x = resarray[k][0]
                 y = resarray[k][1]
                 w = resarray[k][2]
                 h = resarray[k][3]
-                pic = src_copy_gray[x:x + w, y:y + h]
+                pic = src_copy_gray[y:y + h, x:x + w].copy()
+                edged = cv2.Canny(pic, threshold1, threshold2)
+                cv2.imshow("edge" + str(k), edged)
+            # if np.size(pic) > 0:
+            #     edged = cv2.Canny(pic, threshold1, threshold2)
+            #     cv2.imshow("edge"+str(k), edged)
             cv2.imshow("show", obj.show)
             """
             # put text on frame to display the fps
