@@ -139,7 +139,7 @@ class Vision(object):
 
         #trackObj = ImageTrack()
         preframe, nFrame, t = cam.getImage()
-        preframeb, bgMaskb, resarrayb = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
+        preframeb, bgMaskb, resarray = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
         k = 1
         startt = timer()
         left = 0

@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from src.Vision.camera import Camera
 from timeit import default_timer as timer
+from src.Track import Track
 
 class ImgProc:
     def __init__(self, bgStudyNum):
@@ -232,6 +233,7 @@ class ImgProc:
         # dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)  flexible the dst shape to adapt the src shape
         dst = np.zeros(shape=src.shape, dtype=src.dtype)
         resarray, bgMask = self.backgroundDiff(src, dst)  # 对src 帧 减去背景 结果放到dst，获得瓶子的框，和掩膜图像
+
         # bit and operation
         frame_delimite_bac = cv2.bitwise_and(src, src, mask=bgMask)  # 用掩膜图像和原图像做像素与操作，获得只有瓶子的图
         curr_time = timer()
@@ -283,12 +285,6 @@ class ImgProc:
                 targetList.append(elem)
         return targetList
 
-
-
-
-
-
-
     def findTrackedCenterPoint(self, p0, label):
         if p0 is None:
             return None
@@ -324,8 +320,10 @@ class ImgProc:
         label is the label of p0 points
         """
         #detect the points
+        trackObj = Track()
         p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
         if p0 is not None and "box" in dataDict:
+            trackDict, trackDict = trackObj.createTarget()
             for k in range(p0.shape[0]):
                 a = int(p0[k, 0, 0])
                 b = int(p0[k, 0, 1])
@@ -834,6 +832,8 @@ def creatMaskFromROI(src, roi):
     mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
     return mask
 
+def nothing(x):
+    pass
 
 if __name__ == "__main__":
     obj = ImgProc(50)
@@ -876,6 +876,26 @@ if __name__ == "__main__":
 
             frameDelBg, bgmask, resarray = obj.delBg(frame)
 
+            src_copy = frame.copy()
+
+            src_copy_gray = cv2.cvtColor(src_copy, cv2.COLOR_BGR2GRAY)
+
+            # ret, binary = cv2.threshold(src_copy_gray, 127, 255, cv2.THRESH_BINARY)
+            edge = cv2.Canny(src_copy_gray, 10, 40)
+
+            cv2.createTrackbar('threshold1', 'Canny', 50, 400, nothing)
+            cv2.createTrackbar('threshold2', 'Canny', 100, 400, nothing)
+
+
+            cv2.imshow("edge", edge)
+            for k in range(len(resarray)):
+                x = resarray[k][0]
+                y = resarray[k][1]
+                w = resarray[k][2]
+                h = resarray[k][3]
+                pic = src_copy_gray[x:x + w, y:y + h]
+            cv2.imshow("show", obj.show)
+            """
             # put text on frame to display the fps
             cv2.putText(frameDelBg, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(255, 0, 0), thickness=2)
@@ -935,7 +955,7 @@ if __name__ == "__main__":
                 timeStart = timer()
                 mask = np.zeros_like(preFrame)  # only detect the motion object
                 premask = np.zeros_like(preFrame)
-
+            """
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 cam.destroy()
                 break
