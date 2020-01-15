@@ -176,7 +176,7 @@ if __name__ == "__main__":
 
     feature_params = dict(maxCorners=30,
                           qualityLevel=0.3,
-                          minDistance=7,  # min distance between corners
+                         minDistance=7,  # min distance between corners
                           blockSize=7)  # winsize of corner
     # params for lk track
     lk_params = dict(winSize=(15, 15),
