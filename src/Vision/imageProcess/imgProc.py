@@ -2,6 +2,7 @@ import gc
 
 import cv2
 import numpy as np
+import random
 from src.Vision.camera import Camera
 from timeit import default_timer as timer
 from src.Track import Track
@@ -866,6 +867,44 @@ if __name__ == "__main__":
         cv2.createTrackbar('threshold1', 'Canny', 50, 400, nothing)
         cv2.createTrackbar('threshold2', 'Canny', 100, 400, nothing)
 
+        template = cv2.imread('E:\\1\\template.jpg', 0)
+        # templategray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+        pic = template.copy()
+        # templateedge = cv2.Canny(templategray, 78, 148)
+        templateedge = template
+        if cv2.__version__.startswith("3"):
+            _, contours, hierarchy = cv2.findContours(templateedge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        elif cv2.__version__.startswith("4"):
+            contours, hierarchy = cv2.findContours(templateedge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+        contourTemplate = np.array([])
+        if len(contours) > 0:
+            print("in_______________")
+            print("len(contours)", len(contours))
+            for ci in range(len(contours)):
+                # if hierarchy[0, ci, 0] == -1 and hierarchy[0, ci, 3] == -1:  #find the most big hierarchy
+                if hierarchy[0, ci, 3] != -1:  # find the most big hierarchy
+                    r = random.randint(0, 255)
+                    g = random.randint(0, 255)
+                    b = random.randint(0, 255)
+                    child = hierarchy[0, ci, 2]
+                    arclenth = cv2.arcLength(contours[ci], True)  # 面积
+                    area = cv2.contourArea(contours[ci])  # 4386.5
+                    # print("arcle", arclenth)q
+                    # print("area", area)
+                    if arclenth > 900 and 10000 > area > 5000:
+                        # cv2.drawContours(pic, contours, ci, (b, g, r), 3)
+                        cv2.drawContours(pic, contours, ci, (255, 255, 255), 6)
+                        contourTemplate = contours[ci]
+                        print("arcle", arclenth)
+                        print("area", area)
+        # cv2.imshow("tem", pic)
+        # cv2.waitKey(0)
+        chun_xiang_flag = 0
+        chunxiang_minIndex = -1
+        cx = -1
+        cy = -1
+        contoursGet = np.array([])
         while 1:
             frame, nFrameNum, t = cam.getImage()
             # camra fault tolerant
@@ -881,24 +920,120 @@ if __name__ == "__main__":
             frameDelBg, bgmask, resarray = obj.delBg(frame)
             src_show = frame.copy()
             src_copy = frameDelBg.copy()  #float change to np int
-            print("src_copy shape", src_copy.shape)
-            print("src_copy dtype", src_copy.dtype)
+            # print("src_copy shape", src_copy.shape)
+            # print("src_copy dtype", src_copy.dtype)
 
             src_copy_gray = cv2.cvtColor(src_copy, cv2.COLOR_BGR2GRAY)
 
-            print("src_copy_gray shape", src_copy_gray.shape)
-            print("src_copy_gray dtype", src_copy_gray.dtype)
+            # print("src_copy_gray shape", src_copy_gray.shape)
+            # print("src_copy_gray dtype", src_copy_gray.dtype)
             # ret, binary = cv2.threshold(src_copy_gray, 127, 255, cv2.THRESH_BINARY)
 
-            threshold1 = cv2.getTrackbarPos('threshold1', 'Canny')
-            threshold2 = cv2.getTrackbarPos('threshold2', 'Canny')
-            edge = cv2.Canny(src_copy_gray, threshold1, threshold2)
+            # threshold1 = cv2.getTrackbarPos('threshold1', 'Canny')
+            # threshold2 = cv2.getTrackbarPos('threshold2', 'Canny')
+
+            # edge = cv2.Canny(src_copy_gray, threshold1, threshold2)
+            edge = cv2.Canny(src_copy_gray, 78, 148)
 
             if cv2.__version__.startswith("3"):
-                _, contours, hierarchy = cv2.findContours(edge, cv2.CV_RETR_TREE, cv2.CHAIN_APPROX_NONE)
+                _, contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
             elif cv2.__version__.startswith("4"):
-                contours, hierarchy = cv2.findContours(edge, cv2.CV_RETR_TREE, cv2.CHAIN_APPROX_NONE)
-            cv2.drawContours(src_show, contours, -1, (0, 255, 0), 3)
+                contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+            pic = src_show.copy()
+            # print("hierarchy", hierarchy)
+            # hierarchy_choose = hierarchy[hierarchy[:, 1, 0] == -1]
+#3 parent contour
+            matchRetList = []
+            if len(contours) > 0:
+                for ci in range(len(contours)):
+                    # if contourTemplate is not None:
+                    matchRet = cv2.matchShapes(contours[ci], contourTemplate, 1, 0.0)
+                    matchRetList.append(matchRet)
+                    print("matchRet",matchRet)
+                    # matchRetListD = np.array(matchRetList)
+                    # print("matchRetList.min", matchRetListD.min())
+                    # print("matchRetList.min", matchRetListD.argmin())
+                    # minIndex = matchRetListD.argmin()
+                    # minMatch = matchRetListD.min()
+                    arclenth = cv2.arcLength(contours[ci], True)  # 面积
+                    area = cv2.contourArea(contours[ci])  # 4386.5
+                    if matchRet < 0.2 and arclenth > 300 and 8000 > area > 5000 and hierarchy[0, ci, 3] != -1:
+                        cv2.drawContours(pic, contours, ci, (0, 255, 0), 6)
+                        M = cv2.moments(contours[ci])  # 计算第一条轮廓的各阶矩,字典形式
+                        # print (M)
+                        # 这两行是计算中心点坐标
+                        cx = int(M['m10'] / M['m00'])
+                        cy = int(M['m01'] / M['m00'])
+                        cv2.putText(pic, text=str("milk"), org=(cx, cy),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=1, color=(0, 0, 255),
+                                    thickness=2)
+                        break
+
+                    # print("matchRet", matchRet)
+                    # if hierarchy[0, ci, 0] == -1 and hierarchy[0, ci, 3] == -1:  #find the most big hierarchy
+                    """
+                    if hierarchy[0, ci, 3] != -1:  # find the most big hierarchy
+                        r = random.randint(0, 255)
+                        g = random.randint(0, 255)
+                        b = random.randint(0, 255)
+                        child = hierarchy[0, ci, 2]
+                        arclenth = cv2.arcLength(contours[ci], True)  # 面积
+                        area = cv2.contourArea(contours[ci])  # 4386.5
+                        # print("arcle", arclenth)
+                        # print("area", area)
+                        if arclenth > 300 and 10000 > area > 100:
+                            # cv2.imwrite('E:\\1\\1.jpg', edge)
+                            # cv2.drawContours(pic, contours, ci, (b, g, r), 3)
+                            # cv2.drawContours(pic, contours, ci, (0, 0, 0), 3)
+                            print("arcle", arclenth)
+                            print("area", area)
+                 
+                    
+                    
+                matchRetListD = np.array(matchRetList)
+                print("matchRetList.min", matchRetListD.min())
+                print("matchRetList.min", matchRetListD.argmin())
+                minIndex = matchRetListD.argmin()
+                minMatch = matchRetListD.min()
+                arclenth = cv2.arcLength(contours[minIndex], True)  # 面积
+                area = cv2.contourArea(contours[minIndex])  # 4386.5
+                if minMatch < 0.1 and arclenth > 300 and 8000 > area > 5000 and hierarchy[0, minIndex, 3] != -1:
+                    cv2.drawContours(pic, contours, minIndex, (0, 0, 255), 3)
+                    M = cv2.moments(contours[minIndex])  # 计算第一条轮廓的各阶矩,字典形式
+                    # print (M)
+                    # 这两行是计算中心点坐标
+                    cx = int(M['m10'] / M['m00'])
+                    cy = int(M['m01'] / M['m00'])
+                    chun_xiang_flag = 1
+                    chunxiang_minIndex = minIndex
+                    contoursGet = contours[chunxiang_minIndex]
+            if cx != -1 and cy != -1 and chunxiang_minIndex != -1 and np.size(contoursGet) > 0:
+                cv2.putText(pic, text=str("milk"), org=(cx, cy),
+                                        fontFace = cv2.FONT_HERSHEY_SIMPLEX,
+                                        fontScale = 1, color=(0, 0, 255),
+                                        thickness=2)
+                cv2.drawContours(pic, contoursGet, -1, (0, 255, 0), 3)
+            """
+            cv2.imshow("pic", pic)
+
+                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(100, 100),
+                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #             fontScale=3, color=(0, 255, 255),
+                #             thickness=2)
+                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(200, 100),
+                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #             fontScale=3, color=(0, 255, 255), thickness=2)
+                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(300, 100),
+                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #             fontScale=3, color=(0, 255, 255), thickness=2)
+                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(400, 100),
+                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #             fontScale=3, color=(0, 255, 255), thickness=2)
+
+
+
+            """
             contourLen = len(contours)
             cv2.imshow("con", src_show)
             cv2.imshow("Canny", edge)
@@ -911,6 +1046,8 @@ if __name__ == "__main__":
                 pic = src_copy_gray[y:y + h, x:x + w].copy()
                 edged = cv2.Canny(pic, threshold1, threshold2)
                 cv2.imshow("edge" + str(k), edged)
+            """
+
             # if np.size(pic) > 0:
             #     edged = cv2.Canny(pic, threshold1, threshold2)
             #     cv2.imshow("edge"+str(k), edged)
