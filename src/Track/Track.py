@@ -100,7 +100,6 @@ class Track:
         # targetTrackTime 更新为Δt后：
         newTargetDict["targetTrackTime"] = startTime + deltaT
         newTargetDict["nFrame"] = _nFrame
-        # print("frameTime:" + str(newTargetDict["frameTime"]) + "     targetTrackTime:" + str(newTargetDict["targetTrackTime"])  + "     realTime:" + str(time.time()))
         time.sleep(0.009)
         newTargetDict["timeCost"] = time.time()
         print(newTargetDict)
