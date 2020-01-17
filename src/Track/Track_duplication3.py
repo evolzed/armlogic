@@ -126,7 +126,7 @@ class Track:
         self.flag = flag
         self._frame = _frame
 
-        deltaT = 0.009
+        deltaT = 0.005
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
         startTime = _currentTime
