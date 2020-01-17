@@ -20,7 +20,7 @@ class Track:
 
     """
 
-    def createTarget(self, bottleDict, drawimg):
+    def createTarget(self, bottleDict, frame):
         """
         增加新的Target目标功能
 
@@ -30,7 +30,7 @@ class Track:
         # 创建新的target并标记uuid 返回给bottleDict
         self.bottleDict = bottleDict
         # self.featureingimg = featureimg
-        self.drawimg = drawimg
+        self.drawimg = frame
 
         preframe, nFrame, t = cam.getImage()
         preframeb, bgMaskb, resarrayb = _imgproc.delBg(preframe) if _imgproc else (preframe, None)
@@ -48,10 +48,10 @@ class Track:
 
         # if "box" not in bottleDict:
         _frame, nFrame, t = cam.getImage()
-        frame, bgMask, resarray = _imgproc.delBg(_frame) if _imgproc else (_frame, None)
+        frame2, bgMask, resarray = _imgproc.delBg(_frame) if _imgproc else (_frame, None)
 
 
-        img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
+        img = PImage.fromarray(frame2)  # PImage: from PIL import Vision as PImage
         bottleDict = _vision.yolo.detectImage(img)
         bottleDict["bgTimeCost"] = _imgproc.bgTimeCost if _imgproc else 0
         # result = np.asarray(dataDict["image"])
@@ -59,9 +59,9 @@ class Track:
         bottleDict["image"] = img  # img：Image对象
         bottleDict["nFrame"] = nFrame
         bottleDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
-        drawimg = frame.copy()
+        frame = frame2.copy()
         featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
-        p0, label = _imgproc.detectObj(featureimg, drawimg, bottleDict, feature_params, 3)
+        p0, label = _imgproc.detectObj(featureimg, frame, bottleDict, feature_params, 3)
 
         # 用imgProc的centerList
         tempCenterList = _imgproc.findTrackedCenterPoint(p0, label)
@@ -124,7 +124,7 @@ class Track:
         self.flag = flag
         self._frame = _frame
 
-        deltaT = 0.095
+        deltaT = 0.009
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
         startTime = _currentTime
@@ -151,7 +151,7 @@ class Track:
         # targetTrackTime 更新为Δt后：
         newTargetDict["targetTrackTime"] = startTime + deltaT
         newTargetDict["nFrame"] = _nFrame
-        time.sleep(deltaT)
+        time.sleep((deltaT - 0.002))
         newTargetDict["timeCost"] = time.time()
         print(newTargetDict)
         return newTargetDict
@@ -212,9 +212,10 @@ class Track:
 
     def speedEstimate(self, targetDict_1, targetDict_2):
         """
+        根据前一帧与当前帧的target信息，对target的速度进行估计计算
 
-        :param targetDict_1:
-        :param targetDict_2:
+        :param targetDict_1: 前一帧targetDict
+        :param targetDict_2: 当前帧的targetDict
         :return:
         """
         targetDictList_1 = targetDict_1.get("target")

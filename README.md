@@ -29,7 +29,6 @@
 * 可能的报错：如果运行出现OSError：[WinError] 找不到指定的模块，尝试安装海康SDK中的Runtime组件包【[海康官网下载地址](https://www.hikrobotics.com/service/soft.htm?type=2)】，如果安装后依然报错，重启计算机后进行尝试）
 ## 1.3 通讯接口
 * Ethernet
-* RS485
 
 ----
 # 2.**定义及规则**
@@ -80,16 +79,11 @@
 | ImgProc | getBottlePose() | \#get belt speed direction and valu e,pixel per second | bottleDict | | bottleDetail |
 | ImgProc | () |                                                              |  | | |
 | Vision | getBottleID() | \#get bottle ID by track and beltSpeed | bottleDict | beltSpeed | bottleID |
-| Track | createTarget() | 创建新的targetDict元素 |  | | targetDict |
-| Track | updateTarget() | 更新targetDict内的元素 | targetDict | | targetDict |
+| Track | createTarget() | 创建新的targetDict元素 | bottleDict, frame | | targetDict<br />bottleDict<br />uuIDList<br />preframe |
+| Track | updateTarget() | 更新targetDict内的元素 | targetDict<br />t, nFrame,<br /> trackFlag, frame | | targetDict |
 | Track | mergeTarget() | 合并target功能，实现实时运行中为实际镜头图像范围内的所有目标物 | targetDict1,targetDict2 |  | targetDict |
+| Track | estimate | 根据前一帧与当前帧的target信息，对target的速度进行估计计算 | targetDict_1,targetDict_2 | | targetDict_2 |
 
-
-
-| Class |    Function    |      Description      | Input |  Output   | Return |
-| :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
-| Track | createTarget() | 创建新的trackDict元素 |       | trackDict |        |
-| Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
 
 
 ----
