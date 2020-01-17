@@ -854,7 +854,7 @@ class ImgProc:
                 # minMatch = matchRetListD.min()
                 arclenth = cv2.arcLength(contours[ci], True)  # 面积
                 area = cv2.contourArea(contours[ci])  # 4386.5
-                if matchRet < 0.8 and arclenth > 300 and 8000 > area > 5000 and hierarchy[0, ci, 3] != -1:
+                if matchRet < 0.1 and arclenth > 300 and 8000 > area > 5000 and hierarchy[0, ci, 3] != -1:
                     # cv2.drawContours(pic, contours, ci, (0, 255, 0), 6)
                     M = cv2.moments(contours[ci])  # 计算第一条轮廓的各阶矩,字典形式
                     # print (M)
@@ -870,39 +870,29 @@ class ImgProc:
                     break
         return cx0, cy0, contour
 
-    def loadContourTemplate(self,ContourDir):
+    def loadContourTemplate(self, ContourDir):
         contoursGet = np.array([])
+        contours = np.array([])
         template = cv2.imread(ContourDir, 0)
-        # templategray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
         pic = template.copy()
-        # templateedge = cv2.Canny(templategray, 78, 148)
         templateedge = template
         if cv2.__version__.startswith("3"):
             _, contours, hierarchy = cv2.findContours(templateedge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         elif cv2.__version__.startswith("4"):
             contours, hierarchy = cv2.findContours(templateedge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-            contourTemplate = np.array([])
-            if len(contours) > 0:
-                print("in_______________")
-                print("len(contours)", len(contours))
-                for ci in range(len(contours)):
-                    # if hierarchy[0, ci, 0] == -1 and hierarchy[0, ci, 3] == -1:  #find the most big hierarchy
-                    if hierarchy[0, ci, 3] != -1:  # find the most big hierarchy
-                        arclenth = cv2.arcLength(contours[ci], True)  # 面积
-                        area = cv2.contourArea(contours[ci])  # 4386.5
-                        if arclenth > 900 and 10000 > area > 5000:
-                            # cv2.drawContours(pic, contours, ci, (b, g, r), 3)
-                            cv2.drawContours(pic, contours, ci, (255, 255, 255), 6)
-                            contoursGet = contours[ci]
-                            print("arcle", arclenth)
-                            print("area", area)
-            cv2.imshow("tem", pic)
-            # cv2.waitKey(0)
-            chun_xiang_flag = 0
-            chunxiang_minIndex = -1
-            cx = -1
-            cy = -1
-
+        if len(contours) > 0:
+            print("in_______________")
+            print("len(contours)", len(contours))
+            for ci in range(len(contours)):
+                if hierarchy[0, ci, 3] != -1:  # find the most big hierarchy
+                    arclenth = cv2.arcLength(contours[ci], True)  # 面积
+                    area = cv2.contourArea(contours[ci])  # 4386.5
+                    if arclenth > 900 and 10000 > area > 5000:
+                        cv2.drawContours(pic, contours, ci, (255, 255, 255), 6)
+                        contoursGet = contours[ci]
+                        print("arcle", arclenth)
+                        print("area", area)
+        cv2.imshow("tem", pic)
         return contoursGet
 
     def makeTemplate(self, frameDelBg, frame, writeDir = None):
