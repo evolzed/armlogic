@@ -1,5 +1,7 @@
+import os
+import sys
+sys.path.append(os.path.abspath("../../"))
 import gc
-
 import cv2
 import numpy as np
 import random

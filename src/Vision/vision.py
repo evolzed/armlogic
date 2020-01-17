@@ -1,10 +1,10 @@
 import os
 import sys
+sys.path.append(os.path.abspath("../../"))
 import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
-sys.path.append(os.path.abspath("../../"))
 from src.Vision.imageProcess.imgProc import ImgProc
 
 # sys.path.insert(0, os.path.split(__file__)[0])
