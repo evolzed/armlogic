@@ -20,7 +20,7 @@ class Track:
 
     """
 
-    def createTarget(self, bottleDict, featureimg, drawimg):
+    def createTarget(self, bottleDict, drawimg):
         """
         增加新的Target目标功能
 
@@ -29,7 +29,7 @@ class Track:
 
         # 创建新的target并标记uuid 返回给bottleDict
         self.bottleDict = bottleDict
-        self.featureingimg = featureimg
+        # self.featureingimg = featureimg
         self.drawimg = drawimg
 
         preframe, nFrame, t = cam.getImage()
@@ -124,7 +124,7 @@ class Track:
         self.flag = flag
         self._frame = _frame
 
-        deltaT = 0.01
+        deltaT = 0.095
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
         startTime = _currentTime
@@ -151,7 +151,7 @@ class Track:
         # targetTrackTime 更新为Δt后：
         newTargetDict["targetTrackTime"] = startTime + deltaT
         newTargetDict["nFrame"] = _nFrame
-        time.sleep(0.01)
+        time.sleep(deltaT)
         newTargetDict["timeCost"] = time.time()
         print(newTargetDict)
         return newTargetDict
@@ -274,7 +274,7 @@ if __name__ == "__main__":
 
         else:
             # 创建target
-            tempDict, tempBottleDict, uuIDList, preframeb = targetTracking.createTarget(dataDict, featureimg, drawimg)
+            tempDict, tempBottleDict, uuIDList, preframeb = targetTracking.createTarget(dataDict, drawimg)
             dataDict = tempBottleDict
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
