@@ -17,6 +17,8 @@ class Track:
     """
     根据图像api，提供增加新的Target目标功能；
     提供更新实时Target目标功能；
+    提供合并target功能，实现实时运行中为实际镜头图像范围内的所有目标物
+    根据前一帧与当前帧的target信息，对target的速度进行估计计算
 
     """
 
@@ -147,6 +149,7 @@ class Track:
                 cv2.rectangle(_frame, (int(newTargetDictLists[i][2][0] - 50), int(newTargetDictLists[i][2][1] - 50)),
                               (int(newTargetDictLists[i][2][0]) + 100, int(newTargetDictLists[i][2][1]) + 100), (125, 0, 125), 4)
                 # 调用trackObj
+                # 需用dataDict，建议centerList ，label设为uuID 直接在dataDict内调用；
                 # p0, label = _imgproc.trackObj(featureimg, secondimg, drawimg, label, p0, lk_params)
                 cv2.imshow("test", _frame)
         # targetTrackTime 更新为Δt后：
@@ -217,7 +220,7 @@ class Track:
 
         :param targetDict_1: 前一帧targetDict
         :param targetDict_2: 当前帧的targetDict
-        :return:
+        :return: targetDict_2
         """
         targetDictList_1 = targetDict_1.get("target")
         targetDictList_2 = targetDict_2.get("target")
