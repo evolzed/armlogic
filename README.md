@@ -73,8 +73,8 @@
 | Vision |  loadYolo  | Tiny-Yolov3模型参数初始化(包含model_path、anchors_path、classes_path等), 调用generate()方法，初始化boxes，scores， classes | %.py %.pt | | |
 | Vision |  detectImage  | 检测输入图像的函数, 调用letterbox_image():不损坏原图尺寸比例进行填充；PIL下的ImageDraw模块中的Draw()->对图像进行画框标注, 将数据流传给yoloCNN，cv2.cvtColor()[色彩空间转换]、PIL.Vision()[转换成网络需要的imageObject]; | | | |
 | Vision |  checkState  | [1:init 2：run 3：stop], 停止网络，关闭相机驱动
-| Vision  | getBeltSpeed()  | #get belt speed direction and valu e,pixel per second   |   bottleDict                     |  | beltSpeed |
-| Vision  | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict                     | beltSpeed | bottleID |
+| Vision  | getBeltSpeed()  | #get belt speed direction and value （pixel per second） |   bottleDict   |  | beltSpeed |
+| Vision  | getBottleID()  | #get bottle ID by track and beltSpeed   |   bottleDict   | beltSpeed | bottleID |
 
 | Class |    Function    |      Description      | Input |  Output   | Return |
 | :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
