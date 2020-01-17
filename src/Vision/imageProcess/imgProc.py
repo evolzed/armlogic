@@ -817,6 +817,55 @@ class ImgProc:
 
         return good_new, good_old, offset, img
 
+    def findContourMatch(self, frameDelBg, frame):
+        cx0 = -1
+        cy0 = -1
+        src_show = frame.copy()
+        src_copy = frameDelBg.copy()  # float change to np int
+        src_copy_gray = cv2.cvtColor(src_copy, cv2.COLOR_BGR2GRAY)
+
+        # threshold1 = cv2.getTrackbarPos('threshold1', 'Canny')
+        # threshold2 = cv2.getTrackbarPos('threshold2', 'Canny')
+
+        # edge = cv2.Canny(src_copy_gray, threshold1, threshold2)
+        edge = cv2.Canny(src_copy_gray, 78, 148)
+
+        if cv2.__version__.startswith("3"):
+            _, contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        elif cv2.__version__.startswith("4"):
+            contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        pic = src_show.copy()
+        # print("hierarchy", hierarchy)
+        # hierarchy_choose = hierarchy[hierarchy[:, 1, 0] == -1]
+        # 3 parent contour
+        # matchRetList = []
+        if len(contours) > 0:
+            for ci in range(len(contours)):
+                # if contourTemplate is not None:
+                matchRet = cv2.matchShapes(contours[ci], contourTemplate, 1, 0.0)
+                # matchRetList.append(matchRet)
+                print("matchRet", matchRet)
+                # matchRetListD = np.array(matchRetList)
+                # print("matchRetList.min", matchRetListD.min())
+                # print("matchRetList.min", matchRetListD.argmin())
+                # minIndex = matchRetListD.argmin()
+                # minMatch = matchRetListD.min()
+                arclenth = cv2.arcLength(contours[ci], True)  # 面积
+                area = cv2.contourArea(contours[ci])  # 4386.5
+                if matchRet < 0.2 and arclenth > 300 and 8000 > area > 5000 and hierarchy[0, ci, 3] != -1:
+                    cv2.drawContours(pic, contours, ci, (0, 255, 0), 6)
+                    M = cv2.moments(contours[ci])  # 计算第一条轮廓的各阶矩,字典形式
+                    # print (M)
+                    # 这两行是计算中心点坐标
+                    cx0 = int(M['m10'] / M['m00'])
+                    cy0 = int(M['m01'] / M['m00'])
+                    # cv2.putText(pic, text=str("milk"), org=(cx, cy),
+                    #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    #             fontScale=1, color=(0, 0, 255),
+                    #             thickness=2)
+                    break
+        return cx0, cy0, pic
+
     def loadContourTemplate(self,ContourDir):
         contoursGet = np.array([])
         template = cv2.imread(ContourDir, 0)
@@ -1002,6 +1051,13 @@ if __name__ == "__main__":
             if needMakeTemplate:
                 obj.makeTemplate(frameDelBg, frame)
 
+            cx, cy, pic = obj.findContourMatch(frameDelBg, frame)
+            cv2.putText(pic, text=str("milk"), org=(cx, cy),
+                        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=1, color=(0, 0, 255),
+                        thickness=2)
+            cv2.imshow("pic", pic)
+            """
             src_show = frame.copy()
             src_copy = frameDelBg.copy()  #float change to np int
             # print("src_copy shape", src_copy.shape)
@@ -1053,10 +1109,9 @@ if __name__ == "__main__":
                                     fontScale=1, color=(0, 0, 255),
                                     thickness=2)
                         break
-
+                    
                     # print("matchRet", matchRet)
                     # if hierarchy[0, ci, 0] == -1 and hierarchy[0, ci, 3] == -1:  #find the most big hierarchy
-                    """
                     if hierarchy[0, ci, 3] != -1:  # find the most big hierarchy
                         r = random.randint(0, 255)
                         g = random.randint(0, 255)
@@ -1098,8 +1153,8 @@ if __name__ == "__main__":
                                         fontScale = 1, color=(0, 0, 255),
                                         thickness=2)
                 cv2.drawContours(pic, contoursGet, -1, (0, 255, 0), 3)
-            """
-            cv2.imshow("pic", pic)
+                """
+
 
                 # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(100, 100),
                 #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
