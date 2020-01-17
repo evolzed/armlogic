@@ -9,6 +9,8 @@ from src.Vision.camera import Camera
 from timeit import default_timer as timer
 from src.Track import Track
 
+TemplateDir = 'E:\\1\\template.jpg'
+
 class ImgProc:
     def __init__(self, bgStudyNum):
         """
@@ -813,6 +815,42 @@ class ImgProc:
 
         return good_new, good_old, offset, img
 
+
+    def loadContourTemplate(self,ContourDir):
+        contoursGet = np.array([])
+        template = cv2.imread(ContourDir, 0)
+        # templategray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+        pic = template.copy()
+        # templateedge = cv2.Canny(templategray, 78, 148)
+        templateedge = template
+        if cv2.__version__.startswith("3"):
+            _, contours, hierarchy = cv2.findContours(templateedge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        elif cv2.__version__.startswith("4"):
+            contours, hierarchy = cv2.findContours(templateedge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+            contourTemplate = np.array([])
+            if len(contours) > 0:
+                print("in_______________")
+                print("len(contours)", len(contours))
+                for ci in range(len(contours)):
+                    # if hierarchy[0, ci, 0] == -1 and hierarchy[0, ci, 3] == -1:  #find the most big hierarchy
+                    if hierarchy[0, ci, 3] != -1:  # find the most big hierarchy
+                        arclenth = cv2.arcLength(contours[ci], True)  # 面积
+                        area = cv2.contourArea(contours[ci])  # 4386.5
+                        if arclenth > 900 and 10000 > area > 5000:
+                            # cv2.drawContours(pic, contours, ci, (b, g, r), 3)
+                            cv2.drawContours(pic, contours, ci, (255, 255, 255), 6)
+                            contoursGet = contours[ci]
+                            print("arcle", arclenth)
+                            print("area", area)
+            cv2.imshow("tem", pic)
+            # cv2.waitKey(0)
+            chun_xiang_flag = 0
+            chunxiang_minIndex = -1
+            cx = -1
+            cy = -1
+
+        return contoursGet
+
     def makeTemplate(self, frameDelBg, frame, writeDir = None):
         src_show = frame.copy()
         src_copy = frameDelBg.copy()  #float change to np int
@@ -906,6 +944,7 @@ if __name__ == "__main__":
         cv2.createTrackbar('threshold1', 'Canny', 50, 400, nothing)
         cv2.createTrackbar('threshold2', 'Canny', 100, 400, nothing)
 
+        """
         template = cv2.imread('E:\\1\\template.jpg', 0)
         # templategray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
         pic = template.copy()
@@ -944,6 +983,8 @@ if __name__ == "__main__":
         cx = -1
         cy = -1
         contoursGet = np.array([])
+        """
+        contourTemplate = obj.loadContourTemplate(TemplateDir)
         while 1:
             frame, nFrameNum, t = cam.getImage()
             # camra fault tolerant
@@ -959,7 +1000,6 @@ if __name__ == "__main__":
             frameDelBg, bgmask, resarray = obj.delBg(frame)
 
             obj.makeTemplate(frameDelBg, frame)
-
 
             src_show = frame.copy()
             src_copy = frameDelBg.copy()  #float change to np int
