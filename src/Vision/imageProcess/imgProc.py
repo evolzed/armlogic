@@ -817,10 +817,12 @@ class ImgProc:
 
         return good_new, good_old, offset, img
 
-    def findContourMatch(self, frameDelBg, frame):
+    def findContourMatch(self, frameDelBg):
         cx0 = -1
         cy0 = -1
-        src_show = frame.copy()
+        contour=None
+        index =-1
+        # src_show = frame.copy()
         src_copy = frameDelBg.copy()  # float change to np int
         src_copy_gray = cv2.cvtColor(src_copy, cv2.COLOR_BGR2GRAY)
 
@@ -834,7 +836,7 @@ class ImgProc:
             _, contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         elif cv2.__version__.startswith("4"):
             contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        pic = src_show.copy()
+        # pic = src_show.copy()
         # print("hierarchy", hierarchy)
         # hierarchy_choose = hierarchy[hierarchy[:, 1, 0] == -1]
         # 3 parent contour
@@ -852,8 +854,8 @@ class ImgProc:
                 # minMatch = matchRetListD.min()
                 arclenth = cv2.arcLength(contours[ci], True)  # 面积
                 area = cv2.contourArea(contours[ci])  # 4386.5
-                if matchRet < 0.2 and arclenth > 300 and 8000 > area > 5000 and hierarchy[0, ci, 3] != -1:
-                    cv2.drawContours(pic, contours, ci, (0, 255, 0), 6)
+                if matchRet < 0.8 and arclenth > 300 and 8000 > area > 5000 and hierarchy[0, ci, 3] != -1:
+                    # cv2.drawContours(pic, contours, ci, (0, 255, 0), 6)
                     M = cv2.moments(contours[ci])  # 计算第一条轮廓的各阶矩,字典形式
                     # print (M)
                     # 这两行是计算中心点坐标
@@ -863,8 +865,10 @@ class ImgProc:
                     #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                     #             fontScale=1, color=(0, 0, 255),
                     #             thickness=2)
+                    index = ci
+                    contour =  contours[ci]
                     break
-        return cx0, cy0, pic
+        return cx0, cy0, contour
 
     def loadContourTemplate(self,ContourDir):
         contoursGet = np.array([])
@@ -1043,6 +1047,7 @@ if __name__ == "__main__":
                 continue
 
             obj.show = frame.copy()
+            pic = frame.copy()
             # get fps of cam output
             fps = cam.getCamFps(nFrameNum)
             # use the background model to del the bacground of  frame
@@ -1051,11 +1056,33 @@ if __name__ == "__main__":
             if needMakeTemplate:
                 obj.makeTemplate(frameDelBg, frame)
 
-            cx, cy, pic = obj.findContourMatch(frameDelBg, frame)
-            cv2.putText(pic, text=str("milk"), org=(cx, cy),
-                        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        fontScale=1, color=(0, 0, 255),
-                        thickness=2)
+            cx, cy, contour = obj.findContourMatch(frameDelBg)
+            if cx != -1 and cy != -1 and contour is not None:
+                cv2.drawContours(pic, contour, -1, (0, 255, 0), 6)  #can
+                cv2.putText(pic, text=str("milk"), org=(cx, cy),
+                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                            fontScale=1, color=(0, 0, 255),
+                            thickness=2)
+
+            # for k in range(len(resarray)):
+            #     x = resarray[k][0]
+            #     y = resarray[k][1]
+            #     w = resarray[k][2]
+            #     h = resarray[k][3]
+            #     if 300*300 > w*h > 200*150:
+            #         frameDelBgDivide = frameDelBg[y:y + h, x:x + w].copy()
+            #         cx, cy, contour = obj.findContourMatch(frameDelBgDivide)
+            #         cv2.drawContours(pic[y:y + h, x:x + w], contour, -1, (0, 255, 0), 6)  #can
+            #         cv2.putText(pic, text=str("milk"), org=(cx+x, cy+y),
+            #                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            #                     fontScale=1, color=(0, 0, 255),
+            #                     thickness=2)
+
+                # edged = cv2.Canny(pic, threshold1, threshold2)
+                # cv2.imshow("edge" + str(k), edged)
+
+
+
             cv2.imshow("pic", pic)
             """
             src_show = frame.copy()
