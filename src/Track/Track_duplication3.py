@@ -20,7 +20,7 @@ class Track:
 
     """
 
-    def createTarget(self, bottleDict):
+    def createTarget(self, bottleDict, featureimg, drawimg):
         """
         增加新的Target目标功能
 
@@ -29,6 +29,11 @@ class Track:
 
         # 创建新的target并标记uuid 返回给bottleDict
         self.bottleDict = bottleDict
+        self.featureingimg = featureimg
+        self.drawimg = drawimg
+
+        preframe, nFrame, t = cam.getImage()
+        preframeb, bgMaskb, resarrayb = _imgproc.delBg(preframe) if _imgproc else (preframe, None)
 
         targetDict = dict()
         targetList = list()
@@ -42,10 +47,9 @@ class Track:
         targetDict.setdefault("target", targetList)
 
         # if "box" not in bottleDict:
-        frame, nFrame, t = cam.getImage()
-        # frame, bgMask, resarray = _imgproc.delBg(frame) if _imgproc else (frame, None)
-        drawimg = frame.copy()
-        featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
+        _frame, nFrame, t = cam.getImage()
+        frame, bgMask, resarray = _imgproc.delBg(_frame) if _imgproc else (_frame, None)
+
 
         img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
         bottleDict = _vision.yolo.detectImage(img)
@@ -55,12 +59,14 @@ class Track:
         bottleDict["image"] = img  # img：Image对象
         bottleDict["nFrame"] = nFrame
         bottleDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
-
+        drawimg = frame.copy()
+        featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
         p0, label = _imgproc.detectObj(featureimg, drawimg, bottleDict, feature_params, 3)
 
         # 用imgProc的centerList
         tempCenterList = _imgproc.findTrackedCenterPoint(p0, label)
         print(tempCenterList)
+        print(p0, label)
         # cv2.imshow("test", frame)
 
         # else:
@@ -101,6 +107,7 @@ class Track:
             #     file.writelines(target + ", ")
             # file.writelines("\n")
             # print(targetDict, uuIDList)
+        cv2.imshow("test", frame)
         return targetDict, bottleDict, uuIDList
 
     def updateTarget(self, targetDict, _currentTime, _nFrame, flag, _frame=None):
@@ -114,6 +121,7 @@ class Track:
 
         self._nFrame = _nFrame
         self.flag = flag
+        self._frame = _frame
         deltaT = 0.01
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
@@ -140,7 +148,7 @@ class Track:
         #     return None
 
 
-        cv2.imshow("test", _frame)
+        # cv2.imshow("test", _frame)
 
         return newTargetDict
 
@@ -226,10 +234,16 @@ if __name__ == "__main__":
     accum_time = 0
     curr_fps = 0
     fps = "FPS: ??"
-
     # trackObj = ImageTrack()
-    preframe, nFrame, t = cam.getImage()
-    preframeb, bgMaskb, resarrayb = _imgproc.delBg(preframe) if _imgproc else (preframe, None)
+    preframe = None
+    preframeb = None
+    _frame = None
+    frame = None
+    nFrame = 0
+    drawimg, featureimg, secondimg = None, None, None
+    # frame, nFrame, t = cam.getImage()
+    # preframe, nFrame, t = cam.getImage()
+    # preframeb, bgMaskb, resarrayb = _imgproc.delBg(preframe) if _imgproc else (preframe, None)
     flag = 0
     inputCorner = np.array([])
 
@@ -247,16 +261,14 @@ if __name__ == "__main__":
     dataDict = dict()
     tempDict = dict()
 
-    frame, nFrame, t = cam.getImage()
-
     while True:
         targetTracking = Track()
         # 图像识别出数据
         if "box" in dataDict:
-            if "target" not in tempDict:
-                frame, nFrame, t = cam.getImage()
-                frame, bgMask, resarray = _imgproc.delBg(frame) if _imgproc else (frame, None)
-                # tempDict, tempBottleDict, uuIDList = targetTracking.createTarget(dataDict)
+            # if "target" not in tempDict:
+            #     frame, nFrame, t = cam.getImage()
+            #     frame, bgMask, resarray = _imgproc.delBg(frame) if _imgproc else (frame, None)
+            #     # tempDict, tempBottleDict, uuIDList = targetTracking.createTarget(dataDict)
 
             for i in range(10):
                 # 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
@@ -269,13 +281,14 @@ if __name__ == "__main__":
                     flag = 1
                     frame, nFrame, t = cam.getImage()
                     currentTime = time.time()
-                    print(nFrame , t)
+                    print(nFrame, t)
                     # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 作判断
                     tempDict = targetTracking.updateTarget(tempDict, currentTime, nFrame, flag, frame)
+                    cv2.imshow("test", frame)
 
         else:
             # 创建target
-            tempDict, tempBottleDict, uuIDList = targetTracking.createTarget(dataDict)
+            tempDict, tempBottleDict, uuIDList = targetTracking.createTarget(dataDict, featureimg, drawimg)
             dataDict = tempBottleDict
             # print(tempDict)
 
@@ -302,7 +315,7 @@ if __name__ == "__main__":
         # tempDict = Track().updateTarget(tempDict)
         # print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
         #
-        cv2.imshow("test", frame)
+        # cv2.imshow("test", frame)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
