@@ -129,7 +129,7 @@ class Track:
         newTargetDictLists = oldTargetDict.get("target")
         print(flag)
         # if flag == 0:
-            # 循环遍历，更新target，
+            # 循环遍历，更新target
         for i in range(len(newTargetDictLists)):
             newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * (deltaT)
             newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * (deltaT)
@@ -138,7 +138,7 @@ class Track:
         # targetTrackTime 更新为Δt后：
         newTargetDict["targetTrackTime"] = startTime + deltaT
         newTargetDict["nFrame"] = _nFrame
-        time.sleep(0.009)
+        time.sleep(0.007)
         newTargetDict["timeCost"] = time.time()
         print(newTargetDict)
 
