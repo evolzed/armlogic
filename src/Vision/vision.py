@@ -199,12 +199,18 @@ class Vision(object):
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             #detect
             if flag == 0:
-                p0, label = self.imgproc.detectObj(featureimg, drawimg, dataDict, feature_params, 3)
+                p0, label,centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                if centerlist is not None and len(centerlist) > 0:
+                    for seqN in range(len(centerlist)):
+                        cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
                 if p0 is not None and label is not None:
                     flag = 1
             # track
             else:
-                p0, label = self.imgproc.trackObj(featureimg, secondimg, drawimg, label,  p0, lk_params)
+                p0, label, centerList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label,  p0)
+                if centerList is not None and len(centerList) > 0:
+                    for seqN in range(len(centerList)):
+                        cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
             #clear
 
             if "box" not in dataDict:
@@ -212,6 +218,7 @@ class Vision(object):
                 label = np.array([])
                 flag = 0
                 cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
+
             else:
                 nonBottleFlag = True
                 for x in range(len(dataDict["box"])):

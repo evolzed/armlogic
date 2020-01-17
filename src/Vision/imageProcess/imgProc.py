@@ -12,7 +12,14 @@ from src.Track import Track
 # TemplateDir = 'E:\\1\\template.jpg'
 TemplateDir = 'template.jpg'
 needMakeTemplate = False
-
+feature_params = dict(maxCorners=30,
+                      qualityLevel=0.3,
+                      minDistance=7,  # min distance between corners
+                      blockSize=7)  # winsize of corner
+# params for lk track
+lk_params = dict(winSize=(15, 15),
+                 maxLevel=2,
+                 criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 class ImgProc:
     def __init__(self, bgStudyNum):
         """
@@ -313,7 +320,7 @@ class ImgProc:
 
 
 
-    def detectObj(self, featureimg, drawimg, dataDict, feature_params, label_num):
+    def detectObj(self, featureimg, drawimg, dataDict, label_num):
         """
          detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
 
@@ -327,10 +334,10 @@ class ImgProc:
         label is the label of p0 points
         """
         #detect the points
-        trackObj = Track()
+        # trackObj = Track()
         p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
         if p0 is not None and "box" in dataDict:
-            trackDict, trackDict = trackObj.createTarget()
+            # trackDict, trackDict = trackObj.createTarget()
             for k in range(p0.shape[0]):
                 a = int(p0[k, 0, 0])
                 b = int(p0[k, 0, 1])
@@ -359,22 +366,22 @@ class ImgProc:
                                     (top - 20 <= p0[k, 0, 1]) and \
                                     (p0[k, 0, 1] <= bottom + 20):
                                 label[k, 0, 0] = i
-
                 print("label", label)
                 print("unique", np.unique(label[label != -1]))
                 # num is the detected label number
                 if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
                     # flag = 1
-                    return p0, label
+                    centerL = self.findTrackedCenterPoint(p0, label)
+                    return p0, label, centerL
                 else:
-                    return None, None
+                    return None, None, None
             else:
-                return None, None
+                return None, None, None
         else:
-            return None, None
+            return None, None, None
 
 
-    def trackObj(self, featureimg, secondimg, drawimg, label, p0,lk_params):
+    def trackObj(self, featureimg, secondimg, drawimg, label, p0):
         """
         track the obj of deteced, input the deteced points or the last tracked points,output the new tracked points and its labels
 
@@ -432,6 +439,13 @@ class ImgProc:
                 label = good_label.reshape(-1, 1, 1)
 
                 centerList = self.findTrackedCenterPoint(p0, label)
+                # # boxList.append([predicted_class, score, left, top, right, bottom, angle, diameter, center, label])
+                # targetlist.append([predicted_class, score, left, top, right, bottom, angle, diameter, center, label])
+                # for seqN in range(len(dataDict["box"])):
+                #     for x in centerList:
+                #         if x[2] == seqN:
+                #             dataDict["box"][seqN][8] = [x[0], x[1]]
+                #             dataDict["box"][seqN][9] = x[2]
 
                 print("centerList", centerList)
 
@@ -458,15 +472,15 @@ class ImgProc:
                                             fontScale=2, color=(255, 255, 255), thickness=2)
 
                         print("center", center)
-                        cv2.circle(drawimg, (center[0], center[1]), 24, (80, 100, 255), 3)
+                        # cv2.circle(drawimg, (center[0], center[1]), 24, (80, 100, 255), 3)
                         cv2.putText(drawimg, text=str(center[2]), org=(center[0], center[1]),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=3, color=(0, 255, 255), thickness=2)
-                return p0, label
+                return p0, label, centerList
             else:
-                return None, None
+                return None, None, None
         else:
-            return None, None
+            return None, None, None
 
 
 
