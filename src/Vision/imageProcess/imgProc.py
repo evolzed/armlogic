@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append(os.path.abspath("../../"))
+sys.path.append(os.path.abspath("../../../"))
 import gc
 import cv2
 import numpy as np
@@ -739,7 +739,6 @@ class ImgProc:
         :return: bottleDetail:mainly include bottle rotate angle from belt move direction,0--180 degree,and the diameter of bottle
         """""
 
-
     def lkLightflow_track(self, featureimg, secondimg_orig, mask,inputCorner):
         """
         function description:
@@ -814,6 +813,43 @@ class ImgProc:
 
         return good_new, good_old, offset, img
 
+    def makeTemplate(self, frameDelBg, frame, writeDir = None):
+        src_show = frame.copy()
+        src_copy = frameDelBg.copy()  #float change to np int
+        # print("src_copy shape", src_copy.shape)
+        # print("src_copy dtype", src_copy.dtype)
+        src_copy_gray = cv2.cvtColor(src_copy, cv2.COLOR_BGR2GRAY)
+        # print("src_copy_gray shape", src_copy_gray.shape)
+        # print("src_copy_gray dtype", src_copy_gray.dtype)
+        # ret, binary = cv2.threshold(src_copy_gray, 127, 255, cv2.THRESH_BINARY)
+        # threshold1 = cv2.getTrackbarPos('threshold1', 'Canny')
+        # threshold2 = cv2.getTrackbarPos('threshold2', 'Canny')
+        # edge = cv2.Canny(src_copy_gray, threshold1, threshold2)
+        edge = cv2.Canny(src_copy_gray, 78, 148)
+        if cv2.__version__.startswith("3"):
+            _, contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        elif cv2.__version__.startswith("4"):
+            contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        pic = src_show.copy()
+        if len(contours) > 0:
+            for ci in range(len(contours)):
+                if hierarchy[0, ci, 3] != -1:  # find not the most big hierarchy
+                    r = random.randint(0, 255)
+                    g = random.randint(0, 255)
+                    b = random.randint(0, 255)
+                    # child = hierarchy[0, ci, 2]
+                    arclenth = cv2.arcLength(contours[ci], True)  # 面积
+                    area = cv2.contourArea(contours[ci])  # 4386.5
+                    # print("arcle", arclenth)
+                    # print("area", area)
+                    if arclenth > 300 and 8000 > area > 5000:  #the white bottle
+                        if writeDir is not None:
+                            cv2.imwrite(writeDir, edge)
+                        cv2.drawContours(pic, contours, ci, (b, g, r), 3)
+                        # cv2.drawContours(pic, contours, ci, (0, 0, 0), 3)
+                        print("arcle", arclenth)
+                        print("area", area)
+        cv2.imshow("pic", pic)
 
 def creatMaskFromROI(src, roi):
     """
@@ -837,6 +873,7 @@ def creatMaskFromROI(src, roi):
 
 def nothing(x):
     pass
+
 
 if __name__ == "__main__":
     obj = ImgProc(50)
@@ -920,6 +957,10 @@ if __name__ == "__main__":
             # use the background model to del the bacground of  frame
 
             frameDelBg, bgmask, resarray = obj.delBg(frame)
+
+            obj.makeTemplate(frameDelBg, frame)
+
+
             src_show = frame.copy()
             src_copy = frameDelBg.copy()  #float change to np int
             # print("src_copy shape", src_copy.shape)
@@ -951,7 +992,7 @@ if __name__ == "__main__":
                     # if contourTemplate is not None:
                     matchRet = cv2.matchShapes(contours[ci], contourTemplate, 1, 0.0)
                     matchRetList.append(matchRet)
-                    print("matchRet",matchRet)
+                    print("matchRet", matchRet)
                     # matchRetListD = np.array(matchRetList)
                     # print("matchRetList.min", matchRetListD.min())
                     # print("matchRetList.min", matchRetListD.argmin())
