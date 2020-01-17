@@ -148,15 +148,6 @@ class Vision(object):
         bottom = 0
         flag = 0
         inputCorner = np.array([])
-
-        feature_params = dict(maxCorners=30,
-                              qualityLevel=0.3,
-                              minDistance=7,  # min distance between corners
-                              blockSize=7)  # winsize of corner
-        # params for lk track
-        lk_params = dict(winSize=(15, 15),
-                         maxLevel=2,
-                         criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
         p0 = np.array([])
         label = np.array([])
         while True:
