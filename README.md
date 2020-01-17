@@ -82,7 +82,7 @@
 | Track | createTarget() | 创建新的targetDict元素 | bottleDict, frame | | targetDict<br />bottleDict<br />uuIDList<br />preframe |
 | Track | updateTarget() | 更新targetDict内的元素 | targetDict<br />t, nFrame,<br /> trackFlag, frame | | targetDict |
 | Track | mergeTarget() | 合并target功能，实现实时运行中为实际镜头图像范围内的所有目标物 | targetDict1,targetDict2 |  | targetDict |
-| Track | estimate | 根据前一帧与当前帧的target信息，对target的速度进行估计计算 | targetDict_1,targetDict_2 | | targetDict_2 |
+| Track | estimateSpeed() | 根据前一帧与当前帧的target信息，对target的速度进行估计计算 | targetDict_1,targetDict_2 | | targetDict_2 |
 
 
 
