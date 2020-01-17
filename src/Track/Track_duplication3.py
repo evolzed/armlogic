@@ -130,6 +130,7 @@ class Track:
         startTime = _currentTime
         newTargetDictLists = oldTargetDict.get("target")
         print(flag)
+
         # if flag == 0:
             # 循环遍历，更新target
         for i in range(len(newTargetDictLists)):
@@ -138,16 +139,21 @@ class Track:
             # 假如时间间隔到规定次数，则与imgProc中的trackObj进行对照，或其他后续待完善逻辑
             if flag == 1:
                 _frame, nFrame, t = cam.getImage()
+                frame, bgMask, resarray = _imgproc.delBg(_frame) if _imgproc else (_frame, None)
+                drawimg = _frame.copy()
+                featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
+                secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 cv2.rectangle(_frame, (int(newTargetDictLists[i][2][0] - 50), int(newTargetDictLists[i][2][1] - 50)),
                               (int(newTargetDictLists[i][2][0]) + 100, int(newTargetDictLists[i][2][1]) + 100), (125, 0, 125), 4)
+                # 调用trackObj
+                # p0, label = _imgproc.trackObj(featureimg, secondimg, drawimg, label, p0, lk_params)
                 cv2.imshow("test", _frame)
         # targetTrackTime 更新为Δt后：
         newTargetDict["targetTrackTime"] = startTime + deltaT
         newTargetDict["nFrame"] = _nFrame
-        time.sleep(0.007)
+        time.sleep(0.01)
         newTargetDict["timeCost"] = time.time()
         print(newTargetDict)
-
         return newTargetDict
 
     def mergeTarget(self, targetDict1, targetDict2):
@@ -263,10 +269,8 @@ if __name__ == "__main__":
 
                 if i == 9:
                     flag = 1
-                    # frame, nFrame, t = cam.getImage()
                     # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
                     tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
-                    # cv2.imshow("test", frame)
 
         else:
             # 创建target
