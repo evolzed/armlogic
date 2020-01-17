@@ -78,7 +78,7 @@ class Track:
                             int((bottleDict["box"][i][3] + bottleDict["box"][i][5]) / 2)]
 
                 # 第一帧用传输带速度或估计值，后续用speedEstimate()!!
-                speed = [5, 5]
+                speed = [5, 0]
                 angle = 0
                 type = 0
                 typeCounter = 0
@@ -108,7 +108,8 @@ class Track:
             # file.writelines("\n")
             # print(targetDict, uuIDList)
         cv2.imshow("test", frame)
-        return targetDict, bottleDict, uuIDList
+        preframeb = frame.copy()
+        return targetDict, bottleDict, uuIDList, preframeb
 
     def updateTarget(self, targetDict, _currentTime, _nFrame, flag, _frame=None):
         """
@@ -122,6 +123,7 @@ class Track:
         self._nFrame = _nFrame
         self.flag = flag
         self._frame = _frame
+
         deltaT = 0.01
         oldTargetDict = targetDict
         newTargetDict = oldTargetDict
@@ -133,22 +135,18 @@ class Track:
         for i in range(len(newTargetDictLists)):
             newTargetDictLists[i][2][0] = newTargetDictLists[i][2][0] + float(newTargetDictLists[i][3][0]) * (deltaT)
             newTargetDictLists[i][2][1] = newTargetDictLists[i][2][1] + float(newTargetDictLists[i][3][1]) * (deltaT)
-            cv2.rectangle(_frame, (int(newTargetDictLists[i][2][0] - 50), int(newTargetDictLists[i][2][1] - 50)),
-                          (int(newTargetDictLists[i][2][0]) + 100, int(newTargetDictLists[i][2][1]) + 100), (125, 0, 125), 4)
+            # 假如时间间隔到规定次数，则与imgProc中的trackObj进行对照，或其他后续待完善逻辑
+            if flag == 1:
+                _frame, nFrame, t = cam.getImage()
+                cv2.rectangle(_frame, (int(newTargetDictLists[i][2][0] - 50), int(newTargetDictLists[i][2][1] - 50)),
+                              (int(newTargetDictLists[i][2][0]) + 100, int(newTargetDictLists[i][2][1]) + 100), (125, 0, 125), 4)
+                cv2.imshow("test", _frame)
         # targetTrackTime 更新为Δt后：
         newTargetDict["targetTrackTime"] = startTime + deltaT
         newTargetDict["nFrame"] = _nFrame
         time.sleep(0.007)
         newTargetDict["timeCost"] = time.time()
         print(newTargetDict)
-
-        # 假如时间间隔到规定次数，则与imgProc中的trackObj进行对照，或其他后续待完善逻辑
-        # if flag == 1:
-        #
-        #     return None
-
-
-        # cv2.imshow("test", _frame)
 
         return newTargetDict
 
@@ -163,7 +161,7 @@ class Track:
         tempList = targetDict2.get("target")
         for i in range(len(targetDict1.get("target"))):
             tempList.append(targetDict1.get("target")[i])
-        targetDict2.setdefault("target",tempList)
+        targetDict2.setdefault("target", tempList)
         # print(targetDict2)
         return 0
 
@@ -235,98 +233,46 @@ if __name__ == "__main__":
     curr_fps = 0
     fps = "FPS: ??"
     # trackObj = ImageTrack()
-    preframe = None
-    preframeb = None
-    _frame = None
-    frame = None
+    preframe, preframeb, _frame, frame = None, None, None, None
     nFrame = 0
     drawimg, featureimg, secondimg = None, None, None
-    # frame, nFrame, t = cam.getImage()
-    # preframe, nFrame, t = cam.getImage()
-    # preframeb, bgMaskb, resarrayb = _imgproc.delBg(preframe) if _imgproc else (preframe, None)
     flag = 0
     inputCorner = np.array([])
-
+    p0 = np.array([])
+    label = np.array([])
+    dataDict = dict()
+    tempDict = dict()
     feature_params = dict(maxCorners=30,
                           qualityLevel=0.3,
-                         minDistance=7,  # min distance between corners
+                          minDistance=7,  # min distance between corners
                           blockSize=7)  # winsize of corner
     # params for lk track
     lk_params = dict(winSize=(15, 15),
                      maxLevel=2,
                      criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-    p0 = np.array([])
-    label = np.array([])
-
-    dataDict = dict()
-    tempDict = dict()
 
     while True:
         targetTracking = Track()
-        # 图像识别出数据
+        # 图像识别出数据,赋予targetDict，在循环中作自身更新信息
         if "box" in dataDict:
-            # if "target" not in tempDict:
-            #     frame, nFrame, t = cam.getImage()
-            #     frame, bgMask, resarray = _imgproc.delBg(frame) if _imgproc else (frame, None)
-            #     # tempDict, tempBottleDict, uuIDList = targetTracking.createTarget(dataDict)
-
             for i in range(10):
-                # 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
+                # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
                 if i < 9:
                     flag = 0
-                    currentTime = time.time()
-                    tempDict = targetTracking.updateTarget(tempDict, currentTime, nFrame, flag, frame)
+                    tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
 
                 if i == 9:
                     flag = 1
-                    frame, nFrame, t = cam.getImage()
-                    currentTime = time.time()
-                    print(nFrame, t)
-                    # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 作判断
-                    tempDict = targetTracking.updateTarget(tempDict, currentTime, nFrame, flag, frame)
-                    cv2.imshow("test", frame)
+                    # frame, nFrame, t = cam.getImage()
+                    # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
+                    tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
+                    # cv2.imshow("test", frame)
 
         else:
             # 创建target
-            tempDict, tempBottleDict, uuIDList = targetTracking.createTarget(dataDict, featureimg, drawimg)
+            tempDict, tempBottleDict, uuIDList, preframeb = targetTracking.createTarget(dataDict, featureimg, drawimg)
             dataDict = tempBottleDict
-            # print(tempDict)
-
-        # tempDict, uuID = Track().createTarget(bottleDict)
-        #
-        # _frame, nFrame, t = cam.getImage()
-        # tempDict["nFrame"] = nFrame
-        #
-        # # 虚拟间隔时间10s 增加targetDict，实际后续由vision中api提供
-        # if tempDict is None and tempDict.get("frameTime") is not None:
-        #     if tempT is None:
-        #         tempT = 0
-        #     tempT = tempT + t - tempDict.get("frameTime")
-        #     # print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempT))
-        #     if tempT > 10:
-        #         tempT = 0
-        #         tempDict3, uuID2 = Track().createTarget(bottleDict)
-        #         Track().mergeTarget(tempDict3, tempDict)
-        #
-        # tempDict["frameTime"] = t
-        #
-        # # 判断条件 还有待更改，这里只是调试本脚本示范用，Main中要重新改写
-        # # if (tempDict["targetTrackTime"] == 0 or abs(t - tempDict["targetTrackTime"]) < 0.08 ):
-        # tempDict = Track().updateTarget(tempDict)
-        # print(str(tempDict["frameTime"]) + ",   " + str(t) + ",   " + str(tempDict["targetTrackTime"]) + ",   "+ str(time.time()))
-        #
-        # cv2.imshow("test", frame)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
     cam.destroy()
-
-    # temp1 = {'target': [['5d5be4e8-3776-11ea-b96a-645d86dd3ea1', 0, [523.8499999999926, 517.8499999999995], [5, 5], 0, 0, 0]],
-    #  'nFrame': 0, 'bgTimeCost': 0.027158899999999875, 'timeCost': 1579079215.4694853,
-    #  'targetTrackTime': 1579079215.469035, 'frameTime': 1579079208.4893794}
-    # temp2 = {'target': [['5d5be4e8-3776-11ea-b96a-645d86dd3ea1', 0, [523.8999999999926, 517.8999999999994], [5, 5], 0, 0, 0]],
-    #  'nFrame': 0, 'bgTimeCost': 0.027158899999999875, 'timeCost': 1579079215.4792843,
-    #  'targetTrackTime': 1579079215.4795918, 'frameTime': 1579079208.4893794}
-    #
-    # track = Track()
-    # track.speedEstimate(temp1, temp2)
