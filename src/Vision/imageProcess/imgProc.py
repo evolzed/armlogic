@@ -9,7 +9,9 @@ from src.Vision.camera import Camera
 from timeit import default_timer as timer
 from src.Track import Track
 
-TemplateDir = 'E:\\1\\template.jpg'
+# TemplateDir = 'E:\\1\\template.jpg'
+TemplateDir = 'template.jpg'
+needMakeTemplate = False
 
 class ImgProc:
     def __init__(self, bgStudyNum):
@@ -815,7 +817,6 @@ class ImgProc:
 
         return good_new, good_old, offset, img
 
-
     def loadContourTemplate(self,ContourDir):
         contoursGet = np.array([])
         template = cv2.imread(ContourDir, 0)
@@ -998,8 +999,8 @@ if __name__ == "__main__":
             # use the background model to del the bacground of  frame
 
             frameDelBg, bgmask, resarray = obj.delBg(frame)
-
-            obj.makeTemplate(frameDelBg, frame)
+            if needMakeTemplate:
+                obj.makeTemplate(frameDelBg, frame)
 
             src_show = frame.copy()
             src_copy = frameDelBg.copy()  #float change to np int
