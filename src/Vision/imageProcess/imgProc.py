@@ -372,7 +372,11 @@ class ImgProc:
                 if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
                     # flag = 1
                     centerL = self.findTrackedCenterPoint(p0, label)
-                    return p0, label, centerL
+                    allList = []
+                    for x in centerL:
+                        allList.append([x[0], x[1], x[2], 0, 0])
+
+                    return p0, label, allList
                 else:
                     return None, None, None
             else:
@@ -459,24 +463,26 @@ class ImgProc:
                 #     cv2.putText(drawimg, text=str(offset[1]), org=(200, 200),
                 #                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                 #                 fontScale=2, color=(0, 255, 255), thickness=2)
-
+                allList = []
                 if centerList is not None:
                     for center in centerList:
                         for i in range(len(targetlist)):
                             if center[2] == targetlist[i][1]:
-                                cv2.putText(drawimg, text=str(int(targetlist[i][0][0])), org=(center[0]-20, center[1]),
-                                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                            fontScale=2, color=(255, 255, 255), thickness=2)
-                                cv2.putText(drawimg, text=str(int(targetlist[i][0][1])), org=(center[0]-20, center[1]+50),
-                                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                            fontScale=2, color=(255, 255, 255), thickness=2)
+                                allList.append([center[0], center[1], center[2], targetlist[i][0][0], targetlist[i][0][1]])
+
+                                # cv2.putText(drawimg, text=str(int(targetlist[i][0][0])), org=(center[0]-20, center[1]),
+                                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                #             fontScale=2, color=(255, 255, 255), thickness=2)
+                                # cv2.putText(drawimg, text=str(int(targetlist[i][0][1])), org=(center[0]-20, center[1]+50),
+                                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                #             fontScale=2, color=(255, 255, 255), thickness=2)
 
                         print("center", center)
                         # cv2.circle(drawimg, (center[0], center[1]), 24, (80, 100, 255), 3)
-                        cv2.putText(drawimg, text=str(center[2]), org=(center[0], center[1]),
-                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=3, color=(0, 255, 255), thickness=2)
-                return p0, label, centerList
+                        # cv2.putText(drawimg, text=str(center[2]), org=(center[0], center[1]),
+                        #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        #             fontScale=3, color=(0, 255, 255), thickness=2)
+                return p0, label, allList
             else:
                 return None, None, None
         else:
