@@ -22,20 +22,31 @@ class Track:
 
     """
 
-    def createTarget(self, bottleDict, frame):
+    def createTarget(self, bottleDict,frame,featureimg,nFrame,_vision,_imgproc):
         """
         增加新的Target目标功能
 
         :return: 新的带UUID的targetDict, 传至imgProc的UUID
         """
-
         # 创建新的target并标记uuid 返回给bottleDict
         self.bottleDict = bottleDict
         # self.featureingimg = featureimg
         self.drawimg = frame
 
-        preframe, nFrame, t = cam.getImage()
-        preframeb, bgMaskb, resarrayb = _imgproc.delBg(preframe) if _imgproc else (preframe, None)
+        img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
+        # img.show()
+        # feed data into model
+        #神经网络识别  必须有
+        dataDict = _vision.yolo.detectImage(img)
+
+        dataDict["bgTimeCost"] = _imgproc.bgTimeCost if _imgproc else 0
+        result = np.asarray(dataDict["image"])
+        # dataDict["image"] = result  # result：cv2.array的图像数据
+        dataDict["image"] = img  # img：Image对象
+        # dataDict["timeCost"] = exec_time
+        dataDict["nFrame"] = nFrame
+        dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
+
 
         targetDict = dict()
         targetList = list()
@@ -48,26 +59,11 @@ class Track:
 
         targetDict.setdefault("target", targetList)
 
-        # if "box" not in bottleDict:
-        _frame, nFrame, t = cam.getImage()
-        frame2, bgMask, resarray = _imgproc.delBg(_frame) if _imgproc else (_frame, None)
-
-
-        img = PImage.fromarray(frame2)  # PImage: from PIL import Vision as PImage
-        bottleDict = _vision.yolo.detectImage(img)
-        bottleDict["bgTimeCost"] = _imgproc.bgTimeCost if _imgproc else 0
-        # result = np.asarray(dataDict["image"])
-        # dataDict["image"] = result  # result：cv2.array的图像数据
-        bottleDict["image"] = img  # img：Image对象
-        bottleDict["nFrame"] = nFrame
-        bottleDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
-        frame = frame2.copy()
-        featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
-        p0, label, centerLists = _imgproc.detectObj(featureimg, frame, bottleDict, 3)
+        p0, label, centerLists = _imgproc.detectObj(featureimg, frame, dataDict, 1)
 
         # 用imgProc的centerList
-        tempCenterList = _imgproc.findTrackedCenterPoint(p0, label)
-        print(tempCenterList)
+        # tempCenterList = _imgproc.findTrackedCenterPoint(p0, label)
+        print("centerLists", centerLists)
         print(p0, label)
         # cv2.imshow("test", frame)
 
@@ -109,9 +105,8 @@ class Track:
             #     file.writelines(target + ", ")
             # file.writelines("\n")
             # print(targetDict, uuIDList)
-        cv2.imshow("test", frame)
-        preframeb = frame.copy()
-        return targetDict, bottleDict, uuIDList, preframeb
+
+        return targetDict, bottleDict, uuIDList, p0, label, centerLists
 
     def updateTarget(self, targetDict, _currentTime, _nFrame, flag, _frame=None):
         """
@@ -237,8 +232,11 @@ if __name__ == "__main__":
     # cam, _image = imageInit()
     cam = Camera()
     yolo = YOLO()
-    _vision = Vision(cam, yolo, imgproc_=None)
+
     _imgproc = ImgProc(10)
+    _imgproc.studyBackgroundFromCam(cam)
+    _imgproc.createModelsfromStats(6.0)
+    _vision = Vision(cam, yolo, _imgproc)
     prev_time = timer()
     accum_time = 0
     curr_fps = 0
@@ -253,19 +251,40 @@ if __name__ == "__main__":
     label = np.array([])
     dataDict = dict()
     tempDict = dict()
-    feature_params = dict(maxCorners=30,
-                          qualityLevel=0.3,
-                          minDistance=7,  # min distance between corners
-                          blockSize=7)  # winsize of corner
-    # params for lk track
-    lk_params = dict(winSize=(15, 15),
-                     maxLevel=2,
-                     criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+    # feature_params = dict(maxCorners=30,
+    #                       qualityLevel=0.3,
+    #                       minDistance=7,  # min distance between corners
+    #                       blockSize=7)  # winsize of corner
+    # # params for lk track
+    # lk_params = dict(winSize=(15, 15),
+    #                  maxLevel=2,
+    #                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+
+    preframe, nFrame, t = cam.getImage()
+    preframeb, bgMaskb, resarray = _imgproc.delBg(preframe) if _imgproc else (preframe, None)
 
     while True:
         targetTracking = Track()
+
+        #获取摄像机图片 进行去除背景 并灰度化  更新相机获取的图片
+        _frame, nFrame, t = cam.getImage()
+        frame, bgMaskb, resarrayb = _imgproc.delBg(_frame) if _imgproc else (_frame, None)
+        featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
+        secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        drawimg = frame.copy()
+
+
         # 图像识别出数据,赋予targetDict，在循环中作自身更新信息
-        if "box" in dataDict:
+        # if "box" in dataDict and flag == 1:
+        if flag == 1:
+            print("in track"*50)
+            p0, label, centerList = _imgproc.trackObj(featureimg, secondimg, drawimg, label, p0)
+            if centerList is not None and len(centerList) > 0:
+                for seqN in range(len(centerList)):
+                    cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
+            else:
+                flag = 0
+            """
             for i in range(10):
                 # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
                 if i < 9:
@@ -276,11 +295,23 @@ if __name__ == "__main__":
                     flag = 1
                     # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
                     tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
-
+            """
         else:
             # 创建target
-            tempDict, tempBottleDict, uuIDList, preframeb = targetTracking.createTarget(dataDict, drawimg)
+            tempDict, tempBottleDict, uuIDList, p0, label, centerLists = targetTracking.createTarget(dataDict, frame, featureimg,nFrame,_vision, _imgproc)
+            if centerLists is not None and len(centerLists) > 0:
+                for seqN in range(len(centerLists)):
+                    cv2.circle(drawimg, (centerLists[seqN][0], centerLists[seqN][1]), 24, (0, 0, 255), 7)
+            if p0 is not None and label is not None:
+                flag = 1
+            else:
+                flag = 0
             dataDict = tempBottleDict
+
+        #updated preframb
+        # 更新相机获取的 上一张图片
+        preframeb = frame.copy()
+        cv2.imshow("test", drawimg)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
