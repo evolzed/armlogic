@@ -202,6 +202,15 @@ class Vision(object):
                 if centerList is not None and len(centerList) > 0:
                     for seqN in range(len(centerList)):
                         cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
+                        cv2.putText(drawimg, text=str(int(centerList[seqN][3])), org=(centerList[seqN][0] - 20, centerList[seqN][1]),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                        cv2.putText(drawimg, text=str(int(centerList[seqN][4])), org=(centerList[seqN][0] - 20, centerList[seqN][1] + 50),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                        cv2.putText(drawimg, text=str(centerList[seqN][2]), org=(centerList[seqN][0], centerList[seqN][1]),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=3, color=(0, 255, 255), thickness=2)
             #clear
 
             if "box" not in dataDict:
