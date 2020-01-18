@@ -63,11 +63,11 @@ class Track:
         bottleDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
         frame = frame2.copy()
         featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
-        p0, label = _imgproc.detectObj(featureimg, frame, bottleDict, feature_params, 3)
+        p0, label, centerpoints = _imgproc.detectObj(featureimg, frame, bottleDict, 3)
 
         # 用imgProc的centerList
-        tempCenterList = _imgproc.findTrackedCenterPoint(p0, label)
-        print(tempCenterList)
+        # tempCenterList = _imgproc.findTrackedCenterPoint(p0, label)
+        print(centerpoints)
         print(p0, label)
         # cv2.imshow("test", frame)
 
@@ -253,14 +253,14 @@ if __name__ == "__main__":
     label = np.array([])
     dataDict = dict()
     tempDict = dict()
-    feature_params = dict(maxCorners=30,
-                          qualityLevel=0.3,
-                          minDistance=7,  # min distance between corners
-                          blockSize=7)  # winsize of corner
-    # params for lk track
-    lk_params = dict(winSize=(15, 15),
-                     maxLevel=2,
-                     criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+    # feature_params = dict(maxCorners=30,
+    #                       qualityLevel=0.3,
+    #                       minDistance=7,  # min distance between corners
+    #                       blockSize=7)  # winsize of corner
+    # # params for lk track
+    # lk_params = dict(winSize=(15, 15),
+    #                  maxLevel=2,
+    #                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
     while True:
         targetTracking = Track()
