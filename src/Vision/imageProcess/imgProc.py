@@ -7,6 +7,7 @@ import numpy as np
 import random
 from src.Vision.camera import Camera
 from timeit import default_timer as timer
+from src.Vision.video import Video
 from src.Track import Track
 
 # TemplateDir = 'E:\\1\\template.jpg'
@@ -83,7 +84,7 @@ class ImgProc:
         self.Icount += 1.0
         self.IprevF = I.copy()
 
-    def createModelsfromStats(self, scale):
+    def createModelsfromStats(self, scale=8.0):
         """
         calculate the average sum of frames to  IavgF
         calculate frame difference to IdiffF
@@ -118,6 +119,40 @@ class ImgProc:
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
 
+    def studyBackgroundFromVideo(self, videoDir):
+        """
+        get many pics for time interval of 60sec by cam and store the pics in  bgVector.
+        then  call the avgBackground method
+
+        :param cam: input camera object
+        :return: None
+        """
+        avi = Video(videoDir)
+        frame = avi.getImageFromVedio()
+        over_flag = 1
+        pic_cnt = 0
+        frame_cnt = 0
+        while frame is not None and over_flag == 1:
+            frame = avi.getImageFromVedio()
+            if frame_cnt % 20 == 0:  # get a frame per 20
+                fin = np.float32(frame)
+                self.bgVector[pic_cnt] = fin
+                pic_cnt += 1
+            frame_cnt += 1
+            # print("shape", fin.shape)
+            # store the frame in list bgVector
+
+
+            # print("pic_cnt", pic_cnt)
+            # wait about 200 milli seconds
+            # cv2.waitKey(20)
+            print("pic_cnt", pic_cnt)
+            if pic_cnt == self.BG_STUDY_NUM:
+                over_flag = 0
+        for i in range(self.bgVector.shape[0]):
+            # print("i", i)
+            self.avgBackground(self.bgVector[i])
+
     def studyBackgroundFromCam(self, cam):
         """
         get many pics for time interval of 60sec by cam and store the pics in  bgVector.
@@ -142,7 +177,7 @@ class ImgProc:
                 cv2.waitKey(200)
                 pic_cnt += 1
                 print("pic_cnt", pic_cnt)
-                if (pic_cnt == self.BG_STUDY_NUM):
+                if pic_cnt == self.BG_STUDY_NUM:
                     over_flag = 0
 
             # print("shapebg", self.bgVector.shape)
@@ -974,8 +1009,10 @@ def nothing(x):
 if __name__ == "__main__":
     obj = ImgProc(50)
     cam = Camera()
-    obj.studyBackgroundFromCam(cam)
-    obj.createModelsfromStats(6.0)
+    # obj.studyBackgroundFromCam(cam)
+
+    obj.studyBackgroundFromVideo("E:\\1\\背景.avi")
+    obj.createModelsfromStats(8.0)
 
     try:
         # cam = Camera()

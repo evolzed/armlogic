@@ -308,7 +308,7 @@ def imageInit():
     print("准备背景学习！")
     bgobj = ImgProc(50)
     bgobj.studyBackgroundFromCam(cam)
-    bgobj.createModelsfromStats(6.0)
+    bgobj.createModelsfromStats()
     _image = Vision(cam, yolo, bgobj)
     print("开始！")
     global gState
