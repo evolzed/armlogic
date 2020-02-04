@@ -36,7 +36,8 @@ if __name__ == '__main__':
         """
            Then write your frame process code here.
         """
-        cv2.imshow("avi", frame)
+        if frame is not None:
+            cv2.imshow("avi", frame)
         cv2.waitKey(10)
 
 """ 
