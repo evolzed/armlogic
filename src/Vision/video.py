@@ -29,7 +29,7 @@ class Video:
 
 
 if __name__ == '__main__':
-    avi = Video("E:\\1\\1.avi")
+    avi = Video(".\\test.mp4")
     frame = avi.getImageFromVedio()
     while frame is not None:
         frame = avi.getImageFromVedio()
