@@ -20,6 +20,8 @@ feature_params = dict(maxCorners=30,
 lk_params = dict(winSize=(15, 15),
                  maxLevel=2,
                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+
+
 class ImgProc:
     def __init__(self, bgStudyNum):
         """
@@ -258,6 +260,15 @@ class ImgProc:
         return frame_delimite_bac, bgMask, resarray
 
     def findTrackedOffsetOneBottle(self, good_new, good_old):
+        """
+        find the offset of one bottle that tracked
+        :param good_new:
+        good_new is good tracked points of one bottle calculated in the function of trackObj
+        :param good_old:
+        good_old is good tracked points of one bottle calculated in the function of trackObj
+        :return: offset
+        offset x and offset y of the tracked bottle
+        """
         offsetArray = good_new - good_old
         disTemp = np.sum((good_new - good_old) ** 2, axis=1)
         # print("disTemp", disTemp)
@@ -276,6 +287,13 @@ class ImgProc:
         # print(findTrackedOffsets"offset", offset)
 
     def findTrackedOffsets(self, good_new_con, good_old_con, good_label):
+        """
+        find all bottle's offset and store in the list
+        :param good_new_con:
+        :param good_old_con:
+        :param good_label:
+        :return:targetList
+        """
         label_list = np.unique(good_label)
         label_list = label_list[label_list != -1]
         print("label_list", label_list)
@@ -300,6 +318,13 @@ class ImgProc:
         return targetList
 
     def findTrackedCenterPoint(self, p0, label):
+        """
+        find  center point of  every bottle's tracked points
+        :param p0:
+        :param label:
+        :return: center_list
+        the center point of every bottle store in a list
+        """
         if p0 is None:
             return None
         center_list = []
@@ -329,9 +354,13 @@ class ImgProc:
         :param dataDict: the dataDict retruned by image check
         :param feature_params:track params
         :param label_num: the min detected boxes
-        :return:p0, label
+        :return:p0, label, allList
         p0 is detected and labeled points  and will be track in the trackObj cycle ,
         label is the label of p0 points
+        allList is a list to store center point position and offset and id
+        allList[seqN][0], allList[seqN][1] is center point position
+        allList[seqN][3], allList[seqN][4] is offset X offset Y
+        allList[seqN][2], is id
         """
         #detect the points
         # trackObj = Track()
@@ -397,7 +426,10 @@ class ImgProc:
         :param p0:  the target points for track by detectObj
         :param lk_params:  track params
         :return: p0, label: p0 is tracked points and will be track for next cycle,label is the label of p0 points
-
+                allList is a list to store center point position and offset and id
+                allList[seqN][0], allList[seqN][1] is center point position
+                allList[seqN][3], allList[seqN][4] is offset X offset Y
+                allList[seqN][2], is id
         """
         #num of track
         if p0 is not None and np.size(p0.shape[0]) > 0:
@@ -419,69 +451,31 @@ class ImgProc:
                     targetlist = self.findTrackedOffsets(good_new_con, good_old_con, good_label)
                     print("targetlist", targetlist)
 
-                # print("good_new", good_new)
-                # print("good_old", good_old)
                 #unfold the points and draw it
                 for i, (new, old) in enumerate(zip(good_new_con, good_old_con)):  # fold and enumerate with i
                     a, b, la = new.ravel()  # unfold
                     c, d, la = old.ravel()
-                    # print("-" * 50)
                     a = int(a)
                     b = int(b)
                     c = int(c)
                     d = int(d)
-
                     if la != -1:
                         cv2.line(drawimg, (a, b), (c, d), (0, 255, 255), 1)
-                        # cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
-
-                        # cv2.putText(drawimg, text=str(la), org=(a, b),
-                        #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        #             fontScale=1, color=(0, 255, 255), thickness=2)
 
                 p0 = good_new.reshape(-1, 1, 2)
                 label = good_label.reshape(-1, 1, 1)
 
                 centerList = self.findTrackedCenterPoint(p0, label)
-                # # boxList.append([predicted_class, score, left, top, right, bottom, angle, diameter, center, label])
-                # targetlist.append([predicted_class, score, left, top, right, bottom, angle, diameter, center, label])
-                # for seqN in range(len(dataDict["box"])):
-                #     for x in centerList:
-                #         if x[2] == seqN:
-                #             dataDict["box"][seqN][8] = [x[0], x[1]]
-                #             dataDict["box"][seqN][9] = x[2]
 
                 print("centerList", centerList)
 
-                # if good_new is not None:
-                #     offset = self.findTrackedOffsetOneBottle(good_new, good_old)
-                #
-                #     cv2.putText(drawimg, text=str(offset[0]), org=(200, 100),
-                #                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                #                 fontScale=2, color=(0, 255, 255), thickness=2)
-                #
-                #     cv2.putText(drawimg, text=str(offset[1]), org=(200, 200),
-                #                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                #                 fontScale=2, color=(0, 255, 255), thickness=2)
                 allList = []
                 if centerList is not None:
                     for center in centerList:
                         for i in range(len(targetlist)):
                             if center[2] == targetlist[i][1]:
                                 allList.append([center[0], center[1], center[2], targetlist[i][0][0], targetlist[i][0][1]])
-
-                                # cv2.putText(drawimg, text=str(int(targetlist[i][0][0])), org=(center[0]-20, center[1]),
-                                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                #             fontScale=2, color=(255, 255, 255), thickness=2)
-                                # cv2.putText(drawimg, text=str(int(targetlist[i][0][1])), org=(center[0]-20, center[1]+50),
-                                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                #             fontScale=2, color=(255, 255, 255), thickness=2)
-
                         print("center", center)
-                        # cv2.circle(drawimg, (center[0], center[1]), 24, (80, 100, 255), 3)
-                        # cv2.putText(drawimg, text=str(center[2]), org=(center[0], center[1]),
-                        #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        #             fontScale=3, color=(0, 255, 255), thickness=2)
                 return p0, label, allList
             else:
                 return None, None, None
