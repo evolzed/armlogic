@@ -16,7 +16,7 @@ import platform
 
 from lib.Logger.Logger import Logger
 
-sys.stdout = Logger("d:\\12.txt")  # 保存到D盘
+# sys.stdout = Logger("d:\\12.txt")  # 保存到D盘
 
 sysArc = platform.uname()
 if sysArc[0] == "Windows":
@@ -406,5 +406,7 @@ if __name__ == '__main__':
 """
 
 if __name__ == '__main__':
+    # cam = Vision()
     cam, _image = imageInit()
+
     imageRun(cam, _image)

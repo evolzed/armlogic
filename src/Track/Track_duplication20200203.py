@@ -5,8 +5,8 @@ import sys
 import cv2
 import uuid
 from src.Vision.camera import Camera
-from src.Vision.vision_duplication import *
-from src.Vision.imageProcess.imgProc_duplication import *
+from src.Vision.vision import *
+from src.Vision.imageProcess.imgProc import *
 import time
 from timeit import default_timer as timer
 import numpy as np
@@ -262,11 +262,17 @@ class Track:
 
 
 if __name__ == "__main__":
-    # cam, _image = imageInit()
-    cam = Camera()
+    cam, _image = imageInit()
+    # cam = Camera()
     yolo = YOLO()
 
-    _imgproc = ImgProc(10)
+    videoDir = "d:\\1\\Video_20200204122301684.avi"
+    bgDir = "d:\\1\\背景1.avi"
+    avi = Video(videoDir)
+    bgAvi = Video(bgDir)
+    imgCapObj = imageCapture(None, avi, bgAvi)
+
+    _imgproc = ImgProc(10, imgCapObj)
     _imgproc.studyBackgroundFromCam(cam)
     _imgproc.createModelsfromStats(6.0)
     _vision = Vision(cam, yolo, _imgproc)

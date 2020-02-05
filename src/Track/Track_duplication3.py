@@ -5,11 +5,12 @@ import sys
 import cv2
 import uuid
 from src.Vision.camera import Camera
-from src.Vision.vision_duplication import *
-from src.Vision.imageProcess.imgProc_duplication import *
+from src.Vision.vision import *
+from src.Vision.imageProcess.imgProc import *
 import time
 from timeit import default_timer as timer
 import numpy as np
+
 from src.Vision.yolo.Yolo import *
 
 
@@ -238,7 +239,14 @@ if __name__ == "__main__":
     # cam = Camera()
     yolo = YOLO()
     # _vision = Vision(cam, yolo, imgproc_=None)
-    _imgproc = ImgProc(10)
+
+    videoDir = "d:\\1\\Video_20200204122301684.avi"
+    bgDir = "d:\\1\\背景1.avi"
+    avi = Video(videoDir)
+    bgAvi = Video(bgDir)
+    imgCapObj = imageCapture(None, avi, bgAvi)
+
+    _imgproc = ImgProc(10, imgCapObj)
     _vision = Vision(cam, yolo, _imgproc)
     prev_time = timer()
     accum_time = 0
