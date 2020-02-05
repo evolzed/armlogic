@@ -1,17 +1,23 @@
 import os
 import sys
-import datetime
-import threading
+
+sys.path.append(os.path.abspath("../../"))
 import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
-
 from src.Vision.imageProcess.imgProc import ImgProc
-sys.path.append(os.path.abspath("../../"))
+from src.Vision.video import Video
+from src.Vision.interface import imageCapture
+
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
 import platform
+
+from lib.Logger.Logger import Logger
+
+sys.stdout = Logger("d:\\12.txt")  # 保存到D盘
+
 sysArc = platform.uname()
 if sysArc[0] == "Windows":
     from lib.HikMvImport_Win.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
@@ -22,6 +28,7 @@ else:
     sys.exit()
 from src.Vision.camera import Camera, g_bExit
 from src.Vision.yolo.Yolo import *
+
 # from src.Vision.imageProcess.bgLearn import Bglearn
 # from src.Vision.imageProcess.imageTrack import ImageTrack
 gState = 1
@@ -35,28 +42,28 @@ bottleDict = {
     "frameTime": None,
     "getPosTimeCost": None,
     "isObj": False  # bool
-    }
+}
 
 
 class Vision(object):
     """create main Vision class for processing images"""
 
-    def __init__(self, cam, yolo, imgproc_=None):
+    def __init__(self, imgCapObj, yolo, imgproc_=None):
         """相机自检"""
-        self.cam = cam
+        self.cam = imgCapObj
         self.yolo = yolo
-        self.imgproc=imgproc_
+        self.imgproc = imgproc_
         # self.deviceNum = cam.getDeviceNum()
         # cam._data_buf, cam._nPayloadsize = self.cam.connectCam()
-        if -1 == cam._data_buf:
-            print("相机初始化失败！退出程序！")
-            sys.exit()
-        print("相机初始化完成！")
+        if self.imgproc.imgCap.cam is not None:
+            if -1 == cam._data_buf:
+                print("相机初始化失败！退出程序！")
+                sys.exit()
+        print("相机或视频初始化完成！")
 
     def detectVideo(self, yolo, output_path=""):
         """
         进行实时视频检测功能
-
         :param yolo: yolo实例对象
         :param output_path: 识别效果的视频保存位置，如不指定，默认为空
         :return: None，通过break跳出循环
@@ -119,12 +126,9 @@ class Vision(object):
     def detectSerialImage(self, cam):
         """
         获取并处理连续的帧数
-
         :param cam: 相机对象
         :return: {"nFrame":nframe,"image":image, "timecost":timecost, "box":[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}
-
                 返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
-
         """
         prev_time = timer()
         accum_time = 0
@@ -134,11 +138,28 @@ class Vision(object):
         #     print("press_any_key_exit!")
         #     cam.press_any_key_exit()
 
-        #trackObj = ImageTrack()
+        # trackObj = ImageTrack()
+
+        # avi = Video("E:\\1\\1.avi")
+        # preframe = avi.getImageFromVideo()
+        preframe, nFrame, t = cam.getImage()
+        preframeb, bgMaskb, resarray = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
+        k = 1
+        startt = timer()
+        left = 0
+        top = 0
+        right = 0
+        bottom = 0
+        flag = 0
+        inputCorner = np.array([])
+        p0 = np.array([])
+        label = np.array([])
+        # avi = Video("E:\\1\\1.avi")
+        # frame = avi.getImageFromVideo()
         while True:
-            # try:
             _frame, nFrame, t = cam.getImage()
             camfps = " Cam" + cam.getCamFps(nFrame)
+            # frame = avi.getImageFromVideo()
             curr_time = timer()
             exec_time = curr_time - prev_time
             prev_time = curr_time
@@ -169,6 +190,61 @@ class Vision(object):
             dataDict["nFrame"] = nFrame
             dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
             # arr = np.asarray(dataDict["image"])
+            imglist = self.imgproc.getBoxOnlyPic(dataDict, preframe)
+            imglistk = self.imgproc.getBoxOnlyPic(dataDict, _frame)
+            drawimg = frame.copy()
+            featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
+            secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            # detect
+            if flag == 0:
+                p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                if centerlist is not None and len(centerlist) > 0:
+                    for seqN in range(len(centerlist)):
+                        cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
+                if p0 is not None and label is not None:
+                    flag = 1
+            # track
+            else:
+                p0, label, centerList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0)
+                if centerList is not None and len(centerList) > 0:
+                    for seqN in range(len(centerList)):
+                        cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
+                        cv2.putText(drawimg, text=str(int(centerList[seqN][3])),
+                                    org=(centerList[seqN][0] - 20, centerList[seqN][1]),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                        cv2.putText(drawimg, text=str(int(centerList[seqN][4])),
+                                    org=(centerList[seqN][0] - 20, centerList[seqN][1] + 50),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                        cv2.putText(drawimg, text=str(centerList[seqN][2]),
+                                    org=(centerList[seqN][0], centerList[seqN][1]),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=3, color=(0, 255, 255), thickness=2)
+            # clear
+
+            if "box" not in dataDict:
+                p0 = np.array([])
+                label = np.array([])
+                flag = 0
+                cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
+
+            else:
+                nonBottleFlag = True
+                for x in range(len(dataDict["box"])):
+                    if dataDict["box"][x][1] > 0.9:
+                        nonBottleFlag = False
+                        break
+
+                if nonBottleFlag is True:
+                    p0 = np.array([])
+                    label = np.array([])
+                    flag = 0
+                    cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
+            cv2.imshow("res", drawimg)
+            cv2.waitKey(10)
+            preframeb = frame.copy()
+
             if bgMask is not None:
                 dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)
             cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -176,30 +252,21 @@ class Vision(object):
             cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(0, 255, 255), thickness=2)
             cv2.imshow("result", result)
-            #cv2.waitKey(1000)
+            # cv2.waitKey(1000)
             cv2.waitKey(10)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
             # return dataDict
             global bottleDict
             bottleDict = dataDict
-            print(bottleDict)
-                # print(dataDict)
-            # except Exception as e:
-            #     # global gState
-            #     # gState = 3
-            #     print(e)
-            #     break
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
         """
         用于接受bgLearn返回过来的图片
-
         :param frame: opencv格式的图片，例如：frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         :param nFrame: 图片的帧号，用来确定图像的唯一性
         :return: {"nFrame":nframe,"image":image, "timecost":timecost, "box":[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}
-
                 返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
         """
         # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
@@ -221,6 +288,8 @@ class Vision(object):
         # cv2.waitKey(1000)
         cv2.waitKey(10)
         return dataDict
+
+
 """
 if __name__ == '__main__':
     cam = Camera()
@@ -228,7 +297,6 @@ if __name__ == '__main__':
     print("准备载入yolo网络！")
     yolo = YOLO()
 
-   
     _image = Vision(cam, yolo)
     dataDict = _image.detectSerialImage(_frame, nf)
     print(dataDict)
@@ -239,28 +307,52 @@ if __name__ == '__main__':
 def imageInit():
     """
     初始化相机对象cam, Vision对象
-
     :return: (cam：相机对象, _image:Vision对象)
     """
+    # cam = Camera()
+    videoDir = "d:\\1\\Video_20200204122301684.avi"
+    bgDir = "d:\\1\\背景1.avi"
+    avi = Video(videoDir)
+    bgAvi = Video(bgDir)
+    imgCapObj = imageCapture(None, avi, bgAvi)
+
+    # _frame, nf = cam.getImage()
+    print("准备载入yolo网络！")
+    yolo = YOLO()
+    print("准备背景学习！")
+    bgobj = ImgProc(50, imgCapObj)
+    # bgobj.studyBackgroundFromCam(cam)
+    bgobj.studyBackground()
+    bgobj.createModelsfromStats()
+    _image = Vision(imgCapObj, yolo, bgobj)
+    print("开始！")
+    global gState
+    gState = 2
+    return imgCapObj, _image
+
+
+"""
+def imageInit():
     cam = Camera()
     # _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
     yolo = YOLO()
     print("准备背景学习！")
     bgobj = ImgProc(50)
-    bgobj.studyBackgroundFromCam(cam)
-    bgobj.createModelsfromStats(6.0)
+    # bgobj.studyBackgroundFromCam(cam)
+    bgobj.studyBackgroundFromVideo("E:\\1\\背景.avi")
+    bgobj.createModelsfromStats()
     _image = Vision(cam, yolo, bgobj)
     print("开始！")
     global gState
     gState = 2
     return cam, _image
+"""
 
 
-def imageRun(cam,_image):
+def imageRun(cam, _image):
     """
     根据输入的图像数据，进行识别
-
     :param cam: 相机对象
     :param _image: Vision对象
     :return: None | 系统有异常，退出系统
@@ -270,8 +362,8 @@ def imageRun(cam,_image):
     #         _frame, nf = cam.getImage()
     #         frameDelBg = _image.bgLearn.delBg(_frame)
     _image.detectSerialImage(cam, )
-            # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
-            #cv2.waitKey(10)
+    # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
+    # cv2.waitKey(10)
     #         print(dataDict)
     #         if cv2.waitKey(1) & 0xFF == ord('q'):
     #             break
@@ -284,16 +376,6 @@ def imageRun(cam,_image):
     print("系统退出中···")
     sys.exit()
 
-def imageSave():
-    if bottleDict['isObj'] == True:
-        now = datetime.datetime.now()
-        ctime = now.strftime('%Y%m%d_%H:%M:%S')
-        cv2.imwrite("/home/nvidia/data/{}_{}.jpg".format(ctime,), bottleDict['image'])
-
-def saveThread():
-    save = threading.Thread(target=imageSave)
-    save.setDaemon(True)
-    return save
 
 """
 if __name__ == '__main__':
