@@ -6,6 +6,7 @@ from ctypes import *
 from timeit import default_timer as timer
 import cv2
 from src.Vision.imageProcess.imgProc import ImgProc
+from src.Vision.video import Video
 
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
@@ -119,6 +120,7 @@ class Vision(object):
         self.cam.destroy(self.cam, cam._data_buf)
         yolo.closeSession()
 
+
     def detectSerialImage(self, cam):
         """
         获取并处理连续的帧数
@@ -138,7 +140,10 @@ class Vision(object):
         #     cam.press_any_key_exit()
 
         #trackObj = ImageTrack()
-        preframe, nFrame, t = cam.getImage()
+
+        avi = Video("E:\\1\\1.avi")
+        frame = avi.getImageFromVideo()
+        # preframe, nFrame, t = cam.getImage()
         preframeb, bgMaskb, resarray = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
         k = 1
         startt = timer()
@@ -150,9 +155,12 @@ class Vision(object):
         inputCorner = np.array([])
         p0 = np.array([])
         label = np.array([])
+        avi = Video("E:\\1\\1.avi")
+        frame = avi.getImageFromVideo()
         while True:
-            _frame, nFrame, t = cam.getImage()
-            camfps = " Cam" + cam.getCamFps(nFrame)
+            # _frame, nFrame, t = cam.getImage()
+            # camfps = " Cam" + cam.getCamFps(nFrame)
+            frame = avi.getImageFromVideo()
             curr_time = timer()
             exec_time = curr_time - prev_time
             prev_time = curr_time
@@ -307,7 +315,8 @@ def imageInit():
     yolo = YOLO()
     print("准备背景学习！")
     bgobj = ImgProc(50)
-    bgobj.studyBackgroundFromCam(cam)
+    # bgobj.studyBackgroundFromCam(cam)
+    bgobj.studyBackgroundFromVideo("E:\\1\\背景.avi")
     bgobj.createModelsfromStats()
     _image = Vision(cam, yolo, bgobj)
     print("开始！")

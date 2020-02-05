@@ -1010,7 +1010,6 @@ if __name__ == "__main__":
     obj = ImgProc(50)
     cam = Camera()
     # obj.studyBackgroundFromCam(cam)
-
     obj.studyBackgroundFromVideo("E:\\1\\背景.avi")
     obj.createModelsfromStats(8.0)
 

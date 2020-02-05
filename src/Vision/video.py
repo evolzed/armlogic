@@ -12,7 +12,7 @@ class Video:
         self.width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    def getImageFromVedio(self):
+    def getImageFromVideo(self):
         """
 
         :return:
@@ -30,9 +30,9 @@ class Video:
 
 if __name__ == '__main__':
     avi = Video("E:\\1\\1.avi")
-    frame = avi.getImageFromVedio()
+    frame = avi.getImageFromVideo()
     while frame is not None:
-        frame = avi.getImageFromVedio()
+        frame = avi.getImageFromVideo()
         """
            Then write your frame process code here.
         """
@@ -41,8 +41,8 @@ if __name__ == '__main__':
         cv2.waitKey(10)
 
 """ 
-def getImageFromVedio(vedioDir):
-    cap = cv2.VideoCapture(vedioDir)  # 获取视频对象
+def getImageFromVideo(VideoDir):
+    cap = cv2.VideoCapture(VideoDir)  # 获取视频对象
     isOpened = cap.isOpened  # 判断是否打开
     # 视频信息获取
     fps = cap.get(cv2.CAP_PROP_FPS)
