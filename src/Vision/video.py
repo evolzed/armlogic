@@ -1,4 +1,6 @@
 import cv2
+import time
+from timeit import default_timer as timer
 
 class Video:
     def __init__(self, videoDir):
@@ -11,6 +13,8 @@ class Video:
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.nFrame = 0
+        self.time = timer()
 
     def getImageFromVideo(self):
         """
@@ -21,11 +25,14 @@ class Video:
         if self.isOpened:
             (frameState, frame) = self.cap.read()  # 记录每帧及获取状态
             if frameState == True:
-                return frame
+                t = time.time()  # 获取当前帧的时间
+                self.nFrame += 1
+                nF = self.nFrame
+                return frame, nF, t
             else:
-                return None
+                return None, None, None
         else:
-            return None
+            return None, None, None
 
 
 if __name__ == '__main__':

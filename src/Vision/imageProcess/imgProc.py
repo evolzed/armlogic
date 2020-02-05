@@ -8,6 +8,7 @@ import random
 from src.Vision.camera import Camera
 from timeit import default_timer as timer
 from src.Vision.video import Video
+from src.Vision.interface import imageCapture
 from src.Track import Track
 
 # TemplateDir = 'E:\\1\\template.jpg'
@@ -24,7 +25,7 @@ lk_params = dict(winSize=(15, 15),
 
 
 class ImgProc:
-    def __init__(self, bgStudyNum):
+    def __init__(self, bgStudyNum, imgCapObj):
         """
         :param bgStudyNum: how many pics captured for background study
         """
@@ -64,6 +65,8 @@ class ImgProc:
 
         self.MAX_CORNERS = 50
         self.win_size = 10
+        self.imgCap = imgCapObj
+
 
     def avgBackground(self, I):
         """
@@ -118,6 +121,26 @@ class ImgProc:
         gc.collect()
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
+
+    def studyBackground(self):
+        frame = self.imgCap.getBgImage()
+        over_flag = 1
+        pic_cnt = 0
+        frame_cnt = 0
+        while frame is not None and over_flag == 1:
+            frame, nFrame, t = self.imgCap.getBgImage()
+            if frame_cnt % 20 == 0:  # get a frame per 20
+                fin = np.float32(frame)
+                self.bgVector[pic_cnt] = fin
+                pic_cnt += 1
+            frame_cnt += 1
+            print("pic_cnt", pic_cnt)
+            if pic_cnt == self.BG_STUDY_NUM:
+                over_flag = 0
+        for i in range(self.bgVector.shape[0]):
+            self.avgBackground(self.bgVector[i])
+
+
 
     def studyBackgroundFromVideo(self, videoDir):
         """
@@ -1007,15 +1030,23 @@ def nothing(x):
 
 
 if __name__ == "__main__":
-    obj = ImgProc(50)
-    cam = Camera()
+
+    # cam = Camera()
+    videoDir = "E:\\1\\3.avi"
+    bgDir = "E:\\1\\背景.avi"
+    avi = Video(videoDir)
+    bgAvi = Video(bgDir)
+    imgCapObj = imageCapture(None, avi, bgAvi)
+    obj = ImgProc(50, imgCapObj)
+    obj.studyBackground()
     # obj.studyBackgroundFromCam(cam)
-    obj.studyBackgroundFromVideo("E:\\1\\背景.avi")
+    # obj.studyBackgroundFromVideo("E:\\1\\背景.avi")
     obj.createModelsfromStats(8.0)
 
     try:
         # cam = Camera()
-        preFrame, nFrameNum, t = cam.getImage()
+        # preFrame, nFrameNum, t = cam.getImage()
+        preFrame, nFrameNum, t = obj.imgCap.getImage()
         preframeDelBg, bgmask, resarray= obj.delBg(preFrame)
 
         #preFrame = np.zeros_like(frame)
@@ -1038,58 +1069,23 @@ if __name__ == "__main__":
         cv2.createTrackbar('threshold1', 'Canny', 50, 400, nothing)
         cv2.createTrackbar('threshold2', 'Canny', 100, 400, nothing)
 
-        """
-        template = cv2.imread('E:\\1\\template.jpg', 0)
-        # templategray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
-        pic = template.copy()
-        # templateedge = cv2.Canny(templategray, 78, 148)
-        templateedge = template
-        if cv2.__version__.startswith("3"):
-            _, contours, hierarchy = cv2.findContours(templateedge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        elif cv2.__version__.startswith("4"):
-            contours, hierarchy = cv2.findContours(templateedge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-
-        contourTemplate = np.array([])
-        if len(contours) > 0:
-            print("in_______________")
-            print("len(contours)", len(contours))
-            for ci in range(len(contours)):
-                # if hierarchy[0, ci, 0] == -1 and hierarchy[0, ci, 3] == -1:  #find the most big hierarchy
-                if hierarchy[0, ci, 3] != -1:  # find the most big hierarchy
-                    r = random.randint(0, 255)
-                    g = random.randint(0, 255)
-                    b = random.randint(0, 255)
-                    child = hierarchy[0, ci, 2]
-                    arclenth = cv2.arcLength(contours[ci], True)  # 面积
-                    area = cv2.contourArea(contours[ci])  # 4386.5
-                    # print("arcle", arclenth)q
-                    # print("area", area)
-                    if arclenth > 900 and 10000 > area > 5000:
-                        # cv2.drawContours(pic, contours, ci, (b, g, r), 3)
-                        cv2.drawContours(pic, contours, ci, (255, 255, 255), 6)
-                        contourTemplate = contours[ci]
-                        print("arcle", arclenth)
-                        print("area", area)
-        # cv2.imshow("tem", pic)
-        # cv2.waitKey(0)
-        chun_xiang_flag = 0
-        chunxiang_minIndex = -1
-        cx = -1
-        cy = -1
-        contoursGet = np.array([])
-        """
         contourTemplate = obj.loadContourTemplate(TemplateDir)
         while 1:
-            frame, nFrameNum, t = cam.getImage()
+            # frame, nFrameNum, t = cam.getImage()
+            frame, nFrameNum, t = obj.imgCap.getImage()
+            if frame is None:
+                break
             # camra fault tolerant
             # mem addr use is
-            if frame is None:
-                continue
+            # if frame is None:
+            #     continue
 
             obj.show = frame.copy()
             pic = frame.copy()
             # get fps of cam output
-            fps = cam.getCamFps(nFrameNum)
+
+            # fps = cam.getCamFps(nFrameNum)
+
             # use the background model to del the bacground of  frame
 
             frameDelBg, bgmask, resarray = obj.delBg(frame)
@@ -1104,225 +1100,16 @@ if __name__ == "__main__":
                             fontScale=1, color=(0, 0, 255),
                             thickness=2)
 
-            # for k in range(len(resarray)):
-            #     x = resarray[k][0]
-            #     y = resarray[k][1]
-            #     w = resarray[k][2]
-            #     h = resarray[k][3]
-            #     if 300*300 > w*h > 200*150:
-            #         frameDelBgDivide = frameDelBg[y:y + h, x:x + w].copy()
-            #         cx, cy, contour = obj.findContourMatch(frameDelBgDivide)
-            #         cv2.drawContours(pic[y:y + h, x:x + w], contour, -1, (0, 255, 0), 6)  #can
-            #         cv2.putText(pic, text=str("milk"), org=(cx+x, cy+y),
-            #                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-            #                     fontScale=1, color=(0, 0, 255),
-            #                     thickness=2)
-
-                # edged = cv2.Canny(pic, threshold1, threshold2)
-                # cv2.imshow("edge" + str(k), edged)
-
-
-
             cv2.imshow("pic", pic)
-            """
-            src_show = frame.copy()
-            src_copy = frameDelBg.copy()  #float change to np int
-            # print("src_copy shape", src_copy.shape)
-            # print("src_copy dtype", src_copy.dtype)
 
-            src_copy_gray = cv2.cvtColor(src_copy, cv2.COLOR_BGR2GRAY)
-
-            # print("src_copy_gray shape", src_copy_gray.shape)
-            # print("src_copy_gray dtype", src_copy_gray.dtype)
-            # ret, binary = cv2.threshold(src_copy_gray, 127, 255, cv2.THRESH_BINARY)
-
-            # threshold1 = cv2.getTrackbarPos('threshold1', 'Canny')
-            # threshold2 = cv2.getTrackbarPos('threshold2', 'Canny')
-
-            # edge = cv2.Canny(src_copy_gray, threshold1, threshold2)
-            edge = cv2.Canny(src_copy_gray, 78, 148)
-
-            if cv2.__version__.startswith("3"):
-                _, contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-            elif cv2.__version__.startswith("4"):
-                contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-            pic = src_show.copy()
-            # print("hierarchy", hierarchy)
-            # hierarchy_choose = hierarchy[hierarchy[:, 1, 0] == -1]
-#3 parent contour
-            matchRetList = []
-            if len(contours) > 0:
-                for ci in range(len(contours)):
-                    # if contourTemplate is not None:
-                    matchRet = cv2.matchShapes(contours[ci], contourTemplate, 1, 0.0)
-                    matchRetList.append(matchRet)
-                    print("matchRet", matchRet)
-                    # matchRetListD = np.array(matchRetList)
-                    # print("matchRetList.min", matchRetListD.min())
-                    # print("matchRetList.min", matchRetListD.argmin())
-                    # minIndex = matchRetListD.argmin()
-                    # minMatch = matchRetListD.min()
-                    arclenth = cv2.arcLength(contours[ci], True)  # 面积
-                    area = cv2.contourArea(contours[ci])  # 4386.5
-                    if matchRet < 0.2 and arclenth > 300 and 8000 > area > 5000 and hierarchy[0, ci, 3] != -1:
-                        cv2.drawContours(pic, contours, ci, (0, 255, 0), 6)
-                        M = cv2.moments(contours[ci])  # 计算第一条轮廓的各阶矩,字典形式
-                        # print (M)
-                        # 这两行是计算中心点坐标
-                        cx = int(M['m10'] / M['m00'])
-                        cy = int(M['m01'] / M['m00'])
-                        cv2.putText(pic, text=str("milk"), org=(cx, cy),
-                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=1, color=(0, 0, 255),
-                                    thickness=2)
-                        break
-                    
-                    # print("matchRet", matchRet)
-                    # if hierarchy[0, ci, 0] == -1 and hierarchy[0, ci, 3] == -1:  #find the most big hierarchy
-                    if hierarchy[0, ci, 3] != -1:  # find the most big hierarchy
-                        r = random.randint(0, 255)
-                        g = random.randint(0, 255)
-                        b = random.randint(0, 255)
-                        child = hierarchy[0, ci, 2]
-                        arclenth = cv2.arcLength(contours[ci], True)  # 面积
-                        area = cv2.contourArea(contours[ci])  # 4386.5
-                        # print("arcle", arclenth)
-                        # print("area", area)
-                        if arclenth > 300 and 10000 > area > 100:
-                            # cv2.imwrite('E:\\1\\1.jpg', edge)
-                            # cv2.drawContours(pic, contours, ci, (b, g, r), 3)
-                            # cv2.drawContours(pic, contours, ci, (0, 0, 0), 3)
-                            print("arcle", arclenth)
-                            print("area", area)
-                 
-                    
-                    
-                matchRetListD = np.array(matchRetList)
-                print("matchRetList.min", matchRetListD.min())
-                print("matchRetList.min", matchRetListD.argmin())
-                minIndex = matchRetListD.argmin()
-                minMatch = matchRetListD.min()
-                arclenth = cv2.arcLength(contours[minIndex], True)  # 面积
-                area = cv2.contourArea(contours[minIndex])  # 4386.5
-                if minMatch < 0.1 and arclenth > 300 and 8000 > area > 5000 and hierarchy[0, minIndex, 3] != -1:
-                    cv2.drawContours(pic, contours, minIndex, (0, 0, 255), 3)
-                    M = cv2.moments(contours[minIndex])  # 计算第一条轮廓的各阶矩,字典形式
-                    # print (M)
-                    # 这两行是计算中心点坐标
-                    cx = int(M['m10'] / M['m00'])
-                    cy = int(M['m01'] / M['m00'])
-                    chun_xiang_flag = 1
-                    chunxiang_minIndex = minIndex
-                    contoursGet = contours[chunxiang_minIndex]
-            if cx != -1 and cy != -1 and chunxiang_minIndex != -1 and np.size(contoursGet) > 0:
-                cv2.putText(pic, text=str("milk"), org=(cx, cy),
-                                        fontFace = cv2.FONT_HERSHEY_SIMPLEX,
-                                        fontScale = 1, color=(0, 0, 255),
-                                        thickness=2)
-                cv2.drawContours(pic, contoursGet, -1, (0, 255, 0), 3)
-                """
-
-
-                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(100, 100),
-                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                #             fontScale=3, color=(0, 255, 255),
-                #             thickness=2)
-                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(200, 100),
-                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                #             fontScale=3, color=(0, 255, 255), thickness=2)
-                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(300, 100),
-                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                #             fontScale=3, color=(0, 255, 255), thickness=2)
-                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(400, 100),
-                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                #             fontScale=3, color=(0, 255, 255), thickness=2)
-
-
-
-            """
-            contourLen = len(contours)
-            cv2.imshow("con", src_show)
-            cv2.imshow("Canny", edge)
-            pic = np.array([])
-            for k in range(len(resarray)):
-                x = resarray[k][0]
-                y = resarray[k][1]
-                w = resarray[k][2]
-                h = resarray[k][3]
-                pic = src_copy_gray[y:y + h, x:x + w].copy()
-                edged = cv2.Canny(pic, threshold1, threshold2)
-                cv2.imshow("edge" + str(k), edged)
-            """
-
-            # if np.size(pic) > 0:
-            #     edged = cv2.Canny(pic, threshold1, threshold2)
-            #     cv2.imshow("edge"+str(k), edged)
             cv2.imshow("show", obj.show)
-            """
-            # put text on frame to display the fps
-            cv2.putText(frameDelBg, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        fontScale=0.50, color=(255, 0, 0), thickness=2)
 
-            # drawimg = mask.copy()
-            trakSart = timer()
-            #good_new, good_old, drawimg = obj.lkLightflow_track(preFrame, frame, mask)
-            #good_new, good_old, offset, drawimg = obj.lkLightflow_track(preframeDelBg, frameDelBg, premask)
-            drawimg =frameDelBg.copy()
-            featureimg = cv2.cvtColor(preframeDelBg, cv2.COLOR_BGR2GRAY)
-            secondimg = cv2.cvtColor(frameDelBg, cv2.COLOR_BGR2GRAY)
-            if flag == 1:
-                cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
-                # print("cornersA",cornersA)
-                if cornersA is not None:
-                    if np.size(cornersA) > 0:
-                        cornersB, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, None, **lk_params)
-                        print("cornersB", cornersB)
-                        good_new = cornersB[st == 1]
-                #good_old = cornersA[st == 1]
-                    if good_new is not None:
-                        if np.size(good_new) > 0:
-                            good_old = good_new.copy()
-                            print("good_new", good_new)
-                            for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
-                                a, b = new.ravel()  # unfold
-                                c, d = old.ravel()
-                                cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
-                            flag = 0
-            else:
-                if np.size(good_old)!=0:
-                    good_new, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, good_old, None, **lk_params)
-                    #good_new = good_new[st == 1]  #will error when twise
-                    good_old = good_new.copy()
-                    print("*" * 50)
-                    for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
-                        a, b = new.ravel()  # unfold
-                        c, d = old.ravel()
-                        print("-" * 50)
-                        cv2.line(drawimg, (a, b), (c, d), (0, 0, 255), 1)
-                        cv2.circle(drawimg, (a, b),3, (0, 0, 255), -1)
-                        print("good_new0", good_new)
-                        print("good_old0", good_new)
-
-            cv2.imshow("res", drawimg)
-            cv2.waitKey(10)
-            # copy the current frame as preFrame for next use
-            #preFrame = frame.copy()
-            preframeDelBg = frameDelBg.copy()
-            preFrame = frame.copy()
-            # cv2.waitKey(10)
-            ellapseTime = timer() - timeStart
-            trackCostTime = timer() - trakSart
-            print("trackCostTime:", trackCostTime)
-            # update the timeStart and clear tqqhe mask
-            if ellapseTime > 3:
-                timeStart = timer()
-                mask = np.zeros_like(preFrame)  # only detect the motion object
-                premask = np.zeros_like(preFrame)
-            """
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                cam.destroy()
+                pass
+            #     cam.destroy()
                 break
     except Exception as e:
         print(e)
-        cam.destroy() 
+        pass
+        # cam.destroy()
 
