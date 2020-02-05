@@ -9,7 +9,8 @@ import cv2
 from src.Vision.imageProcess.imgProc import ImgProc
 from src.Vision.video import Video
 from src.Vision.interface import imageCapture
-
+import time
+import multiprocessing
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
 import platform
@@ -123,7 +124,7 @@ class Vision(object):
         self.cam.destroy(self.cam, cam._data_buf)
         yolo.closeSession()
 
-    def detectSerialImage(self, cam):
+    def detectSerialImage(self, cam, transDict):
         """
         获取并处理连续的帧数
         :param cam: 相机对象
@@ -259,6 +260,10 @@ class Vision(object):
             # return dataDict
             global bottleDict
             bottleDict = dataDict
+            bottleDict1 = dataDict
+            transDict = dataDict
+            # print(bottleDict1)
+            # print(bottleDict)
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
@@ -350,7 +355,7 @@ def imageInit():
 """
 
 
-def imageRun(cam, _image):
+def imageRun(cam, _image, transDict):
     """
     根据输入的图像数据，进行识别
     :param cam: 相机对象
@@ -361,7 +366,9 @@ def imageRun(cam, _image):
     #     try:
     #         _frame, nf = cam.getImage()
     #         frameDelBg = _image.bgLearn.delBg(_frame)
-    _image.detectSerialImage(cam, )
+
+    _image.detectSerialImage(cam, transDict)
+
     # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
     # cv2.waitKey(10)
     #         print(dataDict)
@@ -405,8 +412,29 @@ if __name__ == '__main__':
     cam.destroy()
 """
 
+def read(transDict):
+    print(transDict)
+    # print('Process to read: %s' % os.getpid(), time.time())
+    # while True:
+    #     value = bottlDict1.get(True)
+    #     print(value)
+    #
+    #     # print('Get %s from dict.  ---- currentTime:' % value, time.time())
+
+
+
 if __name__ == '__main__':
     # cam = Vision()
-    cam, _image = imageInit()
+    with multiprocessing.Manager() as MG:  # 重命名
+        transDict = MG.dict()
 
-    imageRun(cam, _image)
+        cam, _image = imageInit()
+
+        p2 = multiprocessing.Process(target=read, args=(transDict,))
+        p2.start()
+        p2.join()
+
+        # pw = multiprocessing.Process(target=imageRun, args=(cam, _image, transDict,))
+        # pw.start()
+        # pw.join()
+        imageRun(cam, _image, transDict)
