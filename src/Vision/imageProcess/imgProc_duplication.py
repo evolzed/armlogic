@@ -7,8 +7,6 @@ import numpy as np
 import random
 from src.Vision.camera import Camera
 from timeit import default_timer as timer
-from src.Vision.video import Video
-from src.Vision.interface import imageCapture
 from src.Track import Track
 
 # TemplateDir = 'E:\\1\\template.jpg'
@@ -22,10 +20,8 @@ feature_params = dict(maxCorners=30,
 lk_params = dict(winSize=(15, 15),
                  maxLevel=2,
                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-
-
 class ImgProc:
-    def __init__(self, bgStudyNum, imgCapObj):
+    def __init__(self, bgStudyNum):
         """
         :param bgStudyNum: how many pics captured for background study
         """
@@ -65,14 +61,13 @@ class ImgProc:
 
         self.MAX_CORNERS = 50
         self.win_size = 10
-        self.imgCap = imgCapObj
-
 
     def avgBackground(self, I):
         """
         read background pic of I,and then calculate frame difference of current frame and pre frame: I and IprevF
         accumulate every frame difference Iscratch2 to sum of differences :IdiffF
         meanwhile,accumulate every frame I  to sum of frames :IavgF
+
         :param I: input  Mat type pic stream
         :return: None
         """
@@ -86,13 +81,14 @@ class ImgProc:
         self.Icount += 1.0
         self.IprevF = I.copy()
 
-    def createModelsfromStats(self, scale=8.0):
+    def createModelsfromStats(self, scale):
         """
         calculate the average sum of frames to  IavgF
         calculate frame difference to IdiffF
         then  multiply the scale to the Idiiff,and add the Idiff to IavgF to get the IhiF,
         subtract  the Idiff from IavgF to get the IlowF
         now we get the background model IhiF and IlowF
+
         :param scale: gap of high threshold and low threshold of background model
         :return: None
         """
@@ -120,63 +116,11 @@ class ImgProc:
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
 
-    def studyBackground(self):
-        frame = self.imgCap.getBgImage()
-        over_flag = 1
-        pic_cnt = 0
-        frame_cnt = 0
-        while frame is not None and over_flag == 1:
-            frame, nFrame, t = self.imgCap.getBgImage()
-            if frame_cnt % 20 == 0:  # get a frame per 20
-                fin = np.float32(frame)
-                self.bgVector[pic_cnt] = fin
-                pic_cnt += 1
-            frame_cnt += 1
-            print("pic_cnt", pic_cnt)
-            if pic_cnt == self.BG_STUDY_NUM:
-                over_flag = 0
-        for i in range(self.bgVector.shape[0]):
-            self.avgBackground(self.bgVector[i])
-
-
-
-    def studyBackgroundFromVideo(self, videoDir):
-        """
-        get many pics for time interval of 60sec by cam and store the pics in  bgVector.
-        then  call the avgBackground method
-        :param cam: input camera object
-        :return: None
-        """
-        avi = Video(videoDir)
-        frame = avi.getImageFromVedio()
-        over_flag = 1
-        pic_cnt = 0
-        frame_cnt = 0
-        while frame is not None and over_flag == 1:
-            frame = avi.getImageFromVedio()
-            if frame_cnt % 20 == 0:  # get a frame per 20
-                fin = np.float32(frame)
-                self.bgVector[pic_cnt] = fin
-                pic_cnt += 1
-            frame_cnt += 1
-            # print("shape", fin.shape)
-            # store the frame in list bgVector
-
-
-            # print("pic_cnt", pic_cnt)
-            # wait about 200 milli seconds
-            # cv2.waitKey(20)
-            print("pic_cnt", pic_cnt)
-            if pic_cnt == self.BG_STUDY_NUM:
-                over_flag = 0
-        for i in range(self.bgVector.shape[0]):
-            # print("i", i)
-            self.avgBackground(self.bgVector[i])
-
     def studyBackgroundFromCam(self, cam):
         """
         get many pics for time interval of 60sec by cam and store the pics in  bgVector.
         then  call the avgBackground method
+
         :param cam: input camera object
         :return: None
         """
@@ -196,7 +140,7 @@ class ImgProc:
                 cv2.waitKey(200)
                 pic_cnt += 1
                 print("pic_cnt", pic_cnt)
-                if pic_cnt == self.BG_STUDY_NUM:
+                if (pic_cnt == self.BG_STUDY_NUM):
                     over_flag = 0
 
             # print("shapebg", self.bgVector.shape)
@@ -215,6 +159,7 @@ class ImgProc:
         will change to white,otherwise, it will cover to black.
         https://www.cnblogs.com/mrfri/p/8550328.html
         rectArray=np.zeros(shape=(1,4),dtype=float)
+
         :param src0: input cam pic waited for segment
         :param dst: temp store segment result of mask
         :return: rectArray:all boundingboxes of all bottles
@@ -292,6 +237,7 @@ class ImgProc:
     def delBg(self, src):
         """
         use the mask pic bgMask to make bit and operation to the cam frame to get a pic that del the bacground
+
         :param src: input cam pic waited for segment
         :return: rectArray:all boundingboxes of all bottles
                 dst:segment result of mask
@@ -312,15 +258,6 @@ class ImgProc:
         return frame_delimite_bac, bgMask, resarray
 
     def findTrackedOffsetOneBottle(self, good_new, good_old):
-        """
-        find the offset of one bottle that tracked
-        :param good_new:
-        good_new is good tracked points of one bottle calculated in the function of trackObj
-        :param good_old:
-        good_old is good tracked points of one bottle calculated in the function of trackObj
-        :return: offset
-        offset x and offset y of the tracked bottle
-        """
         offsetArray = good_new - good_old
         disTemp = np.sum((good_new - good_old) ** 2, axis=1)
         # print("disTemp", disTemp)
@@ -339,13 +276,6 @@ class ImgProc:
         # print(findTrackedOffsets"offset", offset)
 
     def findTrackedOffsets(self, good_new_con, good_old_con, good_label):
-        """
-        find all bottle's offset and store in the list
-        :param good_new_con:
-        :param good_old_con:
-        :param good_label:
-        :return:targetList
-        """
         label_list = np.unique(good_label)
         label_list = label_list[label_list != -1]
         print("label_list", label_list)
@@ -370,13 +300,6 @@ class ImgProc:
         return targetList
 
     def findTrackedCenterPoint(self, p0, label):
-        """
-        find  center point of  every bottle's tracked points
-        :param p0:
-        :param label:
-        :return: center_list
-        the center point of every bottle store in a list
-        """
         if p0 is None:
             return None
         center_list = []
@@ -400,18 +323,15 @@ class ImgProc:
     def detectObj(self, featureimg, drawimg, dataDict, label_num):
         """
          detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
+
         :param featureimg: feature image, pre image, the  points of this  image(p0) will be track in the trackObj cycle if the points is labeled
         :param drawimg: drawing img,which is used for draw
         :param dataDict: the dataDict retruned by image check
         :param feature_params:track params
         :param label_num: the min detected boxes
-        :return:p0, label, allList
+        :return:p0, label
         p0 is detected and labeled points  and will be track in the trackObj cycle ,
         label is the label of p0 points
-        allList is a list to store center point position and offset and id
-        allList[seqN][0], allList[seqN][1] is center point position
-        allList[seqN][3], allList[seqN][4] is offset X offset Y
-        allList[seqN][2], is id
         """
         #detect the points
         # trackObj = Track()
@@ -452,11 +372,7 @@ class ImgProc:
                 if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
                     # flag = 1
                     centerL = self.findTrackedCenterPoint(p0, label)
-                    allList = []
-                    for x in centerL:
-                        allList.append([x[0], x[1], x[2], 0, 0])
-
-                    return p0, label, allList
+                    return p0, label, centerL
                 else:
                     return None, None, None
             else:
@@ -468,6 +384,7 @@ class ImgProc:
     def trackObj(self, featureimg, secondimg, drawimg, label, p0):
         """
         track the obj of deteced, input the deteced points or the last tracked points,output the new tracked points and its labels
+
         :param featureimg: feature image, pre image,the  points of this  image(p0) will be track in the second image(p1)
         :param secondimg:  second image,current image, will become pre image in the next cycle
         the tracked points of this image(p1) will become p0 again in the next cycle
@@ -476,10 +393,7 @@ class ImgProc:
         :param p0:  the target points for track by detectObj
         :param lk_params:  track params
         :return: p0, label: p0 is tracked points and will be track for next cycle,label is the label of p0 points
-                allList is a list to store center point position and offset and id
-                allList[seqN][0], allList[seqN][1] is center point position
-                allList[seqN][3], allList[seqN][4] is offset X offset Y
-                allList[seqN][2], is id
+
         """
         #num of track
         if p0 is not None and np.size(p0.shape[0]) > 0:
@@ -501,32 +415,68 @@ class ImgProc:
                     targetlist = self.findTrackedOffsets(good_new_con, good_old_con, good_label)
                     print("targetlist", targetlist)
 
+                # print("good_new", good_new)
+                # print("good_old", good_old)
                 #unfold the points and draw it
                 for i, (new, old) in enumerate(zip(good_new_con, good_old_con)):  # fold and enumerate with i
                     a, b, la = new.ravel()  # unfold
                     c, d, la = old.ravel()
+                    # print("-" * 50)
                     a = int(a)
                     b = int(b)
                     c = int(c)
                     d = int(d)
+
                     if la != -1:
                         cv2.line(drawimg, (a, b), (c, d), (0, 255, 255), 1)
+                        # cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
+
+                        # cv2.putText(drawimg, text=str(la), org=(a, b),
+                        #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        #             fontScale=1, color=(0, 255, 255), thickness=2)
 
                 p0 = good_new.reshape(-1, 1, 2)
                 label = good_label.reshape(-1, 1, 1)
 
                 centerList = self.findTrackedCenterPoint(p0, label)
+                # # boxList.append([predicted_class, score, left, top, right, bottom, angle, diameter, center, label])
+                # targetlist.append([predicted_class, score, left, top, right, bottom, angle, diameter, center, label])
+                # for seqN in range(len(dataDict["box"])):
+                #     for x in centerList:
+                #         if x[2] == seqN:
+                #             dataDict["box"][seqN][8] = [x[0], x[1]]
+                #             dataDict["box"][seqN][9] = x[2]
 
                 print("centerList", centerList)
 
-                allList = []
+                # if good_new is not None:
+                #     offset = self.findTrackedOffsetOneBottle(good_new, good_old)
+                #
+                #     cv2.putText(drawimg, text=str(offset[0]), org=(200, 100),
+                #                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #                 fontScale=2, color=(0, 255, 255), thickness=2)
+                #
+                #     cv2.putText(drawimg, text=str(offset[1]), org=(200, 200),
+                #                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #                 fontScale=2, color=(0, 255, 255), thickness=2)
+
                 if centerList is not None:
                     for center in centerList:
                         for i in range(len(targetlist)):
                             if center[2] == targetlist[i][1]:
-                                allList.append([center[0], center[1], center[2], targetlist[i][0][0], targetlist[i][0][1]])
+                                cv2.putText(drawimg, text=str(int(targetlist[i][0][0])), org=(center[0]-20, center[1]),
+                                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                            fontScale=2, color=(255, 255, 255), thickness=2)
+                                cv2.putText(drawimg, text=str(int(targetlist[i][0][1])), org=(center[0]-20, center[1]+50),
+                                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                            fontScale=2, color=(255, 255, 255), thickness=2)
+
                         print("center", center)
-                return p0, label, allList
+                        # cv2.circle(drawimg, (center[0], center[1]), 24, (80, 100, 255), 3)
+                        cv2.putText(drawimg, text=str(center[2]), org=(center[0], center[1]),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=3, color=(0, 255, 255), thickness=2)
+                return p0, label, centerList
             else:
                 return None, None, None
         else:
@@ -538,6 +488,7 @@ class ImgProc:
         """
         function description:
         get Euclidean distance  between point p1 and p2
+
         :param p1: point
         :param p2: point
         :return: distance
@@ -549,6 +500,7 @@ class ImgProc:
     def correctAngle(self, rbox):
         """
         correct the angle to -90 to 90 for get Pose,
+
         :param rbox: input rotatebox
         :return: angle: angle that modified
         """
@@ -642,6 +594,7 @@ class ImgProc:
         两个数字，一个是角度，一个是直径，是否正确，例如
         'box': [['Transparent bottle', 0.3777146, 568, 378, 679, 465, 0.0, 60.19998931884765]
         0.0是角度  60.19998931884765是直径
+
         :param frameOrg0: input frame
         :param bgMask:  the mask frame that generate from bglearn
         :param dataDict:  input dataDict
@@ -725,9 +678,11 @@ class ImgProc:
         # return good_new, good_old, offset
         """
         analyse the track point to get the more precision point
+
         :param good_new: current frame point of track
         :param good_old: prev frame point of track
         :return: good_new0: more precision current frame point of track
+
                  good_old0: more precision prev frame point of track
         """
         # good_new = cornersB[st == 1]
@@ -797,6 +752,7 @@ class ImgProc:
         一个(Vx ,Vy. Vz)数组
         对这个(Vx ,Vy. Vz)数组，剔除过大和过小的异常数据，可以使用np.percentile方法，然后对剩余数据求平均获得
         最终（Vx ,Vy. Vz)
+
         :param dataDict: bottle dictionary
         :return: bottleDetail:mainly include bottle rotate angle from belt move direction,0--180 degree,and the diameter of bottle
         """""
@@ -808,11 +764,14 @@ class ImgProc:
         and then track the point of featureimg to get the corresponding point of secondimg_orig
         we pass the previous frame, previous points and next frame.It returns next points along with some status numbers
         which has a value of 1 if next point is found,
+
         :param featureimg:
         :param secondimg_orig:
         :param mask: mask for accumulate track lines,usually is preframe
         :return:  good_new:good tracked point of new frame,
+
                   good_old:old tracked point of new frame,
+
                   img :image for drawing
         """
         # params for find good corners
@@ -1013,23 +972,14 @@ def nothing(x):
 
 
 if __name__ == "__main__":
-
-    # cam = Camera()
-    videoDir = "E:\\1\\3.avi"
-    bgDir = "E:\\1\\背景.avi"
-    avi = Video(videoDir)
-    bgAvi = Video(bgDir)
-    imgCapObj = imageCapture(None, avi, bgAvi)
-    obj = ImgProc(50, imgCapObj)
-    obj.studyBackground()
-    # obj.studyBackgroundFromCam(cam)
-    # obj.studyBackgroundFromVideo("E:\\1\\背景.avi")
-    obj.createModelsfromStats(8.0)
+    obj = ImgProc(50)
+    cam = Camera()
+    obj.studyBackgroundFromCam(cam)
+    obj.createModelsfromStats(6.0)
 
     try:
         # cam = Camera()
-        # preFrame, nFrameNum, t = cam.getImage()
-        preFrame, nFrameNum, t = obj.imgCap.getImage()
+        preFrame, nFrameNum, t = cam.getImage()
         preframeDelBg, bgmask, resarray= obj.delBg(preFrame)
 
         #preFrame = np.zeros_like(frame)
@@ -1052,23 +1002,58 @@ if __name__ == "__main__":
         cv2.createTrackbar('threshold1', 'Canny', 50, 400, nothing)
         cv2.createTrackbar('threshold2', 'Canny', 100, 400, nothing)
 
+        """
+        template = cv2.imread('E:\\1\\template.jpg', 0)
+        # templategray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+        pic = template.copy()
+        # templateedge = cv2.Canny(templategray, 78, 148)
+        templateedge = template
+        if cv2.__version__.startswith("3"):
+            _, contours, hierarchy = cv2.findContours(templateedge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+        elif cv2.__version__.startswith("4"):
+            contours, hierarchy = cv2.findContours(templateedge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+        contourTemplate = np.array([])
+        if len(contours) > 0:
+            print("in_______________")
+            print("len(contours)", len(contours))
+            for ci in range(len(contours)):
+                # if hierarchy[0, ci, 0] == -1 and hierarchy[0, ci, 3] == -1:  #find the most big hierarchy
+                if hierarchy[0, ci, 3] != -1:  # find the most big hierarchy
+                    r = random.randint(0, 255)
+                    g = random.randint(0, 255)
+                    b = random.randint(0, 255)
+                    child = hierarchy[0, ci, 2]
+                    arclenth = cv2.arcLength(contours[ci], True)  # 面积
+                    area = cv2.contourArea(contours[ci])  # 4386.5
+                    # print("arcle", arclenth)q
+                    # print("area", area)
+                    if arclenth > 900 and 10000 > area > 5000:
+                        # cv2.drawContours(pic, contours, ci, (b, g, r), 3)
+                        cv2.drawContours(pic, contours, ci, (255, 255, 255), 6)
+                        contourTemplate = contours[ci]
+                        print("arcle", arclenth)
+                        print("area", area)
+        # cv2.imshow("tem", pic)
+        # cv2.waitKey(0)
+        chun_xiang_flag = 0
+        chunxiang_minIndex = -1
+        cx = -1
+        cy = -1
+        contoursGet = np.array([])
+        """
         contourTemplate = obj.loadContourTemplate(TemplateDir)
         while 1:
-            # frame, nFrameNum, t = cam.getImage()
-            frame, nFrameNum, t = obj.imgCap.getImage()
-            if frame is None:
-                break
+            frame, nFrameNum, t = cam.getImage()
             # camra fault tolerant
             # mem addr use is
-            # if frame is None:
-            #     continue
+            if frame is None:
+                continue
 
             obj.show = frame.copy()
             pic = frame.copy()
             # get fps of cam output
-
-            # fps = cam.getCamFps(nFrameNum)
-
+            fps = cam.getCamFps(nFrameNum)
             # use the background model to del the bacground of  frame
 
             frameDelBg, bgmask, resarray = obj.delBg(frame)
@@ -1083,15 +1068,225 @@ if __name__ == "__main__":
                             fontScale=1, color=(0, 0, 255),
                             thickness=2)
 
+            # for k in range(len(resarray)):
+            #     x = resarray[k][0]
+            #     y = resarray[k][1]
+            #     w = resarray[k][2]
+            #     h = resarray[k][3]
+            #     if 300*300 > w*h > 200*150:
+            #         frameDelBgDivide = frameDelBg[y:y + h, x:x + w].copy()
+            #         cx, cy, contour = obj.findContourMatch(frameDelBgDivide)
+            #         cv2.drawContours(pic[y:y + h, x:x + w], contour, -1, (0, 255, 0), 6)  #can
+            #         cv2.putText(pic, text=str("milk"), org=(cx+x, cy+y),
+            #                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            #                     fontScale=1, color=(0, 0, 255),
+            #                     thickness=2)
+
+                # edged = cv2.Canny(pic, threshold1, threshold2)
+                # cv2.imshow("edge" + str(k), edged)
+
+
+
             cv2.imshow("pic", pic)
+            """
+            src_show = frame.copy()
+            src_copy = frameDelBg.copy()  #float change to np int
+            # print("src_copy shape", src_copy.shape)
+            # print("src_copy dtype", src_copy.dtype)
 
+            src_copy_gray = cv2.cvtColor(src_copy, cv2.COLOR_BGR2GRAY)
+
+            # print("src_copy_gray shape", src_copy_gray.shape)
+            # print("src_copy_gray dtype", src_copy_gray.dtype)
+            # ret, binary = cv2.threshold(src_copy_gray, 127, 255, cv2.THRESH_BINARY)
+
+            # threshold1 = cv2.getTrackbarPos('threshold1', 'Canny')
+            # threshold2 = cv2.getTrackbarPos('threshold2', 'Canny')
+
+            # edge = cv2.Canny(src_copy_gray, threshold1, threshold2)
+            edge = cv2.Canny(src_copy_gray, 78, 148)
+
+            if cv2.__version__.startswith("3"):
+                _, contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+            elif cv2.__version__.startswith("4"):
+                contours, hierarchy = cv2.findContours(edge, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+            pic = src_show.copy()
+            # print("hierarchy", hierarchy)
+            # hierarchy_choose = hierarchy[hierarchy[:, 1, 0] == -1]
+#3 parent contour
+            matchRetList = []
+            if len(contours) > 0:
+                for ci in range(len(contours)):
+                    # if contourTemplate is not None:
+                    matchRet = cv2.matchShapes(contours[ci], contourTemplate, 1, 0.0)
+                    matchRetList.append(matchRet)
+                    print("matchRet", matchRet)
+                    # matchRetListD = np.array(matchRetList)
+                    # print("matchRetList.min", matchRetListD.min())
+                    # print("matchRetList.min", matchRetListD.argmin())
+                    # minIndex = matchRetListD.argmin()
+                    # minMatch = matchRetListD.min()
+                    arclenth = cv2.arcLength(contours[ci], True)  # 面积
+                    area = cv2.contourArea(contours[ci])  # 4386.5
+                    if matchRet < 0.2 and arclenth > 300 and 8000 > area > 5000 and hierarchy[0, ci, 3] != -1:
+                        cv2.drawContours(pic, contours, ci, (0, 255, 0), 6)
+                        M = cv2.moments(contours[ci])  # 计算第一条轮廓的各阶矩,字典形式
+                        # print (M)
+                        # 这两行是计算中心点坐标
+                        cx = int(M['m10'] / M['m00'])
+                        cy = int(M['m01'] / M['m00'])
+                        cv2.putText(pic, text=str("milk"), org=(cx, cy),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=1, color=(0, 0, 255),
+                                    thickness=2)
+                        break
+                    
+                    # print("matchRet", matchRet)
+                    # if hierarchy[0, ci, 0] == -1 and hierarchy[0, ci, 3] == -1:  #find the most big hierarchy
+                    if hierarchy[0, ci, 3] != -1:  # find the most big hierarchy
+                        r = random.randint(0, 255)
+                        g = random.randint(0, 255)
+                        b = random.randint(0, 255)
+                        child = hierarchy[0, ci, 2]
+                        arclenth = cv2.arcLength(contours[ci], True)  # 面积
+                        area = cv2.contourArea(contours[ci])  # 4386.5
+                        # print("arcle", arclenth)
+                        # print("area", area)
+                        if arclenth > 300 and 10000 > area > 100:
+                            # cv2.imwrite('E:\\1\\1.jpg', edge)
+                            # cv2.drawContours(pic, contours, ci, (b, g, r), 3)
+                            # cv2.drawContours(pic, contours, ci, (0, 0, 0), 3)
+                            print("arcle", arclenth)
+                            print("area", area)
+                 
+                    
+                    
+                matchRetListD = np.array(matchRetList)
+                print("matchRetList.min", matchRetListD.min())
+                print("matchRetList.min", matchRetListD.argmin())
+                minIndex = matchRetListD.argmin()
+                minMatch = matchRetListD.min()
+                arclenth = cv2.arcLength(contours[minIndex], True)  # 面积
+                area = cv2.contourArea(contours[minIndex])  # 4386.5
+                if minMatch < 0.1 and arclenth > 300 and 8000 > area > 5000 and hierarchy[0, minIndex, 3] != -1:
+                    cv2.drawContours(pic, contours, minIndex, (0, 0, 255), 3)
+                    M = cv2.moments(contours[minIndex])  # 计算第一条轮廓的各阶矩,字典形式
+                    # print (M)
+                    # 这两行是计算中心点坐标
+                    cx = int(M['m10'] / M['m00'])
+                    cy = int(M['m01'] / M['m00'])
+                    chun_xiang_flag = 1
+                    chunxiang_minIndex = minIndex
+                    contoursGet = contours[chunxiang_minIndex]
+            if cx != -1 and cy != -1 and chunxiang_minIndex != -1 and np.size(contoursGet) > 0:
+                cv2.putText(pic, text=str("milk"), org=(cx, cy),
+                                        fontFace = cv2.FONT_HERSHEY_SIMPLEX,
+                                        fontScale = 1, color=(0, 0, 255),
+                                        thickness=2)
+                cv2.drawContours(pic, contoursGet, -1, (0, 255, 0), 3)
+                """
+
+
+                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(100, 100),
+                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #             fontScale=3, color=(0, 255, 255),
+                #             thickness=2)
+                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(200, 100),
+                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #             fontScale=3, color=(0, 255, 255), thickness=2)
+                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(300, 100),
+                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #             fontScale=3, color=(0, 255, 255), thickness=2)
+                # cv2.putText(pic, text=str(hierarchy[ci][0]), org=(400, 100),
+                #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                #             fontScale=3, color=(0, 255, 255), thickness=2)
+
+
+
+            """
+            contourLen = len(contours)
+            cv2.imshow("con", src_show)
+            cv2.imshow("Canny", edge)
+            pic = np.array([])
+            for k in range(len(resarray)):
+                x = resarray[k][0]
+                y = resarray[k][1]
+                w = resarray[k][2]
+                h = resarray[k][3]
+                pic = src_copy_gray[y:y + h, x:x + w].copy()
+                edged = cv2.Canny(pic, threshold1, threshold2)
+                cv2.imshow("edge" + str(k), edged)
+            """
+
+            # if np.size(pic) > 0:
+            #     edged = cv2.Canny(pic, threshold1, threshold2)
+            #     cv2.imshow("edge"+str(k), edged)
             cv2.imshow("show", obj.show)
+            """
+            # put text on frame to display the fps
+            cv2.putText(frameDelBg, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.50, color=(255, 0, 0), thickness=2)
 
+            # drawimg = mask.copy()
+            trakSart = timer()
+            #good_new, good_old, drawimg = obj.lkLightflow_track(preFrame, frame, mask)
+            #good_new, good_old, offset, drawimg = obj.lkLightflow_track(preframeDelBg, frameDelBg, premask)
+            drawimg =frameDelBg.copy()
+            featureimg = cv2.cvtColor(preframeDelBg, cv2.COLOR_BGR2GRAY)
+            secondimg = cv2.cvtColor(frameDelBg, cv2.COLOR_BGR2GRAY)
+            if flag == 1:
+                cornersA = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+                # print("cornersA",cornersA)
+                if cornersA is not None:
+                    if np.size(cornersA) > 0:
+                        cornersB, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, cornersA, None, **lk_params)
+                        print("cornersB", cornersB)
+                        good_new = cornersB[st == 1]
+                #good_old = cornersA[st == 1]
+                    if good_new is not None:
+                        if np.size(good_new) > 0:
+                            good_old = good_new.copy()
+                            print("good_new", good_new)
+                            for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
+                                a, b = new.ravel()  # unfold
+                                c, d = old.ravel()
+                                cv2.circle(drawimg, (a, b), 3, (0, 0, 255), -1)
+                            flag = 0
+            else:
+                if np.size(good_old)!=0:
+                    good_new, st, err = cv2.calcOpticalFlowPyrLK(featureimg, secondimg, good_old, None, **lk_params)
+                    #good_new = good_new[st == 1]  #will error when twise
+                    good_old = good_new.copy()
+                    print("*" * 50)
+                    for i, (new, old) in enumerate(zip(good_new, good_old)):  # fold and enumerate with i
+                        a, b = new.ravel()  # unfold
+                        c, d = old.ravel()
+                        print("-" * 50)
+                        cv2.line(drawimg, (a, b), (c, d), (0, 0, 255), 1)
+                        cv2.circle(drawimg, (a, b),3, (0, 0, 255), -1)
+                        print("good_new0", good_new)
+                        print("good_old0", good_new)
+
+            cv2.imshow("res", drawimg)
+            cv2.waitKey(10)
+            # copy the current frame as preFrame for next use
+            #preFrame = frame.copy()
+            preframeDelBg = frameDelBg.copy()
+            preFrame = frame.copy()
+            # cv2.waitKey(10)
+            ellapseTime = timer() - timeStart
+            trackCostTime = timer() - trakSart
+            print("trackCostTime:", trackCostTime)
+            # update the timeStart and clear tqqhe mask
+            if ellapseTime > 3:
+                timeStart = timer()
+                mask = np.zeros_like(preFrame)  # only detect the motion object
+                premask = np.zeros_like(preFrame)
+            """
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                pass
-            #     cam.destroy()
+                cam.destroy()
                 break
     except Exception as e:
         print(e)
-        pass
-        # cam.destroy()
+        cam.destroy()
+
