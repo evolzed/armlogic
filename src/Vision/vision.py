@@ -1,17 +1,28 @@
 import os
 import sys
+
+sys.path.append(os.path.abspath("../../"))
+
 import datetime
 import threading
+
 import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
 
 from src.Vision.imageProcess.imgProc import ImgProc
-sys.path.append(os.path.abspath("../../"))
+from src.Vision.video import Video
+from src.Vision.interface import imageCapture
+
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
 import platform
+
+from lib.Logger.Logger import Logger
+
+sys.stdout = Logger("E:\\12.txt")  # 保存到D盘
+
 sysArc = platform.uname()
 if sysArc[0] == "Windows":
     from lib.HikMvImport_Win.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
@@ -41,17 +52,18 @@ bottleDict = {
 class Vision(object):
     """create main Vision class for processing images"""
 
-    def __init__(self, cam, yolo, imgproc_=None):
+    def __init__(self, imgCapObj, yolo, imgproc_=None):
         """相机自检"""
-        self.cam = cam
+        self.cam = imgCapObj
         self.yolo = yolo
-        self.imgproc=imgproc_
+        self.imgproc = imgproc_
         # self.deviceNum = cam.getDeviceNum()
         # cam._data_buf, cam._nPayloadsize = self.cam.connectCam()
-        if -1 == cam._data_buf:
-            print("相机初始化失败！退出程序！")
-            sys.exit()
-        print("相机初始化完成！")
+        if self.imgproc.imgCap.cam is not None:
+            if -1 == cam._data_buf:
+                print("相机初始化失败！退出程序！")
+                sys.exit()
+        print("相机或视频初始化完成！")
 
     def detectVideo(self, yolo, output_path=""):
         """
@@ -116,6 +128,7 @@ class Vision(object):
         self.cam.destroy(self.cam, cam._data_buf)
         yolo.closeSession()
 
+
     def detectSerialImage(self, cam):
         """
         获取并处理连续的帧数
@@ -135,10 +148,27 @@ class Vision(object):
         #     cam.press_any_key_exit()
 
         #trackObj = ImageTrack()
+
+        # avi = Video("E:\\1\\1.avi")
+        # preframe = avi.getImageFromVideo()
+        preframe, nFrame, t = cam.getImage()
+        preframeb, bgMaskb, resarray = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
+        k = 1
+        startt = timer()
+        left = 0
+        top = 0
+        right = 0
+        bottom = 0
+        flag = 0
+        inputCorner = np.array([])
+        p0 = np.array([])
+        label = np.array([])
+        # avi = Video("E:\\1\\1.avi")
+        # frame = avi.getImageFromVideo()
         while True:
-            # try:
             _frame, nFrame, t = cam.getImage()
             camfps = " Cam" + cam.getCamFps(nFrame)
+            # frame = avi.getImageFromVideo()
             curr_time = timer()
             exec_time = curr_time - prev_time
             prev_time = curr_time
@@ -169,6 +199,58 @@ class Vision(object):
             dataDict["nFrame"] = nFrame
             dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
             # arr = np.asarray(dataDict["image"])
+            imglist = self.imgproc.getBoxOnlyPic(dataDict, preframe)
+            imglistk = self.imgproc.getBoxOnlyPic(dataDict, _frame)
+            drawimg = frame.copy()
+            featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
+            secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            #detect
+            if flag == 0:
+                p0, label,centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                if centerlist is not None and len(centerlist) > 0:
+                    for seqN in range(len(centerlist)):
+                        cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
+                if p0 is not None and label is not None:
+                    flag = 1
+            # track
+            else:
+                p0, label, centerList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label,  p0)
+                if centerList is not None and len(centerList) > 0:
+                    for seqN in range(len(centerList)):
+                        cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
+                        cv2.putText(drawimg, text=str(int(centerList[seqN][3])), org=(centerList[seqN][0] - 20, centerList[seqN][1]),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                        cv2.putText(drawimg, text=str(int(centerList[seqN][4])), org=(centerList[seqN][0] - 20, centerList[seqN][1] + 50),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                        cv2.putText(drawimg, text=str(centerList[seqN][2]), org=(centerList[seqN][0], centerList[seqN][1]),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=3, color=(0, 255, 255), thickness=2)
+            #clear
+
+            if "box" not in dataDict:
+                p0 = np.array([])
+                label = np.array([])
+                flag = 0
+                cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
+
+            else:
+                nonBottleFlag = True
+                for x in range(len(dataDict["box"])):
+                    if dataDict["box"][x][1] > 0.9:
+                        nonBottleFlag = False
+                        break
+
+                if nonBottleFlag is True:
+                    p0 = np.array([])
+                    label = np.array([])
+                    flag = 0
+                    cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
+            cv2.imshow("res", drawimg)
+            cv2.waitKey(10)
+            preframeb = frame.copy()
+
             if bgMask is not None:
                 dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)
             cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -183,13 +265,6 @@ class Vision(object):
             # return dataDict
             global bottleDict
             bottleDict = dataDict
-            print(bottleDict)
-                # print(dataDict)
-            # except Exception as e:
-            #     # global gState
-            #     # gState = 3
-            #     print(e)
-            #     break
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
@@ -235,27 +310,51 @@ if __name__ == '__main__':
     # image.detectVideo(yolo)
 """
 
-
 def imageInit():
     """
     初始化相机对象cam, Vision对象
 
     :return: (cam：相机对象, _image:Vision对象)
     """
+    # cam = Camera()
+    videoDir = "E:\\1\\3.avi"
+    bgDir = "E:\\1\\背景.avi"
+    avi = Video(videoDir)
+    bgAvi = Video(bgDir)
+    imgCapObj = imageCapture(None, avi, bgAvi)
+
+    # _frame, nf = cam.getImage()
+    print("准备载入yolo网络！")
+    yolo = YOLO()
+    print("准备背景学习！")
+    bgobj = ImgProc(50, imgCapObj)
+    # bgobj.studyBackgroundFromCam(cam)
+    bgobj.studyBackground()
+    bgobj.createModelsfromStats()
+    _image = Vision(imgCapObj, yolo, bgobj)
+    print("开始！")
+    global gState
+    gState = 2
+    return imgCapObj, _image
+
+"""
+def imageInit():
+
     cam = Camera()
     # _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
     yolo = YOLO()
     print("准备背景学习！")
     bgobj = ImgProc(50)
-    bgobj.studyBackgroundFromCam(cam)
-    bgobj.createModelsfromStats(6.0)
+    # bgobj.studyBackgroundFromCam(cam)
+    bgobj.studyBackgroundFromVideo("E:\\1\\背景.avi")
+    bgobj.createModelsfromStats()
     _image = Vision(cam, yolo, bgobj)
     print("开始！")
     global gState
     gState = 2
     return cam, _image
-
+"""
 
 def imageRun(cam,_image):
     """
