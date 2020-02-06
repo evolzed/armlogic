@@ -131,6 +131,8 @@ class Vision(object):
         :return: {"nFrame":nframe,"image":image, "timecost":timecost, "box":[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}
                 返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
         """
+
+
         prev_time = timer()
         accum_time = 0
         curr_fps = 0
@@ -261,9 +263,11 @@ class Vision(object):
             global bottleDict
             bottleDict = dataDict
             bottleDict1 = dataDict
+
             transDict = dataDict
+            # print(transDict)
             # print(bottleDict1)
-            # print(bottleDict)
+            # print(dict)
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
@@ -366,6 +370,7 @@ def imageRun(cam, _image, transDict):
     #     try:
     #         _frame, nf = cam.getImage()
     #         frameDelBg = _image.bgLearn.delBg(_frame)
+    # print(transDict)
 
     _image.detectSerialImage(cam, transDict)
 
@@ -412,8 +417,11 @@ if __name__ == '__main__':
     cam.destroy()
 """
 
+
 def read(transDict):
-    print(transDict)
+    while True:
+        print(transDict)
+        time.sleep(0.5)
     # print('Process to read: %s' % os.getpid(), time.time())
     # while True:
     #     value = bottlDict1.get(True)
@@ -422,19 +430,24 @@ def read(transDict):
     #     # print('Get %s from dict.  ---- currentTime:' % value, time.time())
 
 
-
 if __name__ == '__main__':
     # cam = Vision()
     with multiprocessing.Manager() as MG:  # 重命名
         transDict = MG.dict()
 
         cam, _image = imageInit()
-
         p2 = multiprocessing.Process(target=read, args=(transDict,))
         p2.start()
-        p2.join()
+        # p2.join()
 
-        # pw = multiprocessing.Process(target=imageRun, args=(cam, _image, transDict,))
-        # pw.start()
+        p1 = multiprocessing.Process(target=_image.detectSerialImage, args=(cam, transDict))
+        p1.start()
+        p1.join()
+        # _image.detectSerialImage(cam, transDict, )
+
+        # pw = multiprocessing.Process(target=imageRun, args=(cam, _image, transDict))
+        # pw.run()
         # pw.join()
-        imageRun(cam, _image, transDict)
+        # imageRun(cam, _image, transDict)
+
+
