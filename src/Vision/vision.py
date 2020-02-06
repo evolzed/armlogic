@@ -159,6 +159,7 @@ class Vision(object):
         label = np.array([])
         # avi = Video("E:\\1\\1.avi")
         # frame = avi.getImageFromVideo()
+        i =1
         while True:
             _frame, nFrame, t = cam.getImage()
             camfps = " Cam" + cam.getCamFps(nFrame)
@@ -263,11 +264,15 @@ class Vision(object):
             global bottleDict
             bottleDict = dataDict
             bottleDict1 = dataDict
+            # transDict = {}
+            if "box" in dataDict:
+                transDict["box"] = bottleDict["box"]  # 子进程改变dict,主进程跟着改变
 
-            transDict = dataDict
+            # transDict = {"---------------------------------------------------" + str(i)}
             # print(transDict)
-            # print(bottleDict1)
+            # print(bottleDict["box"])
             # print(dict)
+            i += 1
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
@@ -421,7 +426,7 @@ if __name__ == '__main__':
 def read(transDict):
     while True:
         print(transDict)
-        time.sleep(0.5)
+        time.sleep(2)
     # print('Process to read: %s' % os.getpid(), time.time())
     # while True:
     #     value = bottlDict1.get(True)
@@ -436,12 +441,13 @@ if __name__ == '__main__':
         transDict = MG.dict()
 
         cam, _image = imageInit()
+
         p2 = multiprocessing.Process(target=read, args=(transDict,))
         p2.start()
         # p2.join()
 
-        p1 = multiprocessing.Process(target=_image.detectSerialImage, args=(cam, transDict))
-        p1.start()
+        p1 = multiprocessing.Process(target=_image.detectSerialImage, args=(cam, transDict,))
+        p1.run()
         p1.join()
         # _image.detectSerialImage(cam, transDict, )
 
