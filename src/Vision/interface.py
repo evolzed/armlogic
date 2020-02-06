@@ -24,6 +24,9 @@ class imageCapture:
             return self.cam.getCamFps
         if self.video is not None:
             return str(self.video.fps)
+    def destroy(self):
+        pass
+
 
 
 
