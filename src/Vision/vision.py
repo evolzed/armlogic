@@ -8,6 +8,8 @@ from timeit import default_timer as timer
 import cv2
 
 from src.Vision.imageProcess.imgProc import ImgProc
+from src.Vision.video import Video
+from src.Vision.interface import imageCapture
 sys.path.append(os.path.abspath("../../"))
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
@@ -41,17 +43,18 @@ bottleDict = {
 class Vision(object):
     """create main Vision class for processing images"""
 
-    def __init__(self, cam, yolo, imgproc_=None):
+    def __init__(self, imgCapObj, yolo, imgproc_=None):
         """相机自检"""
-        self.cam = cam
+        self.cam = imgCapObj
         self.yolo = yolo
         self.imgproc=imgproc_
         # self.deviceNum = cam.getDeviceNum()
         # cam._data_buf, cam._nPayloadsize = self.cam.connectCam()
-        if -1 == cam._data_buf:
-            print("相机初始化失败！退出程序！")
-            sys.exit()
-        print("相机初始化完成！")
+        if self.imgproc.imgCap.cam is not None:
+            if -1 == cam._data_buf:
+                print("相机初始化失败！退出程序！")
+                sys.exit()
+        print("相机或视频初始化完成！")
 
     def detectVideo(self, yolo, output_path=""):
         """
@@ -239,9 +242,31 @@ if __name__ == '__main__':
 def imageInit():
     """
     初始化相机对象cam, Vision对象
-
     :return: (cam：相机对象, _image:Vision对象)
     """
+    # cam = Camera()
+    videoDir = "E:\\1\\3.avi"
+    bgDir = "E:\\1\\背景.avi"
+    avi = Video(videoDir)
+    bgAvi = Video(bgDir)
+    imgCapObj = imageCapture(None, avi, bgAvi)
+
+    # _frame, nf = cam.getImage()
+    print("准备载入yolo网络！")
+    yolo = YOLO()
+    print("准备背景学习！")
+    bgobj = ImgProc(50, imgCapObj)
+    # bgobj.studyBackgroundFromCam(cam)
+    bgobj.studyBackground()
+    bgobj.createModelsfromStats()
+    _image = Vision(imgCapObj, yolo, bgobj)
+    print("开始！")
+    global gState
+    gState = 2
+    return imgCapObj, _image
+
+"""
+def imageInit():
     cam = Camera()
     # _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
@@ -255,7 +280,7 @@ def imageInit():
     global gState
     gState = 2
     return cam, _image
-
+"""
 
 def imageRun(cam,_image):
     """
