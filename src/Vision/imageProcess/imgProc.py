@@ -4,9 +4,10 @@ import cv2
 import numpy as np
 from src.Vision.camera import Camera
 from timeit import default_timer as timer
-
+from src.Vision.video import Video
+from src.Vision.interface import imageCapture
 class ImgProc:
-    def __init__(self, bgStudyNum):
+    def __init__(self, bgStudyNum, imgCapObj):
         """
         :param bgStudyNum: how many pics captured for background study
         """
@@ -46,6 +47,7 @@ class ImgProc:
 
         self.MAX_CORNERS = 50
         self.win_size = 10
+        self.imgCap = imgCapObj
 
     def avgBackground(self, I):
         """
@@ -66,7 +68,7 @@ class ImgProc:
         self.Icount += 1.0
         self.IprevF = I.copy()
 
-    def createModelsfromStats(self, scale):
+    def createModelsfromStats(self, scale=6.0):
         """
         calculate the average sum of frames to  IavgF
         calculate frame difference to IdiffF
@@ -100,6 +102,24 @@ class ImgProc:
         gc.collect()
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
+
+    def studyBackground(self):
+        frame = self.imgCap.getBgImage()
+        over_flag = 1
+        pic_cnt = 0
+        frame_cnt = 0
+        while frame is not None and over_flag == 1:
+            frame, nFrame, t = self.imgCap.getBgImage()
+            if frame_cnt % 20 == 0:  # get a frame per 20
+                fin = np.float32(frame)
+                self.bgVector[pic_cnt] = fin
+                pic_cnt += 1
+            frame_cnt += 1
+            print("pic_cnt", pic_cnt)
+            if pic_cnt == self.BG_STUDY_NUM:
+                over_flag = 0
+        for i in range(self.bgVector.shape[0]):
+            self.avgBackground(self.bgVector[i])
 
     def studyBackgroundFromCam(self, cam):
         """
@@ -720,14 +740,20 @@ if __name__ == "__main__":
     cv2.imshow("res", drawimg)
     cv2.waitKey()
     """
-    obj = ImgProc(50)
-    cam = Camera()
-    obj.studyBackgroundFromCam(cam)
-    obj.createModelsfromStats(6.0)
+
+    videoDir = "E:\\1\\3.avi"
+    bgDir = "E:\\1\\背景.avi"
+    avi = Video(videoDir)
+    bgAvi = Video(bgDir)
+    imgCapObj = imageCapture(None, avi, bgAvi)
+    obj = ImgProc(50, imgCapObj)
+    # cam = Camera()
+    obj.studyBackground()
+    obj.createModelsfromStats(8.0)
 
     try:
         # cam = Camera()
-        preFrame, nFrameNum, t = cam.getImage()
+        preFrame, nFrameNum, t = obj.imgCap.getImage()
 
         preframeDelBg, bgmask, resarray= obj.delBg(preFrame)
 
@@ -739,7 +765,7 @@ if __name__ == "__main__":
         timeStart = timer()
         timeCnt = 0
         while 1:
-            frame, nFrameNum, t = cam.getImage()
+            frame, nFrameNum, t = obj.imgCap.getImage()
             # camra fault tolerant
             # mem addr use is
             if frame is None:
@@ -749,7 +775,7 @@ if __name__ == "__main__":
 
             obj.show = frame.copy()
             # get fps of cam output
-            fps = cam.getCamFps(nFrameNum)
+            fps = obj.imgCap.getCamFps(nFrameNum)
             # use the background model to del the bacground of  frame
 
             frameDelBg, bgmask, resarray = obj.delBg(frame)
@@ -791,11 +817,11 @@ if __name__ == "__main__":
                 premask = np.zeros_like(preFrame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                cam.destroy()
+                # cam.destroy()
                 break
     except Exception as e:
         print(e)
-        cam.destroy()
+        # cam.destroy()
 
     # p1 = np.array([0, 0])
     # p2 = np.array([2, 2])
