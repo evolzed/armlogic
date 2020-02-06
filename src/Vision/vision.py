@@ -1,10 +1,16 @@
 import os
 import sys
+
 sys.path.append(os.path.abspath("../../"))
+
+import datetime
+import threading
+
 import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
+
 from src.Vision.imageProcess.imgProc import ImgProc
 from src.Vision.video import Video
 from src.Vision.interface import imageCapture
@@ -376,6 +382,17 @@ def imageRun(cam,_image):
     # cam.destroy()
     print("系统退出中···")
     sys.exit()
+
+def imageSave():
+    if bottleDict['isObj'] == True:
+        now = datetime.datetime.now()
+        ctime = now.strftime('%Y%m%d_%H:%M:%S')
+        cv2.imwrite("/home/nvidia/data/{}_{}.jpg".format(ctime,), bottleDict['image'])
+
+def saveThread():
+    save = threading.Thread(target=imageSave)
+    save.setDaemon(True)
+    return save
 
 """
 if __name__ == '__main__':
