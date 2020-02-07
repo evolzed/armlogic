@@ -1,0 +1,32 @@
+import multiprocessing
+import time
+
+
+def write(mydict):
+    i = 0
+    while True:
+        mydict["index1"] = "aaaaaa" + str(i)
+        mydict["index2"] = "bbbbbb"
+        i += 1
+        time.sleep(1)
+        print(mydict)
+
+
+def read(mydict):
+    while True:
+        print(mydict)
+        time.sleep(5)
+
+
+if __name__ == "__main__":
+
+    with multiprocessing.Manager() as MG:  # 重命名
+        mydict = MG.dict()
+
+        p2 = multiprocessing.Process(target=read, args=(mydict,))
+        p2.start()
+
+        p = multiprocessing.Process(target=write, args=(mydict,))
+        p.run()
+        p.join()
+
