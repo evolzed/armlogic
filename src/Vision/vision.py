@@ -260,8 +260,13 @@ class Vision(object):
             # return dataDict
             global bottleDict
             bottleDict = dataDict
-            bottleDict1 = dataDict
-            transDict = dataDict
+            # bottleDict1 = dataDict
+            # 此处不能直接使用transDict = dataDict,不然其他进程读取不到数据
+            transDict.update(dataDict)
+            # print("*" * 100)
+            # print(transDict)
+            # print("*" * 100)
+            # print(transDict)
             # print(bottleDict1)
             # print(bottleDict)
         cam.destroy()
@@ -384,6 +389,12 @@ def imageRun(cam, _image, transDict):
     sys.exit()
 
 
+# 将imageInit()和imageRun()封装成一个函数，才能在一个进程中使用
+def vision_run(transDict):
+    cam, _image = imageInit()
+    # # while 1:
+    # transDict["aaa"] = 666666
+    imageRun(cam, _image, transDict)
 """
 if __name__ == '__main__':
     cam = Camera()
@@ -413,7 +424,11 @@ if __name__ == '__main__':
 """
 
 def read(transDict):
-    print(transDict)
+    while True:
+        print("=" * 100)
+        print(transDict)
+        print("=" * 100)
+        time.sleep(1)
     # print('Process to read: %s' % os.getpid(), time.time())
     # while True:
     #     value = bottlDict1.get(True)
@@ -422,19 +437,21 @@ def read(transDict):
     #     # print('Get %s from dict.  ---- currentTime:' % value, time.time())
 
 
-
 if __name__ == '__main__':
     # cam = Vision()
     with multiprocessing.Manager() as MG:  # 重命名
         transDict = MG.dict()
 
-        cam, _image = imageInit()
+        # cam, _image = imageInit()
 
         p2 = multiprocessing.Process(target=read, args=(transDict,))
+        # 设置进程守护，主进程停止后，子进程也停止
+        p2.daemon = True
         p2.start()
+        # 开启一个子进程，进行识别跟踪
+        pw = multiprocessing.Process(target=vision_run, args=(transDict,))
+        pw.daemon = True
+        pw.start()
         p2.join()
-
-        # pw = multiprocessing.Process(target=imageRun, args=(cam, _image, transDict,))
-        # pw.start()
-        # pw.join()
-        imageRun(cam, _image, transDict)
+        # imageRun(cam, _image)
+        # p2.join()
