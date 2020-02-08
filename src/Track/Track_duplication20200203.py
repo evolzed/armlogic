@@ -12,7 +12,8 @@ from timeit import default_timer as timer
 import numpy as np
 from src.Vision.yolo.Yolo import *
 from multiprocessing import Process
-
+import multiprocessing
+from src.Track.kalmanFilter import targetMove
 
 """
 from Track_duplication, start from 20200203
@@ -235,130 +236,145 @@ class Track:
         return None
 
 
-    def trackProcess(self, transDict):
+    def trackProcess(self, transDict, transList):
         flag = 0
         tempDict = dict()
         tempBottleDict = dict()
-        targetTracking = Track()
         while True:
-            if flag == 1:
-                for i in range(10):
-                    # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
-                    if i < 9:
-                        flag = 0
-                        tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
+            for i in range(len(transList)):
+                print(transDict, transList, transList[i][0], transList[i][1])
+            time.sleep(0.05)
+            # if flag == 1:
+            #     for i in range(10):
+            #         # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
+            #         if i < 9:
+            #             flag = 0
+            #             tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
+            #
+            #         if i == 9:
+            #             flag = 1
+            #             # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
+            #             tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
 
-                    if i == 9:
-                        flag = 1
-                        # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
-                        tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
-
-            else:
-                tempBottleDict = transDict
-                """
-                这里处理tempDict 和 tempBottleDict 之间关系
-                """
-
+            # else:
+            #     tempBottleDict = transDict
+            #     """
+            #     这里处理tempDict 和 tempBottleDict 之间关系
+            #     """
 
 
 if __name__ == "__main__":
-    cam, _image = imageInit()
-    # cam = Camera()
-    yolo = YOLO()
+    # cam, _image = imageInit()
+    # # cam = Camera()
+    # yolo = YOLO()
+    #
+    # videoDir = "d:\\1\\Video_20200204122301684.avi"
+    # bgDir = "d:\\1\\背景1.avi"
+    # avi = Video(videoDir)
+    # bgAvi = Video(bgDir)
+    # imgCapObj = imageCapture(None, avi, bgAvi)
+    #
+    # _imgproc = ImgProc(10, imgCapObj)
+    # _imgproc.studyBackgroundFromCam(cam)
+    # _imgproc.createModelsfromStats(6.0)
+    # _vision = Vision(cam, yolo, _imgproc)
+    # prev_time = timer()
+    # accum_time = 0
+    # curr_fps = 0
+    # fps = "FPS: ??"
+    # # trackObj = ImageTrack()
+    # preframe, preframeb, _frame, frame = None, None, None, None
+    # nFrame = 0
+    # drawimg, featureimg, secondimg = None, None, None
+    # flag = 0
+    # inputCorner = np.array([])
+    # p0 = np.array([])
+    # label = np.array([])
+    # dataDict = dict()
+    # # tempDict = dict()
+    # # feature_params = dict(maxCorners=30,
+    # #                       qualityLevel=0.3,
+    # #                       minDistance=7,  # min distance between corners
+    # #                       blockSize=7)  # winsize of corner
+    # # # params for lk track
+    # # lk_params = dict(winSize=(15, 15),
+    # #                  maxLevel=2,
+    # #                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+    #
+    # preframe, nFrame, t = cam.getImage()
+    # preframeb, bgMaskb, resarray = _imgproc.delBg(preframe) if _imgproc else (preframe, None)
+    #
+    # transDict = dict()
+    #
+    # pTarget = Process(target=Track.trackProcess, args=(transDict,))
+    # pTarget.start()
+    #
+    # while True:
+    #     targetTracking = Track()
+    #
+    #     #获取摄像机图片 进行去除背景 并灰度化  更新相机获取的图片
+    #     _frame, nFrame, t = cam.getImage()
+    #     frame, bgMaskb, resarrayb = _imgproc.delBg(_frame) if _imgproc else (_frame, None)
+    #     featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
+    #     secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #     drawimg = frame.copy()
+    #
+    #
+    #     # 图像识别出数据,赋予targetDict，在循环中作自身更新信息
+    #     # if "box" in dataDict and flag == 1:
+    #     if flag == 1:
+    #         print("in track"*50)
+    #         p0, label, centerList = _imgproc.trackObj(featureimg, secondimg, drawimg, label, p0)
+    #         if centerList is not None and len(centerList) > 0:
+    #             for seqN in range(len(centerList)):
+    #                 cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
+    #         else:
+    #             flag = 0
+    #         """
+    #         for i in range(10):
+    #             # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
+    #             if i < 9:
+    #                 flag = 0
+    #                 tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
+    #
+    #             if i == 9:
+    #                 flag = 1
+    #                 # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
+    #                 tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
+    #         """
+    #     else:
+    #         # 创建target
+    #         tempDict, tempBottleDict, uuIDList, p0, label, centerLists = targetTracking.createTarget(dataDict, frame, featureimg,nFrame,_vision, _imgproc)
+    #         if centerLists is not None and len(centerLists) > 0:
+    #             for seqN in range(len(centerLists)):
+    #                 cv2.circle(drawimg, (centerLists[seqN][0], centerLists[seqN][1]), 24, (0, 0, 255), 7)
+    #         if p0 is not None and label is not None:
+    #             flag = 1
+    #         else:
+    #             flag = 0
+    #         dataDict = tempBottleDict
+    #         # 赋值通信transDict
+    #         transDict = tempBottleDict
+    #
+    #     #updated preframb
+    #     # 更新相机获取的 上一张图片
+    #     preframeb = frame.copy()
+    #     cv2.imshow("test", drawimg)
+    #
+    #     if cv2.waitKey(1) & 0xFF == ord("q"):
+    #         break
+    # cam.destroy()
+    track = Track()
+    with multiprocessing.Manager() as MG:  # 重命名
+        transDict = MG.dict()
+        transList = MG.list()
+        cam, _image = imageInit()
 
-    videoDir = "d:\\1\\Video_20200204122301684.avi"
-    bgDir = "d:\\1\\背景1.avi"
-    avi = Video(videoDir)
-    bgAvi = Video(bgDir)
-    imgCapObj = imageCapture(None, avi, bgAvi)
+        p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList))
+        p2.start()
+        # p2.join()
 
-    _imgproc = ImgProc(10, imgCapObj)
-    _imgproc.studyBackgroundFromCam(cam)
-    _imgproc.createModelsfromStats(6.0)
-    _vision = Vision(cam, yolo, _imgproc)
-    prev_time = timer()
-    accum_time = 0
-    curr_fps = 0
-    fps = "FPS: ??"
-    # trackObj = ImageTrack()
-    preframe, preframeb, _frame, frame = None, None, None, None
-    nFrame = 0
-    drawimg, featureimg, secondimg = None, None, None
-    flag = 0
-    inputCorner = np.array([])
-    p0 = np.array([])
-    label = np.array([])
-    dataDict = dict()
-    # tempDict = dict()
-    # feature_params = dict(maxCorners=30,
-    #                       qualityLevel=0.3,
-    #                       minDistance=7,  # min distance between corners
-    #                       blockSize=7)  # winsize of corner
-    # # params for lk track
-    # lk_params = dict(winSize=(15, 15),
-    #                  maxLevel=2,
-    #                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-
-    preframe, nFrame, t = cam.getImage()
-    preframeb, bgMaskb, resarray = _imgproc.delBg(preframe) if _imgproc else (preframe, None)
-
-    transDict = dict()
-
-    pTarget = Process(target=Track.trackProcess, args=(transDict,))
-    pTarget.start()
-
-    while True:
-        targetTracking = Track()
-
-        #获取摄像机图片 进行去除背景 并灰度化  更新相机获取的图片
-        _frame, nFrame, t = cam.getImage()
-        frame, bgMaskb, resarrayb = _imgproc.delBg(_frame) if _imgproc else (_frame, None)
-        featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
-        secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        drawimg = frame.copy()
-
-
-        # 图像识别出数据,赋予targetDict，在循环中作自身更新信息
-        # if "box" in dataDict and flag == 1:
-        if flag == 1:
-            print("in track"*50)
-            p0, label, centerList = _imgproc.trackObj(featureimg, secondimg, drawimg, label, p0)
-            if centerList is not None and len(centerList) > 0:
-                for seqN in range(len(centerList)):
-                    cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
-            else:
-                flag = 0
-            """
-            for i in range(10):
-                # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
-                if i < 9:
-                    flag = 0
-                    tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
-
-                if i == 9:
-                    flag = 1
-                    # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
-                    tempDict = targetTracking.updateTarget(tempDict, time.time(), nFrame, flag, frame)
-            """
-        else:
-            # 创建target
-            tempDict, tempBottleDict, uuIDList, p0, label, centerLists = targetTracking.createTarget(dataDict, frame, featureimg,nFrame,_vision, _imgproc)
-            if centerLists is not None and len(centerLists) > 0:
-                for seqN in range(len(centerLists)):
-                    cv2.circle(drawimg, (centerLists[seqN][0], centerLists[seqN][1]), 24, (0, 0, 255), 7)
-            if p0 is not None and label is not None:
-                flag = 1
-            else:
-                flag = 0
-            dataDict = tempBottleDict
-            # 赋值通信transDict
-            transDict = tempBottleDict
-
-        #updated preframb
-        # 更新相机获取的 上一张图片
-        preframeb = frame.copy()
-        cv2.imshow("test", drawimg)
-
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
-    cam.destroy()
+        p1 = multiprocessing.Process(target=_image.detectSerialImage, args=(cam, transDict, transList))
+        p1.run()
+        p1.join()
+        # _image.detectSerialImage(cam, transDict, )

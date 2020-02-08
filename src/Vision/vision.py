@@ -14,7 +14,7 @@ import multiprocessing
 # sys.path.insert(0, os.path.split(__file__)[0])
 # from lib.GrabVideo import GrabVideo
 import platform
-
+import copy
 from lib.Logger.Logger import Logger
 
 # sys.stdout = Logger("d:\\12.txt")  # 保存到D盘
@@ -124,13 +124,15 @@ class Vision(object):
         self.cam.destroy(self.cam, cam._data_buf)
         yolo.closeSession()
 
-    def detectSerialImage(self, cam, transDict):
+    def detectSerialImage(self, cam, transDict, transList):
         """
         获取并处理连续的帧数
         :param cam: 相机对象
         :return: {"nFrame":nframe,"image":image, "timecost":timecost, "box":[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}
                 返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
         """
+
+
         prev_time = timer()
         accum_time = 0
         curr_fps = 0
@@ -157,6 +159,7 @@ class Vision(object):
         label = np.array([])
         # avi = Video("E:\\1\\1.avi")
         # frame = avi.getImageFromVideo()
+        i =1
         while True:
             _frame, nFrame, t = cam.getImage()
             camfps = " Cam" + cam.getCamFps(nFrame)
@@ -196,20 +199,30 @@ class Vision(object):
             drawimg = frame.copy()
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
             # detect
             if flag == 0:
                 p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
                 if centerlist is not None and len(centerlist) > 0:
                     for seqN in range(len(centerlist)):
                         cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
+                        print(centerlist, len(centerlist), transList, seqN)
+                        transList.append(centerlist[seqN])
+                    # else:
+                    #     for seqN in range(len(centerlist)):
+                    #         cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
+                    #         print(centerlist, len(centerlist), transList, seqN)
+                    #         transList[seqN] = centerlist[seqN]
                 if p0 is not None and label is not None:
                     flag = 1
+
             # track
             else:
                 p0, label, centerList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0)
                 if centerList is not None and len(centerList) > 0:
                     for seqN in range(len(centerList)):
                         cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
+                        transList[seqN] = centerList[seqN]
                         cv2.putText(drawimg, text=str(int(centerList[seqN][3])),
                                     org=(centerList[seqN][0] - 20, centerList[seqN][1]),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -223,7 +236,8 @@ class Vision(object):
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=3, color=(0, 255, 255), thickness=2)
             # clear
-
+            # if frame is not None:
+            #     print(frame, transList)
             if "box" not in dataDict:
                 p0 = np.array([])
                 label = np.array([])
@@ -269,6 +283,16 @@ class Vision(object):
             # print(transDict)
             # print(bottleDict1)
             # print(bottleDict)
+            bottleDict1 = dataDict
+            # transDict = {}
+            if "box" in dataDict:
+                transDict["box"] = bottleDict["box"]
+            transFrame = copy.deepcopy(frame)
+            # transDict = {"---------------------------------------------------" + str(i)}
+            # print(transDict)
+            # print(bottleDict["box"])
+            # print(dict)
+            i += 1
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
@@ -371,6 +395,7 @@ def imageRun(cam, _image, transDict):
     #     try:
     #         _frame, nf = cam.getImage()
     #         frameDelBg = _image.bgLearn.delBg(_frame)
+    # print(transDict)
 
     _image.detectSerialImage(cam, transDict)
 
@@ -423,12 +448,18 @@ if __name__ == '__main__':
     cam.destroy()
 """
 
-def read(transDict):
+# def read(transDict):
+#     while True:
+#         print("=" * 100)
+#         print(transDict)
+#         print("=" * 100)
+#         time.sleep(1)
+
+
+def read(transDict, transList):
     while True:
-        print("=" * 100)
-        print(transDict)
-        print("=" * 100)
-        time.sleep(1)
+        print(transDict, transList)
+        time.sleep(0.5)
     # print('Process to read: %s' % os.getpid(), time.time())
     # while True:
     #     value = bottlDict1.get(True)
@@ -441,17 +472,30 @@ if __name__ == '__main__':
     # cam = Vision()
     with multiprocessing.Manager() as MG:  # 重命名
         transDict = MG.dict()
-
-        # cam, _image = imageInit()
-
-        p2 = multiprocessing.Process(target=read, args=(transDict,))
-        # 设置进程守护，主进程停止后，子进程也停止
-        p2.daemon = True
+        transList = MG.list()
+        cam, _image = imageInit()
+        p2 = multiprocessing.Process(target=read, args=(transDict, transList, ))
         p2.start()
-        # 开启一个子进程，进行识别跟踪
-        pw = multiprocessing.Process(target=vision_run, args=(transDict,))
-        pw.daemon = True
-        pw.start()
-        p2.join()
-        # imageRun(cam, _image)
         # p2.join()
+        p1 = multiprocessing.Process(target=_image.detectSerialImage, args=(cam, transDict, transList, ))
+        p1.run()
+        p1.join()
+        # _image.detectSerialImage(cam, transDict, )
+
+        # pw = multiprocessing.Process(target=imageRun, args=(cam, _image, transDict))
+        # pw.run()
+        # pw.join()
+        # imageRun(cam, _image, transDict)
+
+        # by yuantao1880@126.com
+        # with multiprocessing.Manager() as MG:  # 重命名
+        #     transDict = MG.dict()
+        #     p2 = multiprocessing.Process(target=read, args=(transDict,))
+        #     # 设置进程守护，主进程停止后，子进程也停止
+        #     p2.daemon = True
+        #     p2.start()
+        #     # 开启一个子进程，进行识别跟踪
+        #     pw = multiprocessing.Process(target=vision_run, args=(transDict,))
+        #     pw.daemon = True
+        #     pw.start()
+        #     p2.join()
