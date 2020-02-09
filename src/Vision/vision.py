@@ -124,7 +124,7 @@ class Vision(object):
         self.cam.destroy(self.cam, cam._data_buf)
         yolo.closeSession()
 
-    def detectSerialImage(self, cam, transDict, transList):
+    def detectSerialImage(self, cam, transDict,):
         """
         获取并处理连续的帧数
         :param cam: 相机对象
@@ -206,8 +206,8 @@ class Vision(object):
                 if centerlist is not None and len(centerlist) > 0:
                     for seqN in range(len(centerlist)):
                         cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
-                        print(centerlist, len(centerlist), transList, seqN)
-                        transList.append(centerlist[seqN])
+                        # print(centerlist, len(centerlist), transList, seqN)
+                        # transList.append(centerlist[seqN])
                     # else:
                     #     for seqN in range(len(centerlist)):
                     #         cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
@@ -222,7 +222,7 @@ class Vision(object):
                 if centerList is not None and len(centerList) > 0:
                     for seqN in range(len(centerList)):
                         cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
-                        transList[seqN] = centerList[seqN]
+                        # transList[seqN] = centerList[seqN]
                         cv2.putText(drawimg, text=str(int(centerList[seqN][3])),
                                     org=(centerList[seqN][0] - 20, centerList[seqN][1]),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -285,8 +285,8 @@ class Vision(object):
             # print(bottleDict)
             bottleDict1 = dataDict
             # transDict = {}
-            if "box" in dataDict:
-                transDict["box"] = bottleDict["box"]
+            # if "box" in dataDict:
+            #     transDict["box"] = bottleDict["box"]
             transFrame = copy.deepcopy(frame)
             # transDict = {"---------------------------------------------------" + str(i)}
             # print(transDict)
@@ -456,9 +456,11 @@ if __name__ == '__main__':
 #         time.sleep(1)
 
 
-def read(transDict, transList):
+def read(transDict):
     while True:
-        print(transDict, transList)
+        print("*******")
+        print(transDict)
+        print("*******")
         time.sleep(0.5)
     # print('Process to read: %s' % os.getpid(), time.time())
     # while True:
@@ -472,13 +474,15 @@ if __name__ == '__main__':
     # cam = Vision()
     with multiprocessing.Manager() as MG:  # 重命名
         transDict = MG.dict()
-        transList = MG.list()
-        cam, _image = imageInit()
-        p2 = multiprocessing.Process(target=read, args=(transDict, transList, ))
+        # transList = MG.list()
+        # cam, _image = imageInit()
+        p2 = multiprocessing.Process(target=read, args=(transDict,))
+        p2.daemon = True
         p2.start()
         # p2.join()
-        p1 = multiprocessing.Process(target=_image.detectSerialImage, args=(cam, transDict, transList, ))
-        p1.run()
+        p1 = multiprocessing.Process(target=vision_run, args=(transDict,))
+        p1.daemon = True
+        p1.start()
         p1.join()
         # _image.detectSerialImage(cam, transDict, )
 
