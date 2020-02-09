@@ -13,7 +13,7 @@ import numpy as np
 from src.Vision.yolo.Yolo import *
 from multiprocessing import Process
 import multiprocessing
-from src.Track.kalmanFilter import targetMove
+from src.Track.kalmanFilter import KF
 
 """
 from Track_duplication, start from 20200203
@@ -236,22 +236,71 @@ class Track:
         return None
 
 
-    def trackProcess(self, transDict, transList):
+    def targetMove(self, x, y, last_measurement, last_prediction,current_measurement, current_prediction, kalman):
+
+        # 定义全局变量
+        global frame
+
+        # 初始化
+        last_measurement = current_measurement
+        last_prediction = current_prediction
+        # 传递当前测量坐标值
+        current_measurement = np.array([[np.float32(x)], [np.float32(y)]])
+        kalman.correct(current_measurement)
+        current_prediction = kalman.predict()
+        trackFrame = np.zeros((1600, 1080, 3), np.uint8)
+
+        # 上一次测量值
+        lmx, lmy = last_measurement[0], last_measurement[1]
+        cmx, cmy = current_measurement[0], current_measurement[1]
+        lpx, lpy = last_prediction[0], last_prediction[1]
+        cpx, cpy = current_prediction[0], current_prediction[1]
+        cv2.line(trackFrame, (lmx, lmy), (cmx, cmy), (0, 100, 0))
+        cv2.line(trackFrame, (lpx, lpy), (cpx, cpy), (0, 0, 200))
+
+        print(lpx, cmx, cpx, lpy, cmy, cpy)
+
+
+    def trackProcess(self, transDict, transList,):
+        # kf1 = self.targetMove()
+        kf2 = KF()
+        kf3 = KF()
+        kalman = cv2.KalmanFilter(4, 2)
+        # 设置测量矩阵
+        kalman.measurementMatrix = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], np.float32)
+        # 设置转移矩阵
+        kalman.transitionMatrix = np.array([[1, 0, 1, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]], np.float32)
+        # 设置过程噪声协方差矩阵
+        kalman.processNoiseCov = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], np.float32) * 0.03
+        trackFrame = np.zeros((960, 1080, 3), np.uint8)
+        # # 初始化测量坐标和target运动预测的数组
+        last_measurement = current_measurement = np.array((2, 1), np.float32)
+        last_prediction = current_prediction = np.zeros((2, 1), np.float32)
+
         flag = 0
         tempDict = dict()
         tempBottleDict = dict()
-        print(len(transList), "-----------------------------------------")
+
         # while len(transList) != 0:
         #     for i in range(len(transList)):
         #         print(transDict, transList, transList[i][0], transList[i][1])
         #     time.sleep(0.05)
 
         while True:
+            print(transList, "-----------------------------------------")
+            if transList:
+                print(transList[0][0], transList[0][1],  "-----------------------------------------")
+                self.targetMove(transList[0][0], transList[0][1],
+                                last_measurement, last_prediction,
+                                current_measurement, current_prediction, kalman)
+            # cv2.imshow("kalman_tracker", trackFrame)
+
             print("*******")
             print(transDict)
             print(transList)
             print("*******")
             time.sleep(0.5)
+        # cv2.destroyAllWindows()
             # if flag == 1:
             #     for i in range(10):
             #         # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
@@ -373,7 +422,9 @@ if __name__ == "__main__":
     #         break
     # cam.destroy()
     track = Track()
+
     with multiprocessing.Manager() as MG:  # 重命名
+
         transDict = MG.dict()
         transList = MG.list()
         # cam, _image = imageInit()
