@@ -124,7 +124,7 @@ class Vision(object):
         self.cam.destroy(self.cam, cam._data_buf)
         yolo.closeSession()
 
-    def detectSerialImage(self, cam, transDict,):
+    def detectSerialImage(self, cam, transDict, transList):
         """
         获取并处理连续的帧数
         :param cam: 相机对象
@@ -205,14 +205,8 @@ class Vision(object):
                 p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
                 if centerlist is not None and len(centerlist) > 0:
                     for seqN in range(len(centerlist)):
+                        transList.append(centerlist[seqN])
                         cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
-                        # print(centerlist, len(centerlist), transList, seqN)
-                        # transList.append(centerlist[seqN])
-                    # else:
-                    #     for seqN in range(len(centerlist)):
-                    #         cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
-                    #         print(centerlist, len(centerlist), transList, seqN)
-                    #         transList[seqN] = centerlist[seqN]
                 if p0 is not None and label is not None:
                     flag = 1
 
@@ -221,8 +215,8 @@ class Vision(object):
                 p0, label, centerList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0)
                 if centerList is not None and len(centerList) > 0:
                     for seqN in range(len(centerList)):
+                        transList[seqN] = centerList[seqN]
                         cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
-                        # transList[seqN] = centerList[seqN]
                         cv2.putText(drawimg, text=str(int(centerList[seqN][3])),
                                     org=(centerList[seqN][0] - 20, centerList[seqN][1]),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -236,8 +230,7 @@ class Vision(object):
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=3, color=(0, 255, 255), thickness=2)
             # clear
-            # if frame is not None:
-            #     print(frame, transList)
+
             if "box" not in dataDict:
                 p0 = np.array([])
                 label = np.array([])
@@ -384,7 +377,7 @@ def imageInit():
 """
 
 
-def imageRun(cam, _image, transDict):
+def imageRun(cam, _image, transDict, transList):
     """
     根据输入的图像数据，进行识别
     :param cam: 相机对象
@@ -397,7 +390,7 @@ def imageRun(cam, _image, transDict):
     #         frameDelBg = _image.bgLearn.delBg(_frame)
     # print(transDict)
 
-    _image.detectSerialImage(cam, transDict)
+    _image.detectSerialImage(cam, transDict, transList)
 
     # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
     # cv2.waitKey(10)
@@ -415,11 +408,11 @@ def imageRun(cam, _image, transDict):
 
 
 # 将imageInit()和imageRun()封装成一个函数，才能在一个进程中使用
-def vision_run(transDict):
+def vision_run(transDict, transList):
     cam, _image = imageInit()
     # # while 1:
     # transDict["aaa"] = 666666
-    imageRun(cam, _image, transDict)
+    imageRun(cam, _image, transDict, transList)
 """
 if __name__ == '__main__':
     cam = Camera()
@@ -456,10 +449,11 @@ if __name__ == '__main__':
 #         time.sleep(1)
 
 
-def read(transDict):
+def read(transDict, transList):
     while True:
         print("*******")
         print(transDict)
+        print(transList)
         print("*******")
         time.sleep(0.5)
     # print('Process to read: %s' % os.getpid(), time.time())
@@ -474,13 +468,13 @@ if __name__ == '__main__':
     # cam = Vision()
     with multiprocessing.Manager() as MG:  # 重命名
         transDict = MG.dict()
-        # transList = MG.list()
+        transList = MG.list()
         # cam, _image = imageInit()
-        p2 = multiprocessing.Process(target=read, args=(transDict,))
+        p2 = multiprocessing.Process(target=read, args=(transDict, transList,))
         p2.daemon = True
         p2.start()
         # p2.join()
-        p1 = multiprocessing.Process(target=vision_run, args=(transDict,))
+        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList,))
         p1.daemon = True
         p1.start()
         p1.join()

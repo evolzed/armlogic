@@ -240,10 +240,18 @@ class Track:
         flag = 0
         tempDict = dict()
         tempBottleDict = dict()
+        print(len(transList), "-----------------------------------------")
+        # while len(transList) != 0:
+        #     for i in range(len(transList)):
+        #         print(transDict, transList, transList[i][0], transList[i][1])
+        #     time.sleep(0.05)
+
         while True:
-            for i in range(len(transList)):
-                print(transDict, transList, transList[i][0], transList[i][1])
-            time.sleep(0.05)
+            print("*******")
+            print(transDict)
+            print(transList)
+            print("*******")
+            time.sleep(0.5)
             # if flag == 1:
             #     for i in range(10):
             #         # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
@@ -368,13 +376,15 @@ if __name__ == "__main__":
     with multiprocessing.Manager() as MG:  # 重命名
         transDict = MG.dict()
         transList = MG.list()
-        cam, _image = imageInit()
+        # cam, _image = imageInit()
 
         p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList))
+        p2.daemon = True
         p2.start()
         # p2.join()
 
-        p1 = multiprocessing.Process(target=_image.detectSerialImage, args=(cam, transDict, transList))
-        p1.run()
+        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, ))
+        p1.daemon = True
+        p1.start()
         p1.join()
         # _image.detectSerialImage(cam, transDict, )
