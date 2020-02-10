@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
     #存放工作时间的excel表
     #时间戳
-    time_day = time.strftime("%Y-%m-%d", time.localtime(time.time()))
+    time_day = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime(time.time()))
     workbook = xlsxwriter.Workbook(excelDir + str(time_day) + "工作时间.xlsx")
     worksheet = workbook.add_worksheet('工作时间')
 
@@ -164,7 +164,8 @@ if __name__ == '__main__':
                 show0 = show[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
                 # 保存截图
                 if save_flag:
-                    cv2.imwrite(captureDir + str(key)+"\\"+str(curr_time)+".jpg", show0.copy())
+                    time_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime(time.time()))
+                    cv2.imwrite(captureDir + str(key)+"\\"+str(time_stamp)+".jpg", show0.copy())
                     # cv2.imwrite("E:\\1\\屏幕截图\\FeiFei\\563.766032.jpg", curr_cap.copy())
                     # print(captureDir+str(key)+"\\"+str(curr_time)+".jpg")
 
