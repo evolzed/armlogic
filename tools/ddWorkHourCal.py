@@ -31,14 +31,14 @@ def capture(left, top, right, bottom):
     return img
 
 
-#本工具运行方法，首先设定本地保存屏幕截图的路径captureDir，设定存放钉钉录制视频的路径videoDir，
+# 本工具运行方法，首先设定本地保存屏幕截图的路径captureDir，设定存放钉钉录制视频的路径videoDir，
 # 设定保存标定图片的路径calibDir，设定保存工作时间表的路径excelDir，
 # 然后运行程序，在标定图片路径下获得了标定图片，
 # 用画图软件打开这张图片，看左上角点的坐标，填写在left,top上，看一个格子的宽度和高度，填写在
 # gw，gh上,关闭程序
-#再重新运行程序，投掷骰子，如果骰子掷为6，则随机时间保存屏幕截图，否则不保存，观察运行窗口，
-#实时查看每个人的工作时间显示在左上角，小数位数较多，每分钟会更新一次
-#工作结束按q退出,会保存每个人的工作时间在excel表中，excel表的文件名已经加上时间戳
+# 再重新运行程序，投掷骰子，如果骰子掷为6，则随机时间保存屏幕截图，否则不保存，观察运行窗口，
+# 实时查看每个人的工作时间显示在左上角，小数位数较多，每分钟会更新一次
+# 工作结束按q退出,会保存每个人的工作时间在excel表中，excel表的文件名已经加上时间戳
 
 
 #本地保存屏幕截图的路径
@@ -63,7 +63,7 @@ gh = 360
 
 if __name__ == '__main__':
     # 调试参数  1分钟多少秒 正常运行情况下60  调试情况下可改小
-    seconds = 10
+    seconds = 60
     # 每个员工屏幕格子是否改变的阈值 以比值来写 适用于不同电脑的显示屏
     working_threshold = 500.0/(gw*gh)
     #初始化工作时间
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     inputstr = input("投骰子决定是否 随机间隔保存截屏,投中6则保存，否则不会保存，请按任意键。。。")
     rand = numpy.random.randint(1, 7, 1)
     print("Your roll is ", rand[0])
-    rand[0] = 6
+    # rand[0] = 6
     if rand[0] == 6:
         print("You rolled 6,good luck! Then everyone capture of random time will be saved!")
         save_flag = True
