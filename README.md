@@ -55,7 +55,7 @@
 | library |  bgDict  | #address to image file location and processed flag | #%.JPG | bool processed ||||
 | global |  gDir  | #direction of the moving belt | int gDir | ||||
 | library |  bottleDict  | #sorted bottle information | {"image":imagedata,"box":[(bottletype1, confidence, xmin, ymin, xmax, ymax),(bottletype2, confidence, xmin, ymin, xmax, ymax),···]，"bgTimeCost":time,"timeCost":time,"nFrame":camNumFrame} |  |  | | |
-| library | targetDict | #target track information | {"target":[(UUID, trackFlag, postion, speed, angle, type, typeCounter),... "nFrame":camNumFrame, <br />"bgTimeCost":time, <br />"timeCost":time, <br />"targetTrackTime":time]} | | | | |
+| library | targetDict | #target track information | {"target":[(UUID, trackFlag, postion, speed, angle, type, typeCounter),...], "timeCost":time, <br />"targetTrackTime":time} | | | | |
 | path | bgPic | #file location for bgPic ||||||
 
 ## 2.4 功能包文档填写说明
@@ -83,7 +83,6 @@
 | Track | updateTarget() | 更新targetDict内的元素 | targetDict<br />t, nFrame,<br /> trackFlag, frame | | targetDict |
 | Track | mergeTarget() | 合并target功能，实现实时运行中为实际镜头图像范围内的所有目标物 | targetDict1,targetDict2 |  | targetDict |
 | Track | estimateSpeed() | 根据前一帧与当前帧的target信息，对target的速度进行估计计算 | targetDict_1,targetDict_2 | | targetDict_2 |
-
 
 
 
