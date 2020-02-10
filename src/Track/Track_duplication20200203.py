@@ -116,22 +116,30 @@ class Track:
         #     # print(targetDict, uuIDList)
         #
         # return targetDict, bottleDict, uuIDList, p0, label, centerLists
-
+        global trackFlag
         targetDict = dict()
         tempList = [[]for i in range(len(transList))]
-
-        # uuID = str(uuid.uuid1())
+        # trackFlag = 0  # 对应imgProc中的Flag
+        type = 0
+        typCounter = 0
 
         for i in range(len(transList)):
-            tempList[i].append(str(uuid.uuid1()))  # 对应位置打上uuID
-            # tempList.append(transList[i])
-            # tempList[i][2] = str(uuid.uuid1())   # 对应位置打上uuID
+            tempList[i].append(str(uuid.uuid1())) # 对应位置打上uuID
+            tempList[i].append(trackFlag)
+            tempList[i].append([transList[i][0], transList[i][1]])
+
+            # 待增加speed, angle, type, typeCounter。。。
+
+        # 待增加timeCost  和  targetTrackTime。。。
+
+
         targetDict.setdefault("target", tempList)
         print(targetDict, "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-        time.sleep(1)
+        # trackFlag = 1
+        time.sleep(0.1)
         return targetDict
 
-    def updateTarget(self, transDict,):
+    def updateTarget(self, targetDict,):
         """
         更新target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
         :param targetDict: 上一步的目标物的信息
@@ -177,10 +185,11 @@ class Track:
         # newTargetDict["timeCost"] = time.time()
         # print(newTargetDict)
         # return newTargetDict
+        global trackFlag
+        targetDict.update(targetDict)    # 自主更新targetDict
 
-        targetDict = transDict
-        time.sleep(1)
-        return targetDict
+        time.sleep(0.1)
+        print(targetDict, "^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         # print(targetDict, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
 
 
@@ -282,7 +291,7 @@ class Track:
 
         print(lmx, lmy, cmx, cmy,"  &&&   ", lpx, lpy, cpx, cpy)
 
-    def trackProcess(self, transDict, transList,):
+    def trackProcess(self, transDict, transList, targetDict):
         # # kf1 = self.targetMove()
         # kf2 = KF()
         # kf3 = KF()
@@ -332,28 +341,26 @@ class Track:
         #     if (cv2.waitKey(30) & 0xff) == 27:
         #         break
         # cv2.destroyAllWindows()
-
+        global trackFlag
+        trackFlag = 0
         while True:
-            # if transList:
-            #     for i in range(10):
-            #         # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
-            #         if i < 9:
-            #
-            #             targetDict = self.updateTarget(transDict,)
-            #             print(targetDict, "^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-            #
-            #         if i == 9:
-            #
-            #             # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
-            #             targetDict = self.updateTarget(transDict,)
-            #             print(targetDict, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-            #
-            # else:
-            targetDict = self.createTarget(transDict, transList,)
-            print(targetDict)
-                # """
-                # 这里处理tempDict 和 tempBottleDict 之间关系
-                # """
+            if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
+
+                for i in range(10):
+                    # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
+                    if i < 9:
+
+                        self.updateTarget(targetDict,)
+
+                    if i == 9:
+
+                        # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
+                        self.updateTarget(targetDict,)
+
+            else:
+                targetDict.update(self.createTarget(transDict, transList,))
+                # targetDict = self.createTarget(transDict, transList,)
+                print(targetDict, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
 
 if __name__ == "__main__":
@@ -458,15 +465,15 @@ if __name__ == "__main__":
     #         break
     # cam.destroy()
     track = Track()
-
+    trackFlag = 0
     with multiprocessing.Manager() as MG:  # 重命名
 
         transDict = MG.dict()
         transList = MG.list()
-        # targetDict = MG.dict()
+        targetDict = MG.dict()
         # cam, _image = imageInit()
 
-        p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList,))
+        p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
         p2.daemon = True
         p2.start()
         # p2.join()
