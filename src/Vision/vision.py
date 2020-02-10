@@ -408,7 +408,7 @@ def imageRun(cam, _image, transDict, transList):
 
 
 # 将imageInit()和imageRun()封装成一个函数，才能在一个进程中使用
-def vision_run(transDict, transList):
+def vision_run(transDict, transList,):
     cam, _image = imageInit()
     # # while 1:
     # transDict["aaa"] = 666666
