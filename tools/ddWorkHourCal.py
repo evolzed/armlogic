@@ -192,13 +192,16 @@ if __name__ == '__main__':
             prev_cap = curr_cap
         # 实时显示格子和每个员工的工作时间和每个员工的名字，方便对照格子是否正确
         for key in sudoku.keys():
-            cv2.putText(show, text=str(sudoku[key][4])+" hours", org=(sudoku[key][0]+20, sudoku[key][2]+20), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            cv2.putText(show, text=str(int(sudoku[key][4]*3600/60))+" h", org=(sudoku[key][0]+20, sudoku[key][2]+20), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                     fontScale=0.50, color=(0, 0, 255), thickness=2)
+            cv2.putText(show, text=str(int(sudoku[key][4]*3600 % 60)) + " m", org=(sudoku[key][0] + 50, sudoku[key][2] + 20),
+                        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.50, color=(0, 0, 255), thickness=2)
             cv2.putText(show, text=str(key), org=(sudoku[key][0] + 40, sudoku[key][2] + 40),
                         fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(0, 0, 255), thickness=2)
             cv2.rectangle(show, (sudoku[key][0], sudoku[key][2]), (sudoku[key][0] + gw, sudoku[key][2] + gh),
-                          (0, 0, 255))
+                          (0, 255, 255))
 
         cv2.imshow("diff", show)
 
