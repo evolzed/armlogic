@@ -81,8 +81,15 @@
 | :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
 | ImgProc |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
 | ImgProc |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
-| ImgProc |  createModelsfromStats  | average the frame and frame difference to get the background model| %I %dst | bottleDict||
-| ImgProc |  backgroundDiff  | use the background to segment the frame pic| %src %dst | ||
+| ImgProc |  cref  | use the background to segment the frame pic| %src %dst | ||
+| ImgProc | getBottlePose()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
+| ImgProc |  trackObj  | #track the obj of deteced, input the deteced points or the last tracked points,output the new tracked points and its labels   |%featureimg %secondimg %drawimg %label %p0|  | %p0 %label %allList|
+| ImgProc |  detectObj  | #  detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes   |%featureimg %drawimg %dataDict %label_num|  | %p0  %label  %allList |
+| ImgProc |  eDistance  | # get Euclidean distance  between point p1 and p2   |%p1 %p2|  | distance |
+| ImgProc |  findTrackedCenterPoint | # find center point of  every bottle's tracked points  |% p0 %label|  | center_list |
+
+
+
 | ImgProc | getBottlePose()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
 
 | Class |    Function    |      Description      | Input |  Output   | Return |
