@@ -46,7 +46,7 @@ def capture(left, top, right, bottom):
 #本地保存屏幕截图的路径
 captureDir = "E:\\1\\Capture\\"
 #本地存放钉钉录制视频的路径
-videoDir = "E:\\1\\4.mp4"
+videoDir = "E:\\1\\DDvedio\\20200211-090133_moring.mp4"
 #本地存放背景视频的路径，这里没用，写1即可
 bgDir = "1"
 #本地存放标定图片的路径
@@ -67,20 +67,20 @@ work_hours = 0
 #九宫格的位置，每次需要根据实际的位置修改下列人名的位置
 sudoku = {
           "Hujie":      [left,       left+gw,    top,       top+gh,    work_hours],
-          "LuChenYin":  [left+gw,    left+2*gw,  top,       top+gh,    work_hours],
-          "TaoTao":     [left+2*gw,  left+3*gw,  top,       top+gh,    work_hours],
+          "John":  [left+gw,    left+2*gw,  top,       top+gh,    work_hours],
+          "FeiFei":     [left+2*gw,  left+3*gw,  top,       top+gh,    work_hours],
 
-          "John":       [left,       left+gw,    top+gh,    top+2*gh,  work_hours],
-          "DaPeng":     [left+gw,    left+2*gw,  top+gh,    top+2*gh,  work_hours],
+          "LuChenYin":       [left,       left+gw,    top+gh,    top+2*gh,  work_hours],
+          "TaoTao":     [left+gw,    left+2*gw,  top+gh,    top+2*gh,  work_hours],
           "Tina":       [left+2*gw,  left+3*gw,  top+gh,    top+2*gh,  work_hours],
 
           "LouQiGe":    [left,       left+gw,    top+2*gh,  top+3*gh,  work_hours],
-          "FeiFei":    [left+gw,    left+2*gw,  top+2*gh,  top+3*gh,  work_hours],
+          "DaPeng":    [left+gw,    left+2*gw,  top+2*gh,  top+3*gh,  work_hours],
           "ZhiMing":     [left+2*gw,  left+3*gw,  top+2*gh,  top+3*gh,  work_hours]
           }
 if __name__ == '__main__':
-    # 调试参数  1分钟多少秒 正常运行情况下60  调试情况下可改小
-    seconds = 60
+    # 调试参数  1分钟多少秒 正常运行情况下60  调试情况下可改小 需要加大时间间隔可以改大
+    seconds = 60*5
     # 每个员工屏幕格子是否改变的阈值 以比值来写 适用于不同电脑的显示屏
     working_threshold = 500.0/(gw*gh)
     #初始化工作时间
@@ -143,10 +143,12 @@ if __name__ == '__main__':
 
     while 1:
         curr_cap, nFrame, t = imgCapObj.getImage()
+        if curr_cap is None:
+            break
         show = curr_cap.copy()
         curr_time = timer()
         # 间隔多久时间进行一次视频比对
-        randomInterval = numpy.random.uniform(low=0.5 * seconds, high=2.0 * seconds, size=1)
+        randomInterval = numpy.random.uniform(low=1.0 * seconds, high=2.0 * seconds, size=1)
         if curr_time - prev_time >= randomInterval:
             print("in")
             # show0 = np.zeros_like(curr_cap)
@@ -190,7 +192,7 @@ if __name__ == '__main__':
             prev_cap = curr_cap
         # 实时显示格子和每个员工的工作时间和每个员工的名字，方便对照格子是否正确
         for key in sudoku.keys():
-            cv2.putText(show, text=str(sudoku[key][4]), org=(sudoku[key][0]+20, sudoku[key][2]+20), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            cv2.putText(show, text=str(sudoku[key][4])+" hours", org=(sudoku[key][0]+20, sudoku[key][2]+20), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                     fontScale=0.50, color=(0, 0, 255), thickness=2)
             cv2.putText(show, text=str(key), org=(sudoku[key][0] + 40, sudoku[key][2] + 40),
                         fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -203,7 +205,7 @@ if __name__ == '__main__':
         cv2.waitKey(10)  # 要抑制速度
         if cv2.waitKey(1) & 0xFF == ord('q'):
             # 按q退出 并保存excel
-            workbook.close()
+
             break
-
-
+    #store the excel
+    workbook.close()

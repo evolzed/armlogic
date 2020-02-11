@@ -30,6 +30,7 @@ class Video:
                 nF = self.nFrame
                 return frame, nF, t
             else:
+                print("video over!!!!!!!")
                 return None, None, None
         else:
             return None, None, None
