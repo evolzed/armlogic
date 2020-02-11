@@ -123,31 +123,34 @@ class Track:
         # trackFlag = 0  # 对应imgProc中的Flag
 
         targetDict = dict()
-        tempList = [[]for i in range(len(transList))]
+        tempList = [[]for j in range(len(transList) + 1)]
         speed = [0, 0]
         angle = [0, 0]
         type = 0
         typCounter = 0
+        print(transList, tempList, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        if transList:
+            for i in range(len(transList) - 1):
+                print(i)
+                tempList[i].append(str(uuid.uuid1())) # 对应位置打上uuID
+                tempList[i].append(trackFlag)
+                tempList[i].append([transList[i][0], transList[i][1]])
+                tempList[i].append(speed)
+                tempList[i].append(angle)
+                tempList[i].append(type)
+                tempList[i].append(typCounter)
+            targetDict.setdefault("target", tempList)
+            time.sleep(0.0075)
 
-        for i in range(len(transList)):
-            tempList[i].append(str(uuid.uuid1())) # 对应位置打上uuID
-            tempList[i].append(trackFlag)
-            tempList[i].append([transList[i][0], transList[i][1]])
-            tempList[i].append(speed)
-            tempList[i].append(angle)
-            tempList[i].append(type)
-            tempList[i].append(typCounter)
-        targetDict.setdefault("target", tempList)
-        time.sleep(0.0075)
-
-        # 增加timeCost  和  targetTrackTime。。。
-        timeCost = time.time()
-        targetTrackTime = startTime + deltaT
-        targetDict.setdefault("timeCost", timeCost)
-        targetDict.setdefault("targetTrackTime", targetTrackTime)
-
+            # 增加timeCost  和  targetTrackTime。。。
+            timeCost = time.time()
+            targetTrackTime = startTime + deltaT
+            targetDict.setdefault("timeCost", timeCost)
+            targetDict.setdefault("targetTrackTime", targetTrackTime)
+            if tempList[0] is not None:
+                trackFlag = 1
         print(targetDict, "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
-        # trackFlag = 1
+
         return targetDict
 
     def updateTarget(self, targetDict,):
