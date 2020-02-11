@@ -46,7 +46,7 @@ def capture(left, top, right, bottom):
 #本地保存屏幕截图的路径
 captureDir = "E:\\1\\Capture\\"
 #本地存放钉钉录制视频的路径
-videoDir = "E:\\1\\DDvedio\\20200211-090133_moring.mp4"
+videoDir = "E:\\1\\DDvedio\\20200211-130438_afternoon.mp4"
 #本地存放背景视频的路径，这里没用，写1即可
 bgDir = "1"
 #本地存放标定图片的路径
@@ -67,11 +67,11 @@ work_hours = 0
 #九宫格的位置，每次需要根据实际的位置修改下列人名的位置
 sudoku = {
           "Hujie":      [left,       left+gw,    top,       top+gh,    work_hours],
-          "John":  [left+gw,    left+2*gw,  top,       top+gh,    work_hours],
-          "FeiFei":     [left+2*gw,  left+3*gw,  top,       top+gh,    work_hours],
+          "TaoTao":  [left+gw,    left+2*gw,  top,       top+gh,    work_hours],
+          "LuChenYin":     [left+2*gw,  left+3*gw,  top,       top+gh,    work_hours],
 
-          "LuChenYin":       [left,       left+gw,    top+gh,    top+2*gh,  work_hours],
-          "TaoTao":     [left+gw,    left+2*gw,  top+gh,    top+2*gh,  work_hours],
+          "John":       [left,       left+gw,    top+gh,    top+2*gh,  work_hours],
+          "FeiFei":     [left+gw,    left+2*gw,  top+gh,    top+2*gh,  work_hours],
           "Tina":       [left+2*gw,  left+3*gw,  top+gh,    top+2*gh,  work_hours],
 
           "LouQiGe":    [left,       left+gw,    top+2*gh,  top+3*gh,  work_hours],
@@ -141,6 +141,9 @@ if __name__ == '__main__':
     else:
         save_flag = False
 
+    cv2.namedWindow("window", 0);
+
+    cv2.resizeWindow("window", 1920, 1080);
     while 1:
         curr_cap, nFrame, t = imgCapObj.getImage()
         if curr_cap is None:
@@ -192,18 +195,19 @@ if __name__ == '__main__':
             prev_cap = curr_cap
         # 实时显示格子和每个员工的工作时间和每个员工的名字，方便对照格子是否正确
         for key in sudoku.keys():
-            cv2.putText(show, text=str(int(sudoku[key][4]*3600/60))+" h", org=(sudoku[key][0]+20, sudoku[key][2]+20), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=0.50, color=(0, 0, 255), thickness=2)
-            cv2.putText(show, text=str(int(sudoku[key][4]*3600 % 60)) + " m", org=(sudoku[key][0] + 50, sudoku[key][2] + 20),
+            cv2.putText(show, text=str(int(sudoku[key][4]*60/60))+" h", org=(sudoku[key][0]+30, sudoku[key][2]+30), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1, color=(0, 0, 255), thickness=2)
+            cv2.putText(show, text=str(int(sudoku[key][4]*60 % 60)) + " m", org=(sudoku[key][0] + 100, sudoku[key][2] + 30),
                         fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        fontScale=0.50, color=(0, 0, 255), thickness=2)
-            cv2.putText(show, text=str(key), org=(sudoku[key][0] + 40, sudoku[key][2] + 40),
+                        fontScale=1, color=(0, 0, 255), thickness=2)
+            #人名
+            cv2.putText(show, text=str(key), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
                         fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        fontScale=0.50, color=(0, 0, 255), thickness=2)
+                        fontScale=1, color=(0, 0, 255), thickness=2)
             cv2.rectangle(show, (sudoku[key][0], sudoku[key][2]), (sudoku[key][0] + gw, sudoku[key][2] + gh),
                           (0, 255, 255))
 
-        cv2.imshow("diff", show)
+        cv2.imshow("window", show)
 
         cv2.waitKey(10)  # 要抑制速度
         if cv2.waitKey(1) & 0xFF == ord('q'):
