@@ -124,15 +124,16 @@ class Track:
 
         targetDict = dict()
         tempList = [[]for j in range(len(transList) + 1)]
-        speed = [0, 0]
+        speed = [24.83, 0]    # 设置初始速度，为录像视频中平均速度; 初始像素速度为5.8， 转换成时间相关速度 近似值#
         angle = [0, 0]
         type = 0
         typCounter = 0
         print(transList, tempList, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        print(transList is None)
         if transList:
             for i in range(len(transList) - 1):
                 print(i)
-                tempList[i].append(str(uuid.uuid1())) # 对应位置打上uuID
+                tempList[i].append(str(uuid.uuid1()))   # 对应位置打上uuID
                 tempList[i].append(trackFlag)
                 tempList[i].append([transList[i][0], transList[i][1]])
                 tempList[i].append(speed)
@@ -140,7 +141,7 @@ class Track:
                 tempList[i].append(type)
                 tempList[i].append(typCounter)
             targetDict.setdefault("target", tempList)
-            time.sleep(0.0075)
+            time.sleep(deltaT - 0.0025)    # 实际让程序运行总体控制在0.01s内；
 
             # 增加timeCost  和  targetTrackTime。。。
             timeCost = time.time()
@@ -153,7 +154,7 @@ class Track:
 
         return targetDict
 
-    def updateTarget(self, targetDict,):
+    def updateTarget(self, targetDict, transList):
         """
         更新target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
         :param targetDict: 上一步的目标物的信息
@@ -200,9 +201,31 @@ class Track:
         # print(newTargetDict)
         # return newTargetDict
         global trackFlag
-        targetDict.update(targetDict)    # 自主更新targetDict
-        time.sleep(0.1)
-        print(targetDict, "^^^^^^^^^^^^^^^^^^^^^^^^^^^", time.time())
+        startTime = time.time()
+        deltaT = 0.01
+        tempTargetDict = dict()
+        tempTargetDict.update(targetDict)   # updateTarget()进程中，每次存储的临时TargetDict # ；
+
+        # 每步updateTarget()进行自主估值
+        tempList = tempTargetDict["target"]
+        for i in range(len(tempList) - 1):
+            tempList[i][2][0] = tempList[i][2][0] + tempList[i][3][0] * deltaT
+            tempList[i][2][1] = tempList[i][2][1] + tempList[i][3][1] * deltaT
+        tempTargetDict["target"] = tempList
+
+        print(tempTargetDict, "this is tempDict !!!!!!")
+
+        # targetDict.update(targetDict)    # 自主更新targetDict
+        targetDict.update(tempTargetDict)    # 更新成targetDict
+        time.sleep(deltaT - 0.0025)     # 实际让程序运行总体控制在0.01s内；
+
+        timeCost = time.time()
+        targetTrackTime = startTime + deltaT
+        targetDict["timeCost"] = timeCost
+        targetDict["targetTrackTime"] = targetTrackTime
+
+        print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+        return targetDict
 
     def mergeTarget(self, targetDict1, targetDict2):
         """
@@ -354,6 +377,7 @@ class Track:
         # cv2.destroyAllWindows()
         global trackFlag
         trackFlag = 0
+        k = 24.83 / 5.8
         while True:
             if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
 
@@ -361,12 +385,24 @@ class Track:
                     # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
                     if i < 9:
 
-                        self.updateTarget(targetDict,)
+                        targetDict = self.updateTarget(targetDict, transList)
 
                     if i == 9:
 
                         # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
-                        self.updateTarget(targetDict,)
+                        # 目前 按照顺序依次对targetDict 中的list 与 transList 进行比较， 目前，对于循环末期，直接赋值transList
+                        tempList = targetDict["target"]
+                        for j in range(len(tempList) - 1):
+                            # 位置直接赋值  利用传送带方向的目标位置做判断transList是否及时更新，若未来得及更新，则targetDict延续自身位置信息；
+                            if transList[j][0] > tempList[j][2][0]:
+                                tempList[j][2][0] = transList[j][0]
+                                tempList[j][2][1] = transList[j][1]
+                            tempList[j][3][0] = transList[j][3] * k
+                            tempList[j][3][1] = transList[j][4] * k     #  速度直接赋值  #
+
+                        targetDict["target"] = tempList
+                        print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^  this is loop end !!!")
+                        # self.updateTarget(targetDict, transList)
 
             else:
                 targetDict.update(self.createTarget(transDict, transList,))
@@ -477,6 +513,7 @@ if __name__ == "__main__":
     # cam.destroy()
     track = Track()
     trackFlag = 0
+
     with multiprocessing.Manager() as MG:  # 重命名
 
         transDict = MG.dict()
