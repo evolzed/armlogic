@@ -116,10 +116,16 @@ class Track:
         #     # print(targetDict, uuIDList)
         #
         # return targetDict, bottleDict, uuIDList, p0, label, centerLists
+        startTime = time.time()
+        deltaT = 0.01
+
         global trackFlag
+        # trackFlag = 0  # 对应imgProc中的Flag
+
         targetDict = dict()
         tempList = [[]for i in range(len(transList))]
-        # trackFlag = 0  # 对应imgProc中的Flag
+        speed = [0, 0]
+        angle = [0, 0]
         type = 0
         typCounter = 0
 
@@ -127,16 +133,21 @@ class Track:
             tempList[i].append(str(uuid.uuid1())) # 对应位置打上uuID
             tempList[i].append(trackFlag)
             tempList[i].append([transList[i][0], transList[i][1]])
-
-            # 待增加speed, angle, type, typeCounter。。。
-
-        # 待增加timeCost  和  targetTrackTime。。。
-
-
+            tempList[i].append(speed)
+            tempList[i].append(angle)
+            tempList[i].append(type)
+            tempList[i].append(typCounter)
         targetDict.setdefault("target", tempList)
+        time.sleep(0.0075)
+
+        # 增加timeCost  和  targetTrackTime。。。
+        timeCost = time.time()
+        targetTrackTime = startTime + deltaT
+        targetDict.setdefault("timeCost", timeCost)
+        targetDict.setdefault("targetTrackTime", targetTrackTime)
+
         print(targetDict, "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
         # trackFlag = 1
-        time.sleep(0.1)
         return targetDict
 
     def updateTarget(self, targetDict,):
@@ -187,11 +198,8 @@ class Track:
         # return newTargetDict
         global trackFlag
         targetDict.update(targetDict)    # 自主更新targetDict
-
         time.sleep(0.1)
-        print(targetDict, "^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-        # print(targetDict, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-
+        print(targetDict, "^^^^^^^^^^^^^^^^^^^^^^^^^^^", time.time())
 
     def mergeTarget(self, targetDict1, targetDict2):
         """
