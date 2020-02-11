@@ -269,6 +269,7 @@ class ImgProc:
                 contourArea = cv2.contourArea(contours[i])  # 面积
                 contourhull = cv2.convexHull(contours[i])  # 凸包
                 cv2.polylines(self.show, [contourhull], True, (500, 255, 0), 2)
+                arclenth = cv2.arcLength(contours[i], True)  # 周长
 
                 # https: // blog.csdn.net / lanyuelvyun / article / details / 76614872
                 rotateRect = cv2.minAreaRect(contours[i])  # 旋转外接矩形
@@ -288,7 +289,8 @@ class ImgProc:
                 righty = int(((cols - x) * vy / vx) + y)
                 # print("pre final")
                 # rectArray = np.append(rectArray, contourBndBox, axis=0)
-                rectArray.append(contourBndBox)  # 存轮廓信息到数组中
+                elem = [contourBndBox, contourArea, arclenth, contourCenterGx, contourCenterGx]
+                rectArray.append(elem)  # 存轮廓信息到数组中 会对使用它的地方造成影响
 
                 # print("final")
                 # print("rectArray", rectArray)
@@ -401,6 +403,8 @@ class ImgProc:
             center_list.append(center_i)
         return center_list
 
+    def detectObjNotRelyCnn(self, featureimg, drawimg, label_num):
+        pass
 
 
     def detectObj(self, featureimg, drawimg, dataDict, label_num):
@@ -425,13 +429,16 @@ class ImgProc:
         p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
         if p0 is not None and "box" in dataDict:
             # trackDict, trackDict = trackObj.createTarget()
+            #画出每个点
             for k in range(p0.shape[0]):
                 a = int(p0[k, 0, 0])
                 b = int(p0[k, 0, 1])
                 cv2.circle(drawimg, (a, b), 3, (0, 255, 255), -1)
             # init the label
+            #构造label的形状
             label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
             print("len(dataDict[box])", len(dataDict["box"]))
+
             boxLenth = len(dataDict["box"])
             # classify  the label  by the dataDict boxes and label them
             if boxLenth > 0:

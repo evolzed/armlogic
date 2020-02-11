@@ -167,6 +167,9 @@ class Vision(object):
         # frame = avi.getImageFromVideo()
         while True:
             _frame, nFrame, t = cam.getImage()
+            #防止视频结束
+            if _frame is None:
+                break
             camfps = " Cam" + cam.getCamFps(nFrame)
             # frame = avi.getImageFromVideo()
             curr_time = timer()
@@ -206,6 +209,7 @@ class Vision(object):
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             #detect
             if flag == 0:
+                #传入的是去除背景后的图片
                 p0, label,centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
                 if centerlist is not None and len(centerlist) > 0:
                     for seqN in range(len(centerlist)):
@@ -317,7 +321,7 @@ def imageInit():
     :return: (cam：相机对象, _image:Vision对象)
     """
     # cam = Camera()
-    videoDir = "E:\\1\\3.avi"
+    videoDir = "E:\\1\\1.avi"
     bgDir = "E:\\1\\背景.avi"
     avi = Video(videoDir)
     bgAvi = Video(bgDir)
