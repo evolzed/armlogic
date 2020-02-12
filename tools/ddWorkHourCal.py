@@ -159,7 +159,8 @@ if __name__ == '__main__':
         curr_time = timer()
         # 间隔多久时间进行一次视频比对
         randomInterval = numpy.random.uniform(low=1.0 * seconds, high=2.0 * seconds, size=1)
-        if curr_time - prev_time >= randomInterval:
+        if frameInterval*(nFrame-preNframe) >= randomInterval[0]:
+        # if curr_time - prev_time >= randomInterval:
             print("in")
             # show0 = np.zeros_like(curr_cap)
             # show0 = show0[1:100, 1:100].copy()
@@ -194,7 +195,8 @@ if __name__ == '__main__':
                 # if diffSize > 1000:
                     #因为抽帧快，不等于现实时间，所以增加原视频的流逝时间来补偿
                     # sudoku[key][4] += (randomInterval[0]+ frameInterval - 10/1000)/3600.0
-                    sudoku[key][4] += (randomInterval[0] + realTimeIncrement - 0.01)/3600.0
+                    # sudoku[key][4] += (randomInterval[0] + realTimeIncrement - 0.01)/3600.0
+                    sudoku[key][4] += (randomInterval[0]) / 3600.0
                     print(str(key)+" work_hours", sudoku[key][4])
                     print(str(key)+"working!!!!")
             feature = []
@@ -230,10 +232,10 @@ if __name__ == '__main__':
                         org=(400, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=1, color=(0, 255, 255), thickness=2)
             cv2.putText(show, text=str(m) + "m",
-                        org=(460, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        org=(480, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=1, color=(0, 255, 255), thickness=2)
             cv2.putText(show, text=str(s) + "s",
-                        org=(520, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        org=(560, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=1, color=(0, 255, 255), thickness=2)
 
         cv2.imshow("window", show)
