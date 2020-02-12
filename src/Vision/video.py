@@ -19,6 +19,13 @@ class Video:
         self.framCostTime = self.frameTotalCount/self.fps
         self.framInterval = 1 / self.fps
 
+    def getCurrentTime(self):
+        currentTime = self.framInterval* self.nFrame
+        h = int(currentTime/3600)
+        m = int(currentTime % 3600/60)
+        s = int(currentTime % 3600 % 60)
+        return currentTime, h, m, s
+
     def getImageFromVideo(self):
         """
 
@@ -52,6 +59,16 @@ if __name__ == '__main__':
     actual_cnt = 0
     while frame is not None:
         frame, nf, t = avi.getImageFromVideo()
+        currentTime, h, m, s = avi.getCurrentTime()
+        cv2.putText(frame, text=str(h) + "h",
+                    org=(200, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1, color=(0, 0, 255), thickness=2)
+        cv2.putText(frame, text=str(m) + "m",
+                    org=(260, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1, color=(0, 0, 255), thickness=2)
+        cv2.putText(frame, text=str(s) + "s",
+                    org=(320, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1, color=(0, 0, 255), thickness=2)
         actual_cnt += 1
         print("actual_cnt", actual_cnt)
         """
@@ -59,7 +76,7 @@ if __name__ == '__main__':
         """
         if frame is not None:
             cv2.imshow("avi", frame)
-        cv2.waitKey(80)
+        cv2.waitKey(10)
 
 """ 
 def getImageFromVideo(VideoDir):

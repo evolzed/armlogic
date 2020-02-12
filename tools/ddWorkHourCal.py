@@ -123,6 +123,7 @@ if __name__ == '__main__':
     # 初始化图片用于初始化
     curr_cap0, nFrame0, t0 = imgCapObj.getImage()
     prev_cap = curr_cap0.copy()
+    preNframe = nFrame0
 
     frameInterval = imgCapObj.getCamFrameInterval()
 
@@ -150,6 +151,8 @@ if __name__ == '__main__':
     cv2.resizeWindow("window", 1920, 1080)
     while 1:
         curr_cap, nFrame, t = imgCapObj.getImage()
+        # print("nf", nFrame)
+        cTime, h, m, s = imgCapObj.getCamCurrentTime()
         if curr_cap is None:
             break
         show = curr_cap.copy()
@@ -185,10 +188,13 @@ if __name__ == '__main__':
                 print("diffSize", diffSize)
                 print("thresh", thresh)
                 print("area", diff.size)
+                # 视频时间的流逝
+                realTimeIncrement = frameInterval*(nFrame-preNframe)
                 if thresh > working_threshold:
                 # if diffSize > 1000:
-                    #因为抽帧快，不等于现实时间，所以增加原视频的帧间隔时间来补偿
-                    sudoku[key][4] += (randomInterval[0]+ frameInterval - 10/1000)/3600.0
+                    #因为抽帧快，不等于现实时间，所以增加原视频的流逝时间来补偿
+                    # sudoku[key][4] += (randomInterval[0]+ frameInterval - 10/1000)/3600.0
+                    sudoku[key][4] += (randomInterval[0] + realTimeIncrement - 0.01)/3600.0
                     print(str(key)+" work_hours", sudoku[key][4])
                     print(str(key)+"working!!!!")
             feature = []
@@ -198,8 +204,10 @@ if __name__ == '__main__':
             #update the time and frame every time up
             prev_time = curr_time
             prev_cap = curr_cap
+            preNframe = nFrame
         # 实时显示格子和每个员工的工作时间和每个员工的名字，方便对照格子是否正确
         for key in sudoku.keys():
+            #统计时间
             cv2.putText(show, text=str(int(sudoku[key][4]*60/60))+" h", org=(sudoku[key][0]+30, sudoku[key][2]+30), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                     fontScale=1, color=(0, 0, 255), thickness=2)
             cv2.putText(show, text=str(int(sudoku[key][4]*60 % 60)) + " m", org=(sudoku[key][0] + 100, sudoku[key][2] + 30),
@@ -209,12 +217,28 @@ if __name__ == '__main__':
             cv2.putText(show, text=str(key), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
                         fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=1, color=(0, 0, 255), thickness=2)
+            #画分隔框
             cv2.rectangle(show, (sudoku[key][0], sudoku[key][2]), (sudoku[key][0] + gw, sudoku[key][2] + gh),
                           (0, 255, 255))
 
+            #视频时间
+            cv2.putText(show, text="video watch:",
+                        org=(400, 750), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=1, color=(0, 255, 255), thickness=2)
+
+            cv2.putText(show, text=str(h) + "h",
+                        org=(400, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=1, color=(0, 255, 255), thickness=2)
+            cv2.putText(show, text=str(m) + "m",
+                        org=(460, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=1, color=(0, 255, 255), thickness=2)
+            cv2.putText(show, text=str(s) + "s",
+                        org=(520, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=1, color=(0, 255, 255), thickness=2)
+
         cv2.imshow("window", show)
 
-        cv2.waitKey(10)  # 要抑制速度
+        # cv2.waitKey(10)  # 要抑制速度
         if cv2.waitKey(1) & 0xFF == ord('q'):
             # 按q退出 并保存excel
 

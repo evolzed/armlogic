@@ -28,6 +28,9 @@ class imageCapture:
     def getCamFrameLenth(self):
         return self.video.frameTotalCount
 
+    def getCamCurrentTime(self):
+        return self.video.getCurrentTime()
+
     def getCamFps(self, nFrame):
         if self.cam is not None:
             return self.cam.getCamFps
