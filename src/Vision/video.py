@@ -9,12 +9,15 @@ class Video:
         :param videoDir:
         """
         self.cap = cv2.VideoCapture(videoDir)  # 获取视频对象
+        self.frameTotalCount = self.cap.get(cv2.CAP_PROP_FRAME_COUNT) #有效
         self.isOpened = self.cap.isOpened  # 判断是否打开
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
         self.width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.nFrame = 0
         self.time = timer()
+        self.framCostTime = self.frameTotalCount/self.fps
+        self.framInterval = 1 / self.fps
 
     def getImageFromVideo(self):
         """
@@ -35,18 +38,28 @@ class Video:
         else:
             return None, None, None
 
-
+"""
+视频播放的快,抽帧都是对的，帧和帧间隔时间是不对的，我们的间隔短，实际的间隔长
+"""
 if __name__ == '__main__':
     avi = Video("E:\\1\\1.avi")
     frame = avi.getImageFromVideo()
+    print("totalcount", avi.frameTotalCount)
+    print("fps", avi.fps)
+    print("framCostTime", avi.framCostTime)
+    print("framInterval", avi.framInterval)
+
+    actual_cnt = 0
     while frame is not None:
-        frame = avi.getImageFromVideo()
+        frame, nf, t = avi.getImageFromVideo()
+        actual_cnt += 1
+        print("actual_cnt", actual_cnt)
         """
            Then write your frame process code here.
         """
         if frame is not None:
             cv2.imshow("avi", frame)
-        cv2.waitKey(10)
+        cv2.waitKey(80)
 
 """ 
 def getImageFromVideo(VideoDir):

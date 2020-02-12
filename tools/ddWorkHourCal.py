@@ -47,8 +47,9 @@ def capture(left, top, right, bottom):
 captureDir = "E:\\1\\Capture\\"
 #本地存放钉钉录制视频的路径
 videoDir = "E:\\1\\DDvedio\\20200211-130438_afternoon.mp4"
-#本地存放背景视频的路径，这里没用，写1即可
-bgDir = "1"
+# videoDir = "E:\\1\\1.avi"
+#本地存放背景视频的路径，这里没用，写和videoDir相同即可
+bgDir = videoDir
 #本地存放标定图片的路径
 calibDir = "E:\\1\\Calib\\"
 #Excel 存放路径
@@ -80,7 +81,7 @@ sudoku = {
           }
 if __name__ == '__main__':
     # 调试参数  1分钟多少秒 正常运行情况下60  调试情况下可改小 需要加大时间间隔可以改大
-    seconds = 60*5
+    seconds = 60
     # 每个员工屏幕格子是否改变的阈值 以比值来写 适用于不同电脑的显示屏
     working_threshold = 500.0/(gw*gh)
     #初始化工作时间
@@ -115,12 +116,15 @@ if __name__ == '__main__':
 
     #构造视频输入类 将钉钉视频会议录制的视频路径写在videoDir中
     avi = Video(videoDir)
+    # print(avi.framInterval)
     bgAvi = Video(bgDir)
     imgCapObj = imageCapture(None, avi, bgAvi)
-
+    # print(imgCapObj.video.framInterval)
     # 初始化图片用于初始化
     curr_cap0, nFrame0, t0 = imgCapObj.getImage()
     prev_cap = curr_cap0.copy()
+
+    frameInterval = imgCapObj.getCamFrameInterval()
 
     # 保存标定图片路径，记得填写正确的路径 路径不能有中文 OPENCV对中文目录支持不好
     cv2.imwrite(calibDir + "biaoding.jpg", prev_cap)
@@ -141,9 +145,9 @@ if __name__ == '__main__':
     else:
         save_flag = False
 
-    cv2.namedWindow("window", 0);
+    cv2.namedWindow("window", 0)
 
-    cv2.resizeWindow("window", 1920, 1080);
+    cv2.resizeWindow("window", 1920, 1080)
     while 1:
         curr_cap, nFrame, t = imgCapObj.getImage()
         if curr_cap is None:
@@ -183,7 +187,8 @@ if __name__ == '__main__':
                 print("area", diff.size)
                 if thresh > working_threshold:
                 # if diffSize > 1000:
-                    sudoku[key][4] += randomInterval[0]/3600.0
+                    #因为抽帧快，不等于现实时间，所以增加原视频的帧间隔时间来补偿
+                    sudoku[key][4] += (randomInterval[0]+ frameInterval - 10/1000)/3600.0
                     print(str(key)+" work_hours", sudoku[key][4])
                     print(str(key)+"working!!!!")
             feature = []

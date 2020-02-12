@@ -19,6 +19,15 @@ class imageCapture:
             frame, nFrame, t = self.bgVideo.getImageFromVideo()
             return frame, nFrame, t
 
+    def getCamFrameInterval(self):
+        return self.video.framInterval
+
+    def getCamTimeLenth(self):
+        return self.video.framCostTime
+
+    def getCamFrameLenth(self):
+        return self.video.frameTotalCount
+
     def getCamFps(self, nFrame):
         if self.cam is not None:
             return self.cam.getCamFps
