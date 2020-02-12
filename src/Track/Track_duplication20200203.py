@@ -123,15 +123,20 @@ class Track:
         # trackFlag = 0  # 对应imgProc中的Flag
 
         targetDict = dict()
-        tempList = [[]for j in range(len(transList) + 1)]
+
         speed = [24.83, 0]    # 设置初始速度，为录像视频中平均速度; 初始像素速度为5.8， 转换成时间相关速度 近似值#
         angle = [0, 0]
         type = 0
         typCounter = 0
-        print(transList, tempList, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        print(transList is None)
-        if transList:
-            for i in range(len(transList) - 1):
+        time.sleep(0.001)
+        print(transList,  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        print(len(transList) != 0, "##############")
+        print(transList,  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+
+        # if transList:
+        if len(transList) != 0:
+            tempList = [[] for j in range(len(transList))]
+            for i in range(len(transList)):
                 print(i)
                 tempList[i].append(str(uuid.uuid1()))   # 对应位置打上uuID
                 tempList[i].append(trackFlag)
@@ -200,6 +205,7 @@ class Track:
         # newTargetDict["timeCost"] = time.time()
         # print(newTargetDict)
         # return newTargetDict
+        print(transList)
         global trackFlag
         startTime = time.time()
         deltaT = 0.01
@@ -208,9 +214,10 @@ class Track:
 
         # 每步updateTarget()进行自主估值
         tempList = tempTargetDict["target"]
-        for i in range(len(tempList) - 1):
-            tempList[i][2][0] = tempList[i][2][0] + tempList[i][3][0] * deltaT
-            tempList[i][2][1] = tempList[i][2][1] + tempList[i][3][1] * deltaT
+        for i in range(len(tempList)):
+            if len(tempList[i]) != 0:
+                tempList[i][2][0] = tempList[i][2][0] + tempList[i][3][0] * deltaT
+                tempList[i][2][1] = tempList[i][2][1] + tempList[i][3][1] * deltaT
         tempTargetDict["target"] = tempList
 
         print(tempTargetDict, "this is tempDict !!!!!!")
@@ -286,6 +293,7 @@ class Track:
         for j in range(len(tempList) - 1):
             # 位置直接赋值  利用传送带方向的目标位置做判断transList是否及时更新，若没来得及更新，则targetDict延续自身位置信息；
             if transList[j][0] > tempList[j][2][0]:
+
                 tempList[j][2][0] = transList[j][0]
                 tempList[j][2][1] = transList[j][1]
             tempList[j][3][0] = transList[j][3] * k
@@ -425,7 +433,7 @@ class Track:
                         #     tempList[j][3][1] = transList[j][4] * k     # 速度直接赋值  #
                         #
                         # targetDict["target"] = tempList
-                        
+
                         targetDict = self.checkTarget(targetDict, transList,)
                         print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^  this is loop end !!!")
                         # self.updateTarget(targetDict, transList)
