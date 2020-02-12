@@ -242,44 +242,57 @@ class Track:
         # print(targetDict2)
         return 0
 
-    def checkTarget(self, bottleDict):
+    def checkTarget(self, targetDict, transList):
         """
-        检查target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
+        检查target功能，在trackProcess循环末期，对照自身target信息和bottleDict中的centerList信息；
 
         :param bottleDict: 上一步的
         :return: 同一UUID的信息更新；
         """
 
-        # 将bottleDict中数据进行换算，并更新至targetDict内相对应的target
+        # # 将bottleDict中数据进行换算，并更新至targetDict内相对应的target
+        #
+        # file = open("targetDict_test.txt", "r+")
+        #
+        # # 逐行读取多行文件中的targetDict，与更新成UUID为相同一个的bottleDict中的值
+        # while True:
+        #     tempList = file.readlines(10000)
+        #
+        #     if not tempList:
+        #         break
+        #     for targetList in tempList:
+        #         # 对比UUID ，假如一样则执行更新
+        #         # 临时tempLists
+        #         tempLists = bottleDict.get("target")
+        #         print(tempLists)
+        #         tempSingleList = targetList.split(", ")
+        #         # print(tempLists)
+        #         if (tempLists[0] in targetList):
+        #             # 赋值：给与每一个tempSingleList
+        #             file.write(tempLists[0] + ", ")
+        #             print(len(tempSingleList))
+        #             for i in range(6):
+        #                 tempSingleList[i + 1] = tempLists[i + 1]
+        #                 file.write(tempSingleList[i + 1] + ", ")
+        #             print(tempSingleList)
+        #
+        #             file.write("\n")
+        #         break
+        #         # print(targetList)
+        # file.close()
+        k = 24.83 / 5.8
+        # 目前 按照顺序依次对targetDict 中的list 与 transList 进行比较， 目前，对于循环末期，直接赋值transList
+        tempList = targetDict["target"]
+        for j in range(len(tempList) - 1):
+            # 位置直接赋值  利用传送带方向的目标位置做判断transList是否及时更新，若没来得及更新，则targetDict延续自身位置信息；
+            if transList[j][0] > tempList[j][2][0]:
+                tempList[j][2][0] = transList[j][0]
+                tempList[j][2][1] = transList[j][1]
+            tempList[j][3][0] = transList[j][3] * k
+            tempList[j][3][1] = transList[j][4] * k  # 速度直接赋值  #
 
-        file = open("targetDict_test.txt", "r+")
-
-        # 逐行读取多行文件中的targetDict，与更新成UUID为相同一个的bottleDict中的值
-        while True:
-            tempList = file.readlines(10000)
-
-            if not tempList:
-                break
-            for targetList in tempList:
-                # 对比UUID ，假如一样则执行更新
-                # 临时tempLists
-                tempLists = bottleDict.get("target")
-                print(tempLists)
-                tempSingleList = targetList.split(", ")
-                # print(tempLists)
-                if (tempLists[0] in targetList):
-                    # 赋值：给与每一个tempSingleList
-                    file.write(tempLists[0] + ", ")
-                    print(len(tempSingleList))
-                    for i in range(6):
-                        tempSingleList[i + 1] = tempLists[i + 1]
-                        file.write(tempSingleList[i + 1] + ", ")
-                    print(tempSingleList)
-
-                    file.write("\n")
-                break
-                # print(targetList)
-        file.close()
+        targetDict["target"] = tempList
+        return targetDict
 
     def speedEstimate(self, targetDict_1, targetDict_2):
         """
@@ -301,6 +314,17 @@ class Track:
 
     def targetMove(self, x, y, last_measurement, last_prediction,current_measurement, current_prediction, kalman):
 
+        """
+        调用kalman滤波，将bottleDict信息作为检测数据； 被updateTarget（）所调用
+        :param x:
+        :param y:
+        :param last_measurement:
+        :param last_prediction:
+        :param current_measurement:
+        :param current_prediction:
+        :param kalman:
+        :return:
+        """
         # 定义全局变量
         global frame
 
@@ -377,7 +401,7 @@ class Track:
         # cv2.destroyAllWindows()
         global trackFlag
         trackFlag = 0
-        k = 24.83 / 5.8
+
         while True:
             if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
 
@@ -388,19 +412,21 @@ class Track:
                         targetDict = self.updateTarget(targetDict, transList)
 
                     if i == 9:
-
                         # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
-                        # 目前 按照顺序依次对targetDict 中的list 与 transList 进行比较， 目前，对于循环末期，直接赋值transList
-                        tempList = targetDict["target"]
-                        for j in range(len(tempList) - 1):
-                            # 位置直接赋值  利用传送带方向的目标位置做判断transList是否及时更新，若未来得及更新，则targetDict延续自身位置信息；
-                            if transList[j][0] > tempList[j][2][0]:
-                                tempList[j][2][0] = transList[j][0]
-                                tempList[j][2][1] = transList[j][1]
-                            tempList[j][3][0] = transList[j][3] * k
-                            tempList[j][3][1] = transList[j][4] * k     #  速度直接赋值  #
 
-                        targetDict["target"] = tempList
+                        # # 目前 按照顺序依次对targetDict 中的list 与 transList 进行比较， 目前，对于循环末期，直接赋值transList
+                        # tempList = targetDict["target"]
+                        # for j in range(len(tempList) - 1):
+                        #     # 位置直接赋值  利用传送带方向的目标位置做判断transList是否及时更新，若没来得及更新，则targetDict延续自身位置信息；
+                        #     if transList[j][0] > tempList[j][2][0]:
+                        #         tempList[j][2][0] = transList[j][0]
+                        #         tempList[j][2][1] = transList[j][1]
+                        #     tempList[j][3][0] = transList[j][3] * k
+                        #     tempList[j][3][1] = transList[j][4] * k     # 速度直接赋值  #
+                        #
+                        # targetDict["target"] = tempList
+                        
+                        targetDict = self.checkTarget(targetDict, transList,)
                         print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^  this is loop end !!!")
                         # self.updateTarget(targetDict, transList)
 
