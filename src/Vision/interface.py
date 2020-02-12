@@ -25,6 +25,10 @@ class imageCapture:
         if self.video is not None:
             return str(self.video.fps)
 
+    def destroy(self):
+        #adapt
+        pass
+
 
 
 

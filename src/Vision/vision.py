@@ -207,10 +207,13 @@ class Vision(object):
             drawimg = frame.copy()
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            detectbox = self.imgproc.filterBgBox(resarray, drawimg)
             #detect
             if flag == 0:
                 #传入的是去除背景后的图片
-                p0, label,centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                # p0, label,centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
+
                 if centerlist is not None and len(centerlist) > 0:
                     for seqN in range(len(centerlist)):
                         cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
