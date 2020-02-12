@@ -337,7 +337,7 @@ def imageInit():
     :return: (cam：相机对象, _image:Vision对象)
     """
     # cam = Camera()
-    videoDir = "d:\\1\\Video_20200204122301684.avi"
+    videoDir = "d:\\1\\Video_20200204122733339.mp4"
     bgDir = "d:\\1\\背景1.avi"
     avi = Video(videoDir)
     bgAvi = Video(bgDir)

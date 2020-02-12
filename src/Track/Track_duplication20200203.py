@@ -136,6 +136,7 @@ class Track:
         # if transList:
         if len(transList) != 0:
             tempList = [[] for j in range(len(transList))]
+            print(tempList)
             for i in range(len(transList)):
                 print(i)
                 tempList[i].append(str(uuid.uuid1()))   # 对应位置打上uuID
@@ -205,6 +206,7 @@ class Track:
         # newTargetDict["timeCost"] = time.time()
         # print(newTargetDict)
         # return newTargetDict
+
         print(transList)
         global trackFlag
         startTime = time.time()
@@ -232,6 +234,7 @@ class Track:
         targetDict["targetTrackTime"] = targetTrackTime
 
         print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+
         return targetDict
 
     def mergeTarget(self, targetDict1, targetDict2):
@@ -409,6 +412,10 @@ class Track:
         # cv2.destroyAllWindows()
         global trackFlag
         trackFlag = 0
+        trackFrame = np.zeros((960, 1280, 3), np.uint8)
+
+        # 存储上一记录targetDict
+        lastDict = targetDict
 
         while True:
             if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
@@ -442,6 +449,15 @@ class Track:
                 targetDict.update(self.createTarget(transDict, transList,))
                 # targetDict = self.createTarget(transDict, transList,)
                 print(targetDict, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+
+            # show
+            for j in range(len(targetDict)):
+                currentX, currentY = int(targetDict["target"][j][2][0]), int(targetDict["target"][j][2][1])
+                lastX, lastY = int(lastDict["target"][j][2][0]), int(lastDict["target"][j][2][1],)
+                cv2.circle(trackFrame, (currentX, currentY), 3, (0, 0, 200), 1)
+            cv2.imshow("tragetTracking", trackFrame)
+            if (cv2.waitKey(30) & 0xff) == 27:
+                break
 
 
 if __name__ == "__main__":
