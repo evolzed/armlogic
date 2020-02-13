@@ -199,10 +199,12 @@ class Vision(object):
             drawimg = frame.copy()
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            detectbox = self.imgproc.filterBgBox(resarray, drawimg)
 
             # detect
             if flag == 0:
-                p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                # p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
                 if centerlist is not None and len(centerlist) > 0:
                     for seqN in range(len(centerlist)):
                         transList.append(centerlist[seqN])

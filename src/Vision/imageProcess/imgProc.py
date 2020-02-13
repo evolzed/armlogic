@@ -264,6 +264,7 @@ class ImgProc:
                 contourArea = cv2.contourArea(contours[i])  # 面积
                 contourhull = cv2.convexHull(contours[i])  # 凸包
                 cv2.polylines(self.show, [contourhull], True, (500, 255, 0), 2)
+                arclenth = cv2.arcLength(contours[i], True)  # 周长
 
                 # https: // blog.csdn.net / lanyuelvyun / article / details / 76614872
                 rotateRect = cv2.minAreaRect(contours[i])  # 旋转外接矩形
@@ -281,9 +282,10 @@ class ImgProc:
                 [vx, vy, x, y] = cv2.fitLine(contours[i], cv2.DIST_L2, 0, 0.01, 0.01)  # 对轮廓进行多边形拟合
                 lefty = int((x * vy / vx) + y)
                 righty = int(((cols - x) * vy / vx) + y)
-                # print("pre final")
+                # print("pre final"y
                 # rectArray = np.append(rectArray, contourBndBox, axis=0)
-                rectArray.append(contourBndBox)  # 存轮廓信息到数组中
+                elem = [contourBndBox, contourArea, arclenth, contourCenterGx, contourCenterGy]
+                rectArray.append(elem)  # 存轮廓信息到数组中 会对使用它的地方造成影响
 
                 # print("final")
                 # print("rectArray", rectArray)
@@ -394,6 +396,78 @@ class ImgProc:
             # print("center_i", center_i)
             center_list.append(center_i)
         return center_list
+
+
+    def filterBgBox(self, resarray, drawimg):
+        detectedBox = []
+        for elem in resarray:
+            left = elem[0][0]
+            top = elem[0][1]
+            right = left + elem[0][2]
+            bottom = top + elem[0][3]
+            contourArea = elem[1]
+            print("area:", contourArea)
+            #淘汰掉比较小的
+            if contourArea > 5000:
+                cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
+                newelem = (left, top, right, bottom)
+                detectedBox.append(newelem)
+        return detectedBox
+
+
+    def detectObjNotRelyCnn(self, featureimg, drawimg, detectedBox, label_num):
+        p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
+        if p0 is not None and len(detectedBox) != 0:
+            # trackDict, trackDict = trackObj.createTarget()
+            # 画出每个点
+            for k in range(p0.shape[0]):
+                a = int(p0[k, 0, 0])
+                b = int(p0[k, 0, 1])
+                cv2.circle(drawimg, (a, b), 3, (0, 255, 255), -1)
+            # init the label
+            # 构造label的形状
+            label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
+            # print("len(dataDict[box])", len(dataDict["box"]))
+
+            boxLenth = len(detectedBox)
+            # classify  the label  by the dataDict boxes and label them
+            if boxLenth > 0:
+                for i in range(boxLenth):
+                    print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
+                    left = detectedBox[i][0]
+                    top = detectedBox[i][1]
+                    right = detectedBox[i][2]
+                    bottom = detectedBox[i][3]
+                    cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
+                    # store every point label
+                    print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
+                    for k in range(p0.shape[0]):
+                        print("p0", p0[k, 0, 0])
+                        print("p1", p0[k, 0, 1])
+                        if (left - 20 <= p0[k, 0, 0]) and \
+                                (p0[k, 0, 0] <= right + 20) and \
+                                (top - 20 <= p0[k, 0, 1]) and \
+                                (p0[k, 0, 1] <= bottom + 20):
+                            label[k, 0, 0] = i
+                print("label", label)
+                print("unique", np.unique(label[label != -1]))
+                # num is the detected label number
+                if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
+                    # flag = 1
+                    centerL = self.findTrackedCenterPoint(p0, label)
+                    allList = []
+                    for x in centerL:
+                        allList.append([x[0], x[1], x[2], 0, 0])
+
+                    return p0, label, allList
+                else:
+                    return None, None, None
+            else:
+                return None, None, None
+        else:
+            return None, None, None
+
+
 
 
 
