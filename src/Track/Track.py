@@ -5,7 +5,7 @@ import sys
 import cv2
 import uuid
 from src.Vision.camera import Camera
-from src.Vision.vision_duplication import *
+from src.Vision.vision import *
 from src.Vision.imageProcess.imgProc_duplication import *
 import time
 from timeit import default_timer as timer
