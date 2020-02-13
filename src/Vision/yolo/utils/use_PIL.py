@@ -2,24 +2,29 @@ import os
 import random
 from datetime import datetime
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageEnhance
 import numpy as np
+
+n = 0  # 记录图片的数量
 
 
 class Aug(object):
     """利用图片贴合的方式生成数据集"""
-    def __init__(self, src, bg, btype):
+    def __init__(self, src, bg, btype, img_path, anno_path):
         # self.init_bg = bg
         self.src = src  # <Image>:需要贴合的bottle
         self.bg = bg  # <Image>:背景
         self.cp_bg = None  # <Image>:拷贝一份背景用来处理，防止对原始背景图片的污染
+        # self.cp_bg_gama = None  # <Image>:拷贝一份背景用来处理，防止对原始背景图片的污染
         self.box = None  # tuple:src图片中物体的位置(xmin, ymin, xmax, ymax)
         self.bgbox = None  # tuple:贴合后，bottle位于背景中的位置(xmin, ymin, xmax, ymax)
         self.rotated_img = None  # <Image>:转换后的图片
         self.type = btype  # int/str:标注时的瓶子类别(0-21)
-        self.n = 0  # int:用于防止图片名称重复
+        # self.n = 0  # int:用于防止图片名称重复
         self.file_name = None  # str:文件不带后缀的名称，如_img000.jpg,则file_name=_img000
         self.center = None  # tuple:eg->(200, 400)
+        self.img_path = img_path
+        self.anno_path = anno_path
 
     def rotate_src(self, angle):
         """
@@ -82,10 +87,7 @@ class Aug(object):
         # draw.line()
         draw.rectangle(self.bgbox, outline="red", width=2)
         # 画完框之后，显示，注意：如果开启显示，执行速度降低而且要保证你的内存足够大。生产使用，建议关闭
-        # self.cp_bg.show()
-
-        # self.bg = self.init_bg
-        # self.bg.show()
+        self.cp_bg.show()
         del draw
 
     def img_txt(self):
@@ -98,7 +100,7 @@ class Aug(object):
         self.bgbox[1] = self.bgbox[1] if 0 <= self.bgbox[1] else 0
         self.bgbox[2] = self.bgbox[2] if self.bgbox[2] <= self.bg.size[0] else self.bg.size[0]
         self.bgbox[3] = self.bgbox[3] if self.bgbox[3] <= self.bg.size[1] else self.bg.size[1]
-        with open("anno/" + self.file_name + ".txt", "w") as f:
+        with open(self.anno_path + "/" + self.file_name + ".txt", "w") as f:
             f.write(str(int(self.bgbox[0])) + "," + str(int(self.bgbox[1])) + "," +
                     str(int(self.bgbox[2])) + "," + str(int(self.bgbox[3])) + "," + str(self.type))
 
@@ -118,30 +120,56 @@ class Aug(object):
         :param bg_img: 背景图
         :return:
         """
+        global n
         # dst.paste(src_img, (100, 400), src_img)
-        self.cp_bg = self.bg.copy()
+        # self.cp_bg = self.bg.copy()  # 进行gama处理的时候已经赋值self.cp_bg,此处可以关闭
         # 随机生成贴合中心点坐标
         self.random_center()
         self.cp_bg.paste(self.rotated_img, self.center, self.rotated_img)
         # 生成文件名，尽量保证唯一
         t = datetime.strftime(datetime.today(), "%Y%m%d%H%M%S")
-        self.cp_bg.save("dataset/" + t + str(self.n) + ".jpg")
-        print("已保存类别{}，{}张!".format(self.type, self.n+1))
-        self.file_name = t + str(self.n)
-        # todo 生成txt文件
+        self.cp_bg.save(self.img_path + "/" + t + str(n) + ".jpg")
+        print("已保存类别{}，{}张!".format(self.type, n+1))
+        self.file_name = t + str(n)
+        # 生成txt标注文件
         self.img_txt()
-        self.n += 1
+        n += 1
+
+    def img_gama(self):
+        """
+        对背景和bottle进行随机亮度调整，然后进行贴合
 
 
-def main():
-    aug = Aug(src, bg, btype)
-    for angle in range(360):
-        if not angle % 2 == 0:
-            continue
-        aug.rotate_src(angle)
+        :return:
+        """
+        self.cp_bg = self.bg.copy()
+        # 对bg进行处理，随机生成0.6-1.5之间的factor，调整bg的亮度
+        self.cp_bg = ImageEnhance.Brightness(self.cp_bg).enhance(round(random.uniform(0.6, 1.5), 1))
+        # 对瓶子进行处理
+        self.rotated_img = ImageEnhance.Brightness(self.rotated_img).enhance(round(random.uniform(0.6, 1.5), 1))
+
+
+def main(img_num):
+    """
+    主程序
+
+    :param img_num: 需要生成的图片数量
+    :return:
+    """
+    aug = Aug(src, bg, btype, img_save_path, anno_save_path)
+    for _ in range(img_num):
+        # if not angle % 2 == 0:
+        #     continue
+        # 旋转图片
+        aug.rotate_src(random.randint(0, 360))
+        # 获得旋转后物体的位置
         aug.get_obj_box()
+        # 对旋转后的图片进行亮度调整
+        aug.img_gama()
+        # 进行贴合，并保存物体在背景下的坐标
         aug.stack_up()
-        aug.draw_box()
+        # 进行画框，测试时用。注意：如果开启显示，执行速度降低而且要保证你的内存足够大。生产使用，建议关闭
+        # aug.draw_box()
 
 
 def get_xy():
@@ -167,19 +195,29 @@ def get_xy():
 
 
 if __name__ == '__main__':
-    src_path = "images/bottle_02_03.png"
-    bg_path = "images/bg.jpg"
-    # 根据文件名进行类别提取。文件名如：bottle_(type)_(number).png
-    btype = int(src_path.split("_")[1])
-
+    img_save_path = "dataset_13"
+    anno_save_path = "anno_13"
+    img_total_num = 1000
     # 生成的图片统一保存到dataset文件夹
-    if not os.path.exists("dataset"):
-        os.mkdir("dataset")
-    if not os.path.exists("anno"):
-        os.mkdir("anno")
-    # bottle need to paste
-    src = Image.open(src_path).convert("RGBA")
-    # background
-    bg = Image.open(bg_path)
-    main()
-
+    if not os.path.exists(img_save_path):
+        os.mkdir(img_save_path)
+    if not os.path.exists(anno_save_path):
+        os.mkdir(anno_save_path)
+    # 将需要的物体存放列表
+    bottle_list = ["01", "02", "03", "04", "05"]
+    bottle_num = len(bottle_list)
+    for i in range(bottle_num):
+        # bottle need to paste
+        src_path = "images/bottle_01_{}.png".format(bottle_list[i])
+        # background
+        bg_path = "images/bg.jpg"
+        btype = int(src_path.split("_")[1])
+        src = Image.open(src_path).convert("RGBA")
+        # background
+        bg = Image.open(bg_path)
+        # 根据总数量，计算每个图片需要的个数。保证数据均衡
+        img_num = img_total_num // bottle_num
+        # 如果不能整除，这一步处理，统一添加到最后一张图上
+        if i == bottle_num - 1:
+            img_num = img_num + img_total_num % bottle_num
+        main(img_num)
