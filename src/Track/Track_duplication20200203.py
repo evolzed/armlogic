@@ -14,11 +14,11 @@ from src.Vision.yolo.Yolo import *
 from multiprocessing import Process
 import multiprocessing
 from src.Track.kalmanFilter import KF
-
+from lib.Logger.Logger import Logger
 """
 from Track_duplication, start from 20200203
 """
-
+# sys.stdout = Logger("d:\\12.txt")  # 保存到D盘
 
 class Track:
     """
@@ -293,12 +293,17 @@ class Track:
         k = 24.83 / 5.8
         # 目前 按照顺序依次对targetDict 中的list 与 transList 进行比较， 目前，对于循环末期，直接赋值transList
         tempList = targetDict["target"]
-        for j in range(len(tempList) - 1):
-            # 位置直接赋值  利用传送带方向的目标位置做判断transList是否及时更新，若没来得及更新，则targetDict延续自身位置信息；
+        for j in range(len(tempList)):
+            # 位置直接赋值
+            # 利用传送带方向的目标位置做判断transList是否及时更新，若没来得及更新，则targetDict延续自身位置信息；
+            # 做判断，赋值
             if transList[j][0] > tempList[j][2][0]:
 
                 tempList[j][2][0] = transList[j][0]
                 tempList[j][2][1] = transList[j][1]
+            # 不做判断直接赋值！
+            # tempList[j][2][0] = transList[j][0]
+            # tempList[j][2][1] = transList[j][1]
             tempList[j][3][0] = transList[j][3] * k
             tempList[j][3][1] = transList[j][4] * k  # 速度直接赋值  #
 
@@ -412,12 +417,13 @@ class Track:
         # cv2.destroyAllWindows()
         global trackFlag
         trackFlag = 0
-        trackFrame = np.zeros((960, 1280, 3), np.uint8)
+
 
         # 存储上一记录targetDict
         lastDict = targetDict
 
         while True:
+            trackFrame = np.zeros((960, 1280, 3), np.uint8)
             if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
 
                 for i in range(10):
@@ -454,7 +460,9 @@ class Track:
             for j in range(len(targetDict)):
                 currentX, currentY = int(targetDict["target"][j][2][0]), int(targetDict["target"][j][2][1])
                 lastX, lastY = int(lastDict["target"][j][2][0]), int(lastDict["target"][j][2][1],)
-                cv2.circle(trackFrame, (currentX, currentY), 3, (0, 0, 200), 1)
+                uuIDText = targetDict["target"][j][0]
+                cv2.circle(trackFrame, (currentX - 100, currentY), 3, (0, 0, 200), 1)
+                cv2.putText(trackFrame, uuIDText, (currentX - 100, currentY), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
             cv2.imshow("tragetTracking", trackFrame)
             if (cv2.waitKey(30) & 0xff) == 27:
                 break
