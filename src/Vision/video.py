@@ -26,6 +26,39 @@ class Video:
         s = int(currentTime % 3600 % 60)
         return currentTime, h, m, s
 
+
+    def getFrameIdFromMoment(self, moment):
+        frameId = moment / self.framCostTime * self.frameTotalCount
+        frameId =  int(frameId)
+        return frameId
+
+
+    def getImageFromVideoAtMoment(self, h, m, s):
+        """
+
+        :return:
+        frame
+        """
+        if self.isOpened:
+            #当前时刻
+            moment = float(h*3600 + m*60 + s)
+            #转换为当前对应的帧
+            id = self.getFrameIdFromMoment(moment)
+            self.cap.set(cv2.CAP_PROP_POS_FRAMES, id)
+            (frameState, frame) = self.cap.read()  #记录每帧及获取状态
+            if frameState == True:
+                t = time.time()  # 获取当前帧的时间
+                nF = id
+                return frame, nF, t
+            else:
+                print("video over!!!!!!!")
+                return None, None, None
+        else:
+            return None, None, None
+
+    def resetVideo(self):
+        self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+
     def getImageFromVideo(self):
         """
 
@@ -49,13 +82,17 @@ class Video:
 视频播放的快,抽帧都是对的，帧和帧间隔时间是不对的，我们的间隔短，实际的间隔长
 """
 if __name__ == '__main__':
-    avi = Video("E:\\1\\1.avi")
+    avi = Video("E:\\1\\DDvedio\\20200213-141916_胡杰_水印_video.mp4")
     frame = avi.getImageFromVideo()
     print("totalcount", avi.frameTotalCount)
     print("fps", avi.fps)
     print("framCostTime", avi.framCostTime)
     print("framInterval", avi.framInterval)
+    frame = avi.getImageFromVideoAtMoment(2, 55, 56)
+    cv2.imshow("test", frame)
+    cv2.waitKey()
 
+    avi.resetVideo()
     actual_cnt = 0
     while frame is not None:
         frame, nf, t = avi.getImageFromVideo()

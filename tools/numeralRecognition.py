@@ -10,7 +10,7 @@ from tools.mnist import *
 from tools.KNN import *
 
 #通过mnist数据集和KNN算法来识别数字图片中的数字
-def numRecogByMnistKnn(num_pic, x_train, x_label):
+def numRecogByMnistKnn(num_pic, x_train, x_label, k):
 
     mytest = 255 - cv2.cvtColor(num_pic, cv2.COLOR_BGR2GRAY)
 
@@ -26,14 +26,15 @@ def numRecogByMnistKnn(num_pic, x_train, x_label):
     mytestData = meanNorm(x_train, mytestData)
 
     #用KNN识别
-    pred = knn_classify(5, 'E', x_train, x_label, mytestData)
+    pred = knn_classify(k, 'E', x_train, x_label, mytestData)
     print("pred0", pred)
     return pred[0]
 
 
 if __name__ == "__main__":
     #读取待识别数字图片
-    mytest = cv2.imread("E:\\1\\1\\3_0.jpg")
+    #6 7 9 识别有问题
+    mytest = cv2.imread("E:\\1\\1\\9_0.jpg")
     x_train, x_label = getMnistData()
-    pred = numRecogByMnistKnn(mytest, x_train, x_label)
+    pred = numRecogByMnistKnn(mytest, x_train, x_label, 10)
     print("pred", pred)

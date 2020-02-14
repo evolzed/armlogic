@@ -31,6 +31,12 @@ class imageCapture:
     def getCamCurrentTime(self):
         return self.video.getCurrentTime()
 
+    def getImageFromCamAtMoment(self, h, m, s):
+        return self.video.getImageFromVideoAtMoment(h, m, s)
+
+    def resetCamFrameId(self):
+        self.video.resetVideo()
+
     def getCamFps(self, nFrame):
         if self.cam is not None:
             return self.cam.getCamFps
