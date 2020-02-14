@@ -35,7 +35,7 @@ def findTheNumPic(mytest0, left, top, w, h):
     kernel3 = np.ones((3, 3), np.uint8)
     show= mytest0.copy()
     #一步剪切出来大致位置
-    mytest = cv2.cvtColor(my[top: top + h, left: left + w], cv2.COLOR_BGR2GRAY)
+    mytest = cv2.cvtColor(mytest0[top: top + h, left: left + w], cv2.COLOR_BGR2GRAY)
     # cv2.imshow("mytest", mytest)
     cv2.rectangle(show, (left, top), (left+w, top+h), (0, 0, 255))
     #二值化然后膨胀然后边缘然后检测轮廓
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     # mytest = cv2.imread("E:\\1\\1\\9_0.jpg")
     x_train, x_label = getMnistData()
 
-    my = cv2.imread("E:\\1\\2\\2.jpg")
+    my = cv2.imread("E:\\1\\2\\1.jpg")
 
     left = 530
     top = 280

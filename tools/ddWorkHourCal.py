@@ -14,7 +14,7 @@ from collections import Counter
 
 from shutil import copyfile
 from tools.numeralRecognition import numRecogByMnistKnn
-
+from tools.mnist import *
 
 def capture(left, top, right, bottom):
     """
@@ -30,6 +30,61 @@ def capture(left, top, right, bottom):
     r, g, b = cv2.split(img)
     cv2.merge([b, g, r], img)
     return img
+
+def findTheNumPic(mytest0, left, top, w, h):
+    #初始化参数
+    kernel3 = np.ones((3, 3), np.uint8)
+    show= mytest0.copy()
+    #一步剪切出来大致位置
+    mytest = cv2.cvtColor(mytest0[top: top + h, left: left + w], cv2.COLOR_BGR2GRAY)
+    # cv2.imshow("mytest", mytest)
+    cv2.rectangle(show, (left, top), (left+w, top+h), (0, 0, 255))
+    #二值化然后膨胀然后边缘然后检测轮廓
+    ret, threshed = cv2.threshold(mytest, 100, 255, cv2.THRESH_BINARY_INV)
+    # cv2.imshow("threshed", threshed)
+    dilated = cv2.dilate(threshed, kernel3)
+
+    # cv2.imshow("dilated", dilated)
+
+    edge = cv2.Canny(dilated, 78, 148)
+
+    # cv2.imshow("edge", edge)
+
+    if cv2.__version__.startswith("3"):
+        _, contours, hierarchy = cv2.findContours(edge, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    elif cv2.__version__.startswith("4"):
+        contours, hierarchy = cv2.findContours(edge, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    # cv2.drawContours(show, contours, -1, (0, 255, 0), 1)
+#找出轮廓面积最大的 就是数字图片
+    arealist = []
+    if len(contours) > 0:
+        for ci in range(len(contours)):
+            arclenth = cv2.arcLength(contours[ci], True)  # 面积
+            area = cv2.contourArea(contours[ci])  # 4386.5
+            arealist.append(area)
+            print("area = ", area)
+        print(arealist)
+        sortIndex = sorted(range(len(arealist)), key=lambda k: arealist[k], reverse=True)
+        print(sortIndex)
+
+        # cv2.drawContours(show, contours, sortIndex[0], (0, 255, 255), 1)
+        #找出最大的轮廓的外接矩形 并抠出来
+        contourBndBox = cv2.boundingRect(contours[sortIndex[0]])  # x,y,w,h  外接矩形
+
+        x = contourBndBox[0]+left
+        y = contourBndBox[1]+top
+        w = contourBndBox[2]
+        h = contourBndBox[3]
+        cv2.rectangle(show, (x, y), (x + w, y + h), (255, 255, 0), 2)  # 画矩形
+
+        res = mytest0[y:y+h, x:x+w].copy()
+        res = cv2.copyMakeBorder(res, 10, 10, 10, 10, cv2.BORDER_CONSTANT, value=[255, 255, 255])#扩充边界
+        # cv2.imshow("show", show)
+        # cv2.imshow("res", res)
+        return res, x, y, w, h
+    else:
+        return None, None, None, None, None
+    # cv2.imshow("edge", edge)
 
 
 # 本工具运行方法，首先设定本地保存屏幕截图的路径captureDir，设定存放钉钉录制视频的路径videoDir，
@@ -81,6 +136,8 @@ sudoku = {
           "ZhiMing":     [left+2*gw,  left+3*gw,  top+2*gh,  top+3*gh,  work_hours]
           }
 if __name__ == '__main__':
+
+    x_train, x_label = getMnistData()
     # 调试参数  1分钟多少秒 正常运行情况下60  调试情况下可改小 需要加大时间间隔可以改大
     seconds = 5*60
     # 每个员工屏幕格子是否改变的阈值 以比值来写 适用于不同电脑的显示屏
@@ -189,6 +246,29 @@ if __name__ == '__main__':
                 print(key)
                 diff = diff0[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
                 show0 = show[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
+                numcal = show0.copy()
+                # sudoku[key][0], sudoku[key][2]
+                left = 530
+                top = 280
+                w = 70
+                h = 90
+                numPic, x0, y0, w0, h0 = findTheNumPic(numcal, left, top, w, h)
+
+
+                if numPic is not None:
+                    # cv2.imshow(str(key), numPic)
+                    # cv2.waitKey()
+                    pred = numRecogByMnistKnn(numPic, x_train, x_label, 10)
+
+                    cv2.putText(show, text=str(pred), org=(sudoku[key][0] + x0, sudoku[key][2] + y0 - 30),
+                                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                fontScale=1, color=(0, 165, 255), thickness=2)
+                    # b g r
+                    cv2.rectangle(show, (sudoku[key][0] + x0, sudoku[key][2] + y0),
+                                  (sudoku[key][0] + x0 + w0, sudoku[key][2] + y0 + h0), (0, 165, 255), 2)  # 画矩形
+
+
+
                 # cv2.imwrite("E:\\1\\" + str(key)+".jpg", show0)
                 # 保存截图
                 if save_flag:
