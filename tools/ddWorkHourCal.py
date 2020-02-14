@@ -13,6 +13,7 @@ import os
 from collections import Counter
 
 from shutil import copyfile
+from tools.numeralRecognition import numRecogByMnistKnn
 
 
 def capture(left, top, right, bottom):
@@ -46,7 +47,7 @@ def capture(left, top, right, bottom):
 #本地保存屏幕截图的路径
 captureDir = "E:\\1\\Capture\\"
 #本地存放钉钉录制视频的路径
-videoDir = "E:\\1\\DDvedio\\20200211-130438_afternoon.mp4"
+videoDir = "E:\\1\\DDvedio\\20200213-141916_胡杰_水印_video.mp4"
 # videoDir = "E:\\1\\1.avi"
 #本地存放背景视频的路径，这里没用，写和videoDir相同即可
 bgDir = videoDir
@@ -121,6 +122,15 @@ if __name__ == '__main__':
     imgCapObj = imageCapture(None, avi, bgAvi)
     # print(imgCapObj.video.framInterval)
     # 初始化图片用于初始化
+
+    cv2.namedWindow("test", 0)
+
+    cv2.resizeWindow("test", 1920, 1080)
+    frameRec, q, qq = imgCapObj.getImageFromCamAtMoment(2, 55, 56)
+    cv2.imshow("test", frameRec)
+    cv2.waitKey()
+
+    imgCapObj.resetCamFrameId()
     curr_cap0, nFrame0, t0 = imgCapObj.getImage()
     prev_cap = curr_cap0.copy()
     preNframe = nFrame0
@@ -149,8 +159,11 @@ if __name__ == '__main__':
     cv2.namedWindow("window", 0)
 
     cv2.resizeWindow("window", 1920, 1080)
+
+
     while 1:
-        curr_cap, nFrame, t = imgCapObj.getImage()
+        # curr_cap, nFrame, t = imgCapObj.getImage()
+        curr_cap, nFrame, t = imgCapObj.getImageFromCamAtMoment(2, 55, 56)
         # print("nf", nFrame)
         cTime, h, m, s = imgCapObj.getCamCurrentTime()
         if curr_cap is None:
@@ -159,7 +172,8 @@ if __name__ == '__main__':
         curr_time = timer()
         # 间隔多久时间进行一次视频比对
         randomInterval = numpy.random.uniform(low=1.0 * seconds, high=2.0 * seconds, size=1)
-        if frameInterval*(nFrame-preNframe) >= randomInterval[0]:
+        # if frameInterval*(nFrame-preNframe) >= randomInterval[0]:
+        if frameInterval * (nFrame - preNframe) >= -1:
         # if curr_time - prev_time >= randomInterval:
             print("in")
             # show0 = np.zeros_like(curr_cap)
@@ -175,6 +189,7 @@ if __name__ == '__main__':
                 print(key)
                 diff = diff0[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
                 show0 = show[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
+                # cv2.imwrite("E:\\1\\" + str(key)+".jpg", show0)
                 # 保存截图
                 if save_flag:
                     time_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime(time.time()))
