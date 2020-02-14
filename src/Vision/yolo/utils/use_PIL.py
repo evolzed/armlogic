@@ -18,8 +18,8 @@ class Aug(object):
         self.bg = bg  # <Image>:背景
         self.bg_prod = None  # 增强过后的背景
         self.bg_arr = np.array(self.bg)  # 将背景图转化为[cv2格式, 未涉及通道变换，可选转通道]的ndarray
-        self.cp_bg = None  # <Image>:拷贝一份背景用来处理，防止对原始背景图片的污染
-        # self.cp_bg_gama = None  # <Image>:拷贝一份背景用来处理，防止对原始背景图片的污染
+        # self.bg_prod = None  # <Image>:拷贝一份背景用来处理，防止对原始背景图片的污染
+        # self.bg_prod_gama = None  # <Image>:拷贝一份背景用来处理，防止对原始背景图片的污染
         self.box = None  # tuple:src图片中物体的位置(xmin, ymin, xmax, ymax)
         self.bgbox = None  # tuple:贴合后，bottle位于背景中的位置(xmin, ymin, xmax, ymax)
         self.rotated_img = None  # <Image>:转换后的图片
@@ -30,22 +30,38 @@ class Aug(object):
         self.img_path = img_path
         self.anno_path = anno_path
         self.seq = iaa.OneOf([
-            iaa.Crop(px=(0, 100)),  # 随机从图像的每个边裁剪掉0~100个像素值，保持图像原尺寸不变
+            iaa.Crop(px=(0, 150)),  # 随机从图像的每个边裁剪掉0~100个像素值，保持图像原尺寸不变
             iaa.Fliplr(0.4),  # 有0.5的概率对图像进行左右翻转
             iaa.Flipud(0.4),  # 有0.5的概率对图像进行上下翻转
             iaa.GaussianBlur(sigma=(0, 3.0)),  # 进行高斯模糊，范围0【不变】~3.0【最大】
             iaa.Affine(
                 scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},  # x，y缩放比例
+                # translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # x,y方向上的偏移范围是-0.2~0.2
+                # rotate=(0, 360),  # 随机旋转范围
+            ),
+            iaa.Affine(
+                # scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},  # x，y缩放比例
                 translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # x,y方向上的偏移范围是-0.2~0.2
+                # rotate=(0, 360),  # 随机旋转范围
+            ),
+            # 指定两次旋转，增大随机概率
+            iaa.Affine(
+                # scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},  # x，y缩放比例
+                # translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # x,y方向上的偏移范围是-0.2~0.2
                 rotate=(0, 360),  # 随机旋转范围
-            )
+            ),
+            iaa.Affine(
+                # scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},  # x，y缩放比例
+                # translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # x,y方向上的偏移范围是-0.2~0.2
+                rotate=(0, 360),  # 随机旋转范围
+            ),
         ])
 
     def img_augm(self):
         """对背景进行随机增强处理"""
-        self.bg_arr = self.seq.augment_image(self.bg_arr)
+        _bg_arr = self.seq.augment_image(self.bg_arr)
         # 增强后的bg_prod用于背景贴合
-        self.bg_prod = Image.fromarray(self.bg_arr)
+        self.bg_prod = Image.fromarray(_bg_arr)
 
     def rotate_src(self, angle):
         """
@@ -104,11 +120,11 @@ class Aug(object):
 
     def draw_box(self):
         # 根据box坐标进行画框
-        draw = ImageDraw.Draw(self.cp_bg)
+        draw = ImageDraw.Draw(self.bg_prod)
         # draw.line()
         draw.rectangle(self.bgbox, outline="red", width=2)
         # 画完框之后，显示，注意：如果开启显示，执行速度降低而且要保证你的内存足够大。生产使用，建议关闭
-        self.cp_bg.show()
+        self.bg_prod.show()
         del draw
 
     def img_txt(self):
@@ -143,13 +159,13 @@ class Aug(object):
         """
         global n
         # dst.paste(src_img, (100, 400), src_img)
-        # self.cp_bg = self.bg.copy()  # 进行gama处理的时候已经赋值self.cp_bg,此处可以关闭
+        # self.bg_prod = self.bg.copy()  # 进行gama处理的时候已经赋值self.bg_prod,此处可以关闭
         # 随机生成贴合中心点坐标
         self.random_center()
-        self.cp_bg.paste(self.rotated_img, self.center, self.rotated_img)
+        self.bg_prod.paste(self.rotated_img, self.center, self.rotated_img)
         # 生成文件名，尽量保证唯一
         t = datetime.strftime(datetime.today(), "%Y%m%d%H%M%S")
-        self.cp_bg.save(self.img_path + "/" + t + str(n) + ".jpg")
+        self.bg_prod.save(self.img_path + "/" + t + str(n) + ".jpg")
         print("已保存类别{}，{}张!".format(self.type, n+1))
         self.file_name = t + str(n)
         # 生成txt标注文件
@@ -164,10 +180,10 @@ class Aug(object):
         :return:
         """
         self.img_augm()
-        self.cp_bg = self.bg_prod
-        # self.cp_bg = self.bg_arr
+        # self.bg_prod = self.bg_prod
+        # self.bg_prod = self.bg_arr
         # 对bg进行处理，随机生成0.6-1.5之间的factor，调整bg的亮度
-        self.cp_bg = ImageEnhance.Brightness(self.cp_bg).enhance(round(random.uniform(0.6, 1.5), 1))
+        self.bg_prod = ImageEnhance.Brightness(self.bg_prod).enhance(round(random.uniform(0.6, 1.5), 1))
         # 对瓶子进行处理
         self.rotated_img = ImageEnhance.Brightness(self.rotated_img).enhance(round(random.uniform(0.5, 1.2), 1))
 
@@ -198,7 +214,7 @@ def main(img_num):
 if __name__ == '__main__':
     img_save_path = "dataset_13"
     anno_save_path = "anno_13"
-    img_total_num = 200
+    img_total_num = 30
     # 生成的图片统一保存到dataset文件夹
     if not os.path.exists(img_save_path):
         os.mkdir(img_save_path)
