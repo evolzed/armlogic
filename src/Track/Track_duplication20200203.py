@@ -132,30 +132,32 @@ class Track:
         print(transList,  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         print(len(transList) != 0, "##############")
         print(transList,  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-
+        tempList = [[] for j in range(len(transList))]
         # if transList:
         if len(transList) != 0:
-            tempList = [[] for j in range(len(transList))]
+            # tempList = [[] for j in range(len(transList))]
             print(tempList)
             for i in range(len(transList)):
                 print(i)
-                tempList[i].append(str(uuid.uuid1()))   # 对应位置打上uuID
+                # tempList[i].append(str(uuid.uuid1()))   # 对应位置打上uuID
+                tempList[i].append(str(i) + "**********")    # 测试用
                 tempList[i].append(trackFlag)
                 tempList[i].append([transList[i][0], transList[i][1]])
                 tempList[i].append(speed)
                 tempList[i].append(angle)
                 tempList[i].append(type)
                 tempList[i].append(typCounter)
-            targetDict.setdefault("target", tempList)
             time.sleep(deltaT - 0.0025)    # 实际让程序运行总体控制在0.01s内；
+        targetDict.setdefault("target", tempList)
+
 
             # 增加timeCost  和  targetTrackTime。。。
-            timeCost = time.time()
-            targetTrackTime = startTime + deltaT
-            targetDict.setdefault("timeCost", timeCost)
-            targetDict.setdefault("targetTrackTime", targetTrackTime)
-            if tempList[0] is not None:
-                trackFlag = 1
+        timeCost = time.time()
+        targetTrackTime = startTime + deltaT
+        targetDict.setdefault("timeCost", timeCost)
+        targetDict.setdefault("targetTrackTime", targetTrackTime)
+        if len(tempList) != 0:
+            trackFlag = 1
         print(targetDict, "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
 
         return targetDict
@@ -211,8 +213,8 @@ class Track:
         global trackFlag
         startTime = time.time()
         deltaT = 0.01
-        tempTargetDict = dict()
-        tempTargetDict.update(targetDict)   # updateTarget()进程中，每次存储的临时TargetDict # ；
+        # tempTargetDict = dict()
+        tempTargetDict = targetDict  # updateTarget()进程中，每次存储的临时TargetDict # ；
 
         # 每步updateTarget()进行自主估值
         tempList = tempTargetDict["target"]
@@ -306,8 +308,14 @@ class Track:
             # tempList[j][2][1] = transList[j][1]
             tempList[j][3][0] = transList[j][3] * k
             tempList[j][3][1] = transList[j][4] * k  # 速度直接赋值  #
-
         targetDict["target"] = tempList
+
+        # 检查视野中的centerlist， 若空了，则清除targetDict （暂时处理）
+        if len(transList) == 0:
+            targetDict["target"] = []
+            targetDict.update(targetDict)
+        print("@@@@@@@@@", targetDict, "@@@@@@@@@", str(len(transList)))
+
         return targetDict
 
     def speedEstimate(self, targetDict_1, targetDict_2):
@@ -418,7 +426,6 @@ class Track:
         global trackFlag
         trackFlag = 0
 
-
         # 存储上一记录targetDict
         lastDict = targetDict
 
@@ -457,12 +464,14 @@ class Track:
                 print(targetDict, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
             # show
-            for j in range(len(targetDict)):
-                currentX, currentY = int(targetDict["target"][j][2][0]), int(targetDict["target"][j][2][1])
-                lastX, lastY = int(lastDict["target"][j][2][0]), int(lastDict["target"][j][2][1],)
-                uuIDText = targetDict["target"][j][0]
-                cv2.circle(trackFrame, (currentX - 100, currentY), 3, (0, 0, 200), 1)
-                cv2.putText(trackFrame, uuIDText, (currentX - 100, currentY), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+            if len(transList) != 0:
+                for j in range(len(targetDict["target"])):
+                    currentX, currentY = int(targetDict["target"][j][2][0]), int(targetDict["target"][j][2][1])
+                    lastX, lastY = int(lastDict["target"][j][2][0]), int(lastDict["target"][j][2][1],)
+                    uuIDText = targetDict["target"][j][0]
+                    cv2.circle(trackFrame, (currentX - 100, currentY), 3, (0, 0, 200), 1)
+                    cv2.putText(trackFrame, uuIDText, (currentX - 100, currentY), cv2.FONT_HERSHEY_SIMPLEX,
+                                1, (255, 255, 255), 2, cv2.LINE_AA)
             cv2.imshow("tragetTracking", trackFrame)
             if (cv2.waitKey(30) & 0xff) == 27:
                 break
@@ -584,7 +593,7 @@ if __name__ == "__main__":
         p2.start()
         # p2.join()
 
-        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, ))
+        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict))
         p1.daemon = True
         p1.start()
         p1.join()

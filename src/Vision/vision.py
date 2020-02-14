@@ -124,7 +124,7 @@ class Vision(object):
         self.cam.destroy(self.cam, cam._data_buf)
         yolo.closeSession()
 
-    def detectSerialImage(self, cam, transDict, transList):
+    def detectSerialImage(self, cam, transDict, transList, targetDict):
         """
         获取并处理连续的帧数
         :param cam: 相机对象
@@ -200,15 +200,27 @@ class Vision(object):
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             detectbox = self.imgproc.filterBgBox(resarray, drawimg)
-
+            # centerlist = centerList = None
             # detect
             if flag == 0:
-                # p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
-                p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
+                p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                # p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
+                # print("########################", centerlist)
+                # print(transList)
                 if centerlist is not None and len(centerlist) > 0:
+                    # transList = [[] for j in range(len(centerlist))]
+                    # print(transList, centerlist, str(len(transList)), str(len(centerlist)))
                     for seqN in range(len(centerlist)):
                         transList.append(centerlist[seqN])
+                    #     print(transList, centerlist, str(len(transList)), str(len(centerlist)))
+                    #     print(len(centerlist[seqN]), len(transList[seqN]))
+                    #     for jj in range(len(centerlist[seqN])):
+                    #         transList[seqN].append(centerlist[seqN][jj])
                         cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
+                    # print(centerlist, transList)
+                        # if centerlist[seqN][3] == 0 or centerlist[seqN][4] == 0:
+                        #     centerlist = []
+                        #     transList = centerlist
                 if p0 is not None and label is not None:
                     flag = 1
 
@@ -217,8 +229,20 @@ class Vision(object):
                 p0, label, centerList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0)
                 if centerList is not None and len(centerList) > 0:
                     for seqN in range(len(centerList)):
+                        print("########################", centerList)
+                        # transList = [[] for j in range(len(centerList))]
+                        # for jj in range(len(centerList[seqN])):
+                        #     transList[seqN].append(centerList[seqN][jj])
+                        # transList.append(centerList[seqN])
+                        print("111111111111111111111111", transList, centerList)
                         transList[seqN] = centerList[seqN]
+                        uuIDText = targetDict["target"][seqN][0]
                         cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
+                        cv2.circle(drawimg, (int(targetDict["target"][seqN][2][0]),
+                                             int(targetDict["target"][seqN][2][1])), 6, (0, 0, 200), 2)
+                        cv2.putText(drawimg, uuIDText, (int(targetDict["target"][seqN][2][0]) + 50,
+                                                        int(targetDict["target"][seqN][2][1]) + 50),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                         cv2.putText(drawimg, text=str(int(centerList[seqN][3])),
                                     org=(centerList[seqN][0] - 20, centerList[seqN][1]),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -231,7 +255,15 @@ class Vision(object):
                                     org=(centerList[seqN][0], centerList[seqN][1]),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=3, color=(0, 255, 255), thickness=2)
+
+                        # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
+                        #     centerList = []
+                        #     transList = centerList
+
             # clear
+
+            # if centerList:
+            #     0
 
             if "box" not in dataDict:
                 p0 = np.array([])
@@ -379,7 +411,7 @@ def imageInit():
 """
 
 
-def imageRun(cam, _image, transDict, transList):
+def imageRun(cam, _image, transDict, transList, targetDict):
     """
     根据输入的图像数据，进行识别
     :param cam: 相机对象
@@ -392,7 +424,7 @@ def imageRun(cam, _image, transDict, transList):
     #         frameDelBg = _image.bgLearn.delBg(_frame)
     # print(transDict)
 
-    _image.detectSerialImage(cam, transDict, transList)
+    _image.detectSerialImage(cam, transDict, transList, targetDict)
 
     # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
     # cv2.waitKey(10)
@@ -410,11 +442,11 @@ def imageRun(cam, _image, transDict, transList):
 
 
 # 将imageInit()和imageRun()封装成一个函数，才能在一个进程中使用
-def vision_run(transDict, transList,):
+def vision_run(transDict, transList, targetDict):
     cam, _image = imageInit()
     # # while 1:
     # transDict["aaa"] = 666666
-    imageRun(cam, _image, transDict, transList)
+    imageRun(cam, _image, transDict, transList, targetDict)
 """
 if __name__ == '__main__':
     cam = Camera()
