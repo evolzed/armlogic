@@ -66,7 +66,9 @@ def findTheNumPic(mytest0, left, top, w, h):
         print(arealist)
         sortIndex = sorted(range(len(arealist)), key=lambda k: arealist[k], reverse=True)
         print(sortIndex)
-
+        maxContourArea = cv2.contourArea(contours[sortIndex[0]])
+        if maxContourArea < 150:   #肯定不是标志了
+            return None, None, None, None, None
         # cv2.drawContours(show, contours, sortIndex[0], (0, 255, 255), 1)
         #找出最大的轮廓的外接矩形 并抠出来
         contourBndBox = cv2.boundingRect(contours[sortIndex[0]])  # x,y,w,h  外接矩形
@@ -102,7 +104,7 @@ def findTheNumPic(mytest0, left, top, w, h):
 #本地保存屏幕截图的路径
 captureDir = "E:\\1\\Capture\\"
 #本地存放钉钉录制视频的路径
-videoDir = "E:\\1\\DDvedio\\20200213-141916_胡杰_水印_video.mp4"
+videoDir = "E:\\1\\DDvedio\\t.mp4"
 # videoDir = "E:\\1\\1.avi"
 #本地存放背景视频的路径，这里没用，写和videoDir相同即可
 bgDir = videoDir
@@ -134,6 +136,20 @@ sudoku = {
           "LouQiGe":    [left,       left+gw,    top+2*gh,  top+3*gh,  work_hours],
           "DaPeng":    [left+gw,    left+2*gw,  top+2*gh,  top+3*gh,  work_hours],
           "ZhiMing":     [left+2*gw,  left+3*gw,  top+2*gh,  top+3*gh,  work_hours]
+          }
+
+employee = {
+          2: "Hujie",
+          1: "TaoTao",
+          3: "LuChenYin",
+
+          4: "John",
+          5: "FeiFei",
+          6: "Tina",
+
+          7: "LouQiGe",
+          8: "DaPeng",
+          9: "ZhiMing"
           }
 if __name__ == '__main__':
 
@@ -180,12 +196,12 @@ if __name__ == '__main__':
     # print(imgCapObj.video.framInterval)
     # 初始化图片用于初始化
 
-    cv2.namedWindow("test", 0)
-
-    cv2.resizeWindow("test", 1920, 1080)
-    frameRec, q, qq = imgCapObj.getImageFromCamAtMoment(2, 55, 56)
-    cv2.imshow("test", frameRec)
-    cv2.waitKey()
+    # cv2.namedWindow("test", 0)
+    #
+    # cv2.resizeWindow("test", 1920, 1080)
+    # frameRec, q, qq = imgCapObj.getImageFromCamAtMoment(2, 55, 56)
+    # cv2.imshow("test", frameRec)
+    # cv2.waitKey()
 
     imgCapObj.resetCamFrameId()
     curr_cap0, nFrame0, t0 = imgCapObj.getImage()
@@ -220,9 +236,10 @@ if __name__ == '__main__':
 
     while 1:
         # curr_cap, nFrame, t = imgCapObj.getImage()
-        curr_cap, nFrame, t = imgCapObj.getImageFromCamAtMoment(2, 55, 56)
+        # curr_cap, nFrame, t = imgCapObj.getImageFromCamAtMoment(2, 55, 56)
+        curr_cap, nFrame, t = imgCapObj.getImage()
         # print("nf", nFrame)
-        cTime, h, m, s = imgCapObj.getCamCurrentTime()
+        cTime, hour, minute, second = imgCapObj.getCamCurrentTime()
         if curr_cap is None:
             break
         show = curr_cap.copy()
@@ -242,6 +259,7 @@ if __name__ == '__main__':
             i = 0
             # 检索每个员工格子的视频差值 分析 得出每个员工的工作时间
             for key in sudoku.keys():
+                pred = -1 #初始化
                 i += 1
                 print(key)
                 diff = diff0[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
@@ -286,12 +304,21 @@ if __name__ == '__main__':
                 print("area", diff.size)
                 # 视频时间的流逝
                 realTimeIncrement = frameInterval*(nFrame-preNframe)
+
+                # 人名
+                if pred != -1:
+                    cv2.putText(show, text=str(employee[pred]), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
+                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                            fontScale=1, color=(0, 0, 255), thickness=2)
+
                 if thresh > working_threshold:
                 # if diffSize > 1000:
                     #因为抽帧快，不等于现实时间，所以增加原视频的流逝时间来补偿
                     # sudoku[key][4] += (randomInterval[0]+ frameInterval - 10/1000)/3600.0
-                    # sudoku[key][4] += (randomInterval[0] + realTimeIncrement - 0.01)/3600.0
-                    sudoku[key][4] += (randomInterval[0]) / 3600.0
+                    # sudoku[key][4] += (randomInterv  al[0] + realTimeIncrement - 0.01)/3600.0
+                    if pred != -1:
+                        # 由识别出的数字检索出人名 由人名检索出该填写的时间位置
+                        sudoku[employee[pred]][4] += (randomInterval[0]) / 3600.0
                     print(str(key)+" work_hours", sudoku[key][4])
                     print(str(key)+"working!!!!")
             feature = []
@@ -310,10 +337,10 @@ if __name__ == '__main__':
             cv2.putText(show, text=str(int(sudoku[key][4]*60 % 60)) + " m", org=(sudoku[key][0] + 100, sudoku[key][2] + 30),
                         fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=1, color=(0, 0, 255), thickness=2)
-            #人名
-            cv2.putText(show, text=str(key), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
-                        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        fontScale=1, color=(0, 0, 255), thickness=2)
+            # #人名
+            # cv2.putText(show, text=str(key), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
+            #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+            #             fontScale=1, color=(0, 0, 255), thickness=2)
             #画分隔框
             cv2.rectangle(show, (sudoku[key][0], sudoku[key][2]), (sudoku[key][0] + gw, sudoku[key][2] + gh),
                           (0, 255, 255))
@@ -323,13 +350,14 @@ if __name__ == '__main__':
                         org=(400, 750), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=1, color=(0, 255, 255), thickness=2)
 
-            cv2.putText(show, text=str(h) + "h",
+
+            cv2.putText(show, text=str(hour) + "h",
                         org=(400, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=1, color=(0, 255, 255), thickness=2)
-            cv2.putText(show, text=str(m) + "m",
+            cv2.putText(show, text=str(minute) + "m",
                         org=(480, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=1, color=(0, 255, 255), thickness=2)
-            cv2.putText(show, text=str(s) + "s",
+            cv2.putText(show, text=str(second) + "s",
                         org=(560, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=1, color=(0, 255, 255), thickness=2)
 
