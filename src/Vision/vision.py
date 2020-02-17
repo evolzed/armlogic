@@ -203,8 +203,8 @@ class Vision(object):
             # centerlist = centerList = None
             # detect
             if flag == 0:
-                p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
-                # p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
+                # p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
                 # print("########################", centerlist)
                 # print(transList)
                 if centerlist is not None and len(centerlist) > 0:
@@ -371,7 +371,7 @@ def imageInit():
     :return: (cam：相机对象, _image:Vision对象)
     """
     # cam = Camera()
-    videoDir = "d:\\1\\Video_20200204122733339.mp4"
+    videoDir = "d:\\1\\Video_20200204122733339.avi"
     bgDir = "d:\\1\\背景1.avi"
     avi = Video(videoDir)
     bgAvi = Video(bgDir)

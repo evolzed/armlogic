@@ -299,19 +299,25 @@ class Track:
             # 位置直接赋值
             # 利用传送带方向的目标位置做判断transList是否及时更新，若没来得及更新，则targetDict延续自身位置信息；
             # 做判断，赋值
-            if transList[j][0] > tempList[j][2][0]:
-
-                tempList[j][2][0] = transList[j][0]
-                tempList[j][2][1] = transList[j][1]
+            # if transList[j][0] > tempList[j][2][0]:
+            #
+            #     tempList[j][2][0] = transList[j][0]
+            #     tempList[j][2][1] = transList[j][1]
             # 不做判断直接赋值！
-            # tempList[j][2][0] = transList[j][0]
-            # tempList[j][2][1] = transList[j][1]
+            tempList[j][2][0] = transList[j][0]
+            tempList[j][2][1] = transList[j][1]
             tempList[j][3][0] = transList[j][3] * k
             tempList[j][3][1] = transList[j][4] * k  # 速度直接赋值  #
         targetDict["target"] = tempList
 
         # 检查视野中的centerlist， 若空了，则清除targetDict （暂时处理）
+
         if len(transList) == 0:
+        # 对于后续centerList 元素在相机视野中的位置等信息判断；
+        # judge = 1
+        # for l in range(len(transList)):
+        #     judge = (transList[l][0] < 125) * judge
+        # if judge == 1:
             targetDict["target"] = []
             targetDict.update(targetDict)
         print("@@@@@@@@@", targetDict, "@@@@@@@@@", str(len(transList)))
@@ -469,7 +475,7 @@ class Track:
                     currentX, currentY = int(targetDict["target"][j][2][0]), int(targetDict["target"][j][2][1])
                     lastX, lastY = int(lastDict["target"][j][2][0]), int(lastDict["target"][j][2][1],)
                     uuIDText = targetDict["target"][j][0]
-                    cv2.circle(trackFrame, (currentX - 100, currentY), 3, (0, 0, 200), 1)
+                    cv2.circle(trackFrame, (currentX - 100, currentY), 6, (0, 0, 200), 2)
                     cv2.putText(trackFrame, uuIDText, (currentX - 100, currentY), cv2.FONT_HERSHEY_SIMPLEX,
                                 1, (255, 255, 255), 2, cv2.LINE_AA)
             cv2.imshow("tragetTracking", trackFrame)
