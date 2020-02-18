@@ -376,8 +376,12 @@ class Track:
         cpx, cpy = current_prediction[0], current_prediction[1]
         # cv2.line(frame, (lmx, lmy), (cmx, cmy), (0, 100, 0))
         # cv2.line(frame, (lpx, lpy), (cpx, cpy), (0, 0, 200))
-        cv2.circle(frame, (cmx, cmy), 6, (0, 100, 0), 2)
+        cv2.circle(frame, (cmx, cmy), 12, (0, 100, 0), 2)
         cv2.circle(frame, (cpx, cpy), 6, (0, 0, 200), 2)
+        cv2.putText(frame, "green is current measurement", (cmx - 100, cmy - 100), cv2.FONT_HERSHEY_SIMPLEX,
+                    1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(frame, "red is current prediction", (cmx + 100, cmy + 50), cv2.FONT_HERSHEY_SIMPLEX,
+                    1, (255, 255, 255), 2, cv2.LINE_AA)
         print(lpx, cmx, cpx, lpy, cmy, cpy)
 
         #
