@@ -12,6 +12,8 @@ from timeit import default_timer as timer
 import cv2
 
 from src.Vision.imageProcess.imgProc import ImgProc
+from src.Vision.imageProcess.bgLearn import BgLearn
+from src.Vision.imageProcess.imageTrack  import ImgTrack
 from src.Vision.video import Video
 from src.Vision.interface import imageCapture
 
@@ -52,14 +54,15 @@ bottleDict = {
 class Vision(object):
     """create main Vision class for processing images"""
 
-    def __init__(self, imgCapObj, yolo, imgproc_=None):
+    def __init__(self, imgCapObj, yolo, BgLearn_, imgTrack_):
         """相机自检"""
         self.cam = imgCapObj
         self.yolo = yolo
-        self.imgproc = imgproc_
+        self.bgLearn = BgLearn_
+        self.imgTrack =imgTrack_
         # self.deviceNum = cam.getDeviceNum()
         # cam._data_buf, cam._nPayloadsize = self.cam.connectCam()
-        if self.imgproc.imgCap.cam is not None:
+        if self.bgLearn.imgCap.cam is not None:
             if -1 == cam._data_buf:
                 print("相机初始化失败！退出程序！")
                 sys.exit()
@@ -152,7 +155,7 @@ class Vision(object):
         # avi = Video("E:\\1\\1.avi")
         # preframe = avi.getImageFromVideo()
         preframe, nFrame, t = cam.getImage()
-        preframeb, bgMaskb, resarray = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
+        preframeb, bgMaskb, resarray = self.bgLearn.delBg(preframe) if self.bgLearn else (preframe, None)
         k = 1
         startt = timer()
         left = 0
@@ -182,7 +185,7 @@ class Vision(object):
                 fps = "NetFPS:" + str(curr_fps)
                 curr_fps = 0
 
-            frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None)
+            frame, bgMask, resarray = self.bgLearn.delBg(_frame) if self.bgLearn else (_frame, None)
             # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
             # cv2.imshow("kk", frame)
             # cv2.waitKey(3000)
@@ -194,7 +197,7 @@ class Vision(object):
             # img.show()
             # feed data into model
             dataDict = self.yolo.detectImage(img)
-            dataDict["bgTimeCost"] = self.imgproc.bgTimeCost if self.imgproc else 0
+            dataDict["bgTimeCost"] = self.bgLearn.bgTimeCost if self.bgLearn else 0
             result = np.asarray(dataDict["image"])
             # dataDict["image"] = result  # result：cv2.array的图像数据
             dataDict["image"] = img  # img：Image对象
@@ -202,17 +205,17 @@ class Vision(object):
             dataDict["nFrame"] = nFrame
             dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
             # arr = np.asarray(dataDict["image"])
-            imglist = self.imgproc.getBoxOnlyPic(dataDict, preframe)
-            imglistk = self.imgproc.getBoxOnlyPic(dataDict, _frame)
+            imglist = self.bgLearn.getBoxOnlyPic(dataDict, preframe)
+            imglistk = self.bgLearn.getBoxOnlyPic(dataDict, _frame)
             drawimg = frame.copy()
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            detectbox = self.imgproc.filterBgBox(resarray, drawimg)
+            detectbox = self.bgLearn.filterBgBox(resarray, drawimg)
             #detect
             if flag == 0:
                 #传入的是去除背景后的图片
                 # p0, label,centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
-                p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
+                p0, label, centerlist = self.imgTrack.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
 
                 if centerlist is not None and len(centerlist) > 0:
                     for seqN in range(len(centerlist)):
@@ -221,7 +224,7 @@ class Vision(object):
                     flag = 1
             # track
             else:
-                p0, label, centerList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label,  p0)
+                p0, label, centerList = self.imgTrack.trackObj(featureimg, secondimg, drawimg, label,  p0)
                 if centerList is not None and len(centerList) > 0:
                     for seqN in range(len(centerList)):
                         cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
@@ -235,31 +238,32 @@ class Vision(object):
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=3, color=(0, 255, 255), thickness=2)
             #clear
-
-            if "box" not in dataDict:
-                p0 = np.array([])
-                label = np.array([])
-                flag = 0
-                cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
-
-            else:
-                nonBottleFlag = True
-                for x in range(len(dataDict["box"])):
-                    if dataDict["box"][x][1] > 0.9:
-                        nonBottleFlag = False
-                        break
-
-                if nonBottleFlag is True:
-                    p0 = np.array([])
-                    label = np.array([])
-                    flag = 0
-                    cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
+            #每次循环走到 这里的时候 遍历centerList,如果所有元素的 速度都等于0，而且循环10次都发现所有元素的速度都等于0
+            #证明没有瓶子在移动了，可能就是光斑在动，则把flag设成0 来启动detect
+            # if "box" not in dataDict:
+            # if len(detectbox) == 0:
+            #     p0 = np.array([])
+            #     label = np.array([])
+            #     flag = 0
+            #     cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
+            # else:
+            #     nonBottleFlag = True
+            #     for x in range(len(dataDict["box"])):
+            #         if dataDict["box"][x][1] > 0.9:
+            #             nonBottleFlag = False
+            #             break
+            #
+            #     if nonBottleFlag is True:
+            #         p0 = np.array([])
+            #         label = np.array([])
+            #         flag = 0
+            #         cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
             cv2.imshow("res", drawimg)
             cv2.waitKey(10)
             preframeb = frame.copy()
 
             if bgMask is not None:
-                dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)
+                dataDict = self.bgLearn.getBottlePose(_frame, bgMask, dataDict)
             cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                         fontScale=0.50, color=(255, 0, 0), thickness=2)
             cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -334,11 +338,12 @@ def imageInit():
     print("准备载入yolo网络！")
     yolo = YOLO()
     print("准备背景学习！")
-    bgobj = ImgProc(50, imgCapObj)
+    bgobj = BgLearn(50, imgCapObj)
     # bgobj.studyBackgroundFromCam(cam)
     bgobj.studyBackground()
     bgobj.createModelsfromStats()
-    _image = Vision(imgCapObj, yolo, bgobj)
+    imgTrackobj = ImgTrack()
+    _image = Vision(imgCapObj, yolo, bgobj,imgTrackobj)
     print("开始！")
     global gState
     gState = 2
