@@ -203,8 +203,8 @@ class Vision(object):
             # centerlist = centerList = None
             # detect
             if flag == 0:
-                # p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
-                p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
+                p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                # p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
                 # print("########################", centerlist)
                 # print(transList)
                 if centerlist is not None and len(centerlist) > 0:
@@ -236,13 +236,13 @@ class Vision(object):
                         # transList.append(centerList[seqN])
                         print("111111111111111111111111", transList, centerList)
                         transList[seqN] = centerList[seqN]
-                        uuIDText = targetDict["target"][seqN][0]
+                        # uuIDText = targetDict["target"][seqN][0]
                         cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
-                        cv2.circle(drawimg, (int(targetDict["target"][seqN][2][0]),
-                                             int(targetDict["target"][seqN][2][1])), 6, (0, 0, 200), 2)
-                        cv2.putText(drawimg, uuIDText, (int(targetDict["target"][seqN][2][0]) + 50,
-                                                        int(targetDict["target"][seqN][2][1]) + 50),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        # cv2.circle(drawimg, (int(targetDict["target"][seqN][2][0]),
+                        #                      int(targetDict["target"][seqN][2][1])), 6, (0, 0, 200), 2)
+                        # cv2.putText(drawimg, uuIDText, (int(targetDict["target"][seqN][2][0]) + 50,
+                        #                                 int(targetDict["target"][seqN][2][1]) + 50),
+                        #             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
                         cv2.putText(drawimg, text=str(int(centerList[seqN][3])),
                                     org=(centerList[seqN][0] - 20, centerList[seqN][1]),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -371,7 +371,7 @@ def imageInit():
     :return: (cam：相机对象, _image:Vision对象)
     """
     # cam = Camera()
-    videoDir = "d:\\1\\Video_20200204122733339.avi"
+    videoDir = "d:\\1\\Video_20200204122301684 .avi"
     bgDir = "d:\\1\\背景1.avi"
     avi = Video(videoDir)
     bgAvi = Video(bgDir)

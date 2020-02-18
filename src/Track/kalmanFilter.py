@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+import time
+
 
 class KF():
 
@@ -16,7 +18,6 @@ class KF():
     # last_measurement = current_measurement = np.array((2, 1), np.float32)
     #
     # last_prediction = current_prediction = np.zeros((2, 1), np.float32)
-
 
     def targetMove(self, x, y):
 
@@ -47,6 +48,10 @@ class KF():
 
         cv2.line(frame, (lpx, lpy), (cpx, cpy), (0, 0, 200))
 
+        cv2.circle(frame, (cmx, cmy), 6, (0, 100, 0), 2)
+
+        cv2.circle(frame, (cpx, cpy), 6, (0, 0, 200), 2)
+
         print(lpx, cmx, cpx, lpy, cmy, cpy)
 
 
@@ -61,18 +66,22 @@ if __name__ == '__main__':
     # 设置过程噪声协方差矩阵
     kalman.processNoiseCov = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], np.float32) * 0.03
 
-    frame = np.zeros((960, 1080, 3), np.uint8)
+    # frame = np.zeros((960, 1080, 3), np.uint8)
     # # 初始化测量坐标和target运动预测的数组
     last_measurement = current_measurement = np.array((2, 1), np.float32)
 
     last_prediction = current_prediction = np.zeros((2, 1), np.float32)
     kf = KF()
+    i = 0
     while True:
+        frame = np.zeros((960, 1080, 3), np.uint8)
         kf.targetMove(x, y)
         cv2.imshow("kalman_tracker", frame)
         # test data
-        x += 3
-        y += 1
+        x = i *10
+        y = x * x /500
+        i += 1
+        time.sleep(1)
         if (cv2.waitKey(30) & 0xff) == 27:
             break
 
