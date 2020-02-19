@@ -380,7 +380,7 @@ class Track:
         cv2.circle(frame, (cpx, cpy), 6, (0, 0, 200), 2)
         cv2.putText(frame, "green is current measurement", (cmx - 100, cmy - 100), cv2.FONT_HERSHEY_SIMPLEX,
                     1, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(frame, "red is current prediction", (cmx + 100, cmy + 50), cv2.FONT_HERSHEY_SIMPLEX,
+        cv2.putText(frame, "red is current prediction", (cmx + 100, cmy), cv2.FONT_HERSHEY_SIMPLEX,
                     1, (255, 255, 255), 2, cv2.LINE_AA)
         print(lpx, cmx, cpx, lpy, cmy, cpy)
 
@@ -514,33 +514,41 @@ class Track:
 
     def trackWithFilter(self, transDict, transList, targetDict):
         x, y = 0, 0
-        kalman = cv2.KalmanFilter(4, 2)
-        # 设置测量矩阵
-        kalman.measurementMatrix = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], np.float32)
-        # 设置转移矩阵
-        kalman.transitionMatrix = np.array([[1, 0, 1, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]], np.float32)
-        # 设置过程噪声协方差矩阵
-        kalman.processNoiseCov = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], np.float32) * 0.03
+
+        kalman = dict()
+
         # frame = np.zeros((960, 1080, 3), np.uint8)
-        # # 初始化测量坐标和target运动预测的数组
-        last_measurement = current_measurement = np.array((2, 1), np.float32)
-        last_prediction = current_prediction = np.zeros((2, 1), np.float32)
+        # # 初始化测量坐标和target运动预测的数组; 定义要追踪的点参数
+        last_measurement = current_measurement = last_prediction = current_prediction = []
+        for l in range(100):
+            last_measurement.append(np.array((2, 1), np.float32))
+            current_measurement.append(np.array((2, 1), np.float32))
+            last_prediction.append(np.zeros((2, 1), np.float32))
+            current_prediction.append(np.zeros((2, 1), np.float32))
+            kalman.setdefault(str(l), cv2.KalmanFilter(4, 2))
+            kalman[str(l)].measurementMatrix = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], np.float32)
+            kalman[str(l)].transitionMatrix = np.array([[1, 0, 1, 0], [0, 1, 0, 1],
+                                                        [0, 0, 1, 0], [0, 0, 0, 1]], np.float32)
+            kalman[str(l)].processNoiseCov = np.array([[1, 0, 0, 0], [0, 1, 0, 0],
+                                                       [0, 0, 1, 0], [0, 0, 0, 1]], np.float32) * 0.03
+            # last_measurement = current_measurement = np.array((2, 1), np.float32)
+            # last_prediction = current_prediction = np.zeros((2, 1), np.float32)
         # time.sleep(15)
         # i = 0
         while True:
             frame = np.zeros((960, 1280, 3), np.uint8)
 
-            if len(transList) != 0:
-                x = int(transList[1][0])
-                y = int(transList[1][1])
-                self.targetMove(x, y, current_measurement, last_measurement,
-                                current_prediction, last_prediction, kalman, frame)
+            # if len(transList) != 0:
+            #     x = int(transList[1][0])
+            #     y = int(transList[1][1])
+            #     self.targetMove(x, y, current_measurement[1], last_measurement[1],
+            #                     current_prediction[1], last_prediction[1], kalman, frame)
 
-            # for j in range(len(transList) - 1):
-            #     x = int(transList[j][0])
-            #     y = int(transList[j][1])
-            #     self.targetMove(x, y, current_measurement, last_measurement,
-            #                     current_prediction, last_prediction, kalman, frame)
+            for j in range(len(transList)):
+                x = int(transList[j][0])
+                y = int(transList[j][1])
+                self.targetMove(x, y, current_measurement[j], last_measurement[j],
+                                current_prediction[j], last_prediction[j], kalman[str(j)], frame)
 
             cv2.imshow("kalman_tracker", frame)
 
