@@ -13,7 +13,6 @@ import numpy as np
 from src.Vision.yolo.Yolo import *
 from multiprocessing import Process
 import multiprocessing
-from src.Track.kalmanFilter import KF
 from lib.Logger.Logger import Logger
 """
 from Track_duplication, start from 20200203
@@ -535,22 +534,27 @@ class Track:
             # last_prediction = current_prediction = np.zeros((2, 1), np.float32)
         # time.sleep(15)
         # i = 0
+
+        frame = np.zeros((960, 1280, 3), np.uint8)
         while True:
-            frame = np.zeros((960, 1280, 3), np.uint8)
+            print("!!!!!!!!!!!!!!!!!!!!", time.time())
+            # frame = np.zeros((960, 1280, 3), np.uint8)
 
             # if len(transList) != 0:
             #     x = int(transList[1][0])
             #     y = int(transList[1][1])
             #     self.targetMove(x, y, current_measurement[1], last_measurement[1],
-            #                     current_prediction[1], last_prediction[1], kalman, frame)
+            #                     current_prediction[1], last_prediction[1], kalman["1"], frame)
 
             for j in range(len(transList)):
-                x = int(transList[j][0])
-                y = int(transList[j][1])
-                self.targetMove(x, y, current_measurement[j], last_measurement[j],
+                # x = int(transList[j][0])
+                # y = int(transList[j][1])
+                self.targetMove(int(transList[j][0]), int(transList[j][1]), current_measurement[j], last_measurement[j],
                                 current_prediction[j], last_prediction[j], kalman[str(j)], frame)
+                # self.targetMove(x, y, current_measurement[j], last_measurement[j],
+                #                 current_prediction[j], last_prediction[j], kalman[str(j)], frame)
 
-            cv2.imshow("kalman_tracker", frame)
+            # cv2.imshow("kalman_tracker", frame)
 
             # # test data
             # x = i * 10
@@ -558,9 +562,50 @@ class Track:
             # i += 1
             # time.sleep(1)
 
-            print(transDict, transList, targetDict)
-            if (cv2.waitKey(30) & 0xff) == 27:
+            # print(transDict, transList, targetDict)
+            print("@@@@@@@@@@@@@@@@@@@@", time.time())
+            # cv2.waitKey(1)
+            # if (cv2.waitKey(1) & 0xff) == 27:
+            #     break
+
+    def contourTrack(self):
+
+        videoDir = "d:\\1\\Video_20200204122301684 .avi"
+        avi = Video(videoDir)
+
+        es = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 4))
+        kernel = np.ones((5, 5), np.uint8)
+        background = None
+
+        while True:
+
+            frame, nF, t = avi.getImageFromVideo()
+            if background is None:
+                background = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                background = cv2.GaussianBlur(background, (21, 21), 0)
+                continue  # 跳出这个循环
+            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            gray_frame = cv2.GaussianBlur(gray_frame, (21, 21), 0)
+
+            diff = cv2.absdiff(background, gray_frame)
+            diff = cv2.threshold(diff, 25, 255, cv2.THRESH_BINARY)[1]
+            diff = cv2.dilate(diff, es, iterations=2)
+            image, cnts, hierarchy = cv2.findContours(diff.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            for c in cnts:
+                if cv2.contourArea(c) < 1500:
+                    continue
+
+                (x, y, w, h) = cv2.boundingRect(c)
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+            cv2.imshow("contours", frame)  ##显示轮廓的图像
+            cv2.imshow("dif", diff)
+
+            if cv2.waitKey(1000 // 12) & 0xff == ord("q"):  ##改为//后就没有问题
                 break
+
+        cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
@@ -675,6 +720,10 @@ if __name__ == "__main__":
         targetDict = MG.dict()
         # cam, _image = imageInit()
 
+        p0 = multiprocessing.Process(target=track.contourTrack, )
+        p0.daemon = True
+        p0.start()
+
         # p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
         p2 = multiprocessing.Process(target=track.trackWithFilter, args=(transDict, transList, targetDict))
         p2.daemon = True
@@ -686,3 +735,5 @@ if __name__ == "__main__":
         p1.start()
         p1.join()
         # _image.detectSerialImage(cam, transDict, )
+
+
