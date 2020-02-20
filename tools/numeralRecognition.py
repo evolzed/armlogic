@@ -78,6 +78,8 @@ def findTheNumPic(mytest0, left, top, w, h):
 
     res = mytest0[y:y+h, x:x+w].copy()
     res = cv2.copyMakeBorder(res, 10, 10, 10, 10, cv2.BORDER_CONSTANT, value=[255, 255, 255])#扩充边界
+
+
     # cv2.imshow("show", show)
     # cv2.imshow("res", res)
     return res, x, y, w, h

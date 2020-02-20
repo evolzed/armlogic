@@ -110,7 +110,14 @@ def findTheNumPic(mytest0, left, top, w, h):
     res = cv2.copyMakeBorder(res, 10, 10, 10, 10, cv2.BORDER_CONSTANT, value=[255, 255, 255])#扩充边界
     # cv2.imshow("show", show)
     # cv2.imshow("res", res)
-    return res, x, y, w, h
+
+    ret, num_pic = cv2.threshold(res, 100, 255, cv2.THRESH_BINARY)
+    mytest = 255 - cv2.cvtColor(num_pic, cv2.COLOR_BGR2GRAY)
+
+    mytest = cv2.resize(mytest, (28, 28), interpolation=cv2.INTER_CUBIC)
+
+    # cv2.imshow("my", mytest)
+    return mytest, x, y, w, h
     # cv2.imshow("edge", edge)
 
 
@@ -123,6 +130,17 @@ def numRecogByMnistKnn(num_pic):
     cv2.imshow("my", mytest)
     return mytest
 
+def torchPred(pic):
+    net = torch.load("E:\\1\\pytorch\\net.pkl")
+    torch_data = torch.from_numpy(pic)
+    torch_data=torch_data.float() #防止报错
+    print(torch_data.shape)
+    torch_data  = Variable(torch_data.view(-1, 28 * 28))
+    print(torch_data.shape)
+    outputs = net(torch_data)
+    _, predicts = torch.max(outputs.data, 1)
+    print("predict", predicts.numpy()[0])
+    return  predicts.numpy()[0]
 
 
 
@@ -154,7 +172,7 @@ if __name__ == '__main__':
     print(torch_data.shape)
     outputs = net(torch_data)
     _, predicts = torch.max(outputs.data, 1)
-    print("predict", predicts[0])
+    print("predict", predicts.numpy()[0])
 
     # total = 0
     # correct = 0

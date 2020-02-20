@@ -15,7 +15,9 @@ from collections import Counter
 from shutil import copyfile
 from tools.numeralRecognition import numRecogByMnistKnn
 from tools.mnist import *
-
+from tools.pyTorch import torchPred
+from tools.pyTorch import Neural_net
+from tools.pyTorch import findTheNumPic
 def capture(left, top, right, bottom):
     """
     :param left: 想要截取图像的最左侧坐标
@@ -83,7 +85,14 @@ def findTheNumPic(mytest0, left, top, w, h):
         res = cv2.copyMakeBorder(res, 10, 10, 10, 10, cv2.BORDER_CONSTANT, value=[255, 255, 255])#扩充边界
         # cv2.imshow("show", show)
         # cv2.imshow("res", res)
-        return res, x, y, w, h
+
+        ret, num_pic = cv2.threshold(res, 100, 255, cv2.THRESH_BINARY)
+        mytest = 255 - cv2.cvtColor(num_pic, cv2.COLOR_BGR2GRAY)
+
+        mytest = cv2.resize(mytest, (28, 28), interpolation=cv2.INTER_CUBIC)
+
+        # cv2.imshow("my", mytest)
+        return mytest, x, y, w, h
     else:
         return None, None, None, None, None
     # cv2.imshow("edge", edge)
@@ -104,7 +113,7 @@ def findTheNumPic(mytest0, left, top, w, h):
 #本地保存屏幕截图的路径
 captureDir = "E:\\1\\Capture\\"
 #本地存放钉钉录制视频的路径
-videoDir = "E:\\1\\DDvedio\\t9.mp4"
+videoDir = "E:\\1\\DDvedio\\today.mp4"
 # videoDir = "E:\\1\\1.avi"
 #本地存放背景视频的路径，这里没用，写和videoDir相同即可
 bgDir = videoDir
@@ -267,10 +276,10 @@ if __name__ == '__main__':
                 show0 = show[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
                 numcal = show0.copy()
                 # sudoku[key][0], sudoku[key][2]
-                left = 530
+                left = 550
                 top = 290
-                w = 80
-                h = 80
+                w = 50
+                h = 70
                 numPic, x0, y0, w0, h0 = findTheNumPic(numcal, left, top, w, h)
 
                 cv2.rectangle(show, (sudoku[key][0] + left, sudoku[key][2] + top),
@@ -280,7 +289,8 @@ if __name__ == '__main__':
                 if numPic is not None:
                     # cv2.imshow(str(key), numPic)
                     # cv2.waitKey()
-                    pred = numRecogByMnistKnn(numPic, x_train, x_label, 10)
+                    # pred = numRecogByMnistKnn(numPic, x_train, x_label, 10)
+                    pred = torchPred(numPic)
 
                     cv2.putText(show, text=str(pred), org=(sudoku[key][0] + x0, sudoku[key][2] + y0 - 30),
                                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
