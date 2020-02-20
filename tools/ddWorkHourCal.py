@@ -104,7 +104,7 @@ def findTheNumPic(mytest0, left, top, w, h):
 #本地保存屏幕截图的路径
 captureDir = "E:\\1\\Capture\\"
 #本地存放钉钉录制视频的路径
-videoDir = "E:\\1\\DDvedio\\t.mp4"
+videoDir = "E:\\1\\DDvedio\\t9.mp4"
 # videoDir = "E:\\1\\1.avi"
 #本地存放背景视频的路径，这里没用，写和videoDir相同即可
 bgDir = videoDir
@@ -246,6 +246,7 @@ if __name__ == '__main__':
         curr_time = timer()
         # 间隔多久时间进行一次视频比对
         randomInterval = numpy.random.uniform(low=1.0 * seconds, high=2.0 * seconds, size=1)
+
         # if frameInterval*(nFrame-preNframe) >= randomInterval[0]:
         if frameInterval * (nFrame - preNframe) >= -1:
         # if curr_time - prev_time >= randomInterval:
@@ -267,10 +268,13 @@ if __name__ == '__main__':
                 numcal = show0.copy()
                 # sudoku[key][0], sudoku[key][2]
                 left = 530
-                top = 280
-                w = 70
-                h = 90
+                top = 290
+                w = 80
+                h = 80
                 numPic, x0, y0, w0, h0 = findTheNumPic(numcal, left, top, w, h)
+
+                cv2.rectangle(show, (sudoku[key][0] + left, sudoku[key][2] + top),
+                              (sudoku[key][0] + left + w, sudoku[key][2] + top + h), (0, 0, 255), 2)  # 画矩形
 
 
                 if numPic is not None:
@@ -284,7 +288,6 @@ if __name__ == '__main__':
                     # b g r
                     cv2.rectangle(show, (sudoku[key][0] + x0, sudoku[key][2] + y0),
                                   (sudoku[key][0] + x0 + w0, sudoku[key][2] + y0 + h0), (0, 165, 255), 2)  # 画矩形
-
 
 
                 # cv2.imwrite("E:\\1\\" + str(key)+".jpg", show0)
