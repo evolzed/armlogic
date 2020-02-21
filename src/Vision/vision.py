@@ -124,7 +124,7 @@ class Vision(object):
         self.cam.destroy(self.cam, cam._data_buf)
         yolo.closeSession()
 
-    def detectSerialImage(self, cam, transDict, transList, targetDict):
+    def detectSerialImage(self, cam, transDict, transList, targetDict, transFrame):
         """
         获取并处理连续的帧数
         :param cam: 相机对象
@@ -175,6 +175,7 @@ class Vision(object):
                 curr_fps = 0
 
             frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None)
+            transFrame = frame
             # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
             # cv2.imshow("kk", frame)
             # cv2.waitKey(3000)
@@ -411,7 +412,7 @@ def imageInit():
 """
 
 
-def imageRun(cam, _image, transDict, transList, targetDict):
+def imageRun(cam, _image, transDict, transList, targetDict, transFrame):
     """
     根据输入的图像数据，进行识别
     :param cam: 相机对象
@@ -424,7 +425,7 @@ def imageRun(cam, _image, transDict, transList, targetDict):
     #         frameDelBg = _image.bgLearn.delBg(_frame)
     # print(transDict)
 
-    _image.detectSerialImage(cam, transDict, transList, targetDict)
+    _image.detectSerialImage(cam, transDict, transList, targetDict, transFrame)
 
     # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
     # cv2.waitKey(10)
@@ -442,11 +443,11 @@ def imageRun(cam, _image, transDict, transList, targetDict):
 
 
 # 将imageInit()和imageRun()封装成一个函数，才能在一个进程中使用
-def vision_run(transDict, transList, targetDict):
+def vision_run(transDict, transList, targetDict, transFrame):
     cam, _image = imageInit()
     # # while 1:
     # transDict["aaa"] = 666666
-    imageRun(cam, _image, transDict, transList, targetDict)
+    imageRun(cam, _image, transDict, transList, targetDict, transFrame)
 """
 if __name__ == '__main__':
     cam = Camera()

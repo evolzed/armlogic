@@ -607,6 +607,11 @@ class Track:
 
         cv2.destroyAllWindows()
 
+    def contourTrackFromVision(self, transFrame):
+        time.sleep(15)
+        while True:
+            cv2.imshow("contours", transFrame)
+
 
 if __name__ == "__main__":
     # cam, _image = imageInit()
@@ -718,19 +723,23 @@ if __name__ == "__main__":
         transDict = MG.dict()
         transList = MG.list()
         targetDict = MG.dict()
+        transFrame = MG.list()
         # cam, _image = imageInit()
 
-        p0 = multiprocessing.Process(target=track.contourTrack, )
-        p0.daemon = True
-        p0.start()
+        # p0 = multiprocessing.Process(target=track.contourTrack, )
+        # p0.daemon = True
+        # p0.start()
+
+        # p0 = multiprocessing.Process(target=track.contourTrackFromVision, args=(transFrame,))
+        # p0.daemon = True
+        # p0.start()
 
         # p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
         p2 = multiprocessing.Process(target=track.trackWithFilter, args=(transDict, transList, targetDict))
         p2.daemon = True
         p2.start()
-        # p2.join()
 
-        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict))
+        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
         p1.daemon = True
         p1.start()
         p1.join()
