@@ -175,7 +175,17 @@ class Vision(object):
                 curr_fps = 0
 
             frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None)
-            transFrame = frame
+
+            # transFrame = np.zeros((4, 5, 3), np.uint8)
+            # print("@" * 100)
+            # print(len(frame))
+            # for l in range(4):
+            #     for ll in range(5):
+            #         for lll in range(3):
+            #             transFrame[l][ll][lll] = frame[l][ll][lll]
+            #             # print(frame)
+            # print("@" * 100)
+
             # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
             # cv2.imshow("kk", frame)
             # cv2.waitKey(3000)
@@ -260,6 +270,18 @@ class Vision(object):
                         # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
                         #     centerList = []
                         #     transList = centerList
+
+                    # try to transfer the frame
+                    transFrame = np.zeros((4, 5, 3), np.uint8)
+                    print("@" * 100)
+                    print(len(frame))
+                    for l in range(4):
+                        for ll in range(5):
+                            for lll in range(3):
+                                transFrame[l][ll][lll] = frame[centerList[0][0] + l][centerList[0][1] + ll][lll]
+                    print(transFrame)
+                    print(frame[centerList[0][0]][centerList[0][1]])
+                    print("@" * 100)
 
             # clear
 

@@ -588,16 +588,22 @@ class Track:
             gray_frame = cv2.GaussianBlur(gray_frame, (21, 21), 0)
 
             diff = cv2.absdiff(background, gray_frame)
-            diff = cv2.threshold(diff, 25, 255, cv2.THRESH_BINARY)[1]
+            diff = cv2.threshold(diff, 45, 255, cv2.THRESH_BINARY)[1]
             diff = cv2.dilate(diff, es, iterations=2)
             image, cnts, hierarchy = cv2.findContours(diff.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+            print(len(cnts))
+            centerlist = []
             for c in cnts:
+
                 if cv2.contourArea(c) < 1500:
                     continue
 
                 (x, y, w, h) = cv2.boundingRect(c)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                centerlist.append([x + w / 2, y + h / 2])
+
+            print(centerlist)
 
             cv2.imshow("contours", frame)  ##显示轮廓的图像
             cv2.imshow("dif", diff)
@@ -608,9 +614,18 @@ class Track:
         cv2.destroyAllWindows()
 
     def contourTrackFromVision(self, transFrame):
-        time.sleep(15)
+        # time.sleep(15)
         while True:
-            cv2.imshow("contours", transFrame)
+            print("*" * 100)
+            print(time.time())
+            if transFrame is not None:
+
+                print(transFrame)
+
+                # time.sleep(0.5)
+                # cv2.imshow("contours", transFrame)
+            cv2.waitKey(50)
+            print(time.time())
 
 
 if __name__ == "__main__":
@@ -723,26 +738,25 @@ if __name__ == "__main__":
         transDict = MG.dict()
         transList = MG.list()
         targetDict = MG.dict()
-        transFrame = MG.list()
+        # example rigion
+        transFrame = np.zeros((6, 7, 3), np.uint8)
         # cam, _image = imageInit()
 
         # p0 = multiprocessing.Process(target=track.contourTrack, )
         # p0.daemon = True
         # p0.start()
+        # # p0.join()
 
-        # p0 = multiprocessing.Process(target=track.contourTrackFromVision, args=(transFrame,))
-        # p0.daemon = True
-        # p0.start()
+        p0 = multiprocessing.Process(target=track.contourTrackFromVision, args=(transFrame,))
+        p0.daemon = True
+        p0.start()
 
-        # p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
-        p2 = multiprocessing.Process(target=track.trackWithFilter, args=(transDict, transList, targetDict))
-        p2.daemon = True
-        p2.start()
+        # # p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
+        # p2 = multiprocessing.Process(target=track.trackWithFilter, args=(transDict, transList, targetDict))
+        # p2.daemon = True
+        # p2.start()
 
         p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
         p1.daemon = True
         p1.start()
         p1.join()
-        # _image.detectSerialImage(cam, transDict, )
-
-
