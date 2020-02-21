@@ -2,15 +2,16 @@ import os
 import random
 from datetime import datetime
 
-from PIL import Image, ImageDraw, ImageEnhance
+from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 import numpy as np
-import cv2
 import imgaug.augmenters as iaa
 
 n = 0  # 记录图片的数量
 
 
 class Aug(object):
+
+    class_bg = None
     """利用图片贴合的方式生成数据集"""
     def __init__(self, src, bg, btype, img_path, anno_path):
         # self.init_bg = bg
@@ -21,7 +22,7 @@ class Aug(object):
         # self.bg_prod = None  # <Image>:拷贝一份背景用来处理，防止对原始背景图片的污染
         # self.bg_prod_gama = None  # <Image>:拷贝一份背景用来处理，防止对原始背景图片的污染
         self.box = None  # tuple:src图片中物体的位置(xmin, ymin, xmax, ymax)
-        self.bgbox = None  # tuple:贴合后，bottle位于背景中的位置(xmin, ymin, xmax, ymax)
+        self.box_in_bg = None  # tuple:贴合后，bottle位于背景中的位置(xmin, ymin, xmax, ymax)
         self.rotated_img = None  # <Image>:转换后的图片
         self.type = btype  # int/str:标注时的瓶子类别(0-21)
         # self.n = 0  # int:用于防止图片名称重复
@@ -49,11 +50,13 @@ class Aug(object):
                 # scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},  # x，y缩放比例
                 # translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # x,y方向上的偏移范围是-0.2~0.2
                 rotate=(0, 360),  # 随机旋转范围
+                mode="edge",
             ),
             iaa.Affine(
                 # scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},  # x，y缩放比例
                 # translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},  # x,y方向上的偏移范围是-0.2~0.2
                 rotate=(0, 360),  # 随机旋转范围
+                mode="edge",
             ),
         ])
 
@@ -62,16 +65,21 @@ class Aug(object):
         _bg_arr = self.seq.augment_image(self.bg_arr)
         # 增强后的bg_prod用于背景贴合
         self.bg_prod = Image.fromarray(_bg_arr)
+        # 定义类属性
+        Aug.class_bg = self.bg_prod
 
-    def rotate_src(self, angle):
+    def rotate_src(self):
         """
         对图像进行旋转处理
 
         :param angle: 需要旋转的角度
         :return: 旋转后的图像
         """
+        # if isinstance(self.src, list):
+        #     self.rotated_img = [i.rotate(random.randint(0, 360), expand=True) for i in self.src]
+        #     return self.rotated_img
         # 旋转angle后
-        self.rotated_img = self.src.rotate(angle, expand=True)
+        self.rotated_img = self.src.rotate(random.randint(0, 360), expand=True)
         # src_img.save("images/rotated_120.png")
         return self.rotated_img
 
@@ -82,10 +90,19 @@ class Aug(object):
         :param src_img: 需要获得物体位置的图片，注意，一定要是处理后的透明背景rgba格式的图片
         :return: box：返回物体的坐标信息
         """
+        # if isinstance(self.rotated_img, list):
+        #     self.box = [self.handle_box(i) for i in self.rotated_img]
+        #     return self.box
+        self.box = self.handle_box(self.rotated_img)
+        return self.box
+
+    @staticmethod
+    def handle_box(rotated_img):
+        """获得旋转后的图片标注框"""
         # w, h = src_img.size
         # print(src_img.size)  # (w, h)
         # 图片数组化，注意array和asarray的区别
-        arr = np.array(self.rotated_img)
+        arr = np.array(rotated_img)
         # print(arr.shape)  # (206, 106, 4)  : h, w, c
         # 计算图像的边界框
         arr[:, :, :-1] = 0
@@ -113,7 +130,8 @@ class Aug(object):
         # print(b_arr_min_1)
         # print(b_arr_max_1)
         # 输出left-up，right-bottom坐标
-        self.box = (b_arr_min_1, b_arr_min_0, b_arr_max_1, b_arr_max_0)
+        box = (b_arr_min_1, b_arr_min_0, b_arr_max_1, b_arr_max_0)
+        return box
         # print("box", box)
         # print("box", (b_arr_min_0, b_arr_min_1, b_arr_max_0, b_arr_max_1))
         # return self.box
@@ -122,24 +140,28 @@ class Aug(object):
         # 根据box坐标进行画框
         draw = ImageDraw.Draw(self.bg_prod)
         # draw.line()
-        draw.rectangle(self.bgbox, outline="red", width=2)
+        draw.rectangle(self.box_in_bg, outline="red", width=2)
         # 画完框之后，显示，注意：如果开启显示，执行速度降低而且要保证你的内存足够大。生产使用，建议关闭
         self.bg_prod.show()
         del draw
 
+    def trans_coord(self):
+        """将中心坐标和bbox坐标转化成全局坐标"""
+        self.box_in_bg = [self.center[0] + self.box[0],
+                          self.center[1] + self.box[1],
+                          self.center[0] + self.box[2],
+                          self.center[1] + self.box[3]]
+        return self.box_in_bg
+
     def img_txt(self):
-        self.bgbox = [self.center[0] + self.box[0],
-                      self.center[1] + self.box[1],
-                      self.center[0] + self.box[2],
-                      self.center[1] + self.box[3]]
         # 处理物体超出边界的情况
-        self.bgbox[0] = self.bgbox[0] if 0 <= self.bgbox[0] else 0
-        self.bgbox[1] = self.bgbox[1] if 0 <= self.bgbox[1] else 0
-        self.bgbox[2] = self.bgbox[2] if self.bgbox[2] <= self.bg.size[0] else self.bg.size[0]
-        self.bgbox[3] = self.bgbox[3] if self.bgbox[3] <= self.bg.size[1] else self.bg.size[1]
+        self.box_in_bg[0] = self.box_in_bg[0] if 0 <= self.box_in_bg[0] else 0
+        self.box_in_bg[1] = self.box_in_bg[1] if 0 <= self.box_in_bg[1] else 0
+        self.box_in_bg[2] = self.box_in_bg[2] if self.box_in_bg[2] <= self.bg.size[0] else self.bg.size[0]
+        self.box_in_bg[3] = self.box_in_bg[3] if self.box_in_bg[3] <= self.bg.size[1] else self.bg.size[1]
         with open(self.anno_path + "/" + self.file_name + ".txt", "w") as f:
-            f.write(str(int(self.bgbox[0])) + "," + str(int(self.bgbox[1])) + "," +
-                    str(int(self.bgbox[2])) + "," + str(int(self.bgbox[3])) + "," + str(self.type))
+            f.write(str(int(self.box_in_bg[0])) + "," + str(int(self.box_in_bg[1])) + "," +
+                    str(int(self.box_in_bg[2])) + "," + str(int(self.box_in_bg[3])) + "," + str(self.type))
 
     def random_center(self):
         # 随机生成贴合坐标，left-up
@@ -148,6 +170,7 @@ class Aug(object):
         y_random = random.randint(0, 800)
         # y_random = random.randint(800, 900)
         self.center = (x_random, y_random)
+        return self.trans_coord()
 
     def stack_up(self):
         """
@@ -157,20 +180,20 @@ class Aug(object):
         :param bg_img: 背景图
         :return:
         """
-        global n
+        # global n
         # dst.paste(src_img, (100, 400), src_img)
         # self.bg_prod = self.bg.copy()  # 进行gama处理的时候已经赋值self.bg_prod,此处可以关闭
-        # 随机生成贴合中心点坐标
-        self.random_center()
-        self.bg_prod.paste(self.rotated_img, self.center, self.rotated_img)
+        # self.bg_prod.paste(self.rotated_img, self.center, self.rotated_img)
+        Aug.class_bg.paste(self.rotated_img, self.center, self.rotated_img)
         # 生成文件名，尽量保证唯一
-        t = datetime.strftime(datetime.today(), "%Y%m%d%H%M%S")
-        self.bg_prod.save(self.img_path + "/" + t + str(n) + ".jpg")
-        print("已保存类别{}，{}张!".format(self.type, n+1))
-        self.file_name = t + str(n)
+        # t = datetime.strftime(datetime.today(), "%Y%m%d%H%M%S")
+        # self.bg_prod.save(self.img_path + "/" + t + str(n) + ".jpg")
+        # Aug.class_bg.save(self.img_path + "/" + t + str(n) + ".jpg")
+        # print("已保存类别{}，{}张!".format(self.type, n+1))
+        # self.file_name = t + str(n)
         # 生成txt标注文件
-        self.img_txt()
-        n += 1
+        # self.img_txt()
+        # n += 1
 
     def img_gama(self):
         """
@@ -188,7 +211,94 @@ class Aug(object):
         self.rotated_img = ImageEnhance.Brightness(self.rotated_img).enhance(round(random.uniform(0.5, 1.2), 1))
 
 
-def main(img_num):
+def aug_iou(points, type_labs, _aug_obj_list):
+    coordinates = np.array(points)
+    # type_labs_cp = type_labs.copy()
+    rm_list = []
+    for i in range(len(points) - 1):
+        if list(coordinates[i]) in rm_list:
+            continue
+        # print(coordinates[i])
+        b1_x1 = coordinates[i][0]
+        b1_y1 = coordinates[i][1]
+        b1_x2 = coordinates[i][2]
+        b1_y2 = coordinates[i][3]
+        cp_coords = coordinates[i + 1:]
+        # cp_labels = type_labs_cp[i + 1:]
+        for m in range(len(cp_coords)):
+            if list(cp_coords[m]) in rm_list:
+                continue
+            b2_x1 = cp_coords[m][0]
+            b2_y1 = cp_coords[m][1]
+            b2_x2 = cp_coords[m][2]
+            b2_y2 = cp_coords[m][3]
+            # 排除大框包裹小框的情况，删除小框
+            if b1_x1 <= b2_x1 and b1_x2 >= b2_x2 and b1_y1 <= b2_y1 and b1_y2 >= b2_y2:
+                points.remove(list(cp_coords[m]))
+                # type_labs.remove(cp_labels[m])
+                type_labs[i + m + 1] = "e"
+                _aug_obj_list[i + m + 1] = "e"
+                rm_list.append(list(cp_coords[m]))
+                continue
+            if b1_x1 >= b2_x1 and b1_x2 <= b2_x2 and b1_y1 >= b2_y1 and b1_y2 <= b2_y2:
+                # rm_box = random.sample([coordinates[i], coordinates[i+1:][m]], 1)
+                # rm_boxes.add(coordinates[i+1:][m])
+                # try:
+                points.remove(list(coordinates[i]))
+                # type_labs.remove(type_labs_cp[i])
+                # 所有需要删除的bbox置为"e",方便后面进行处理
+                type_labs[i] = "e"
+                _aug_obj_list[i] = "e"
+                rm_list.append(list(coordinates[i]))
+                # except:
+                #     pass
+                break
+            inter_rect_x1 = max(b1_x1, b2_x1)
+            inter_rect_y1 = max(b1_y1, b2_y1)
+            inter_rect_x2 = min(b1_x2, b2_x2)
+            inter_rect_y2 = min(b1_y2, b2_y2)
+
+            # calculate the inter area,如果inter_rect的left-up > right-bottom,则没有交集
+            # if (inter_rect_x1 >= inter_rect_x2) or (inter_rect_y1 >= inter_rect_y2):
+            #     inter_area = 0
+            #     continue
+            inter_area = (inter_rect_x2 - inter_rect_x1) * (inter_rect_y2 - inter_rect_y1)
+            if (inter_rect_x1 >= inter_rect_x2) or (inter_rect_y1 >= inter_rect_y2):
+                inter_area = 0
+            # 画出交集框
+            # if inter_area:
+            #     draw.rectangle((inter_rect_x1, inter_rect_y1, inter_rect_x2, inter_rect_y2),
+            #                    outline=(255, 255, 255), width=4)
+            # calculate the union area
+            union_area = (b1_x2 - b1_x1) * (b1_y2 - b1_y1) + (b2_x2 - b2_x1) * (b2_y2 - b2_y1) - inter_area
+            iou = inter_area / union_area
+            print("IOU is %0.2f" % iou)
+            # 设置条件，如果iou超过阈值，只保留一个
+            if iou >= 0.3:
+                # rm_boxes.add(coordinates[i+1:][m])
+                # print(list(cp_coords[m]))
+                # if list(coordinates[i]) in rm_list:
+                #     break
+                points.remove(list(coordinates[i]))
+                # type_labs.remove(type_labs_cp[i])
+                type_labs[i] = "e"
+                _aug_obj_list[i] = "e"
+                rm_list.append(list(coordinates[i]))
+                break
+    # 将type_labs中的"e"删除,用于处理多个相同标签的处理
+    while True:
+        if "e" not in type_labs:
+            break
+        type_labs.remove("e")
+    while True:
+        if "e" not in _aug_obj_list:
+            break
+        _aug_obj_list.remove("e")
+    # print("points", points)
+    return _aug_obj_list, points, type_labs
+
+
+def main():
     """
     主程序
 
@@ -196,25 +306,32 @@ def main(img_num):
     :return:
     """
     aug = Aug(src, bg, btype, img_save_path, anno_save_path)
-    for _ in range(img_num):
-        # if not angle % 2 == 0:
-        #     continue
-        # 旋转图片
-        aug.rotate_src(random.randint(0, 360))
-        # 获得旋转后物体的位置
-        aug.get_obj_box()
-        # 对旋转后的图片进行亮度调整
-        aug.img_gama()
-        # 进行贴合，并保存物体在背景下的坐标
-        aug.stack_up()
-        # 进行画框，测试时用。注意：如果开启显示，执行速度降低而且要保证你的内存足够大。生产使用，建议关闭
-        # aug.draw_box()
+    # for _ in range(img_num):
+    # if not angle % 2 == 0:
+    #     continue
+    # 旋转图片
+    aug.rotate_src()
+    # 获得旋转后物体的位置
+    aug.get_obj_box()
+    # 对旋转后的图片进行亮度调整
+    aug.img_gama()
+    # 随机生成贴合中心点坐标
+    coord_in_bg = aug.random_center()
+    aug_obj_list.append(aug)
+    src_boxes.append(coord_in_bg)
+    type_labels.append(aug.type)
+    # TODO 贴合之前进行IOU筛出
+
+    # 进行贴合，并保存物体在背景下的坐标
+    # aug.stack_up()
+    # 进行画框，测试时用。注意：如果开启显示，执行速度降低而且要保证你的内存足够大。生产使用，建议关闭
+    # aug.draw_box()
 
 
 if __name__ == '__main__':
-    img_save_path = "dataset_13"
-    anno_save_path = "anno_13"
-    img_total_num = 30
+    img_save_path = "dataset_13_test"
+    anno_save_path = "anno_13_test"
+    img_total_num = 1000
     # 生成的图片统一保存到dataset文件夹
     if not os.path.exists(img_save_path):
         os.mkdir(img_save_path)
@@ -222,24 +339,51 @@ if __name__ == '__main__':
         os.mkdir(anno_save_path)
     # 将需要的物体存放列表
     # bottle_list = ["01", "02", "03", "04", "05", "06"]
-    bottle_list = ["%02d" % (i + 1) for i in range(6)]  # 选取6张bottle透明背景图
+    bottle_list = ["%02d" % (i + 1) for i in range(3)]  # 选取6张bottle透明背景图
     # bg_id = ["01", "02", "03"]
     bg_id = ["%02d" % (i + 1) for i in range(10)]  # 选取10张背景图
     bottle_num = len(bottle_list)
-    for i in range(bottle_num):
-        # bottle need to paste
-        src_path = "images/bottle_01_{}.png".format(bottle_list[i])
-        # background
-        bg_path = "images/bg_{}.jpg".format(random.sample(bg_id, 1)[0])
-        btype = int(src_path.split("_")[1])
-        src = Image.open(src_path).convert("RGBA")
-        # background, 利用PIL读取背景
-        bg = Image.open(bg_path)
-        # # 使用img_aug库对背景进行处理，但需要先将图片转化成ndarray数组
-        # bg = cv2.imread(bg_path)
-        # 根据总数量，计算每个图片需要的个数。保证数据均衡
-        img_num = img_total_num // bottle_num
-        # 如果不能整除，这一步处理，将多余的数据统一添加到最后一张图上进行处理
-        if i == bottle_num - 1:
-            img_num = img_num + img_total_num % bottle_num
-        main(img_num)
+    bottle_num_per_type = 10  # 指定所使用的每个类别的瓶子数量
+    bottle_types = ["01", "02", "03"]
+    # src_path = []
+    # for m in range(len(bottle_num_per_type)):
+    #     # 生成src集合
+    #     src_path += ["images/bottle_{}_{}.png".format(i, random.sample(bottle_list, 1))
+    #     for i in range(len(bottle_types))]
+    for i in range(1):
+        # bottle need to paste, 瓶子种类，遍历，瓶子序号随机取
+        # src_path = ["images/bottle_{}_{}.png".format(bottle_types[i], random.sample(bottle_list, 1))
+        #             for i in range(len(bottle_types))]
+        src_boxes = []  # 保存透明背景的bottle
+        type_labels = []  # 保存标签
+        aug_obj_list = []   # 保存aug的实例对象
+        for j in range(len(bottle_types)):
+            src = Image.open("images/bottle_{}_{}.png".format(bottle_types[j], random.sample(bottle_list, 1)[0])).convert("RGBA")
+            btype = bottle_types[j]
+            bg_path = "images/bg.jpg"
+            bg = Image.open(bg_path)
+            main()
+        # 生成符合要求的boxes
+        # assert len(src_boxes) == len(type_labels), "生成src_boxes和type_labels不匹配！"
+        aug_obj_list, src_boxes, type_labels = aug_iou(src_boxes, type_labels, aug_obj_list)
+        # 生成文件名的时间戳
+        t = datetime.strftime(datetime.today(), "%Y%m%d%H%M%S")
+        file_name = t + str(n)
+        f = open(anno_save_path + "/" + file_name + ".txt", "w")
+        for obj in zip(aug_obj_list, src_boxes, type_labels):
+            # obj --> (aug_obj, box, type)
+            self = obj[0]
+            self.stack_up()
+            f.write(str(int(self.box_in_bg[0])) + "," + str(int(self.box_in_bg[1])) + "," +
+                    str(int(self.box_in_bg[2])) + "," + str(int(self.box_in_bg[3])) + "," + str(self.type) + "\n")
+        Aug.class_bg.save(img_save_path + "/" + file_name + ".jpg")
+        f.close()
+        print("图片已保存{}张".format(n + 1))
+        draw = ImageDraw.Draw(Aug.class_bg)
+        font = ImageFont.truetype(font='font/FiraMono-Medium.otf', size=40)
+        for x in zip(src_boxes, type_labels):
+            draw.rectangle(x[0], outline=(random.randrange(256), random.randrange(256), random.randrange(256)), width=2)
+            draw.text((x[0][0], x[0][1]), text=x[1], fill=(0, 0, 0), font=font)
+        del draw
+        Aug.class_bg.show()
+        n += 1
