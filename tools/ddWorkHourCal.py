@@ -109,11 +109,11 @@ def findTheNumPic(mytest0, left, top, w, h):
 # 实时查看每个人的工作时间显示在左上角，小数位数较多，每分钟会更新一次
 # 工作结束按q退出,会保存每个人的工作时间在excel表中，excel表的文件名已经加上时间戳
 
-
+#以下是初始配置t
 #本地保存屏幕截图的路径
 captureDir = "E:\\1\\Capture\\"
 #本地存放钉钉录制视频的路径
-videoDir = "E:\\1\\DDvedio\\today.mp4"
+videoDir = "E:\\1\\DDvedio\\tt.mp4"
 # videoDir = "E:\\1\\1.avi"
 #本地存放背景视频的路径，这里没用，写和videoDir相同即可
 bgDir = videoDir
@@ -122,32 +122,41 @@ calibDir = "E:\\1\\Calib\\"
 #Excel 存放路径
 excelDir = "E:\\1\\WorkExcel\\"
 
+#粗定位格子的调整
+left = 520
+top = 290
+w = 70
+h = 67
+
+#调整计算时间范围
+seconds = 0.5 * 60
 # 九宫格子的起点坐标 和格子的宽度 和 高度，根据自己电脑显示屏 视频的窗口大小来填写，具体方法是取视频中的一帧
 # 保存为一张图片，该程序跑起来后会保存为一张名字叫做 标定.jpg的图片，
 # 用画图软件打开这张图片，看左上角点的坐标，填写在left,top上，看一个格子的宽度和高度，填写在
 # gw，gh上
-left = 0
-top = 0
+gleft = 0
+gtop = 0
 gw = 637
 gh = 360
 
 work_hours = 0
 #九宫格的位置，每次需要根据实际的位置修改下列人名的位置
 sudoku = {
-          "Hujie":      [left,       left+gw,    top,       top+gh,    work_hours],
-          "TaoTao":  [left+gw,    left+2*gw,  top,       top+gh,    work_hours],
-          "LuChenYin":     [left+2*gw,  left+3*gw,  top,       top+gh,    work_hours],
+          "Hujie":      [gleft,       gleft+gw,    gtop,       gtop+gh,    work_hours],
+          "TaoTao":  [gleft+gw,    gleft+2*gw,  gtop,       gtop+gh,    work_hours],
+          "LuChenYin":     [gleft+2*gw,  gleft+3*gw,  gtop,       gtop+gh,    work_hours],
 
-          "John":       [left,       left+gw,    top+gh,    top+2*gh,  work_hours],
-          "FeiFei":     [left+gw,    left+2*gw,  top+gh,    top+2*gh,  work_hours],
-          "Tina":       [left+2*gw,  left+3*gw,  top+gh,    top+2*gh,  work_hours],
+          "John":       [gleft,       gleft+gw,    gtop+gh,    gtop+2*gh,  work_hours],
+          "FeiFei":     [gleft+gw,    gleft+2*gw,  gtop+gh,    gtop+2*gh,  work_hours],
+          "Tina":       [gleft+2*gw,  gleft+3*gw,  gtop+gh,    gtop+2*gh,  work_hours],
 
-          "LouQiGe":    [left,       left+gw,    top+2*gh,  top+3*gh,  work_hours],
-          "DaPeng":    [left+gw,    left+2*gw,  top+2*gh,  top+3*gh,  work_hours],
-          "ZhiMing":     [left+2*gw,  left+3*gw,  top+2*gh,  top+3*gh,  work_hours]
+          "LouQiGe":    [gleft,       gleft+gw,    gtop+2*gh,  gtop+3*gh,  work_hours],
+          "DaPeng":    [gleft+gw,    gleft+2*gw,  gtop+2*gh,  gtop+3*gh,  work_hours],
+          "ZhiMing":     [gleft+2*gw,  gleft+3*gw,  gtop+2*gh,  gtop+3*gh,  work_hours]
           }
 
 employee = {
+          0: "Hujie",
           2: "Hujie",
           1: "TaoTao",
           3: "LuChenYin",
@@ -164,7 +173,7 @@ if __name__ == '__main__':
 
     x_train, x_label = getMnistData()
     # 调试参数  1分钟多少秒 正常运行情况下60  调试情况下可改小 需要加大时间间隔可以改大
-    seconds = 5*60
+
     # 每个员工屏幕格子是否改变的阈值 以比值来写 适用于不同电脑的显示屏
     working_threshold = 500.0/(gw*gh)
     #初始化工作时间
@@ -242,7 +251,6 @@ if __name__ == '__main__':
 
     cv2.resizeWindow("window", 1920, 1080)
 
-
     while 1:
         # curr_cap, nFrame, t = imgCapObj.getImage()
         # curr_cap, nFrame, t = imgCapObj.getImageFromCamAtMoment(2, 55, 56)
@@ -255,17 +263,50 @@ if __name__ == '__main__':
         curr_time = timer()
         # 间隔多久时间进行一次视频比对
         randomInterval = numpy.random.uniform(low=1.0 * seconds, high=2.0 * seconds, size=1)
+        diff0 = cv2.absdiff(curr_cap, prev_cap)
+        diff0 = cv2.cvtColor(diff0, cv2.COLOR_BGR2GRAY)
+        ret, diff0 = cv2.threshold(diff0, 100, 255, 1)
+        #画图
+        for key in sudoku.keys():
+            pred = -1  # 初始化
+            i += 1
+            print(key)
+            diff = diff0[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
+            show0 = show[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
+            numcal = show0.copy()
+            # sudoku[key][0], sudoku[key][2]
 
-        # if frameInterval*(nFrame-preNframe) >= randomInterval[0]:
-        if frameInterval * (nFrame - preNframe) >= -1:
+            numPic, x0, y0, w0, h0 = findTheNumPic(numcal, left, top, w, h)
+
+            cv2.rectangle(show, (sudoku[key][0] + left, sudoku[key][2] + top),
+                          (sudoku[key][0] + left + w, sudoku[key][2] + top + h), (0, 0, 255), 2)  # 画矩形
+
+            if numPic is not None:
+                # cv2.imshow(str(key), numPic)
+                # cv2.waitKey()
+                # pred = numRecogByMnistKnn(numPic, x_train, x_label, 10)
+                pred = torchPred(numPic)
+
+                cv2.putText(show, text=str(pred), org=(sudoku[key][0] + x0, sudoku[key][2] + y0 - 30),
+                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                            fontScale=1, color=(0, 165, 255), thickness=2)
+                # b g r
+                cv2.rectangle(show, (sudoku[key][0] + x0, sudoku[key][2] + y0),
+                              (sudoku[key][0] + x0 + w0, sudoku[key][2] + y0 + h0), (0, 165, 255), 2)  # 画矩形
+                # 人名
+                if pred != -1:
+                    cv2.putText(show, text=str(employee[pred]), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
+                                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                fontScale=1, color=(0, 0, 255), thickness=2)
+
+
+        if frameInterval*(nFrame-preNframe) >= randomInterval[0]:
+        # if frameInterval * (nFrame - preNframe) >= -1:
         # if curr_time - prev_time >= randomInterval:
             print("in")
             # show0 = np.zeros_like(curr_cap)
             # show0 = show0[1:100, 1:100].copy()
             # 计算设定时间间隔内视频的差值
-            diff0 = cv2.absdiff(curr_cap, prev_cap)
-            diff0 = cv2.cvtColor(diff0, cv2.COLOR_BGR2GRAY)
-            ret, diff0 = cv2.threshold(diff0, 100, 255, 1)
             i = 0
             # 检索每个员工格子的视频差值 分析 得出每个员工的工作时间
             for key in sudoku.keys():
@@ -276,10 +317,7 @@ if __name__ == '__main__':
                 show0 = show[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
                 numcal = show0.copy()
                 # sudoku[key][0], sudoku[key][2]
-                left = 550
-                top = 290
-                w = 50
-                h = 70
+
                 numPic, x0, y0, w0, h0 = findTheNumPic(numcal, left, top, w, h)
 
                 cv2.rectangle(show, (sudoku[key][0] + left, sudoku[key][2] + top),
@@ -318,18 +356,12 @@ if __name__ == '__main__':
                 # 视频时间的流逝
                 realTimeIncrement = frameInterval*(nFrame-preNframe)
 
-                # 人名
-                if pred != -1:
-                    cv2.putText(show, text=str(employee[pred]), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
-                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                            fontScale=1, color=(0, 0, 255), thickness=2)
-
                 if thresh > working_threshold:
                 # if diffSize > 1000:
                     #因为抽帧快，不等于现实时间，所以增加原视频的流逝时间来补偿
                     # sudoku[key][4] += (randomInterval[0]+ frameInterval - 10/1000)/3600.0
                     # sudoku[key][4] += (randomInterv  al[0] + realTimeIncrement - 0.01)/3600.0
-                    if pred != -1:
+                    if pred != -1 and pred != 0:#修正0不存KEY的bug
                         # 由识别出的数字检索出人名 由人名检索出该填写的时间位置
                         sudoku[employee[pred]][4] += (randomInterval[0]) / 3600.0
                     print(str(key)+" work_hours", sudoku[key][4])
@@ -379,7 +411,7 @@ if __name__ == '__main__':
         # cv2.waitKey(10)  # 要抑制速度
         if cv2.waitKey(1) & 0xFF == ord('q'):
             # 按q退出 并保存excel
-
+            workbook.close()
             break
     #store the excel
     workbook.close()
