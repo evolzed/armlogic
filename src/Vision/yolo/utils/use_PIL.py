@@ -12,6 +12,7 @@ n = 0  # 记录图片的数量
 class Aug(object):
 
     class_bg = None
+    is_bg_aug = False
     """利用图片贴合的方式生成数据集"""
     def __init__(self, src, bg, btype, img_path, anno_path):
         # self.init_bg = bg
@@ -65,8 +66,12 @@ class Aug(object):
         _bg_arr = self.seq.augment_image(self.bg_arr)
         # 增强后的bg_prod用于背景贴合
         self.bg_prod = Image.fromarray(_bg_arr)
+        # 对bg进行gama处理，随机生成0.6-1.5之间的factor，调整bg的亮度
+        self.bg_prod = ImageEnhance.Brightness(self.bg_prod).enhance(round(random.uniform(0.6, 1.5), 1))
         # 定义类属性
         Aug.class_bg = self.bg_prod
+        # 对背景增强之后，进行记录
+        Aug.is_bg_aug = True
 
     def rotate_src(self):
         """
@@ -202,11 +207,13 @@ class Aug(object):
 
         :return:
         """
-        self.img_augm()
+        # 如果其他实例对象已经对背景进行过处理，则不再进行处理
+        if not Aug.is_bg_aug:
+            self.img_augm()
         # self.bg_prod = self.bg_prod
         # self.bg_prod = self.bg_arr
         # 对bg进行处理，随机生成0.6-1.5之间的factor，调整bg的亮度
-        self.bg_prod = ImageEnhance.Brightness(self.bg_prod).enhance(round(random.uniform(0.6, 1.5), 1))
+        # self.bg_prod = ImageEnhance.Brightness(self.bg_prod).enhance(round(random.uniform(0.6, 1.5), 1))
         # 对瓶子进行处理
         self.rotated_img = ImageEnhance.Brightness(self.rotated_img).enhance(round(random.uniform(0.5, 1.2), 1))
 
@@ -350,18 +357,18 @@ if __name__ == '__main__':
     #     # 生成src集合
     #     src_path += ["images/bottle_{}_{}.png".format(i, random.sample(bottle_list, 1))
     #     for i in range(len(bottle_types))]
-    for i in range(1):
+    for i in range(5):
         # bottle need to paste, 瓶子种类，遍历，瓶子序号随机取
         # src_path = ["images/bottle_{}_{}.png".format(bottle_types[i], random.sample(bottle_list, 1))
         #             for i in range(len(bottle_types))]
         src_boxes = []  # 保存透明背景的bottle
         type_labels = []  # 保存标签
         aug_obj_list = []   # 保存aug的实例对象
+        bg_path = "images/bg.jpg"
+        bg = Image.open(bg_path)
         for j in range(len(bottle_types)):
             src = Image.open("images/bottle_{}_{}.png".format(bottle_types[j], random.sample(bottle_list, 1)[0])).convert("RGBA")
             btype = bottle_types[j]
-            bg_path = "images/bg.jpg"
-            bg = Image.open(bg_path)
             main()
         # 生成符合要求的boxes
         # assert len(src_boxes) == len(type_labels), "生成src_boxes和type_labels不匹配！"
@@ -386,4 +393,7 @@ if __name__ == '__main__':
             draw.text((x[0][0], x[0][1]), text=x[1], fill=(0, 0, 0), font=font)
         del draw
         Aug.class_bg.show()
+        # 初始化下一轮次的参数
+        Aug.class_bg = None
+        Aug.is_bg_aug = False
         n += 1
