@@ -382,7 +382,7 @@ if __name__ == '__main__':
             self = obj[0]
             self.stack_up()
             f.write(str(int(self.box_in_bg[0])) + "," + str(int(self.box_in_bg[1])) + "," +
-                    str(int(self.box_in_bg[2])) + "," + str(int(self.box_in_bg[3])) + "," + str(self.type) + "\n")
+                    str(int(self.box_in_bg[2])) + "," + str(int(self.box_in_bg[3])) + "," + str(self.type) + " ")
         Aug.class_bg.save(img_save_path + "/" + file_name + ".jpg")
         f.close()
         print("图片已保存{}张".format(n + 1))
