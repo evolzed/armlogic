@@ -11,6 +11,7 @@ import xlsxwriter
 import sys
 import os
 from collections import Counter
+from tools.timestamp import getTimeStamp
 
 from shutil import copyfile
 from tools.numeralRecognition import numRecogByMnistKnn
@@ -110,10 +111,12 @@ def findTheNumPic(mytest0, left, top, w, h):
 # 工作结束按q退出,会保存每个人的工作时间在excel表中，excel表的文件名已经加上时间戳
 
 #以下是初始配置t
+#测试模式用于测试识别效果
+testMode = False
 #本地保存屏幕截图的路径
 captureDir = "E:\\1\\Capture\\"
 #本地存放钉钉录制视频的路径
-videoDir = "E:\\1\\DDvedio\\tt.mp4"
+videoDir = "E:\\1\\DDvedio\\ttt.mp4"
 # videoDir = "E:\\1\\1.avi"
 #本地存放背景视频的路径，这里没用，写和videoDir相同即可
 bgDir = videoDir
@@ -169,15 +172,16 @@ employee = {
           8: "DaPeng",
           9: "ZhiMing"
           }
+
+# 每个员工屏幕格子是否改变的阈值 以比值来写 适用于不同电脑的显示屏
+working_threshold = 500.0 / (gw * gh)
+
 if __name__ == '__main__':
 
-    x_train, x_label = getMnistData()
-    # 调试参数  1分钟多少秒 正常运行情况下60  调试情况下可改小 需要加大时间间隔可以改大
+    #获取Mnist数据集 用于KNN
+    # x_train, x_label = getMnistData()
 
-    # 每个员工屏幕格子是否改变的阈值 以比值来写 适用于不同电脑的显示屏
-    working_threshold = 500.0/(gw*gh)
     #初始化工作时间
-
 
     # 这里要按照上面sudoku的顺序填写
     title = []
@@ -200,7 +204,7 @@ if __name__ == '__main__':
 
     #存放工作时间的excel表
     #时间戳
-    time_day = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime(time.time()))
+    time_day = getTimeStamp()
     workbook = xlsxwriter.Workbook(excelDir + str(time_day) + "工作时间.xlsx")
     worksheet = workbook.add_worksheet('工作时间')
 
@@ -211,18 +215,10 @@ if __name__ == '__main__':
     # print(avi.framInterval)
     bgAvi = Video(bgDir)
     imgCapObj = imageCapture(None, avi, bgAvi)
-    # print(imgCapObj.video.framInterval)
-    # 初始化图片用于初始化
-
-    # cv2.namedWindow("test", 0)
-    #
-    # cv2.resizeWindow("test", 1920, 1080)
-    # frameRec, q, qq = imgCapObj.getImageFromCamAtMoment(2, 55, 56)
-    # cv2.imshow("test", frameRec)
-    # cv2.waitKey()
-
+   #重置视频到第0帧
     imgCapObj.resetCamFrameId()
     curr_cap0, nFrame0, t0 = imgCapObj.getImage()
+
     prev_cap = curr_cap0.copy()
     preNframe = nFrame0
 
@@ -254,7 +250,10 @@ if __name__ == '__main__':
     while 1:
         # curr_cap, nFrame, t = imgCapObj.getImage()
         # curr_cap, nFrame, t = imgCapObj.getImageFromCamAtMoment(2, 55, 56)
-        curr_cap, nFrame, t = imgCapObj.getImage()
+        if testMode:
+            curr_cap, nFrame, t = imgCapObj.getImageFromCamAtMoment(0, 0, 1)
+        else:
+            curr_cap, nFrame, t = imgCapObj.getImage()
         # print("nf", nFrame)
         cTime, hour, minute, second = imgCapObj.getCamCurrentTime()
         if curr_cap is None:
