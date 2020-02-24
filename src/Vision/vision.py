@@ -272,15 +272,18 @@ class Vision(object):
                         #     transList = centerList
 
                     # try to transfer the frame
-                    transFrame = np.zeros((4, 5, 3), np.uint8)
+                    # transFrame = np.zeros((10, 15, 3), np.uint8)
                     print("@" * 100)
                     print(len(frame))
-                    for l in range(4):
-                        for ll in range(5):
+                    for l in range(6):
+                        for ll in range(7):
                             for lll in range(3):
                                 transFrame[l][ll][lll] = frame[centerList[0][0] + l][centerList[0][1] + ll][lll]
+                            print(transFrame[l][ll])
+                    print(centerList)
                     print(transFrame)
                     print(frame[centerList[0][0]][centerList[0][1]])
+                    cv2.imshow("frame", frame)
                     print("@" * 100)
 
             # clear

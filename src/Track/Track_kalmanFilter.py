@@ -738,8 +738,9 @@ if __name__ == "__main__":
         transDict = MG.dict()
         transList = MG.list()
         targetDict = MG.dict()
+        transFrame = MG.Array("i", range(126))
         # example rigion
-        transFrame = np.zeros((6, 7, 3), np.uint8)
+        # transFrame = np.zeros((6, 7, 3), np.uint8)
         # cam, _image = imageInit()
 
         # p0 = multiprocessing.Process(target=track.contourTrack, )
