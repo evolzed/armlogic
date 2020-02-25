@@ -6,7 +6,7 @@ import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
-from src.Vision.imageProcess.imgProc import ImgProc
+from src.Vision.imageProcess.imgProc import *
 from src.Vision.video import Video
 from src.Vision.interface import imageCapture
 import time
@@ -56,10 +56,10 @@ class Vision(object):
         self.imgproc = imgproc_
         # self.deviceNum = cam.getDeviceNum()
         # cam._data_buf, cam._nPayloadsize = self.cam.connectCam()
-        if self.imgproc.imgCap.cam is not None:
-            if -1 == cam._data_buf:
-                print("相机初始化失败！退出程序！")
-                sys.exit()
+        # if self.imgproc.imgCap.cam is not None:
+        #     if -1 == self.cam._data_buf:
+        #         print("相机初始化失败！退出程序！")
+        #         sys.exit()
         print("相机或视频初始化完成！")
 
     def detectVideo(self, yolo, output_path=""):
@@ -159,10 +159,10 @@ class Vision(object):
         label = np.array([])
         # avi = Video("E:\\1\\1.avi")
         # frame = avi.getImageFromVideo()
-        i =1
+        i = 1
         while True:
             _frame, nFrame, t = cam.getImage()
-            camfps = " Cam" + cam.getCamFps(nFrame)
+            camfps = "Cam" + cam.getCamFps(nFrame)
             # frame = avi.getImageFromVideo()
             curr_time = timer()
             exec_time = curr_time - prev_time
@@ -214,7 +214,7 @@ class Vision(object):
             # centerlist = centerList = None
             # detect
             if flag == 0:
-                p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 1)
                 # p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
                 # print("########################", centerlist)
                 # print(transList)
@@ -273,17 +273,19 @@ class Vision(object):
 
                     # try to transfer the frame
                     # transFrame = np.zeros((10, 15, 3), np.uint8)
+
                     print("@" * 100)
                     print(len(frame))
                     for l in range(6):
                         for ll in range(7):
                             for lll in range(3):
                                 transFrame[l][ll][lll] = frame[centerList[0][0] + l][centerList[0][1] + ll][lll]
+                                # transFrame[l][ll] = [1, 2, 3]
                             print(transFrame[l][ll])
-                    print(centerList)
-                    print(transFrame)
-                    print(frame[centerList[0][0]][centerList[0][1]])
-                    cv2.imshow("frame", frame)
+                    # print(centerList)
+                    # print(transFrame)
+                    # print(frame[centerList[0][0]][centerList[0][1]])
+                    # cv2.imshow("frame", frame)
                     print("@" * 100)
 
             # clear
@@ -396,20 +398,21 @@ def imageInit():
     初始化相机对象cam, Vision对象
     :return: (cam：相机对象, _image:Vision对象)
     """
-    # cam = Camera()
-    videoDir = "d:\\1\\Video_20200204122301684 .avi"
+    cam = Camera()
+    videoDir = "d:\\1\\Video_20200204122733339.mp4"
     bgDir = "d:\\1\\背景1.avi"
     avi = Video(videoDir)
     bgAvi = Video(bgDir)
-    imgCapObj = imageCapture(None, avi, bgAvi)
+    # imgCapObj = imageCapture(None, avi, bgAvi)
+    imgCapObj = imageCapture(cam, None, cam)
 
     # _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
     yolo = YOLO()
     print("准备背景学习！")
     bgobj = ImgProc(50, imgCapObj)
-    # bgobj.studyBackgroundFromCam(cam)
-    bgobj.studyBackground()
+    bgobj.studyBackgroundFromCam(cam)
+    # bgobj.studyBackground()
     bgobj.createModelsfromStats()
     _image = Vision(imgCapObj, yolo, bgobj)
     print("开始！")
@@ -529,12 +532,16 @@ if __name__ == '__main__':
     with multiprocessing.Manager() as MG:  # 重命名
         transDict = MG.dict()
         transList = MG.list()
+        targetDict = MG.dict()
+        # transFrame = MG.Array("i", range(126))
+        # transFrame = MG.Array("i", np.zeros((6, 7, 3), np.uint8))
+        transFrame = multiprocessing.RawArray('d', np.zeros((6, 7, 3), np.double).ravel())
         # cam, _image = imageInit()
         p2 = multiprocessing.Process(target=read, args=(transDict, transList,))
         p2.daemon = True
         p2.start()
         # p2.join()
-        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList,))
+        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
         p1.daemon = True
         p1.start()
         p1.join()

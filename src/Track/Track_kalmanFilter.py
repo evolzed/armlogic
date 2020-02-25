@@ -381,7 +381,8 @@ class Track:
                     1, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(frame, "red is current prediction", (cmx + 100, cmy), cv2.FONT_HERSHEY_SIMPLEX,
                     1, (255, 255, 255), 2, cv2.LINE_AA)
-        print(lpx, cmx, cpx, lpy, cmy, cpy)
+        # cv2.imshow("kalman_tracker", frame)
+        print(lpx, lmx, cmx, cpx, lpy, lmy, cmy, cpy)
 
         #
         # # 定义全局变量
@@ -516,7 +517,6 @@ class Track:
 
         kalman = dict()
 
-        # frame = np.zeros((960, 1080, 3), np.uint8)
         # # 初始化测量坐标和target运动预测的数组; 定义要追踪的点参数
         last_measurement = current_measurement = last_prediction = current_prediction = []
         for l in range(100):
@@ -535,10 +535,10 @@ class Track:
         # time.sleep(15)
         # i = 0
 
-        frame = np.zeros((960, 1280, 3), np.uint8)
+        # frame = np.zeros((960, 1280, 3), np.uint8)
         while True:
             print("!!!!!!!!!!!!!!!!!!!!", time.time())
-            # frame = np.zeros((960, 1280, 3), np.uint8)
+            frame = np.zeros((960, 1280, 3), np.uint8)
 
             # if len(transList) != 0:
             #     x = int(transList[1][0])
@@ -554,21 +554,15 @@ class Track:
                 # self.targetMove(x, y, current_measurement[j], last_measurement[j],
                 #                 current_prediction[j], last_prediction[j], kalman[str(j)], frame)
 
-            # cv2.imshow("kalman_tracker", frame)
-
-            # # test data
-            # x = i * 10
-            # y = x * x / 500
-            # i += 1
-            # time.sleep(1)
+            cv2.imshow("kalman_tracker", frame)
 
             # print(transDict, transList, targetDict)
             print("@@@@@@@@@@@@@@@@@@@@", time.time())
-            # cv2.waitKey(1)
+            cv2.waitKey(1)
             # if (cv2.waitKey(1) & 0xff) == 27:
             #     break
 
-    def contourTrack(self):
+    def contourTrack(self, transList):
 
         videoDir = "d:\\1\\Video_20200204122301684 .avi"
         avi = Video(videoDir)
@@ -601,9 +595,9 @@ class Track:
 
                 (x, y, w, h) = cv2.boundingRect(c)
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                centerlist.append([x + w / 2, y + h / 2])
-
-            print(centerlist)
+                transList.append([x + w / 2, y + h / 2])
+                # transList = centerlist
+            print(transList)
 
             cv2.imshow("contours", frame)  ##显示轮廓的图像
             cv2.imshow("dif", diff)
@@ -620,7 +614,7 @@ class Track:
             print(time.time())
             if transFrame is not None:
 
-                print(transFrame)
+                print(np.frombuffer(transFrame, dtype=np.double).reshape((6, 7, 3)))
 
                 # time.sleep(0.5)
                 # cv2.imshow("contours", transFrame)
@@ -738,24 +732,27 @@ if __name__ == "__main__":
         transDict = MG.dict()
         transList = MG.list()
         targetDict = MG.dict()
-        transFrame = MG.Array("i", range(126))
+        # transFrame = MG.Array("i", range(126))
+        # transFrame = MG.Array("i", np.zeros((6, 7, 3), np.uint8))
+        transFrame = multiprocessing.RawArray('d', np.zeros((6, 7, 3), np.double).ravel())
         # example rigion
         # transFrame = np.zeros((6, 7, 3), np.uint8)
         # cam, _image = imageInit()
 
-        # p0 = multiprocessing.Process(target=track.contourTrack, )
+        # p0 = multiprocessing.Process(target=track.contourTrack, args=(transList,))
         # p0.daemon = True
         # p0.start()
         # # p0.join()
 
-        p0 = multiprocessing.Process(target=track.contourTrackFromVision, args=(transFrame,))
-        p0.daemon = True
-        p0.start()
+        # p0 = multiprocessing.Process(target=track.contourTrackFromVision, args=(transFrame,))
+        # p0.daemon = True
+        # p0.start()
 
-        # # p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
+        # first line code is without filter; second line one is with filter
+        p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
         # p2 = multiprocessing.Process(target=track.trackWithFilter, args=(transDict, transList, targetDict))
-        # p2.daemon = True
-        # p2.start()
+        p2.daemon = True
+        p2.start()
 
         p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
         p1.daemon = True

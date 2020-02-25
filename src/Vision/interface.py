@@ -21,7 +21,7 @@ class imageCapture:
 
     def getCamFps(self, nFrame):
         if self.cam is not None:
-            return self.cam.getCamFps
+            return str(self.cam.getCamFps)
         if self.video is not None:
             return str(self.video.fps)
 
