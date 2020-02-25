@@ -59,6 +59,14 @@ class Video:
     def resetVideo(self):
         self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
+    def setFrameID(self, idn):
+        if idn <= self.frameTotalCount:
+            self.cap.set(cv2.CAP_PROP_POS_FRAMES, idn)
+            self.nFrame = idn
+            return 1
+        else:
+            return -1
+
     def getImageFromVideo(self):
         """
 

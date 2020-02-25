@@ -127,13 +127,13 @@ calibDir = "E:\\1\\Calib\\"
 excelDir = "E:\\1\\WorkExcel\\"
 
 #粗定位格子的调整
-left = 520
+left = 530
 top = 290
 w = 70
 h = 67
 
 #调整计算时间范围
-seconds = 0.1 * 60
+seconds = 5 * 60
 # 九宫格子的起点坐标 和格子的宽度 和 高度，根据自己电脑显示屏 视频的窗口大小来填写，具体方法是取视频中的一帧
 # 保存为一张图片，该程序跑起来后会保存为一张名字叫做 标定.jpg的图片，
 # 用画图软件打开这张图片，看左上角点的坐标，填写在left,top上，看一个格子的宽度和高度，填写在
@@ -176,7 +176,8 @@ employee = {
 
 # 每个员工屏幕格子是否改变的阈值 以比值来写 适用于不同电脑的显示屏
 working_threshold = 500.0 / (gw * gh)
-
+#运行速度 取决于抽帧频率
+inter = 10
 if __name__ == '__main__':
 
     #获取Mnist数据集 用于KNN
@@ -224,6 +225,11 @@ if __name__ == '__main__':
     preNframe = nFrame0
 
     frameInterval = imgCapObj.getCamFrameInterval()
+    camLen = imgCapObj.getCamTimeLenth()
+
+    camLenh = int(camLen / 3600)
+    camLenm = int(camLen % 3600 / 60)
+    camLens = int(camLen % 3600 % 60)
 
     # 保存标定图片路径，记得填写正确的路径 路径不能有中文 OPENCV对中文目录支持不好
     cv2.imwrite(calibDir + "biaoding.jpg", prev_cap)
@@ -247,14 +253,19 @@ if __name__ == '__main__':
     cv2.namedWindow("window", 0)
 
     cv2.resizeWindow("window", 1920, 1080)
-
+    idn = 0
     while 1:
         # curr_cap, nFrame, t = imgCapObj.getImage()
         # curr_cap, nFrame, t = imgCapObj.getImageFromCamAtMoment(2, 55, 56)
         if testMode:
             curr_cap, nFrame, t = imgCapObj.getImageFromCamAtMoment(0, 0, 1)
         else:
-            curr_cap, nFrame, t = imgCapObj.getImage()
+            idn = idn + inter
+            if imgCapObj.setCamFrameID(idn) != -1:
+                curr_cap, nFrame, t = imgCapObj.getImage()
+            else:
+                print("video over!!")
+                break
         # print("nf", nFrame)
         cTime, hour, minute, second = imgCapObj.getCamCurrentTime()
         if curr_cap is None:
@@ -384,22 +395,7 @@ if __name__ == '__main__':
                         employee[pred][1] = sudoku[employee[pred][0]][4] #time
                         sudoku[key][6] = employee[pred][1]
                         sudoku[key][5] = employee[pred][0]
-
                         # sudoku[employee[pred][0]][5] = employee[pred][0] #name updated and stored  easy for loop outside to display
-
-                        #人名
-                        cv2.putText(show, text=str(employee[pred][0]), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
-                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=1, color=(0, 0, 255), thickness=2)
-                        #时间
-                        cv2.putText(show, text=str(int(t * 60 / 60)) + " h",
-                                    org=(sudoku[key][0] + 30, sudoku[key][2] + 30),
-                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=1, color=(0, 0, 255), thickness=2)
-                        cv2.putText(show, text=str(int(t * 60 % 60)) + " m",
-                                    org=(sudoku[key][0] + 100, sudoku[key][2] + 30),
-                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=1, color=(0, 0, 255), thickness=2)
 
                         print("pred:", pred)
                         print(str(employee[pred][0]) + " work_hours", sudoku[employee[pred][0]][4])
@@ -415,23 +411,7 @@ if __name__ == '__main__':
             prev_time = curr_time
             prev_cap = curr_cap
             preNframe = nFrame
-        """
-        # 实时显示格子和每个员工的工作时间和每个员工的名字，方便对照格子是否正确
-        for key in sudoku.keys():
-            #统计时间
-            cv2.putText(show, text=str(int(sudoku[key][4]*60/60))+" h", org=(sudoku[key][0]+30, sudoku[key][2]+30), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale=1, color=(0, 0, 255), thickness=2)
-            cv2.putText(show, text=str(int(sudoku[key][4]*60 % 60)) + " m", org=(sudoku[key][0] + 100, sudoku[key][2] + 30),
-                        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        fontScale=1, color=(0, 0, 255), thickness=2)
-            # #人名
-            # cv2.putText(show, text=str(key), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
-            #             fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-            #             fontScale=1, color=(0, 0, 255), thickness=2)
-            #画分隔框
-            cv2.rectangle(show, (sudoku[key][0], sudoku[key][2]), (sudoku[key][0] + gw, sudoku[key][2] + gh),
-                          (0, 255, 255))
-        """
+
             #视频时间
         cv2.putText(show, text="video watch:",
                     org=(400, 750), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -447,6 +427,19 @@ if __name__ == '__main__':
         cv2.putText(show, text=str(second) + "s",
                     org=(560, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                     fontScale=1, color=(0, 255, 255), thickness=2)
+
+        cv2.putText(show, text=str(camLenh) + "h",
+                    org=(400, 860), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1, color=(0, 255, 100), thickness=2)
+        cv2.putText(show, text=str(camLenm) + "m",
+                    org=(480, 860), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1, color=(0, 255, 100), thickness=2)
+        cv2.putText(show, text=str(camLens) + "s",
+                    org=(560, 860), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1, color=(0, 255, 100), thickness=2)
+
+
+
 
         cv2.imshow("window", show)
 
