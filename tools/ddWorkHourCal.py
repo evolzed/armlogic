@@ -11,14 +11,14 @@ import xlsxwriter
 import sys
 import os
 from collections import Counter
-from tools.timestamp import getTimeStamp
+from tools.timeStamp import getTimeStamp
 
 from shutil import copyfile
 from tools.numeralRecognition import numRecogByMnistKnn
 from tools.mnist import *
 from tools.pyTorch import torchPred
 from tools.pyTorch import Neural_net
-from tools.pyTorch import findTheNumPic
+# from tools.pyTorch import findTheNumPic
 def capture(left, top, right, bottom):
     """
     :param left: 想要截取图像的最左侧坐标
@@ -65,10 +65,10 @@ def findTheNumPic(mytest0, left, top, w, h):
             arclenth = cv2.arcLength(contours[ci], True)  # 面积
             area = cv2.contourArea(contours[ci])  # 4386.5
             arealist.append(area)
-            print("area = ", area)
-        print(arealist)
+        #     print("area = ", area)
+        # print(arealist)
         sortIndex = sorted(range(len(arealist)), key=lambda k: arealist[k], reverse=True)
-        print(sortIndex)
+        # print(sortIndex)
         maxContourArea = cv2.contourArea(contours[sortIndex[0]])
         if maxContourArea < 150:   #肯定不是标志了
             return None, None, None, None, None
@@ -116,7 +116,8 @@ testMode = False
 #本地保存屏幕截图的路径
 captureDir = "E:\\1\\Capture\\"
 #本地存放钉钉录制视频的路径
-videoDir = "E:\\1\\DDvedio\\ttt.mp4"
+# videoDir = "E:\\1\\DDvedio\\ttt0.mp4"
+videoDir = "E:\\1\\DDvedio\\2020_2_24\\20200224-142330_胡杰_胡杰发起的视频会议_video.mp4"
 # videoDir = "E:\\1\\1.avi"
 #本地存放背景视频的路径，这里没用，写和videoDir相同即可
 bgDir = videoDir
@@ -132,7 +133,7 @@ w = 70
 h = 67
 
 #调整计算时间范围
-seconds = 0.5 * 60
+seconds = 0.1 * 60
 # 九宫格子的起点坐标 和格子的宽度 和 高度，根据自己电脑显示屏 视频的窗口大小来填写，具体方法是取视频中的一帧
 # 保存为一张图片，该程序跑起来后会保存为一张名字叫做 标定.jpg的图片，
 # 用画图软件打开这张图片，看左上角点的坐标，填写在left,top上，看一个格子的宽度和高度，填写在
@@ -143,35 +144,35 @@ gw = 637
 gh = 360
 
 work_hours = 0
+pred_num = -1
+t = 0
 #九宫格的位置，每次需要根据实际的位置修改下列人名的位置
 sudoku = {
-          "Hujie":      [gleft,       gleft+gw,    gtop,       gtop+gh,    work_hours],
-          "TaoTao":  [gleft+gw,    gleft+2*gw,  gtop,       gtop+gh,    work_hours],
-          "LuChenYin":     [gleft+2*gw,  gleft+3*gw,  gtop,       gtop+gh,    work_hours],
+          "Hujie":      [gleft,       gleft+gw,    gtop,       gtop+gh,    work_hours, pred_num, t],
+          "TaoTao":  [gleft+gw,    gleft+2*gw,  gtop,       gtop+gh,    work_hours, pred_num, t],
+          "LuChenYin":     [gleft+2*gw,  gleft+3*gw,  gtop,       gtop+gh,    work_hours, pred_num, t],
 
-          "John":       [gleft,       gleft+gw,    gtop+gh,    gtop+2*gh,  work_hours],
-          "FeiFei":     [gleft+gw,    gleft+2*gw,  gtop+gh,    gtop+2*gh,  work_hours],
-          "Tina":       [gleft+2*gw,  gleft+3*gw,  gtop+gh,    gtop+2*gh,  work_hours],
+          "John":       [gleft,       gleft+gw,    gtop+gh,    gtop+2*gh,  work_hours, pred_num, t],
+          "FeiFei":     [gleft+gw,    gleft+2*gw,  gtop+gh,    gtop+2*gh,  work_hours, pred_num, t],
+          "Tina":       [gleft+2*gw,  gleft+3*gw,  gtop+gh,    gtop+2*gh,  work_hours, pred_num, t],
 
-          "LouQiGe":    [gleft,       gleft+gw,    gtop+2*gh,  gtop+3*gh,  work_hours],
-          "DaPeng":    [gleft+gw,    gleft+2*gw,  gtop+2*gh,  gtop+3*gh,  work_hours],
-          "ZhiMing":     [gleft+2*gw,  gleft+3*gw,  gtop+2*gh,  gtop+3*gh,  work_hours]
+          "LouQiGe":    [gleft,       gleft+gw,    gtop+2*gh,  gtop+3*gh,  work_hours, pred_num, t],
+          "DaPeng":    [gleft+gw,    gleft+2*gw,  gtop+2*gh,  gtop+3*gh,  work_hours, pred_num, t],
+          "ZhiMing":     [gleft+2*gw,  gleft+3*gw,  gtop+2*gh,  gtop+3*gh,  work_hours, pred_num, t]
           }
 
 employee = {
-          0: "Hujie",
-          2: "Hujie",
-          1: "TaoTao",
-          3: "LuChenYin",
-
-          4: "John",
-          5: "FeiFei",
-          6: "Tina",
-
-          7: "LouQiGe",
-          8: "DaPeng",
-          9: "ZhiMing"
-          }
+          0: ["?", 0],
+          2: ["Hujie", 0],
+          1: ["TaoTao", 0],
+          3: ["LuChenYin", 0],
+          4: ["John", 0],
+          5: ["LouQiGe", 0],
+          6: ["Tina", 0],
+          7: ["FeiFei", 0],
+          8: ["DaPeng", 0],
+          9: ["ZhiMing",0]
+}
 
 # 每个员工屏幕格子是否改变的阈值 以比值来写 适用于不同电脑的显示屏
 working_threshold = 500.0 / (gw * gh)
@@ -266,40 +267,58 @@ if __name__ == '__main__':
         diff0 = cv2.cvtColor(diff0, cv2.COLOR_BGR2GRAY)
         ret, diff0 = cv2.threshold(diff0, 100, 255, 1)
         #画图
-        for key in sudoku.keys():
-            pred = -1  # 初始化
-            i += 1
-            print(key)
-            diff = diff0[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
-            show0 = show[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
-            numcal = show0.copy()
-            # sudoku[key][0], sudoku[key][2]
+        if testMode:
+            for key in sudoku.keys():
+                pred = -1  # 初始化
+                i += 1
+                # print(key)
+                diff = diff0[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
+                show0 = show[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
+                numcal = show0.copy()
+                # sudoku[key][0], sudoku[key][2]
 
-            numPic, x0, y0, w0, h0 = findTheNumPic(numcal, left, top, w, h)
+                numPic, x0, y0, w0, h0 = findTheNumPic(numcal, left, top, w, h)
 
-            cv2.rectangle(show, (sudoku[key][0] + left, sudoku[key][2] + top),
-                          (sudoku[key][0] + left + w, sudoku[key][2] + top + h), (0, 0, 255), 2)  # 画矩形
+                cv2.rectangle(show, (sudoku[key][0] + left, sudoku[key][2] + top),
+                              (sudoku[key][0] + left + w, sudoku[key][2] + top + h), (0, 0, 255), 2)  # 画矩形
 
-            if numPic is not None:
-                # cv2.imshow(str(key), numPic)
-                # cv2.waitKey()
-                # pred = numRecogByMnistKnn(numPic, x_train, x_label, 10)
-                pred = torchPred(numPic)
+                if numPic is not None:
+                    # cv2.imshow(str(key), numPic)
+                    # cv2.waitKey()
+                    # pred = numRecogByMnistKnn(numPic, x_train, x_label, 10)
+                    pred = torchPred(numPic)
 
-                cv2.putText(show, text=str(pred), org=(sudoku[key][0] + x0, sudoku[key][2] + y0 - 30),
-                            fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                            fontScale=1, color=(0, 165, 255), thickness=2)
-                # b g r
-                cv2.rectangle(show, (sudoku[key][0] + x0, sudoku[key][2] + y0),
-                              (sudoku[key][0] + x0 + w0, sudoku[key][2] + y0 + h0), (0, 165, 255), 2)  # 画矩形
-                # 人名
-                if pred != -1:
-                    cv2.putText(show, text=str(employee[pred]), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
+                    cv2.putText(show, text=str(pred), org=(sudoku[key][0] + x0, sudoku[key][2] + y0 - 30),
                                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                fontScale=1, color=(0, 0, 255), thickness=2)
+                                fontScale=1, color=(0, 165, 255), thickness=2)
+                    # b g r
+                    cv2.rectangle(show, (sudoku[key][0] + x0, sudoku[key][2] + y0),
+                                  (sudoku[key][0] + x0 + w0, sudoku[key][2] + y0 + h0), (0, 165, 255), 2)  # 画矩形
+                    # 人名
+                    if pred != -1:
+                        cv2.putText(show, text=str(employee[pred][0]), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=1, color=(0, 0, 255), thickness=2)
 
+        for key in sudoku.keys():
+
+            cv2.putText(show, text=str(int(sudoku[key][6] * 60 / 60)) + " h",
+                        org=(sudoku[key][0] + 30, sudoku[key][2] + 30), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=1, color=(0, 0, 255), thickness=2)
+            cv2.putText(show, text=str(int(sudoku[key][6] * 60 % 60)) + " m",
+                        org=(sudoku[key][0] + 100, sudoku[key][2] + 30),
+                        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=1, color=(0, 0, 255), thickness=2)
+            #人名
+            cv2.putText(show, text=str(sudoku[key][5]), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
+                        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=1, color=(0, 0, 255), thickness=2)
+            # 画分隔框
+            cv2.rectangle(show, (sudoku[key][0], sudoku[key][2]), (sudoku[key][0] + gw, sudoku[key][2] + gh),
+                          (0, 255, 255))
 
         if frameInterval*(nFrame-preNframe) >= randomInterval[0]:
+            pred = -1  # 初始化
         # if frameInterval * (nFrame - preNframe) >= -1:
         # if curr_time - prev_time >= randomInterval:
             print("in")
@@ -309,9 +328,8 @@ if __name__ == '__main__':
             i = 0
             # 检索每个员工格子的视频差值 分析 得出每个员工的工作时间
             for key in sudoku.keys():
-                pred = -1 #初始化
                 i += 1
-                print(key)
+                # print(key)
                 diff = diff0[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
                 show0 = show[sudoku[key][2]:sudoku[key][3], sudoku[key][0]:sudoku[key][1]]
                 numcal = show0.copy()
@@ -362,9 +380,33 @@ if __name__ == '__main__':
                     # sudoku[key][4] += (randomInterv  al[0] + realTimeIncrement - 0.01)/3600.0
                     if pred != -1 and pred != 0:#修正0不存KEY的bug
                         # 由识别出的数字检索出人名 由人名检索出该填写的时间位置
-                        sudoku[employee[pred]][4] += (randomInterval[0]) / 3600.0
-                    print(str(key)+" work_hours", sudoku[key][4])
-                    print(str(key)+"working!!!!")
+                        sudoku[employee[pred][0]][4] += (randomInterval[0]) / 3600.0  #加到别人那了 别人那也不对 应该加到当前
+                        employee[pred][1] = sudoku[employee[pred][0]][4] #time
+                        sudoku[key][6] = employee[pred][1]
+                        sudoku[key][5] = employee[pred][0]
+
+                        # sudoku[employee[pred][0]][5] = employee[pred][0] #name updated and stored  easy for loop outside to display
+
+                        #人名
+                        cv2.putText(show, text=str(employee[pred][0]), org=(sudoku[key][0] + 90, sudoku[key][2] + 90),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=1, color=(0, 0, 255), thickness=2)
+                        #时间
+                        cv2.putText(show, text=str(int(t * 60 / 60)) + " h",
+                                    org=(sudoku[key][0] + 30, sudoku[key][2] + 30),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=1, color=(0, 0, 255), thickness=2)
+                        cv2.putText(show, text=str(int(t * 60 % 60)) + " m",
+                                    org=(sudoku[key][0] + 100, sudoku[key][2] + 30),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=1, color=(0, 0, 255), thickness=2)
+
+                        print("pred:", pred)
+                        print(str(employee[pred][0]) + " work_hours", sudoku[employee[pred][0]][4])
+                        print(str(employee[pred][0]) + "working!!!!")
+                        #用完复位
+                        pred = -1
+
             feature = []
             for key in sudoku.keys():
                 feature.append(sudoku[key][4])
@@ -373,6 +415,7 @@ if __name__ == '__main__':
             prev_time = curr_time
             prev_cap = curr_cap
             preNframe = nFrame
+        """
         # 实时显示格子和每个员工的工作时间和每个员工的名字，方便对照格子是否正确
         for key in sudoku.keys():
             #统计时间
@@ -388,22 +431,22 @@ if __name__ == '__main__':
             #画分隔框
             cv2.rectangle(show, (sudoku[key][0], sudoku[key][2]), (sudoku[key][0] + gw, sudoku[key][2] + gh),
                           (0, 255, 255))
-
+        """
             #视频时间
-            cv2.putText(show, text="video watch:",
-                        org=(400, 750), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        fontScale=1, color=(0, 255, 255), thickness=2)
+        cv2.putText(show, text="video watch:",
+                    org=(400, 750), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1, color=(0, 255, 255), thickness=2)
 
 
-            cv2.putText(show, text=str(hour) + "h",
-                        org=(400, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        fontScale=1, color=(0, 255, 255), thickness=2)
-            cv2.putText(show, text=str(minute) + "m",
-                        org=(480, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        fontScale=1, color=(0, 255, 255), thickness=2)
-            cv2.putText(show, text=str(second) + "s",
-                        org=(560, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                        fontScale=1, color=(0, 255, 255), thickness=2)
+        cv2.putText(show, text=str(hour) + "h",
+                    org=(400, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1, color=(0, 255, 255), thickness=2)
+        cv2.putText(show, text=str(minute) + "m",
+                    org=(480, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1, color=(0, 255, 255), thickness=2)
+        cv2.putText(show, text=str(second) + "s",
+                    org=(560, 800), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1, color=(0, 255, 255), thickness=2)
 
         cv2.imshow("window", show)
 

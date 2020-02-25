@@ -7,6 +7,7 @@ input_size0 = 28*28 #28*28
 hidden_size0 = 500
 num_classes = 10
 
+weightsTrainedDir = "E:\\1\\pytorch\\net.pkl"
 
 class Neural_net(nn.Module):
     def __init__(self, input_size, hidden_size, output):
@@ -55,10 +56,10 @@ def test():
         outputs = net(images)
         _,predicts = torch.max(outputs.data, 1)
         # print("predict", predicts)
-        print(labels.size(0))
+        # print(labels.size(0))
         total += labels.size(0)
         correct += (predicts == labels).sum()
-    print("accuracy = %.2f" % (100*correct/total))
+    # print("accuracy = %.2f" % (100*correct/total))
 
 def findTheNumPic(mytest0, left, top, w, h):
     #初始化参数
@@ -91,10 +92,10 @@ def findTheNumPic(mytest0, left, top, w, h):
             arclenth = cv2.arcLength(contours[ci], True)  # 面积
             area = cv2.contourArea(contours[ci])  # 4386.5
             arealist.append(area)
-            print("area = ", area)
-    print(arealist)
+    #         print("area = ", area)
+    # print(arealist)
     sortIndex = sorted(range(len(arealist)), key=lambda k: arealist[k], reverse=True)
-    print(sortIndex)
+    # print(sortIndex)
 
     # cv2.drawContours(show, contours, sortIndex[0], (0, 255, 255), 1)
     #找出最大的轮廓的外接矩形 并抠出来
@@ -131,15 +132,15 @@ def numRecogByMnistKnn(num_pic):
     return mytest
 
 def torchPred(pic):
-    net = torch.load("E:\\1\\pytorch\\net.pkl")
+    net = torch.load(weightsTrainedDir)
     torch_data = torch.from_numpy(pic)
     torch_data=torch_data.float() #防止报错
-    print(torch_data.shape)
+    # print(torch_data.shape)
     torch_data  = Variable(torch_data.view(-1, 28 * 28))
-    print(torch_data.shape)
+    # print(torch_data.shape)
     outputs = net(torch_data)
     _, predicts = torch.max(outputs.data, 1)
-    print("predict", predicts.numpy()[0])
+    # print("predict", predicts.numpy()[0])
     return  predicts.numpy()[0]
 
 

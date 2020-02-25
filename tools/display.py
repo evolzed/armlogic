@@ -12,7 +12,7 @@ import xlsxwriter
 import sys
 import os
 from collections import Counter
-from tools.timestamp import getTimeStamp
+from tools.timeStamp import getTimeStamp
 
 from shutil import copyfile
 from tools.numeralRecognition import numRecogByMnistKnn
