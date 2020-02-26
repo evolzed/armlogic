@@ -5,11 +5,11 @@ import gc
 import cv2
 import numpy as np
 import random
-from BottleSort.src.Vision.camera import Camera
+from src.Vision.camera import Camera
 from timeit import default_timer as timer
-from BottleSort.src.Vision.video import Video
-from BottleSort.src.Vision.interface import imageCapture
-from BottleSort.src.Track import Track
+from src.Vision.video import Video
+from src.Vision.interface import imageCapture
+from src.Track import track
 
 # TemplateDir = 'E:\\1\\template.jpg'
 TemplateDir = 'template.jpg'
