@@ -9,7 +9,7 @@ from src.Vision.camera import Camera
 from timeit import default_timer as timer
 from src.Vision.video import Video
 from src.Vision.interface import imageCapture
-from src.Track import Track
+from src.Track import track
 from src.Vision.imageProcess.imageTools import *
 
 # TemplateDir = 'E:\\1\\template.jpg'

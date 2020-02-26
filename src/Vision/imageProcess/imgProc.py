@@ -531,7 +531,8 @@ class ImgProc:
                 print("label", label)
                 print("unique", np.unique(label[label != -1]))
                 # num is the detected label number
-                if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
+                # if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
+                if (label != -1).any():
                     # flag = 1
                     centerL = self.findTrackedCenterPoint(p0, label)
                     allList = []
