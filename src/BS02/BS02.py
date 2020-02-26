@@ -1,16 +1,16 @@
 import os
 import sys
 
-from src.Vision.track.track import *
+from src.BS02.track.track import *
 
 sys.path.append(os.path.abspath("../../"))
 import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
 import cv2
-from src.Vision.imageProcess.imgProc import *
-from src.Vision.video import Video
-from src.Vision.interface import imageCapture
+from src.BS02.imageProcess.imgProc import *
+from src.BS02.video import Video
+from src.BS02.interface import imageCapture
 import time
 import multiprocessing
 # sys.path.insert(0, os.path.split(__file__)[0])
@@ -29,8 +29,8 @@ elif sysArc[0] == "Linux" and sysArc[-1] == "aarch64":
 else:
     print("不支持的系统架构，仅支持win10_64 和 Ubuntu16.04 ARM aarch64！！")
     sys.exit()
-from src.Vision.camera import Camera, g_bExit
-from src.Vision.yolo.Yolo import *
+from src.BS02.camera import Camera, g_bExit
+from src.BS02.yolo.Yolo import *
 
 # from src.Vision.imageProcess.bgLearn import Bglearn
 # from src.Vision.imageProcess.imageTrack import ImageTrack

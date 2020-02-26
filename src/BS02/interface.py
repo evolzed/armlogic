@@ -1,6 +1,6 @@
-from src.Vision.camera import Camera
+from src.BS02.camera import Camera
 from timeit import default_timer as timer
-from src.Vision.video import Video
+from src.BS02.video import Video
 
 class imageCapture:
     def __init__(self, camObj, videoObj ,bgVideoObj):

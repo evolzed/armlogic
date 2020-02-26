@@ -3,11 +3,11 @@ import threading
 import time
 
 from lib.Logger.Logger import *
-from src.Vision.camera import Camera
-from src.Vision.vision import Vision
-from src.Vision import vision
-from src.Vision.imageProcess.imgProc import ImgProc
-from src.Vision.yolo.Yolo import YOLO
+from src.BS02.camera import Camera
+from src.BS02.vision import Vision
+from src.BS02 import vision
+from src.BS02.imageProcess.imgProc import ImgProc
+from src.BS02.yolo.Yolo import YOLO
 import sys, os
 
 # print(sys.path)

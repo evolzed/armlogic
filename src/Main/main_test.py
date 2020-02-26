@@ -4,7 +4,7 @@ import os
 import sys
 sys.path.append(os.path.abspath('../../'))
 from lib.Logger.Logger import *
-from src.Vision import vision
+from src.BS02 import vision
 
 
 def main():
