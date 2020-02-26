@@ -1,6 +1,8 @@
 import os
 import sys
 
+from src.Vision.track.track import *
+
 sys.path.append(os.path.abspath("../../"))
 import numpy as np
 from ctypes import *
@@ -527,39 +529,74 @@ def read(transDict, transList):
 
 
 if __name__ == '__main__':
-    # cam = Vision()
+    # # cam = Vision()
+    # with multiprocessing.Manager() as MG:  # 重命名
+    #     transDict = MG.dict()
+    #     transList = MG.list()
+    #     targetDict = MG.dict()
+    #     # transFrame = MG.Array("i", range(126))
+    #     # transFrame = MG.Array("i", np.zeros((6, 7, 3), np.uint8))
+    #     transFrame = multiprocessing.RawArray('d', np.zeros((6, 7, 3), np.double).ravel())
+    #     # cam, _image = imageInit()
+    #     p2 = multiprocessing.Process(target=read, args=(transDict, transList,))
+    #     p2.daemon = True
+    #     p2.start()
+    #     # p2.join()
+    #     p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
+    #     p1.daemon = True
+    #     p1.start()
+    #     p1.join()
+    #     # _image.detectSerialImage(cam, transDict, )
+    #
+    #     # pw = multiprocessing.Process(target=imageRun, args=(cam, _image, transDict))
+    #     # pw.run()
+    #     # pw.join()
+    #     # imageRun(cam, _image, transDict)
+    #
+    #     # by yuantao1880@126.com
+    #     # with multiprocessing.Manager() as MG:  # 重命名
+    #     #     transDict = MG.dict()
+    #     #     p2 = multiprocessing.Process(target=read, args=(transDict,))
+    #     #     # 设置进程守护，主进程停止后，子进程也停止
+    #     #     p2.daemon = True
+    #     #     p2.start()
+    #     #     # 开启一个子进程，进行识别跟踪
+    #     #     pw = multiprocessing.Process(target=vision_run, args=(transDict,))
+    #     #     pw.daemon = True
+    #     #     pw.start()
+    #     #     p2.join()
+
+    track = Track()
+    trackFlag = 0
+
     with multiprocessing.Manager() as MG:  # 重命名
+
         transDict = MG.dict()
         transList = MG.list()
         targetDict = MG.dict()
         # transFrame = MG.Array("i", range(126))
         # transFrame = MG.Array("i", np.zeros((6, 7, 3), np.uint8))
         transFrame = multiprocessing.RawArray('d', np.zeros((6, 7, 3), np.double).ravel())
+        # example rigion
+        # transFrame = np.zeros((6, 7, 3), np.uint8)
         # cam, _image = imageInit()
-        p2 = multiprocessing.Process(target=read, args=(transDict, transList,))
+
+        # p0 = multiprocessing.Process(target=track.contourTrack, args=(transList,))
+        # p0.daemon = True
+        # p0.start()
+        # # p0.join()
+
+        # p0 = multiprocessing.Process(target=track.contourTrackFromVision, args=(transFrame,))
+        # p0.daemon = True
+        # p0.start()
+
+        # first line code is without filter; second line one is with filter
+        p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
+        # p2 = multiprocessing.Process(target=track.trackWithFilter, args=(transDict, transList, targetDict))
         p2.daemon = True
         p2.start()
-        # p2.join()
+
         p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
         p1.daemon = True
         p1.start()
         p1.join()
-        # _image.detectSerialImage(cam, transDict, )
-
-        # pw = multiprocessing.Process(target=imageRun, args=(cam, _image, transDict))
-        # pw.run()
-        # pw.join()
-        # imageRun(cam, _image, transDict)
-
-        # by yuantao1880@126.com
-        # with multiprocessing.Manager() as MG:  # 重命名
-        #     transDict = MG.dict()
-        #     p2 = multiprocessing.Process(target=read, args=(transDict,))
-        #     # 设置进程守护，主进程停止后，子进程也停止
-        #     p2.daemon = True
-        #     p2.start()
-        #     # 开启一个子进程，进行识别跟踪
-        #     pw = multiprocessing.Process(target=vision_run, args=(transDict,))
-        #     pw.daemon = True
-        #     pw.start()
-        #     p2.join()

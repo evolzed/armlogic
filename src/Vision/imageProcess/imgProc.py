@@ -9,7 +9,7 @@ from src.Vision.camera import Camera
 from timeit import default_timer as timer
 from src.Vision.video import Video
 from src.Vision.interface import imageCapture
-from src.Track import track
+from src.Vision.track import track
 
 # TemplateDir = 'E:\\1\\template.jpg'
 TemplateDir = 'template.jpg'
@@ -531,8 +531,8 @@ class ImgProc:
                 print("label", label)
                 print("unique", np.unique(label[label != -1]))
                 # num is the detected label number
-                # if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
-                if (label != -1).any():
+                if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
+                # if (label != -1).any():
                     # flag = 1
                     centerL = self.findTrackedCenterPoint(p0, label)
                     allList = []
