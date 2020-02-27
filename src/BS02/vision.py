@@ -115,7 +115,7 @@ class Vision(object):
                 out.write(result)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            ret = self.cam.MV_CC_GetOneFrameTimeout(byref(cam._data_buf), cam._nPayloadSize, stFrameInfo, 1000)
+            ret = self.cam.MV_CC_GetOneFrameTimeout(byref(self.cam._data_buf), self.cam._nPayloadSize, stFrameInfo, 1000)
             if ret == 0:
                 print("get one frame: Width[%d], Height[%d], nFrameNum[%d]" % (
                     stFrameInfo.nWidth, stFrameInfo.nHeight, stFrameInfo.nFrameNum))
