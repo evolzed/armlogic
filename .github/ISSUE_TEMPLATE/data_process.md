@@ -1,6 +1,6 @@
 ---
 name: Data Process
-about: Suggest an idea for this project
+about: ''
 title: ''
 labels: ''
 assignees: ''
