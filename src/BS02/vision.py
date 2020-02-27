@@ -216,7 +216,8 @@ class Vision(object):
             # centerlist = centerList = None
             # detect
             if flag == 0:
-                p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                # p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                centerlist = self.imgproc.detectObjNotRelyLK(featureimg, drawimg, dataDict, 3)
                 # p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
                 # print("########################", centerlist)
                 # print(transList)
@@ -230,12 +231,17 @@ class Vision(object):
                     #     for jj in range(len(centerlist[seqN])):
                     #         transList[seqN].append(centerlist[seqN][jj])
                         cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
+
+                        cv2.putText(drawimg, text=str(int(centerList[seqN][3])),
+                                    org=(centerList[seqN][0] - 20, centerList[seqN][1]),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=2, color=(255, 255, 255), thickness=2)
                     # print(centerlist, transList)
                         # if centerlist[seqN][3] == 0 or centerlist[seqN][4] == 0:
                         #     centerlist = []
                         #     transList = centerlist
-                if p0 is not None and label is not None:
-                    flag = 1
+                # if p0 is not None and label is not None:
+                #     flag = 1
 
             # track
             else:
