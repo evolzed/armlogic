@@ -5,18 +5,23 @@ import numpy as np
 from tools.mnist import *
 input_size0 = 28*28 #28*28
 hidden_size0 = 500
+
+
 num_classes = 10
 
-weightsTrainedDir = "E:\\1\\pytorch\\net.pkl"
+weightsTrainedDir = "E:\\1\\pytorch\\net0.pkl"
 
 class Neural_net(nn.Module):
     def __init__(self, input_size, hidden_size, output):
         super(Neural_net, self).__init__()
         self.layer1 = nn.Linear(input_size, hidden_size)
-        self.layer2 = nn.Linear(hidden_size, output)
+        self.layer11 = nn.Linear(hidden_size, 1000) #加了一层
+        self.layer2 = nn.Linear(1000, output)
 
     def forward(self, x):
         out = self.layer1(x)
+        out = torch.relu(out)
+        out = self.layer11(out)
         out = torch.relu(out)
         out = self.layer2(out)
         return out
@@ -25,10 +30,10 @@ net = Neural_net(input_size0, hidden_size0, num_classes)
 
 def train():
     learning_rate = 1e-1
-    num_epoches = 5
+    num_epoches = 25
     criterion = nn.CrossEntropyLoss()
 
-    optimizer = torch.optim.SGD(net.parameters(),lr = learning_rate)
+    optimizer = torch.optim.SGD(net.parameters(), lr = learning_rate)
     lossF = 1000
     for epoch in range(num_epoches):
         print("current epoch = %d" % epoch)
@@ -130,9 +135,10 @@ def numRecogByMnistKnn(num_pic):
 
     cv2.imshow("my", mytest)
     return mytest
-
-def torchPred(pic):
-    net = torch.load(weightsTrainedDir)
+def torchInit():
+    net0 = torch.load(weightsTrainedDir)
+    return net0
+def torchPred(pic, net):
     torch_data = torch.from_numpy(pic)
     torch_data=torch_data.float() #防止报错
     # print(torch_data.shape)
@@ -147,10 +153,14 @@ def torchPred(pic):
 
 if __name__ == '__main__':
     # train()
-    # torch.save(net, "E:\\1\\pytorch\\net.pkl")
-    net = torch.load("E:\\1\\pytorch\\net.pkl")
+    # torch.save(net, "E:\\1\\pytorch\\net0.pkl")
+    net = torch.load("E:\\1\\pytorch\\net0.pkl")
 
-    my = cv2.imread("E:\\1\\1\\6.jpg")
+    my = cv2.imread("E:\\1\\trainDir\\2020_02_26_18_50_11.jpg", 0)
+    cv2.imshow("my", my)
+    print(np.max(my))
+
+    # my = cv2.imread("E:\\1\\1\\6.jpg")
 
     # left = 530
     # top = 280
@@ -163,17 +173,25 @@ if __name__ == '__main__':
 
 
     # test()
-    pic = numRecogByMnistKnn(my)
+    # pic = numRecogByMnistKnn(my)
+    pic =my
+
+    # x = torchPred(pic)
+    # print("x=", x)
+
 
     torch_data = torch.from_numpy(pic)
 
-    torch_data=torch_data.float() #防止报错
+    torch_data = torch_data.float() #防止报错
     print(torch_data.shape)
-    torch_data  = Variable(torch_data.view(-1, 28 * 28))
+    torch_data = Variable(torch_data.view(-1, 28 * 28))
     print(torch_data.shape)
     outputs = net(torch_data)
+    print(outputs.data)
     _, predicts = torch.max(outputs.data, 1)
+    print(predicts)
     print("predict", predicts.numpy()[0])
+
 
     # total = 0
     # correct = 0
@@ -192,7 +210,9 @@ if __name__ == '__main__':
 
 
 
-
+#finished training,loss:  0.017623314633965492  3层
+#finished training,loss:  0.10987251996994019  3ceng  epoch=10
+# finished training,loss:  0.005391254555433989   3ceng  中层1000 epoch=25
 
 
 

@@ -8,7 +8,7 @@ import torch
 import torch.utils.data as data
 import torchvision.transforms as transforms
 
-from sampling import sampleEzDetect
+# from sampling import sampleEzDetect
 
 __all__ = ["vocClassName", "vocClassID", "vocDataset"]
 
@@ -55,11 +55,12 @@ def getVOCInfo(xmlFile):
 #定义数据类 对数据进行预处理
 class vocDataset(data.Dataset):
     def __init__(self, config, isTraining=True):
-        super(vocDataset,self).__init__()
+        super(vocDataset, self).__init__()
         self.isTraining = isTraining
         self.config = config
 #使用均值和方差对图片的RGB值分别进行归一化，
-        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])
+        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        #toTensor先将输入归一化到(0, 1)
         self.transformer = transforms.Compose([transforms.ToTensor(), normalize])
 
     def __getitem__(self, index):
@@ -67,7 +68,7 @@ class vocDataset(data.Dataset):
         if self.isTraining:
             item = allTrainingData[index % len(allTrainingData)]
         else:
-            item =  allTrainingData[index %len(allTrainingData)]
+            item = allTestingData[index % len(allTestingData)]
         img = Image.open(item[0])   #item[0]为图像数据
         allBboxes = getVOCInfo(item[1])  #item[1]为通过getVOCInfo 函数解析出真实label的数据
         imgWidth, imgHeight = img.size
@@ -145,28 +146,37 @@ class vocDataset(data.Dataset):
             return num
 
 #从VOC2007中读取数据
+
+
 vocClassID = {}
 #识别分类的名称转换成ID
 for i in range(len(vocClassName)):
     vocClassID[vocClassName[i]] = i+1
 print(vocClassID)
-allTrainingData = []
 
+
+allTrainingData = []
 allTestingData = []
-allFloder = ["./VOCdevkit/VOC2007"]
+
+#voc数据集存放路径
+allFloder = ["E:\\ml\\voc2007\\VOCdevkit\\VOC2007"]
 for floder in allFloder:
+    print("floder", floder)
     imagePath = join(floder, "JPEGImages")
     infoPath = join(floder, "Annotations")
     index = 0
+    # print(listdir(imagePath))
     for f in listdir(imagePath):
         if f.endswith(".jpg"):
-            imageFile = join(imagePath,f)
-            infoFile = join(infoPath,f[:-4]+".xml")
+            imageFile = join(imagePath, f)
+            infoFile = join(infoPath, f[:-4]+".xml")
             if index % 10 == 0:
+                #列表 文件加xml
                 allTestingData.append((imageFile, infoFile))
             else:
-                allTestingData.append((imageFile,infoFile))
-            index = index +1
+                allTrainingData.append((imageFile, infoFile))
+            index = index + 1
+    print("allTestingData", allTestingData)
 
 
 
