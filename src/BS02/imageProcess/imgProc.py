@@ -10,6 +10,7 @@ from timeit import default_timer as timer
 from src.BS02.video import Video
 from src.BS02.interface import imageCapture
 from src.BS02.track import track
+from src.BS02.yolo.Yolo import *
 
 # TemplateDir = 'E:\\1\\template.jpg'
 TemplateDir = 'template.jpg'
@@ -423,7 +424,7 @@ class ImgProc:
                 detectedBox.append(newelem)
         return detectedBox
 
-    def cropBgBoxToYolo(self, detectedBox, src):
+    def cropBgBoxToYolo(self, detectedBox, src, yolo):
         boxLenth = len(detectedBox)
         objFrameList = []
         if boxLenth > 0:
@@ -436,7 +437,38 @@ class ImgProc:
                 obj = [src[top:bottom, left:right].copy(), left, top]
                 # cv2.imshow(str(i), obj[0])
                 objFrameList.append(obj)
-        return objFrameList
+
+        objCNNList = []
+        kk = 0
+        if len(objFrameList) > 0:
+            for i in range(len(objFrameList)):
+                kk += 1
+                imgM = PImage.fromarray(objFrameList[i][0])  # PImage: from PIL import Vision as PImage
+                dataDictM = yolo.detectImage(imgM)
+
+                left = dataDictM["box"][i][2]
+                top = dataDictM["box"][i][3]
+                right = dataDictM["box"][i][4]
+                bottom = dataDictM["box"][i][5]
+                modify_x = objFrameList[i][1]
+                modify_y = objFrameList[i][2]
+
+                left += modify_x
+                top += modify_y
+                right += modify_x
+                bottom += modify_y
+                preClass = dataDictM["box"][i][0]
+
+                dataDictM["box"][i][2] = left
+                dataDictM["box"][i][3] = top
+                dataDictM["box"][i][4] = right
+                dataDictM["box"][i][5] = bottom
+
+                objCNNList.append(dataDictM)
+                # arrM = np.asarray(dataDictM["image"])
+                # cv2.imshow(str(kk), arrM)
+
+        return objCNNList
 
 
     def detectObjNotRelyCnn(self, featureimg, drawimg, detectedBox, label_num):
