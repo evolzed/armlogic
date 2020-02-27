@@ -464,8 +464,11 @@ class Track:
 
         while True:
             trackFrame = np.zeros((960, 1280, 3), np.uint8)
-            if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
-
+            # if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
+            print("*" * 200)
+            print(transList)
+            print("*" * 200)
+            if len(transList) != 0:
                 for i in range(10):
                     # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
                     if i < 9:
@@ -492,9 +495,10 @@ class Track:
                         # self.updateTarget(targetDict, transList)
 
             else:
-                targetDict.update(self.createTarget(transDict, transList,))
-                # targetDict = self.createTarget(transDict, transList,)
-                print(targetDict, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                time.sleep(0.001)
+                # targetDict.update(self.createTarget(transDict, transList,))
+                # # targetDict = self.createTarget(transDict, transList,)
+                # print(targetDict, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
             # show
             if len(transList) != 0:

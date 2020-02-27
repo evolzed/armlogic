@@ -235,6 +235,7 @@ class Vision(object):
             if flag == 0:
                 # p0, label, centerList = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
                 centerList = self.imgproc.detectObjNotRelyLK(featureimg, drawimg, dataDict)
+                # transList = [[] for j in range(len(centerList))]
                 # p0, label, centerList = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
                 # print("########################", centerList)
                 # print(transList)
@@ -242,7 +243,11 @@ class Vision(object):
                     # transList = [[] for j in range(len(centerList))]
                     # print(transList, centerList, str(len(transList)), str(len(centerList)))
                     for seqN in range(len(centerList)):
-                        transList.append(centerList[seqN])
+                        if len(transList) == 0:
+                            # transList = [[] for j in range(len(centerList))]
+                            transList.append(centerList[seqN])
+                        else:
+                            transList[seqN] = centerList[seqN]
                     #     print(transList, centerList, str(len(transList)), str(len(centerList)))
                     #     print(len(centerList[seqN]), len(transList[seqN]))
                     #     for jj in range(len(centerList[seqN])):
@@ -254,8 +259,10 @@ class Vision(object):
                                     org=(int(centerList[seqN][0]) - 20, int(centerList[seqN][1])),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(255, 255, 255), thickness=2)
-                    # print(centerList, transList)
-                        # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
+                    print("########################")
+                    print(centerList, transList)
+                    print("########################")
+                    # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
                         #     centerList = []
                         #     transList = centerList
                 # if p0 is not None and label is not None:
