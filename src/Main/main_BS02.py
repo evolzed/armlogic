@@ -4,7 +4,7 @@ import os
 import sys
 
 # from src.BS02.track import track
-from src.BS02.track.track import vision_run, Track, np
+from src.BS02.track.track import vision_run, Track, np, video_run
 
 sys.path.append(os.path.abspath('../../'))
 from lib.Logger.Logger import *
@@ -45,6 +45,11 @@ def main():
             feed = int(input("please choose the feed (camera = 0 or video =1): "))
             if feed == 0:
                 p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
+                p1.daemon = True
+                p1.start()
+                p1.join()
+            else:
+                p1 = multiprocessing.Process(target=video_run, args=(transDict, transList, targetDict, transFrame))
                 p1.daemon = True
                 p1.start()
                 p1.join()

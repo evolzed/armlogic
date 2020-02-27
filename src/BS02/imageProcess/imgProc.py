@@ -151,12 +151,12 @@ class ImgProc:
         :return: None
         """
         avi = Video(videoDir)
-        frame = avi.getImageFromVedio()
+        frame = avi.getImageFromVideo()
         over_flag = 1
         pic_cnt = 0
         frame_cnt = 0
         while frame is not None and over_flag == 1:
-            frame = avi.getImageFromVedio()
+            frame = avi.getImageFromVideo()
             if frame_cnt % 20 == 0:  # get a frame per 20
                 fin = np.float32(frame)
                 self.bgVector[pic_cnt] = fin

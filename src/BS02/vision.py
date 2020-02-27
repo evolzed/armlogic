@@ -146,7 +146,10 @@ class Vision(object):
         # trackObj = ImageTrack()
 
         # avi = Video("E:\\1\\1.avi")
-        # preframe = avi.getImageFromVideo()
+        # avi = cam
+        # if avi is not None:
+        #     preframe = avi.getImageFromVideo()
+        # else:
         preframe, nFrame, t = cam.getImage()
         preframeb, bgMaskb, resarray = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
         k = 1
@@ -511,6 +514,33 @@ if __name__ == '__main__':
             break
     cam.destroy()
 """
+
+
+def video_run(transDict, transList, targetDict, transFrame):
+    # cam, _image = imageInit()
+    # cam = Camera()
+    videoDir = "d:\\1\\Video_20200204122733339.mp4"
+    bgDir = "d:\\1\\背景1.avi"
+    avi = Video(videoDir)
+    bgAvi = Video(bgDir)
+    imgCapObj = imageCapture(None, avi, bgAvi)
+    # imgCapObj = imageCapture(cam, None, cam)
+
+    # _frame, nf = cam.getImage()
+    print("准备载入yolo网络！")
+    yolo = YOLO()
+    print("准备背景学习！")
+    bgobj = ImgProc(50, imgCapObj)
+    # bgobj.studyBackgroundFromCam(cam)
+    # bgobj.studyBackgroundFromCam(bgAvi)
+    bgobj.studyBackground()
+    bgobj.createModelsfromStats()
+    _image = Vision(imgCapObj, yolo, bgobj)
+    print("开始！")
+    global gState
+    gState = 2
+    imageRun(avi, _image, transDict, transList, targetDict, transFrame)
+
 
 # def read(transDict):
 #     while True:
