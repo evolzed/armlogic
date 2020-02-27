@@ -213,34 +213,34 @@ class Vision(object):
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             detectbox = self.imgproc.filterBgBox(resarray, drawimg)
-            # centerlist = centerList = None
+            # centerList = centerList = None
             # detect
             if flag == 0:
-                # p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
-                centerlist = self.imgproc.detectObjNotRelyLK(featureimg, drawimg, dataDict)
-                # p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
-                # print("########################", centerlist)
+                # p0, label, centerList = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                centerList = self.imgproc.detectObjNotRelyLK(featureimg, drawimg, dataDict)
+                # p0, label, centerList = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
+                # print("########################", centerList)
                 # print(transList)
-                if centerlist is not None and len(centerlist) > 0:
-                    # transList = [[] for j in range(len(centerlist))]
-                    # print(transList, centerlist, str(len(transList)), str(len(centerlist)))
-                    for seqN in range(len(centerlist)):
-                        transList.append(centerlist[seqN])
-                    #     print(transList, centerlist, str(len(transList)), str(len(centerlist)))
-                    #     print(len(centerlist[seqN]), len(transList[seqN]))
-                    #     for jj in range(len(centerlist[seqN])):
-                    #         transList[seqN].append(centerlist[seqN][jj])
-                        cv2.circle(drawimg, (int(centerlist[seqN][0]), int(centerlist[seqN][1])), 24, (0, 0, 255), 7)
-                        # cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
+                if centerList is not None and len(centerList) > 0:
+                    # transList = [[] for j in range(len(centerList))]
+                    # print(transList, centerList, str(len(transList)), str(len(centerList)))
+                    for seqN in range(len(centerList)):
+                        transList.append(centerList[seqN])
+                    #     print(transList, centerList, str(len(transList)), str(len(centerList)))
+                    #     print(len(centerList[seqN]), len(transList[seqN]))
+                    #     for jj in range(len(centerList[seqN])):
+                    #         transList[seqN].append(centerList[seqN][jj])
+                        cv2.circle(drawimg, (int(centerList[seqN][0]), int(centerList[seqN][1])), 24, (0, 0, 255), 7)
+                        # cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (0, 0, 255), 7)
 
-                        cv2.putText(drawimg, text=str(int(centerlist[seqN][3])),
-                                    org=(int(centerlist[seqN][0]) - 20, int(centerlist[seqN][1])),
+                        cv2.putText(drawimg, text=str(int(centerList[seqN][3])),
+                                    org=(int(centerList[seqN][0]) - 20, int(centerList[seqN][1])),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(255, 255, 255), thickness=2)
-                    # print(centerlist, transList)
-                        # if centerlist[seqN][3] == 0 or centerlist[seqN][4] == 0:
-                        #     centerlist = []
-                        #     transList = centerlist
+                    # print(centerList, transList)
+                        # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
+                        #     centerList = []
+                        #     transList = centerList
                 # if p0 is not None and label is not None:
                 #     flag = 1
 
