@@ -8,7 +8,7 @@ from src.BS02.track.track import vision_run, Track, np
 
 sys.path.append(os.path.abspath('../../'))
 from lib.Logger.Logger import *
-from src.BS02 import BS02
+from src.BS02 import vision
 import multiprocessing
 
 def main():
