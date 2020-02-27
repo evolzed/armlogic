@@ -90,7 +90,7 @@ class Vision(object):
         prev_time = timer()
         while True:
             # print(cam._data_buf)
-            frame = np.asarray(cam._data_buf)
+            frame = np.asarray(self.cam._data_buf)
             frame = frame.reshape((960, 1280, 3))
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
