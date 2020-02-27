@@ -122,6 +122,10 @@ class ImgProc:
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
 
+    def reStudyBgModelFromCam(self, cam):
+        self.studyBackgroundFromCam(cam)
+        self.createModelsfromStats()
+
     def studyBackground(self):
         frame = self.imgCap.getBgImage()
         over_flag = 1
@@ -511,9 +515,9 @@ class ImgProc:
                         cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
                         # store every point label
                         print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
-                        centerX = (left + right)/2
-                        centerY = (top + bottom) / 2
-                        allList.append([centerX, centerY, i, 0, 0])
+                        centerX = int((left + right)/2)
+                        centerY = int((top + bottom) / 2)
+                        allList.append([centerX, centerY, int(i), 0, 0])
                 return allList
             else:
                 return None

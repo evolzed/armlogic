@@ -423,8 +423,10 @@ def imageInit():
     print("准备背景学习！")
     bgobj = ImgProc(50, imgCapObj)
     # bgobj.studyBackgroundFromCam(cam)
-    bgobj.studyBackgroundFromCam(cam)
-    bgobj.createModelsfromStats()
+    # bgobj.studyBackgroundFromCam(cam)
+    # bgobj.createModelsfromStats()
+    # 重新学习背景 每次需要重新学习背景的时候，就调用这个方法
+    bgobj.reStudyBgModelFromCam(cam)
     _image = Vision(imgCapObj, yolo, bgobj)
     print("开始！")
     global gState
