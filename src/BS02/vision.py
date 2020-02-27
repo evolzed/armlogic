@@ -217,7 +217,7 @@ class Vision(object):
             # detect
             if flag == 0:
                 # p0, label, centerlist = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
-                centerlist = self.imgproc.detectObjNotRelyLK(featureimg, drawimg, dataDict, 3)
+                centerlist = self.imgproc.detectObjNotRelyLK(featureimg, drawimg, dataDict)
                 # p0, label, centerlist = self.imgproc.detectObjNotRelyCnn(featureimg, drawimg, detectbox, 3)
                 # print("########################", centerlist)
                 # print(transList)

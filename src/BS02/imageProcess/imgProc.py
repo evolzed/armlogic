@@ -473,7 +473,7 @@ class ImgProc:
             return None, None, None
 
 
-    def detectObjNotRelyLK(self, featureimg, drawimg, dataDict, label_num):
+    def detectObjNotRelyLK(self, featureimg, drawimg, dataDict):
         """
          detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
 
