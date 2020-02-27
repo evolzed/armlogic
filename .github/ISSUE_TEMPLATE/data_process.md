@@ -2,10 +2,11 @@
 name: Data Process
 about: 数据处理
 title: ''
-labels: ''
+labels: 无码
 assignees: ''
 
 ---
+
 进行数据处理时，请按以下顺序进行
 - [ ] 数据重命名
 - [ ] 完成标注
