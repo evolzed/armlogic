@@ -123,7 +123,7 @@ class Vision(object):
                 print("no data[0x%x]" % ret)
             if g_bExit is True:
                 break
-        self.cam.destroy(self.cam, cam._data_buf)
+        self.cam.destroy(self.cam, self.cam._data_buf)
         yolo.closeSession()
 
     def detectSerialImage(self, cam, transDict, transList, targetDict, transFrame):
