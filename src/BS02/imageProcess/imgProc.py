@@ -423,6 +423,20 @@ class ImgProc:
                 detectedBox.append(newelem)
         return detectedBox
 
+    def cropBgBoxToYolo(self, detectedBox, src):
+        boxLenth = len(detectedBox)
+        objFrameList = []
+        if boxLenth > 0:
+            for i in range(boxLenth):
+                left = detectedBox[i][0]
+                top = detectedBox[i][1]
+                right = detectedBox[i][2]
+                bottom = detectedBox[i][3]
+                #图，和偏移坐标 用来恢复
+                obj =  [src[top:bottom, left:right], left, top]
+                objFrameList.append(obj)
+        return objFrameList
+
 
     def detectObjNotRelyCnn(self, featureimg, drawimg, detectedBox, label_num):
         p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
