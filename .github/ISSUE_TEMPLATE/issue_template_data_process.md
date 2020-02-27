@@ -1,2 +1,8 @@
-name: Tracking issue
-about: Use this template for tracking new features.
+---
+name: Feature request
+about: Suggest an idea for this project
+title: ''
+labels: ''
+assignees: ''
+
+---
