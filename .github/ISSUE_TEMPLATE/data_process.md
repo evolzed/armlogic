@@ -1,6 +1,6 @@
 ---
 name: Data Process
-about: ''
+about: 数据处理
 title: ''
 labels: ''
 assignees: ''
