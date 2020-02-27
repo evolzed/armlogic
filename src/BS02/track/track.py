@@ -5,12 +5,13 @@ import sys
 import cv2
 import uuid
 from src.BS02.camera import Camera
+
 from src.BS02.BS02 import *
 from src.BS02.imageProcess.imgProc import *
 import time
 from timeit import default_timer as timer
 import numpy as np
-from src.BS02.yolo.Yolo import *
+from src.BS02.yolo.Yolo import YOLO
 from multiprocessing import Process
 import multiprocessing
 from lib.Logger.Logger import Logger
