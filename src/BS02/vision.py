@@ -216,6 +216,20 @@ class Vision(object):
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             detectbox = self.imgproc.filterBgBox(resarray, drawimg)
+            print("detectbox.......", detectbox)
+            objFrameList= self.imgproc.cropBgBoxToYolo(detectbox, drawimg)
+            kk = 0
+            if len(objFrameList)>0:
+                for i in range(len(objFrameList)):
+                    kk += 1
+                    imgM = PImage.fromarray(objFrameList[i][0])  # PImage: from PIL import Vision as PImage
+                    """
+                    实验中，不要删
+                    dataDictM = self.yolo.detectImage(imgM)
+                    arrM = np.asarray(dataDictM["image"])
+                    cv2.imshow(str(kk), arrM)
+                    """
+
             # centerList = centerList = None
             # detect
             if flag == 0:
@@ -337,6 +351,7 @@ class Vision(object):
             # cv2.waitKey(1000)
             cv2.waitKey(10)
             if cv2.waitKey(1) & 0xFF == ord('q'):
+                cam.destroy()
                 break
             # return dataDict
             global bottleDict
@@ -396,7 +411,7 @@ if __name__ == '__main__':
     cam = Camera()
     _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
-    yolo = YOLO()
+    yolo = YOLO()q
     _image = Vision(cam, yolo)
     dataDict = _image.detectSerialImage(_frame, nf)
     print(dataDict)
@@ -630,10 +645,10 @@ if __name__ == '__main__':
         # p0.start()
 
         # first line code is without filter; second line one is with filter
-        p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
-        # p2 = multiprocessing.Process(target=track.trackWithFilter, args=(transDict, transList, targetDict))
-        p2.daemon = True
-        p2.start()
+        # p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
+        # # p2 = multiprocessing.Process(target=track.trackWithFilter, args=(transDict, transList, targetDict))
+        # p2.daemon = True
+        # p2.start()
 
         p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
         p1.daemon = True

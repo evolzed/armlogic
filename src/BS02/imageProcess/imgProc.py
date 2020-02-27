@@ -433,7 +433,8 @@ class ImgProc:
                 right = detectedBox[i][2]
                 bottom = detectedBox[i][3]
                 #图，和偏移坐标 用来恢复
-                obj =  [src[top:bottom, left:right], left, top]
+                obj = [src[top:bottom, left:right].copy(), left, top]
+                # cv2.imshow(str(i), obj[0])
                 objFrameList.append(obj)
         return objFrameList
 
