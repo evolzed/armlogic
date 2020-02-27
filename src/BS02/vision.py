@@ -230,10 +230,11 @@ class Vision(object):
                     #     print(len(centerlist[seqN]), len(transList[seqN]))
                     #     for jj in range(len(centerlist[seqN])):
                     #         transList[seqN].append(centerlist[seqN][jj])
-                        cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
+                        cv2.circle(drawimg, (int(centerlist[seqN][0]), int(centerlist[seqN][1])), 24, (0, 0, 255), 7)
+                        # cv2.circle(drawimg, (centerlist[seqN][0], centerlist[seqN][1]), 24, (0, 0, 255), 7)
 
-                        cv2.putText(drawimg, text=str(int(centerList[seqN][3])),
-                                    org=(centerList[seqN][0] - 20, centerList[seqN][1]),
+                        cv2.putText(drawimg, text=str(int(centerlist[seqN][3])),
+                                    org=(int(centerlist[seqN][0]) - 20, int(centerlist[seqN][1])),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(255, 255, 255), thickness=2)
                     # print(centerlist, transList)
@@ -256,7 +257,7 @@ class Vision(object):
                         print("111111111111111111111111", transList, centerList)
                         transList[seqN] = centerList[seqN]
                         # uuIDText = targetDict["target"][seqN][0]
-                        cv2.circle(drawimg, (centerList[seqN][0], centerList[seqN][1]), 24, (255, 0, 0), 7)
+                        cv2.circle(drawimg, (int(centerList[seqN][0]), int(centerList[seqN][1])), 24, (0, 0, 255), 7)
                         # cv2.circle(drawimg, (int(targetDict["target"][seqN][2][0]),
                         #                      int(targetDict["target"][seqN][2][1])), 6, (0, 0, 200), 2)
                         # cv2.putText(drawimg, uuIDText, (int(targetDict["target"][seqN][2][0]) + 50,

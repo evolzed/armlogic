@@ -42,10 +42,12 @@ def main():
             p2.daemon = True
             p2.start()
 
-            p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
-            p1.daemon = True
-            p1.start()
-            p1.join()
+            feed = int(input("please choose the feed (camera = 0 or video =1): "))
+            if feed == 0:
+                p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
+                p1.daemon = True
+                p1.start()
+                p1.join()
 
         # BS02.imageRun(cam, _image, transDict, transList, targetDict, transFrame)     #相机运行
         # try:
