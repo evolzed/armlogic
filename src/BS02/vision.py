@@ -73,7 +73,7 @@ class Vision(object):
         """
         stFrameInfo = MV_FRAME_OUT_INFO_EX()
         memset(byref(stFrameInfo), 0, sizeof(stFrameInfo))
-        if cam._data_buf == -1 or cam._data_buf is None:
+        if self.cam._data_buf == -1 or self.cam._data_buf is None:
             raise IOError("Couldn't open webcam or video")
         # 视频编码格式
         video_FourCC = 6
@@ -399,12 +399,12 @@ def imageInit():
     初始化相机对象cam, Vision对象
     :return: (cam：相机对象, _image:Vision对象)
     """
-    # cam = Camera()
-    videoDir = "d:\\1\\Video_20200204122733339.mp4"
-    bgDir = "d:\\1\\背景1.avi"
-    avi = Video(videoDir)
-    bgAvi = Video(bgDir)
-    imgCapObj = imageCapture(None, avi, bgAvi)
+    cam = Camera()
+    # videoDir = "d:\\1\\Video_20200204122733339.mp4"
+    # bgDir = "d:\\1\\背景1.avi"
+    # avi = Video(videoDir)
+    # bgAvi = Video(bgDir)
+    imgCapObj = imageCapture(cam, None, None)
     # imgCapObj = imageCapture(cam, None, cam)
 
     # _frame, nf = cam.getImage()
@@ -413,7 +413,7 @@ def imageInit():
     print("准备背景学习！")
     bgobj = ImgProc(50, imgCapObj)
     # bgobj.studyBackgroundFromCam(cam)
-    bgobj.studyBackground()
+    bgobj.studyBackgroundFromCam(cam)
     bgobj.createModelsfromStats()
     _image = Vision(imgCapObj, yolo, bgobj)
     print("开始！")

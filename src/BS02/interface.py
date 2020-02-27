@@ -7,6 +7,11 @@ class imageCapture:
         self.cam = camObj
         self.video = videoObj
         self.bgVideo = bgVideoObj
+        if self.cam is not None:
+            self._data_buf = self.cam._data_buf
+        else:
+            self._data_buf = None
+
         pass
     def getImage(self):
         if self.cam is not None:
@@ -42,7 +47,7 @@ class imageCapture:
 
     def getCamFps(self, nFrame):
         if self.cam is not None:
-            return self.cam.getCamFps
+            return self.cam.getCamFps(nFrame)
         if self.video is not None:
             return str(self.video.fps)
     def destroy(self):
