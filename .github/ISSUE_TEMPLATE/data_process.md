@@ -6,7 +6,7 @@ labels: 无码
 assignees: ''
 
 ---
-![Untitled Diagram](https://user-images.githubusercontent.com/39988460/75501029-b076c280-5a09-11ea-8a42-1b5eb7ad0607.jpg)
+![Untitled Diagram](https://user-images.githubusercontent.com/39988460/75511927-bc26b100-5a2a-11ea-9eec-1581f3c42fcd.jpg)
 ---
  
 进行数据处理时，请按以下顺序进行
