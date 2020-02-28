@@ -47,7 +47,7 @@ bottleDict = {
     "isObj": False  # bool
 }
 
-crop = True
+crop = False
 
 class Vision(object):
     """create main Vision class for processing images"""
