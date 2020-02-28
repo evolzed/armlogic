@@ -10,7 +10,7 @@ from timeit import default_timer as timer
 import cv2
 from src.BS02.imageProcess.imgProc import *
 from src.BS02.video import Video
-from src.BS02.interface import imageCapture
+from src.BS02.interface import *
 import time
 import multiprocessing
 # sys.path.insert(0, os.path.split(__file__)[0])
@@ -548,7 +548,7 @@ def video_run(transDict, transList, targetDict, transFrame):
     print("开始！")
     global gState
     gState = 2
-    imageRun(avi, _image, transDict, transList, targetDict, transFrame)
+    imageRun(imgCapObj, _image, transDict, transList, targetDict, transFrame)
 
 
 # def read(transDict):
