@@ -20,7 +20,9 @@ from Track_duplication, start from 20200203
 """
 # sys.stdout = Logger("d:\\12.txt")  # 保存到D盘
 
-
+speedMonitorList= []
+preV=0
+cnt = 0
 class Track:
     """
     根据图像api，提供增加新的Target目标功能；
@@ -330,20 +332,26 @@ class Track:
 
         return targetDict
 
-    def speedEstimate(self, targetDict_1, targetDict_2):
+    def speedEstimate(self, transDict, transList, targetDict):
         """
-        根据前一帧与当前帧的target信息，对target的速度进行估计计算
-        :param targetDict_1: 前一帧targetDict
-        :param targetDict_2: 当前帧的targetDict
-        :return: targetDict_2
+        根据前一帧与当前帧的centerList信息，对target的速度进行估计计算, 一旦监测到centerList对应position发生变化，
+        则对两者之间的速度做出计算，一定要以变化的时候的时刻作为速度的计算依据；
+        :param transDict:
+        :param transList:
+        :return:
         """
-        targetDictList_1 = targetDict_1.get("target")
-        targetDictList_2 = targetDict_2.get("target")
-        tempDeltaT = targetDict_2.get("timeCost") - targetDict_1.get("timeCost")
-        for i in range(len(targetDictList_1)):
-            targetDictList_2[i][3][0] = (targetDictList_2[i][2][0] - targetDictList_1[i][2][0]) / tempDeltaT
-            targetDictList_2[i][3][1] = (targetDictList_2[i][2][1] - targetDictList_1[i][2][1]) / tempDeltaT
-        print(targetDict_2)
+
+        tempList = transList
+        # 记录当前时刻
+        tempT = time.time()
+
+        # targetDictList_1 = targetDict_1.get("target")
+        # targetDictList_2 = targetDict_2.get("target")
+        # tempDeltaT = targetDict_2.get("timeCost") - targetDict_1.get("timeCost")
+        # for i in range(len(targetDictList_1)):
+        #     targetDictList_2[i][3][0] = (targetDictList_2[i][2][0] - targetDictList_1[i][2][0]) / tempDeltaT
+        #     targetDictList_2[i][3][1] = (targetDictList_2[i][2][1] - targetDictList_1[i][2][1]) / tempDeltaT
+        # print(targetDict_2)
 
         return None
 
@@ -414,6 +422,8 @@ class Track:
         #
         # print(lmx, lmy, cmx, cmy, "  &&&   ", lpx, lpy, cpx, cpy)
 
+
+
     def trackProcess(self, transDict, transList, targetDict):
         # # kf1 = self.targetMove()
         # kf2 = KF()
@@ -464,13 +474,19 @@ class Track:
         #     if (cv2.waitKey(30) & 0xff) == 27:
         #         break
         # cv2.destroyAllWindows()
-        global trackFlag
+        global trackFlag, speedMonitorList,cnt,preV
         trackFlag = 0
 
         # 存储上一记录targetDict
         lastDict = targetDict
 
+
+
+        tempSpeedMonitorList = []
         while True:
+            # test
+
+
             trackFrame = np.zeros((960, 1280, 3), np.uint8)
             # if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
             print("*" * 200)
@@ -505,14 +521,33 @@ class Track:
                         print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^  this is loop end !!!")
                         # self.updateTarget(targetDict, transList)
 
+                print("~" * 100)
+                if len(speedMonitorList) != 0:
+                    print(speedMonitorList, transList)
+                    print(speedMonitorList[0][0] == transList[0][0])
+                    print(preV)
+                    print(transList[0][0])
+                    print("!!!!!", preV == transList[0][0])
+                print("~" * 100)
+                # 监控速度变化的机制：
+                cnt += 1
+
+                if len(transList) > 0:
+                    preV = transList[0][0]
+                    speedMonitorList = transList
+
+
             else:
                 time.sleep(0.001)
                 # targetDict.update(self.createTarget(transDict, transList,))
                 # # targetDict = self.createTarget(transDict, transList,)
                 # print(targetDict, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
+
+
+
             # show
-            if len(transList) != 0:
+            if len(transList) != 0 and len(targetDict) != 0:
                 for j in range(len(targetDict["target"])):
                     currentX, currentY = int(targetDict["target"][j][2][0]), int(targetDict["target"][j][2][1])
                     lastX, lastY = int(lastDict["target"][j][2][0]), int(lastDict["target"][j][2][1],)
