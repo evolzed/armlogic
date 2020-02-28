@@ -436,6 +436,7 @@ class ImgProc:
                 #图，和偏移坐标 用来恢复
                 obj = [src[top:bottom, left:right].copy(), left, top]
                 # cv2.imshow(str(i), obj[0])
+                #背景切割出来的不同图片
                 objFrameList.append(obj)
 
         objCNNList = []
@@ -445,28 +446,28 @@ class ImgProc:
                 kk += 1
                 imgM = PImage.fromarray(objFrameList[i][0])  # PImage: from PIL import Vision as PImage
                 dataDictM = yolo.detectImage(imgM)
+                if "box" in dataDictM:
+                    for k in range(len(dataDictM["box"])):
+                        left = dataDictM["box"][k][2]
+                        top = dataDictM["box"][k][3]
+                        right = dataDictM["box"][k][4]
+                        bottom = dataDictM["box"][k][5]
+                        modify_x = objFrameList[i][1]
+                        modify_y = objFrameList[i][2]
 
-                left = dataDictM["box"][i][2]
-                top = dataDictM["box"][i][3]
-                right = dataDictM["box"][i][4]
-                bottom = dataDictM["box"][i][5]
-                modify_x = objFrameList[i][1]
-                modify_y = objFrameList[i][2]
+                        left += modify_x
+                        top += modify_y
+                        right += modify_x
+                        bottom += modify_y
 
-                left += modify_x
-                top += modify_y
-                right += modify_x
-                bottom += modify_y
-                preClass = dataDictM["box"][i][0]
+                        dataDictM["box"][k][2] = left
+                        dataDictM["box"][k][3] = top
+                        dataDictM["box"][k][4] = right
+                        dataDictM["box"][k][5] = bottom
 
-                dataDictM["box"][i][2] = left
-                dataDictM["box"][i][3] = top
-                dataDictM["box"][i][4] = right
-                dataDictM["box"][i][5] = bottom
-
-                objCNNList.append(dataDictM)
-                # arrM = np.asarray(dataDictM["image"])
-                # cv2.imshow(str(kk), arrM)
+                    objCNNList.append(dataDictM)
+                    # arrM = np.asarray(dataDictM["image"])
+                    # cv2.imshow(str(kk), arrM)
 
         return objCNNList
 
