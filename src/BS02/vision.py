@@ -47,6 +47,7 @@ bottleDict = {
     "isObj": False  # bool
 }
 
+crop = True
 
 class Vision(object):
     """create main Vision class for processing images"""
@@ -165,6 +166,7 @@ class Vision(object):
         # avi = Video("E:\\1\\1.avi")
         # frame = avi.getImageFromVideo()
         i = 1
+        dataDict = {}
         while True:
             _frame, nFrame, t = cam.getImage()
             camfps = "Cam" + cam.getCamFps(nFrame)
@@ -180,17 +182,19 @@ class Vision(object):
                 curr_fps = 0
 
             frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None)
+            result = frame.copy()
+            if crop is False:
+                img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
+                dataDict = self.yolo.detectImage(img)
+                result = np.asarray(dataDict["image"])
 
-            img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
-            dataDict = self.yolo.detectImage(img)
-            print("bigPicTimeCost", dataDict["timeCost"])
+                dataDict["image"] = img  # img：Image对象
+                dataDict["nFrame"] = nFrame
+                dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
+                print("bigPicTimeCost", dataDict["timeCost"])
 
             dataDict["bgTimeCost"] = self.imgproc.bgTimeCost if self.imgproc else 0
-            result = np.asarray(dataDict["image"])
 
-            dataDict["image"] = img  # img：Image对象
-            dataDict["nFrame"] = nFrame
-            dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
 
             # arr = np.asarray(dataDict["image"])
             imglist = self.imgproc.getBoxOnlyPic(dataDict, preframe)
@@ -200,21 +204,25 @@ class Vision(object):
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             detectbox = self.imgproc.filterBgBox(resarray, drawimg)
-            """
-            print("detectbox.......", detectbox)
-            objCNNList= self.imgproc.cropBgBoxToYolo(detectbox, drawimg,  self.yolo, nFrame, t)
-            kk = 0
-            if len(objCNNList) > 0:
-                for i in range(len(objCNNList)):
-                    kk += 1
-                    arrM = np.asarray(objCNNList[i]["image"])
-                    cv2.imshow(str(kk), arrM)
-            """
+            objCNNList = []
+            if crop is True:
+                print("detectbox.......", detectbox)
+                objCNNList= self.imgproc.cropBgBoxToYolo(detectbox, drawimg,  self.yolo, nFrame, t)
+                kk = 0
+                if len(objCNNList) > 0:
+                    for i in range(len(objCNNList)):
+                        kk += 1
+                        arrM = np.asarray(objCNNList[i]["image"])
+                        cv2.imshow(str(kk), arrM)
+
             # centerList = centerList = None
             # detect
+            centerList =[]
             if flag == 0:
-                # p0, label, centerList = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
-                centerList = self.imgproc.detectObjNotRelyLKFromDict(featureimg, drawimg, dataDict)
+                if crop is False:
+                    centerList = self.imgproc.detectObjNotRelyLKFromDict(featureimg, drawimg, dataDict)
+                else:
+                    centerList = self.imgproc.detectObjNotRelyLK(featureimg, drawimg, objCNNList)
 
                 print("centerList", centerList)
 
