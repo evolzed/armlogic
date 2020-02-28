@@ -424,7 +424,7 @@ class ImgProc:
                 detectedBox.append(newelem)
         return detectedBox
 
-    def cropBgBoxToYolo(self, detectedBox, src, yolo):
+    def cropBgBoxToYolo(self, detectedBox, src, yolo ,nFrame ,t):
         boxLenth = len(detectedBox)
         objFrameList = []
         if boxLenth > 0:
@@ -446,7 +446,12 @@ class ImgProc:
                 kk += 1
                 imgM = PImage.fromarray(objFrameList[i][0])  # PImage: from PIL import Vision as PImage
                 dataDictM = yolo.detectImage(imgM)
+                print("small TIME COST:", dataDictM["timeCost"])
+                dataDictM["image"] = imgM  # img：Image对象 重复了
+                dataDictM["nFrame"] = nFrame
+                dataDictM["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
                 if "box" in dataDictM:
+                    print("in kkkkkkkkkk")
                     for k in range(len(dataDictM["box"])):
                         left = dataDictM["box"][k][2]
                         top = dataDictM["box"][k][3]
@@ -525,7 +530,7 @@ class ImgProc:
             return None, None, None
 
 
-    def detectObjNotRelyLK(self, featureimg, drawimg, dataDict):
+    def detectObjNotRelyLKFromDict(self, featureimg, drawimg, dataDict):
         """
          detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
 
@@ -544,18 +549,17 @@ class ImgProc:
         """
         #detect the points
         # trackObj = Track()
+        allList = []
+        count = 0
         if "box" in dataDict:
-            #构造label的形状
-            # label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
-            # print("len(dataDict[box])", len(dataDict["box"]))
-
             boxLenth = len(dataDict["box"])
             # classify  the label  by the dataDict boxes and label them
-            allList = []
             if boxLenth > 0:
                 for i in range(len(dataDict["box"])):
-                    if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
-                        print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
+                    print("in11111111111")
+                    # if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
+                    if "box" in dataDict and dataDict["box"][i][1] > 0.9:
+                        print("in2222222222")
                         left = dataDict["box"][i][2]
                         top = dataDict["box"][i][3]
                         right = dataDict["box"][i][4]
@@ -565,12 +569,59 @@ class ImgProc:
                         print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
                         centerX = int((left + right)/2)
                         centerY = int((top + bottom) / 2)
-                        allList.append([centerX, centerY, int(i), 0, 0])
-                return allList
-            else:
-                return None
-        else:
-            return None
+
+                        allList.append([centerX, centerY, int(count), 0, 0])
+                        print("count", count)
+                        count += 1
+        return allList
+
+    def detectObjNotRelyLK(self, featureimg, drawimg, dataDictList):
+        """
+         detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
+
+        :param featureimg: feature image, pre image, the  points of this  image(p0) will be track in the trackObj cycle if the points is labeled
+        :param drawimg: drawing img,which is used for draw
+        :param dataDict: the dataDict retruned by image check
+        :param feature_params:track params
+        :param label_num: the min detected boxes
+        :return:p0, label, allList
+        p0 is detected and labeled points  and will be track in the trackObj cycle ,
+        label is the label of p0 points
+        allList is a list to store center point position and offset and id
+        allList[seqN][0], allList[seqN][1] is center point position
+        allList[seqN][3], allList[seqN][4] is offset X offset Y
+        allList[seqN][2], is id
+        """
+        #detect the points
+        # trackObj = Track()
+        allList = []
+        count = 0
+        for index in range(len(dataDictList)):
+            dataDict = dataDictList[index]
+            if "box" in dataDict:
+                boxLenth = len(dataDict["box"])
+                # classify  the label  by the dataDict boxes and label them
+                if boxLenth > 0:
+                    for i in range(len(dataDict["box"])):
+                        print("in11111111111")
+                        # if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
+                        if "box" in dataDict:
+                            print("in2222222222")
+                            left = dataDict["box"][i][2]
+                            top = dataDict["box"][i][3]
+                            right = dataDict["box"][i][4]
+                            bottom = dataDict["box"][i][5]
+                            cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
+                            # store every point label
+                            print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
+                            centerX = int((left + right)/2)
+                            centerY = int((top + bottom) / 2)
+
+                            allList.append([centerX, centerY, int(count), 0, 0])
+                            print("count", count)
+                            count += 1
+        return allList
+
 
 
     def detectObj(self, featureimg, drawimg, dataDict, label_num):
