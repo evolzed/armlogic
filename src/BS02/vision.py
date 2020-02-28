@@ -225,6 +225,7 @@ class Vision(object):
                         if len(transList) == 0:
                             transList.append(centerList[seqN])
                         else:
+                            print("seqN-----------", seqN)
                             transList[seqN] = centerList[seqN]
                     #     print(transList, centerList, str(len(transList)), str(len(centerList)))
                     #     print(len(centerList[seqN]), len(transList[seqN]))

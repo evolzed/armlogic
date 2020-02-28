@@ -573,7 +573,12 @@ class ImgProc:
                         allList.append([centerX, centerY, int(count), 0, 0])
                         print("count", count)
                         count += 1
-        return allList
+                return allList
+            else:
+                return None
+            return allList
+        else:
+            return None
 
     def detectObjNotRelyLK(self, featureimg, drawimg, dataDictList):
         """
