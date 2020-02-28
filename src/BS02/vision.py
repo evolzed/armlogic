@@ -223,12 +223,13 @@ class Vision(object):
                     # print(transList, centerList, str(len(transList)), str(len(centerList)))
                     for seqN in range(len(centerList)):
                         if len(transList) == 0:
-                            # transList = [[] for j in range(len(centerList))]
                             transList.append(centerList[seqN])
                         else:
-                            pass
-                            ### transList[seqN] = centerList[seqN]
-
+                            transList[seqN] = centerList[seqN]
+                    #     print(transList, centerList, str(len(transList)), str(len(centerList)))
+                    #     print(len(centerList[seqN]), len(transList[seqN]))
+                    #     for jj in range(len(centerList[seqN])):
+                    #         transList[seqN].append(centerList[seqN][jj])
                         cv2.circle(drawimg, (int(centerList[seqN][0]), int(centerList[seqN][1])), 24, (0, 0, 255), 7)
                         cv2.putText(drawimg, text=str(int(centerList[seqN][2])),
                                     org=(int(centerList[seqN][0]) - 20, int(centerList[seqN][1])),
@@ -237,15 +238,125 @@ class Vision(object):
                     print("########################")
                     print(centerList, transList)
                     print("########################")
+                    # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
+                        #     centerList = []
+                        #     transList = centerList
+                # if p0 is not None and label is not None:
+                #     flag = 1
 
+            # track
+            else:
+                p0, label, centerList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0)
+                if centerList is not None and len(centerList) > 0:
+                    for seqN in range(len(centerList)):
+                        print("########################", centerList)
+                        # transList = [[] for j in range(len(centerList))]
+                        # for jj in range(len(centerList[seqN])):
+                        #     transList[seqN].append(centerList[seqN][jj])
+                        # transList.append(centerList[seqN])
+                        print("111111111111111111111111", transList, centerList)
+                        transList[seqN] = centerList[seqN]
+                        # uuIDText = targetDict["target"][seqN][0]
+                        cv2.circle(drawimg, (int(centerList[seqN][0]), int(centerList[seqN][1])), 24, (0, 0, 255), 7)
+                        # cv2.circle(drawimg, (int(targetDict["target"][seqN][2][0]),
+                        #                      int(targetDict["target"][seqN][2][1])), 6, (0, 0, 200), 2)
+                        # cv2.putText(drawimg, uuIDText, (int(targetDict["target"][seqN][2][0]) + 50,
+                        #                                 int(targetDict["target"][seqN][2][1]) + 50),
+                        #             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                        cv2.putText(drawimg, text=str(int(centerList[seqN][3])),
+                                    org=(centerList[seqN][0] - 20, centerList[seqN][1]),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                        cv2.putText(drawimg, text=str(int(centerList[seqN][4])),
+                                    org=(centerList[seqN][0] - 20, centerList[seqN][1] + 50),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                        cv2.putText(drawimg, text=str(centerList[seqN][2]),
+                                    org=(centerList[seqN][0], centerList[seqN][1]),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=3, color=(0, 255, 255), thickness=2)
+
+                        # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
+                        #     centerList = []
+                        #     transList = centerList
+
+                    # try to transfer the frame
+                    # transFrame = np.zeros((10, 15, 3), np.uint8)
+
+                    print("@" * 100)
+                    print(len(frame))
+                    for l in range(6):
+                        for ll in range(7):
+                            for lll in range(3):
+                                transFrame[l][ll][lll] = frame[centerList[0][0] + l][centerList[0][1] + ll][lll]
+                                # transFrame[l][ll] = [1, 2, 3]
+                            print(transFrame[l][ll])
+                    # print(centerList)
+                    # print(transFrame)
+                    # print(frame[centerList[0][0]][centerList[0][1]])
+                    # cv2.imshow("frame", frame)
+                    print("@" * 100)
+
+            # clear
+
+            # if centerList:
+            #     0
+
+            if "box" not in dataDict:
+                p0 = np.array([])
+                label = np.array([])
+                flag = 0
+                cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
+
+            else:
+                nonBottleFlag = True
+                for x in range(len(dataDict["box"])):
+                    if dataDict["box"][x][1] > 0.9:
+                        nonBottleFlag = False
+                        break
+
+                if nonBottleFlag is True:
+                    p0 = np.array([])
+                    label = np.array([])
+                    flag = 0
+                    cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
             cv2.imshow("res", drawimg)
             cv2.waitKey(10)
             preframeb = frame.copy()
+
+            if bgMask is not None:
+                dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)
+            cv2.putText(result, text=fps, org=(3, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.50, color=(255, 0, 0), thickness=2)
+            cv2.putText(result, text=camfps, org=(150, 15), fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.50, color=(0, 255, 255), thickness=2)
+            cv2.imshow("result", result)
+            # cv2.waitKey(1000)
             cv2.waitKey(10)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 cam.destroy()
                 break
+            # return dataDict
+            global bottleDict
+            bottleDict = dataDict
+            # bottleDict1 = dataDict
+            # 此处不能直接使用transDict = dataDict,不然其他进程读取不到数据
+            transDict.update(dataDict)
+            # print("*" * 100)
+            # print(transDict)
+            # print("*" * 100)
+            # print(transDict)
+            # print(bottleDict1)
+            # print(bottleDict)
+            bottleDict1 = dataDict
+            # transDict = {}
+            # if "box" in dataDict:
+            #     transDict["box"] = bottleDict["box"]
             transFrame = copy.deepcopy(frame)
+            # transDict = {"---------------------------------------------------" + str(i)}
+            # print(transDict)
+            # print(bottleDict["box"])
+            # print(dict)
             i += 1
         cam.destroy()
 
@@ -376,8 +487,6 @@ def vision_run(transDict, transList, targetDict, transFrame):
     # # while 1:
     # transDict["aaa"] = 666666
     imageRun(cam, _image, transDict, transList, targetDict, transFrame)
-
-
 """
 if __name__ == '__main__':
     cam = Camera()
