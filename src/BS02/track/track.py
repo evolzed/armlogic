@@ -216,12 +216,20 @@ class Track:
         tempTargetDict = targetDict  # updateTarget()进程中，每次存储的临时TargetDict # ；
 
         # 每步updateTarget()进行自主估值
-        tempList = tempTargetDict["target"]
+        # 从这里开始 tempList自 transList进行获取！
+        tempList = transList
+        # tempList = tempTargetDict["target"]
         for i in range(len(tempList)):
-            if len(tempList[i]) != 0:
-                tempList[i][2][0] = tempList[i][2][0] + tempList[i][3][0] * deltaT
-                tempList[i][2][1] = tempList[i][2][1] + tempList[i][3][1] * deltaT
-        tempTargetDict["target"] = tempList
+            if len(tempList) != 0:
+                tempList[i][0] = tempList[i][0] + tempList[i][3] * deltaT
+                tempList[i][1] = tempList[i][1] + tempList[i][4] * deltaT
+                tempTargetDict["target"][i][2][0] = tempList[i][0] + tempList[i][3] * deltaT
+                tempTargetDict["target"][i][2][1] = tempList[i][1] + tempList[i][4] * deltaT
+
+                # if len(tempList[i]) != 0:
+            #     tempList[i][2][0] = tempList[i][2][0] + tempList[i][3][0] * deltaT
+            #     tempList[i][2][1] = tempList[i][2][1] + tempList[i][3][1] * deltaT
+        # tempTargetDict["target"] = tempList
 
         print(tempTargetDict, "this is tempDict !!!!!!")
 
@@ -467,13 +475,16 @@ class Track:
             # if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
             print("*" * 200)
             print(transList)
+            print(targetDict)
             print("*" * 200)
             if len(transList) != 0:
                 for i in range(10):
                     # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
                     if i < 9:
-
-                        targetDict = self.updateTarget(targetDict, transList)
+                        if len(targetDict) == 0:
+                            targetDict.update(self.createTarget(transDict, transList, ))
+                        else:
+                            targetDict = self.updateTarget(targetDict, transList)
 
                     if i == 9:
                         # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断

@@ -217,7 +217,8 @@ class Vision(object):
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             detectbox = self.imgproc.filterBgBox(resarray, drawimg)
             print("detectbox.......", detectbox)
-            objFrameList= self.imgproc.cropBgBoxToYolo(detectbox, drawimg)
+            objFrameList = []
+            # objFrameList= self.imgproc.cropBgBoxToYolo(detectbox, drawimg)
             kk = 0
             if len(objFrameList)>0:
                 for i in range(len(objFrameList)):
@@ -240,11 +241,11 @@ class Vision(object):
                 # print("########################", centerList)
                 # print(transList)
                 if centerList is not None and len(centerList) > 0:
-                    # transList = [[] for j in range(len(centerList))]
+                    # if len(centerList) != 0:
+                    #     transList = [[] for j in range(len(centerList))]
                     # print(transList, centerList, str(len(transList)), str(len(centerList)))
                     for seqN in range(len(centerList)):
                         if len(transList) == 0:
-                            # transList = [[] for j in range(len(centerList))]
                             transList.append(centerList[seqN])
                         else:
                             transList[seqN] = centerList[seqN]
