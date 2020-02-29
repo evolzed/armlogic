@@ -20,6 +20,7 @@ A clear and concise description of what the problem is. Ex. I'm always frustrate
 **描述你想要的解决方案**
 
 A clear and concise description of what you want to happen.
+
 请简单明了的叙述你想要发生的事情
 
 **Describe alternatives you've considered**
