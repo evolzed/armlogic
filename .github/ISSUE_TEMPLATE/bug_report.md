@@ -10,11 +10,13 @@ assignees: ''
 **Describe the bug|描述错误**
 
 A clear and concise description of what the bug is.
+
 清楚而简明地描述bug是什么。
 
 **To Reproduce|复制**
 
 Steps to reproduce the behavior:
+
 重现行为的步骤：
 1. Go to |去'...'
 2. Click on |点击'....'
@@ -24,14 +26,17 @@ Steps to reproduce the behavior:
 **Expected behavior|预期行为**
 
 A clear and concise description of what you expected to happen.
+
 清楚而简明地描述你所期望发生的事情。
 
 **Screenshots|截图**
 
 If applicable, add screenshots to help explain your problem.
+
 如果可以的话，添加屏幕截图来帮助解释您的问题。
 
 **Desktop (please complete the following information):**
+
 **桌面系统(请填写以下信息)**
 
  - OS|操作系统: [e.g. windows10]
@@ -39,6 +44,7 @@ If applicable, add screenshots to help explain your problem.
  - Version|版本 [e.g. 22]
 
 **Smartphone (please complete the following information):**
+
 **智能手机(请填写以下信息):**
 
  - Device|设备: [e.g. iPhone6]
@@ -49,4 +55,5 @@ If applicable, add screenshots to help explain your problem.
 **Additional context|附加信息**
 
 Add any other context about the problem here.
+
 在这里添加关于这个问题的任何其它描述信息。
