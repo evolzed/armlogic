@@ -234,11 +234,7 @@ class Vision(object):
                             transList.append(centerList[seqN])
                         else:
                             print("seqN-----------", seqN)
-                            if len(centerList) > len(transList):
-                                transList = [[] for j in range(len(centerList))]
-                                transList[seqN] = centerList[seqN]
-                            else:
-                                transList[seqN] = centerList[seqN]
+                            transList[seqN] = centerList[seqN]
                     #     print(transList, centerList, str(len(transList)), str(len(centerList)))
                     #     print(len(centerList[seqN]), len(transList[seqN]))
                     #     for jj in range(len(centerList[seqN])):
@@ -647,6 +643,6 @@ if __name__ == '__main__':
         # p2.start()
 
         p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
-        p1.daemon = True
+        p1.daemon = True  #主进程运行完不会检查p1子进程的状态（是否执行完），直接结束进程；
         p1.start()
-        p1.join()
+        p1.join()  #阻塞当前进程p2，直到p1执行完，再执行p2
