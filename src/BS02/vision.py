@@ -528,8 +528,8 @@ if __name__ == '__main__':
 def video_run(transDict, transList, targetDict, transFrame):
     # cam, _image = imageInit()
     # cam = Camera()
-    videoDir = "d:\\1\\Video_20200204122733339.mp4"
-    bgDir = "d:\\1\\背景1.avi"
+    videoDir = "d:\\1\\一个瓶子.avi"
+    bgDir = "d:\\1\\背景.avi"
     avi = Video(videoDir)
     bgAvi = Video(bgDir)
     imgCapObj = imageCapture(None, avi, bgAvi)

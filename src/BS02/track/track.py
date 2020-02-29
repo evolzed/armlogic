@@ -140,8 +140,8 @@ class Track:
             print(tempList)
             for i in range(len(transList)):
                 print(i)
-                # tempList[i].append(str(uuid.uuid1()))   # 对应位置打上uuID
-                tempList[i].append(str(i) + "**********")    # 测试用
+                tempList[i].append(str(uuid.uuid1()))   # 对应位置打上uuID
+                # tempList[i].append(str(i) + "**********")    # 测试用
                 tempList[i].append(trackFlag)
                 tempList[i].append([transList[i][0], transList[i][1]])
                 tempList[i].append(speed)
