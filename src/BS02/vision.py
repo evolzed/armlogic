@@ -234,7 +234,11 @@ class Vision(object):
                             transList.append(centerList[seqN])
                         else:
                             print("seqN-----------", seqN)
-                            transList[seqN] = centerList[seqN]
+                            if len(centerList) > len(transList):
+                                transList = [[] for j in range(len(centerList))]
+                                transList[seqN] = centerList[seqN]
+                            else:
+                                transList[seqN] = centerList[seqN]
                     #     print(transList, centerList, str(len(transList)), str(len(centerList)))
                     #     print(len(centerList[seqN]), len(transList[seqN]))
                     #     for jj in range(len(centerList[seqN])):
