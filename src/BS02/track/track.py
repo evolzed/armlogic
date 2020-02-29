@@ -227,7 +227,8 @@ class Track:
                 tempList[i][1] = tempList[i][1] + tempList[i][4] * deltaT
                 tempTargetDict["target"][i][2][0] = tempList[i][0] + tempList[i][3] * deltaT
                 tempTargetDict["target"][i][2][1] = tempList[i][1] + tempList[i][4] * deltaT
-
+        # 回传targetDict
+        targetDict = tempTargetDict
                 # if len(tempList[i]) != 0:
             #     tempList[i][2][0] = tempList[i][2][0] + tempList[i][3][0] * deltaT
             #     tempList[i][2][1] = tempList[i][2][1] + tempList[i][3][1] * deltaT
