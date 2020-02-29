@@ -416,7 +416,7 @@ class ImgProc:
             right = left + elem[0][2]
             bottom = top + elem[0][3]
             contourArea = elem[1]
-            print("area:", contourArea)
+            # print("area:", contourArea)
             #淘汰掉比较小的
             if contourArea > 5000:
                 cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
@@ -502,7 +502,7 @@ class ImgProc:
                     bottom = detectedBox[i][3]
                     cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
                     # store every point label
-                    print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
+                    # print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
                     for k in range(p0.shape[0]):
                         print("p0", p0[k, 0, 0])
                         print("p1", p0[k, 0, 1])
@@ -556,17 +556,17 @@ class ImgProc:
             # classify  the label  by the dataDict boxes and label them
             if boxLenth > 0:
                 for i in range(len(dataDict["box"])):
-                    print("in11111111111")
+                    # print("in11111111111")
                     # if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
                     if "box" in dataDict and dataDict["box"][i][1] > 0.9:
-                        print("in2222222222")
+                        # print("in2222222222")
                         left = dataDict["box"][i][2]
                         top = dataDict["box"][i][3]
                         right = dataDict["box"][i][4]
                         bottom = dataDict["box"][i][5]
                         cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
                         # store every point label
-                        print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
+                        # print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
                         centerX = int((left + right)/2)
                         centerY = int((top + bottom) / 2)
 
@@ -608,10 +608,10 @@ class ImgProc:
                 # classify  the label  by the dataDict boxes and label them
                 if boxLenth > 0:
                     for i in range(len(dataDict["box"])):
-                        print("in11111111111")
+                        # print("in11111111111")
                         # if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
                         if "box" in dataDict:
-                            print("in2222222222")
+                            # print("in2222222222")
                             left = dataDict["box"][i][2]
                             top = dataDict["box"][i][3]
                             right = dataDict["box"][i][4]

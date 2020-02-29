@@ -128,7 +128,7 @@ class Vision(object):
         self.cam.destroy(self.cam, self.cam._data_buf)
         yolo.closeSession()
 
-    def detectSerialImage(self, cam, transDict, transList, targetDict, transFrame):
+    def  detectSerialImage(self, cam, transDict, transList, targetDict, transFrame):
         """
         获取并处理连续的帧数
         :param cam: 相机对象
@@ -191,7 +191,7 @@ class Vision(object):
                 dataDict["image"] = img  # img：Image对象
                 dataDict["nFrame"] = nFrame
                 dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
-                print("bigPicTimeCost", dataDict["timeCost"])
+                # print("bigPicTimeCost", dataDict["timeCost"])
 
             dataDict["bgTimeCost"] = self.imgproc.bgTimeCost if self.imgproc else 0
 
@@ -255,7 +255,8 @@ class Vision(object):
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(255, 255, 255), thickness=2)
                     print("########################")
-                    print(centerList, transList)
+                    print("centerList", centerList)
+                    print("transList", transList)
                     print("########################")
                     # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
                         #     centerList = []
