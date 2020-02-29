@@ -221,12 +221,16 @@ class Track:
         # 从这里开始 tempList自 transList进行获取！
         tempList = transList
         # tempList = tempTargetDict["target"]
-        for i in range(len(tempList)):
-            if len(tempList) != 0:
-                tempList[i][0] = tempList[i][0] + tempList[i][3] * deltaT
-                tempList[i][1] = tempList[i][1] + tempList[i][4] * deltaT
-                tempTargetDict["target"][i][2][0] = tempList[i][0] + tempList[i][3] * deltaT
-                tempTargetDict["target"][i][2][1] = tempList[i][1] + tempList[i][4] * deltaT
+        for i in range(len(tempTargetDict["target"])):
+            if len(tempTargetDict["target"]) != 0:
+                # tempList[i][0] = tempList[i][0] + tempList[i][3] * deltaT
+                # tempList[i][1] = tempList[i][1] + tempList[i][4] * deltaT
+                # tempTargetDict["target"][i][2][0] = tempList[i][0] + tempList[i][3] * deltaT
+                # tempTargetDict["target"][i][2][1] = tempList[i][1] + tempList[i][4] * deltaT
+                tempTargetDict["target"][i][2][0] = tempTargetDict["target"][i][2][0] +\
+                                                    tempTargetDict["target"][i][3][0] * deltaT
+                tempTargetDict["target"][i][2][1] = tempTargetDict["target"][i][2][1] +\
+                                                    tempTargetDict["target"][i][3][1] * deltaT
         # 回传targetDict
         targetDict = tempTargetDict
                 # if len(tempList[i]) != 0:
@@ -499,7 +503,7 @@ class Track:
                     # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
                     if i < 9:
                         if len(targetDict) == 0:
-                            targetDict.update(self.createTarget(transDict, transList, ))
+                            targetDict= self.updateTarget(self.createTarget(transDict, transList, ), transList)
                         else:
                             targetDict = self.updateTarget(targetDict, transList)
 
@@ -551,10 +555,11 @@ class Track:
             if len(transList) != 0 and len(targetDict) != 0:
                 for j in range(len(targetDict["target"])):
                     currentX, currentY = int(targetDict["target"][j][2][0]), int(targetDict["target"][j][2][1])
-                    lastX, lastY = int(lastDict["target"][j][2][0]), int(lastDict["target"][j][2][1],)
+                    # FilterShow
+                    # lastX, lastY = int(lastDict["target"][j][2][0]), int(lastDict["target"][j][2][1],)
                     uuIDText = targetDict["target"][j][0]
-                    cv2.circle(trackFrame, (currentX - 100, currentY), 6, (0, 0, 200), 2)
-                    cv2.putText(trackFrame, uuIDText, (currentX - 100, currentY), cv2.FONT_HERSHEY_SIMPLEX,
+                    cv2.circle(trackFrame, (currentX, currentY), 6, (0, 0, 200), 2)
+                    cv2.putText(trackFrame, uuIDText, (currentX - 100, currentY + 30), cv2.FONT_HERSHEY_SIMPLEX,
                                 1, (255, 255, 255), 2, cv2.LINE_AA)
             cv2.imshow("tragetTracking", trackFrame)
             if (cv2.waitKey(30) & 0xff) == 27:
@@ -668,6 +673,12 @@ class Track:
                 # cv2.imshow("contours", transFrame)
             cv2.waitKey(50)
             print(time.time())
+
+    def read(self,transDict, transList, targetDict):
+        time.sleep(0.001)
+        print("!!!!!!!!!!!", )
+        print(transList,)
+        print("!!!!!!!!!!!", )
 
 
 if __name__ == "__main__":
@@ -796,11 +807,15 @@ if __name__ == "__main__":
         # p0.daemon = True
         # p0.start()
 
-        # first line code is without filter; second line one is with filter
-        p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
-        # p2 = multiprocessing.Process(target=track.trackWithFilter, args=(transDict, transList, targetDict))
-        p2.daemon = True
-        p2.start()
+        ptest = multiprocessing.Process(target=track.read, args=(transDict, transList, targetDict))
+        ptest.daemon = True
+        ptest.start()
+
+        # # first line code is without filter; second line one is with filter
+        # p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
+        # # p2 = multiprocessing.Process(target=track.trackWithFilter, args=(transDict, transList, targetDict))
+        # p2.daemon = True
+        # p2.start()
 
         p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
         p1.daemon = True

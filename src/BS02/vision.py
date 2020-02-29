@@ -229,21 +229,26 @@ class Vision(object):
                 if centerList is not None and len(centerList) > 0:
                     # transList = [[] for j in range(len(centerList))]
                     # print(transList, centerList, str(len(transList)), str(len(centerList)))
-                    for seqN in range(len(centerList)):
-                        if len(transList) == 0:
+                    if len(transList) == 0:
+                        for seqN in range(len(centerList)):
                             transList.append(centerList[seqN])
-                        else:
-                            if len(centerList) > len(transList):
-                                print("seqN-----------", seqN)
-                                transList = [[] for j in range(len(centerList))]
-                                transList[seqN] = centerList[seqN]
-                            else:
-                                print("seqN-----------", seqN)
-                                transList[seqN] = centerList[seqN]
+                    elif len(transList) == len(centerList):
+                        for seqN in range(len(centerList)):
+                            transList[seqN] = centerList[seqN]
+                    else:
+                        # transList = []  千万不能这样操作！
+                        deltaCnt = len(transList)
+                        for seqN in range(len(centerList)):
+                            if deltaCnt > 0:
+                                transList.pop(0)
+                                deltaCnt -= 1
+                            print("seqN-----------", seqN)
+                            transList.append(centerList[seqN])
                     #     print(transList, centerList, str(len(transList)), str(len(centerList)))
                     #     print(len(centerList[seqN]), len(transList[seqN]))
                     #     for jj in range(len(centerList[seqN])):
                     #         transList[seqN].append(centerList[seqN][jj])
+                    for seqN in range(len(centerList)):
                         cv2.circle(drawimg, (int(centerList[seqN][0]), int(centerList[seqN][1])), 24, (0, 0, 255), 7)
                         cv2.putText(drawimg, text=str(int(centerList[seqN][2])),
                                     org=(int(centerList[seqN][0]) - 20, int(centerList[seqN][1])),
@@ -533,8 +538,8 @@ if __name__ == '__main__':
 def video_run(transDict, transList, targetDict, transFrame):
     # cam, _image = imageInit()
     # cam = Camera()
-    videoDir = "d:\\1\\一个瓶子.avi"
-    bgDir = "d:\\1\\背景.avi"
+    videoDir = "d:\\1\\Video_20200204122301684 .avi"
+    bgDir = "d:\\1\\背景1.avi"
     avi = Video(videoDir)
     bgAvi = Video(bgDir)
     imgCapObj = imageCapture(None, avi, bgAvi)
