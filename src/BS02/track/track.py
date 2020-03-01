@@ -20,9 +20,11 @@ from Track_duplication, start from 20200203
 """
 # sys.stdout = Logger("d:\\12.txt")  # 保存到D盘
 
-speedMonitorList= []
-preV=0
+speedMonitorList = [[]]
+preVX = preVY = 0
 cnt = 0
+
+
 class Track:
     """
     根据图像api，提供增加新的Target目标功能；
@@ -124,8 +126,8 @@ class Track:
         # trackFlag = 0  # 对应imgProc中的Flag
 
         targetDict = dict()
-
-        speed = [24.83, 0]    # 设置初始速度，为录像视频中平均速度; 初始像素速度为5.8， 转换成时间相关速度 近似值#
+        speed = [0, 0]
+        # speed = [24.83, 0]    # 设置初始速度，为录像视频中平均速度; 初始像素速度为5.8， 转换成时间相关速度 近似值#
         angle = [0, 0]
         type = 0
         typCounter = 0
@@ -265,10 +267,10 @@ class Track:
         for i in range(len(targetDict1.get("target"))):
             tempList.append(targetDict1.get("target")[i])
         targetDict2.setdefault("target", tempList)
-        # print(targetDict2)
-        return 0
+        print("$$$$$$$$$$$$$$$", targetDict2)
+        return targetDict2
 
-    def checkTarget(self, targetDict, transList):
+    def checkTarget(self, transDict, targetDict, transList):
         """
         检查target功能，在trackProcess循环末期，对照自身target信息和bottleDict中的centerList信息；
         :param bottleDict: 上一步的
@@ -307,32 +309,58 @@ class Track:
         # file.close()
         k = 24.83 / 5.8
         # 目前 按照顺序依次对targetDict 中的list 与 transList 进行比较， 目前，对于循环末期，直接赋值transList
-        tempList = targetDict["target"]
-        for j in range(len(tempList)):
-            # 位置直接赋值
-            # 利用传送带方向的目标位置做判断transList是否及时更新，若没来得及更新，则targetDict延续自身位置信息；
-            # 做判断，赋值
-            # if transList[j][0] > tempList[j][2][0]:
-            #
-            #     tempList[j][2][0] = transList[j][0]
-            #     tempList[j][2][1] = transList[j][1]
-            # 不做判断直接赋值！
-            tempList[j][2][0] = transList[j][0]
-            tempList[j][2][1] = transList[j][1]
-            tempList[j][3][0] = transList[j][3] * k
-            tempList[j][3][1] = transList[j][4] * k  # 速度直接赋值  #
-        targetDict["target"] = tempList
+        # tempList为初始时target的List；
+
+
+        # compare机制，用临时存储tempList，比较其长度与targetDict长度，假如追踪target在判断范围内，则不做修正，
+        print("%"*150)
+        print(targetDict, transList)
+        print("%" * 150)
+
+        tempTransList = transList
+        if len(tempTransList) > len(targetDict["target"]):
+            for i in range(len(tempTransList)):
+                for ii in range(len(targetDict["target"])):
+                    deltaX = tempTransList[i][0] - targetDict["target"][ii][2][0]
+                    deltaY = tempTransList[i][1] - targetDict["target"][ii][2][1]
+                    # 暂定范围
+                    if deltaX * deltaX + deltaY * deltaY < 50:
+                        tempTransList.pop(i)
+            tempTargetDict = self.createTarget(transDict, tempTransList)
+            targetDict = self.mergeTarget(targetDict, tempTargetDict)
+
+
+
+
+        # tempList = targetDict["target"]
+        # if len(tempList) > 0:
+        #     for j in range(len(tempList)):
+        #         # 位置直接赋值
+        #         # 利用传送带方向的目标位置做判断transList是否及时更新，若没来得及更新，则targetDict延续自身位置信息；
+        #         # 做判断，赋值
+        #         # if transList[j][0] > tempList[j][2][0]:
+        #         #
+        #         #     tempList[j][2][0] = transList[j][0]
+        #         #     tempList[j][2][1] = transList[j][1]
+        #         # 不做判断直接赋值！
+        #         tempList[j][2][0] = transList[j][0]
+        #         tempList[j][2][1] = transList[j][1]
+        #         tempList[j][3][0] = transList[j][3] * k
+        #         tempList[j][3][1] = transList[j][4] * k  # 速度直接赋值  #
+        # targetDict["target"] = tempList
+
+
 
         # 检查视野中的centerlist， 若空了，则清除targetDict （暂时处理）
 
-        if len(transList) == 0:
-        # 对于后续centerList 元素在相机视野中的位置等信息判断；
-        # judge = 1
-        # for l in range(len(transList)):
-        #     judge = (transList[l][0] < 125) * judge
-        # if judge == 1:
-            targetDict["target"] = []
-            targetDict.update(targetDict)
+        # if len(transList) == 0:
+        # # 对于后续centerList 元素在相机视野中的位置等信息判断；
+        # # judge = 1
+        # # for l in range(len(transList)):
+        # #     judge = (transList[l][0] < 125) * judge
+        # # if judge == 1:
+        #     targetDict["target"] = []
+        targetDict.update(targetDict)
         print("@@@@@@@@@", targetDict, "@@@@@@@@@", str(len(transList)))
 
         return targetDict
@@ -427,8 +455,6 @@ class Track:
         #
         # print(lmx, lmy, cmx, cmy, "  &&&   ", lpx, lpy, cpx, cpy)
 
-
-
     def trackProcess(self, transDict, transList, targetDict):
         # # kf1 = self.targetMove()
         # kf2 = KF()
@@ -479,18 +505,13 @@ class Track:
         #     if (cv2.waitKey(30) & 0xff) == 27:
         #         break
         # cv2.destroyAllWindows()
-        global trackFlag, speedMonitorList,cnt,preV
+        global trackFlag, speedMonitorList, cnt, preVX, preVY
         trackFlag = 0
 
         # 存储上一记录targetDict
         lastDict = targetDict
 
-
-
-        tempSpeedMonitorList = []
         while True:
-            # test
-
 
             trackFrame = np.zeros((960, 1280, 3), np.uint8)
             # if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
@@ -507,6 +528,10 @@ class Track:
                         else:
                             targetDict = self.updateTarget(targetDict, transList)
 
+                        if len(transList) != 0:
+                            print(preVX == transList[0][0])
+                            print(preVY == transList[0][1])
+
                     if i == 9:
                         # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
 
@@ -522,25 +547,28 @@ class Track:
                         #
                         # targetDict["target"] = tempList
 
-                        targetDict = self.checkTarget(targetDict, transList,)
+                        targetDict = self.checkTarget(transDict, targetDict, transList,)
                         print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^  this is loop end !!!")
                         # self.updateTarget(targetDict, transList)
 
-                print("~" * 100)
-                if len(speedMonitorList) != 0:
-                    print(speedMonitorList, transList)
-                    print(speedMonitorList[0][0] == transList[0][0])
-                    print(preV)
-                    print(transList[0][0])
-                    print("!!!!!", preV == transList[0][0])
-                print("~" * 100)
-                # 监控速度变化的机制：
-                cnt += 1
 
+                # test monitor!!!
+                print("~" * 100)
+                # if len(speedMonitorList) != 0:
+                #     print(speedMonitorList, transList)
+                #     # print(speedMonitorList[0][0] == transList[0][0])
+                #     print(preV)
+                #     print(transList[0][0])
+                #     print("!!!!!", preV == transList[0][0])
+                # print("~" * 100)
+                # # 监控速度变化的机制：
+                # cnt += 1
+
+                # speedMonitorList = [[]for ii in range(transList)]
                 if len(transList) > 0:
-                    preV = transList[0][0]
-                    speedMonitorList = transList
-
+                    preVX = transList[0][0]
+                    preVY = transList[0][1]
+                    # speedMonitorList[0][0] = transList[0][0]
 
             else:
                 time.sleep(0.001)
