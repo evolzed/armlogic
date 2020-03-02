@@ -224,7 +224,7 @@ class Vision(object):
             centerList = []
             if flag == 0:
                 if crop is False:
-                    p0, label, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict, 2)
+                    p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict, 2)
                     if dataDict is not None and "box" in dataDict:
                         print("dataDict:", dataDict)
                         for i in range(len(dataDict["box"])):
@@ -273,12 +273,14 @@ class Vision(object):
                     #     print(len(centerList[seqN]), len(transList[seqN]))
                     #     for jj in range(len(centerList[seqN])):
                     #         transList[seqN].append(centerList[seqN][jj])
-                    for seqN in range(len(centerList)):
-                        cv2.circle(drawimg, (int(centerList[seqN][0]), int(centerList[seqN][1])), 24, (0, 0, 255), 7)
-                        cv2.putText(drawimg, text=str(int(centerList[seqN][2])),
-                                    org=(int(centerList[seqN][0]) - 20, int(centerList[seqN][1])),
-                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=2, color=(255, 255, 255), thickness=2)
+
+
+                    # for seqN in range(len(centerList)):
+                    #     cv2.circle(drawimg, (int(centerList[seqN][0]), int(centerList[seqN][1])), 24, (0, 0, 255), 7)
+                    #     cv2.putText(drawimg, text=str(int(centerList[seqN][2])),
+                    #                 org=(int(centerList[seqN][0]) - 20, int(centerList[seqN][1])),
+                    #                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    #                 fontScale=2, color=(255, 255, 255), thickness=2)
                     print("########################")
                     print("centerList", centerList)
                     print("transList", transList)
@@ -298,7 +300,7 @@ class Vision(object):
                 # LKtrackedList[seqN][2]    trackID
                 # LKtrackedList[seqN][3]    deltaX
                 # LKtrackedList[seqN][4]    deltaY
-                # LKtrackedList[seqN][5]    speedY
+                # LKtrackedList[seqN][5]    speedX
                 # LKtrackedList[seqN][6]    speedY
 
                 p0, label, LKtrackedList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0, deltaT)
@@ -328,13 +330,13 @@ class Vision(object):
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(255, 255, 0), thickness=2)
                         cv2.putText(drawimg, text="ID:",
-                                    org=(LKtrackedList[seqN][0], LKtrackedList[seqN][1]-50),
+                                    org=(LKtrackedList[seqN][0], LKtrackedList[seqN][1] - 50),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=3, color=(0, 255, 255), thickness=2)
+                                    fontScale=2, color=(0, 255, 255), thickness=2)
                         cv2.putText(drawimg, text=str(LKtrackedList[seqN][2]),
-                                    org=(LKtrackedList[seqN][0], LKtrackedList[seqN][1]-50),
+                                    org=(LKtrackedList[seqN][0]+50, LKtrackedList[seqN][1]-50),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=3, color=(0, 255, 255), thickness=2)
+                                    fontScale=2, color=(0, 255, 255), thickness=2)
                         # speed
                         cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][5])),
                                     org=(LKtrackedList[seqN][0] - 50, LKtrackedList[seqN][1]+30),
@@ -372,6 +374,8 @@ class Vision(object):
 
             # if centerList:
             #     0
+            if dataDict is not None and "box" in dataDict:
+                print("dataDict!!!:", dataDict)
 
             if "box" not in dataDict:
                 p0 = np.array([])

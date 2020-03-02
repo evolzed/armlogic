@@ -659,6 +659,7 @@ class ImgProc:
         """
         #detect the points
         # trackObj = Track()
+        theList =[]
         p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
         if p0 is not None and "box" in dataDict:
             # trackDict, trackDict = trackObj.createTarget()
@@ -682,6 +683,18 @@ class ImgProc:
                         top = dataDict["box"][i][3]
                         right = dataDict["box"][i][4]
                         bottom = dataDict["box"][i][5]
+
+                        centerX = int((left + right) / 2)
+                        centerY = int((top + bottom) / 2)
+
+
+                        dataDict["box"][i][8] = centerX
+                        dataDict["box"][i][9] = centerY
+                        dataDict["box"][i][10] = int(i)
+
+                        theList.append([centerX, centerY, int(i), 0, 0])
+
+
                         cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
                         # store every point label
                         print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
@@ -702,19 +715,19 @@ class ImgProc:
                     centerL = self.findTrackedCenterPoint(p0, label)
                     allList = []
                     for x in centerL:
-                        allList.append([x[0], x[1], x[2], 0, 0])
+                        allList.append([x[0], x[1], x[2], 0, 0]) # is not used  temparary
                         indexLabel = int(x[2])
                         # print("indexLabel:", indexLabel)
-                        dataDict["box"][indexLabel][8] = x[0]      #centerX
-                        dataDict["box"][indexLabel][9] = x[1]       #centerY
-                        dataDict["box"][indexLabel][10] = int(x[2])   #trackID
-                    return p0, label, allList, dataDict
+                        # dataDict["box"][indexLabel][8] = x[0]      #centerX
+                        # dataDict["box"][indexLabel][9] = x[1]       #centerY
+                        # dataDict["box"][indexLabel][10] = int(x[2])   #trackID
+                    return p0, label, allList, theList, dataDict
                 else:
-                    return None, None, None, dataDict
+                    return None, None, None, None, dataDict
             else:
-                return None, None, None, dataDict
+                return None, None, None,None, dataDict
         else:
-            return None, None, None, dataDict
+            return None, None,None, None, dataDict
 
 
     def trackObj(self, featureimg, secondimg, drawimg, label, p0, deltaT):
