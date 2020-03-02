@@ -226,6 +226,7 @@ class Vision(object):
                 if crop is False:
                     p0, label, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict, 2)
                     if dataDict is not None and "box" in dataDict:
+                        print("dataDict:", dataDict)
                         for i in range(len(dataDict["box"])):
                             print("%%%%%%current i", i)
                             if dataDict["box"][i][10] is not None:
@@ -241,7 +242,7 @@ class Vision(object):
 
 
 
-                print("centerList", centerList)
+                # print("centerList", centerList)
 
                 if centerList is not None and len(centerList) > 0:
                     # transList = [[] for j in range(len(centerList))]
@@ -301,14 +302,16 @@ class Vision(object):
                 # LKtrackedList[seqN][6]    speedY
 
                 p0, label, LKtrackedList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0, deltaT)
+
                 if LKtrackedList is not None and len(LKtrackedList) > 0:
+                    print("LKtrackedList:", LKtrackedList)
                     for seqN in range(len(LKtrackedList)):
                         print("########################", LKtrackedList)
                         print("111111111111111111111111", transList, LKtrackedList)
                         transList[seqN] = LKtrackedList[seqN]
                         # uuIDText = targetDict["target"][seqN][0]
                         # 位置坐标
-                        cv2.circle(drawimg, (int(LKtrackedList[seqN][0]), int(LKtrackedList[seqN][1])), 24, (0, 0, 255), 7)
+                        cv2.circle(drawimg, (int(LKtrackedList[seqN][0]), int(LKtrackedList[seqN][1])), 24, (0, 0, 255), 5)
                         # cv2.circle(drawimg, (int(targetDict["target"][seqN][2][0]),
                         #                      int(targetDict["target"][seqN][2][1])), 6, (0, 0, 200), 2)
                         # cv2.putText(drawimg, uuIDText, (int(targetDict["target"][seqN][2][0]) + 50,
@@ -317,26 +320,30 @@ class Vision(object):
 
                         # ID 和 偏移量
                         cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][3])),
-                                    org=(LKtrackedList[seqN][0] - 20, LKtrackedList[seqN][1]),
+                                    org=(LKtrackedList[seqN][0] - 50, LKtrackedList[seqN][1] - 30),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                                    fontScale=2, color=(255, 255, 0), thickness=2)
                         cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][4])),
-                                    org=(LKtrackedList[seqN][0] - 20, LKtrackedList[seqN][1] + 50),
+                                    org=(LKtrackedList[seqN][0] + 50, LKtrackedList[seqN][1] - 30),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                                    fontScale=2, color=(255, 255, 0), thickness=2)
+                        cv2.putText(drawimg, text="ID:",
+                                    org=(LKtrackedList[seqN][0], LKtrackedList[seqN][1]-50),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=3, color=(0, 255, 255), thickness=2)
                         cv2.putText(drawimg, text=str(LKtrackedList[seqN][2]),
-                                    org=(LKtrackedList[seqN][0], LKtrackedList[seqN][1]),
+                                    org=(LKtrackedList[seqN][0], LKtrackedList[seqN][1]-50),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=3, color=(0, 255, 255), thickness=2)
                         # speed
                         cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][5])),
-                                    org=(LKtrackedList[seqN][0] + 20, LKtrackedList[seqN][1]-30),
+                                    org=(LKtrackedList[seqN][0] - 50, LKtrackedList[seqN][1]+30),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                                    fontScale=2, color=(255, 255, 0), thickness=2)
                         cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][6])),
-                                    org=(LKtrackedList[seqN][0] + 20, LKtrackedList[seqN][1] - 60),
+                                    org=(LKtrackedList[seqN][0] + 50, LKtrackedList[seqN][1] + 30),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                                    fontScale=2, color=(255, 255, 0), thickness=2)
 
                         # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
                         #     centerList = []
@@ -346,13 +353,15 @@ class Vision(object):
                     # transFrame = np.zeros((10, 15, 3), np.uint8)
 
                     print("@" * 100)
-                    print(len(frame))
+                    # print(len(frame))
                     for l in range(6):
                         for ll in range(7):
                             for lll in range(3):
-                                transFrame[l][ll][lll] = frame[LKtrackedList[0][0] + l][LKtrackedList[0][1] + ll][lll]
+                                pass
+                                # transFrame[l][ll][lll] = frame[LKtrackedList[0][0] + l][LKtrackedList[0][1] + ll][lll]
+
                                 # transFrame[l][ll] = [1, 2, 3]
-                            print(transFrame[l][ll])
+                            # print(transFrame[l][ll])
                     # print(centerList)
                     # print(transFrame)
                     # print(frame[centerList[0][0]][centerList[0][1]])

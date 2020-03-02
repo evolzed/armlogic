@@ -364,21 +364,21 @@ class ImgProc:
         print("label_list", label_list)
         targetList = []
         for i in label_list:
-            print("i", i)
-            print("good_new_con[:, 2]", good_new_con[:, 2])
+            # print("i", i)
+            # print("good_new_con[:, 2]", good_new_con[:, 2])
             good_new_con_i = good_new_con[abs(good_new_con[:, 2] - i) < 0.0001]  # float modify
             # print("good_new_con", good_new_con)
             good_new = good_new_con_i[:, 0:2]
-            print("good_new", good_new)
+            # print("good_new", good_new)
             good_old_con_i = good_old_con[abs(good_old_con[:, 2] - i) < 0.0001]
             # print("good_old_con", good_old_con)
             good_old = good_old_con_i[:, 0:2]
-            print("good_old", good_old)
+            # print("good_old", good_old)
             if np.size(good_new) > 0:
                 offset = self.findTrackedOffsetOneBottle(good_new, good_old)
-                print("offset", offset)
+                # print("offset", offset)
                 elem = [offset, i]
-                print("elem", elem)
+                # print("elem", elem)
                 targetList.append(elem)
         return targetList
 
@@ -693,8 +693,8 @@ class ImgProc:
                                     (top - 20 <= p0[k, 0, 1]) and \
                                     (p0[k, 0, 1] <= bottom + 20):
                                 label[k, 0, 0] = i
-                print("label", label)
-                print("unique", np.unique(label[label != -1]))
+                # print("label", label)
+                # print("unique", np.unique(label[label != -1]))
                 # num is the detected label number
                 if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
                 # if (label != -1).any():
@@ -704,9 +704,10 @@ class ImgProc:
                     for x in centerL:
                         allList.append([x[0], x[1], x[2], 0, 0])
                         indexLabel = int(x[2])
-                        dataDict["box"][indexLabel][8] = x[0]
-                        dataDict["box"][indexLabel][9] = x[1]
-                        dataDict["box"][indexLabel][10] = x[2]
+                        # print("indexLabel:", indexLabel)
+                        dataDict["box"][indexLabel][8] = x[0]      #centerX
+                        dataDict["box"][indexLabel][9] = x[1]       #centerY
+                        dataDict["box"][indexLabel][10] = int(x[2])   #trackID
                     return p0, label, allList, dataDict
                 else:
                     return None, None, None, dataDict
@@ -748,10 +749,10 @@ class ImgProc:
                 #concatenate the points and their labels not used
                 good_new_con = np.concatenate((good_new, good_label), axis=1)
                 good_old_con = np.concatenate((good_old, good_label), axis=1)
-                print("good_new_con", good_new_con)
+                # print("good_new_con", good_new_con)
                 if good_new_con is not None:
                     targetlist = self.findTrackedOffsets(good_new_con, good_old_con, good_label)
-                    print("targetlist", targetlist)
+                    # print("targetlist", targetlist)
 
                 #unfold the points and draw it
                 for i, (new, old) in enumerate(zip(good_new_con, good_old_con)):  # fold and enumerate with i
@@ -769,7 +770,7 @@ class ImgProc:
 
                 centerList = self.findTrackedCenterPoint(p0, label)
 
-                print("centerList", centerList)
+                # print("centerList", centerList)
 
                 allList = []
                 if centerList is not None:
@@ -777,10 +778,11 @@ class ImgProc:
                         for i in range(len(targetlist)):
                             if center[2] == targetlist[i][1]:  #CNN label 相等
                                 # 坐标 label 速度
-                                allList.append([center[0], center[1], center[2],\
-                                                targetlist[i][0][0], targetlist[i][0][1],
-                                                targetlist[i][0][0]/deltaT, targetlist[i][0][1]/deltaT])
-                        print("center", center)
+                                allList.append([center[0], center[1], center[2],
+                                                round(targetlist[i][0][0], 3), round(targetlist[i][0][1], 3),#offset
+                                                round(targetlist[i][0][0]/deltaT, 3),  #speed
+                                                round(targetlist[i][0][1]/deltaT, 3)])
+                        # print("center", center)
                 return p0, label, allList
             else:
                 return None, None, None
