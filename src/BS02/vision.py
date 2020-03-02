@@ -217,7 +217,7 @@ class Vision(object):
 
             # centerList = centerList = None
             # detect
-            centerList =[]
+            centerList = []
             if flag == 0:
                 if crop is False:
                     centerList = self.imgproc.detectObjNotRelyLKFromDict(featureimg, drawimg, dataDict)

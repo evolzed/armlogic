@@ -180,8 +180,8 @@ class YOLO(object):
             speedY = None
             trackID = None
 
-            boxList.append([predicted_class, score, left, top, right, bottom, \
-                            angle, diameter, centerX, centerY, deltaX, deltaY, speedX, speedY, trackID])
+            boxList.append([predicted_class, score, left, top, right, bottom,\
+                            angle, diameter, centerX, centerY, trackID, deltaX, deltaY, speedX, speedY])
 
             dataDict["box"] = boxList
             # print(label, (left, top), (right, bottom))

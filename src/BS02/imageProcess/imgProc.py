@@ -529,6 +529,8 @@ class ImgProc:
         else:
             return None, None, None
 
+    # boxList.append([predicted_class, score, left, top, right, bottom, \
+    #                 angle, diameter, centerX, centerY, trackID, deltaX, deltaY, speedX, speedY])
 
     def detectObjNotRelyLKFromDict(self, featureimg, drawimg, dataDict):
         """
@@ -571,6 +573,11 @@ class ImgProc:
                         centerY = int((top + bottom) / 2)
 
                         allList.append([centerX, centerY, int(count), 0, 0])
+
+                        dataDict["box"][i][8] = centerX
+                        dataDict["box"][i][9] = centerY
+                        dataDict["box"][i][10] = int(count)
+
                         print("count", count)
                         count += 1
                 return allList
@@ -623,6 +630,10 @@ class ImgProc:
                             centerY = int((top + bottom) / 2)
 
                             allList.append([centerX, centerY, int(count), 0, 0])
+
+                            dataDict["box"][i][8] = centerX
+                            dataDict["box"][i][9] = centerY
+                            dataDict["box"][i][10] = int(count)
                             print("count", count)
                             count += 1
         return allList
@@ -761,9 +772,23 @@ class ImgProc:
                 if centerList is not None:
                     for center in centerList:
                         for i in range(len(targetlist)):
-                            if center[2] == targetlist[i][1]:
+                            if center[2] == targetlist[i][1]:  #CNN label 相等
                                 # 坐标 label 速度
                                 allList.append([center[0], center[1], center[2], targetlist[i][0][0], targetlist[i][0][1]])
+
+                                dataDict["box"][i][8] = center[0]
+                                dataDict["box"][i][9] = center[1]
+                                dataDict["box"][i][10] = center[2]
+                                #deltaX
+                                dataDict["box"][i][11] = targetlist[i][0][0]
+                                # deltaY
+                                dataDict["box"][i][12] = targetlist[i][0][1]
+                                #speedX
+                                dataDict["box"][i][13] = targetlist[i][0][0]
+                                # speedY
+                                dataDict["box"][i][14] = targetlist[i][0][1]
+
+
                         print("center", center)
                 return p0, label, allList
             else:
