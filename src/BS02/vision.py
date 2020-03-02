@@ -152,6 +152,8 @@ class Vision(object):
         #     preframe = avi.getImageFromVideo()
         # else:
         preframe, nFrame, t = cam.getImage()
+        preframeT = t
+
         preframeb, bgMaskb, resarray = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
         k = 1
         startt = timer()
@@ -169,6 +171,8 @@ class Vision(object):
         dataDict = {}
         while True:
             _frame, nFrame, t = cam.getImage()
+            frameT = t
+            deltaT = frameT - preframeT  #时间间隔
             camfps = "Cam" + cam.getCamFps(nFrame)
             # frame = avi.getImageFromVideo()
             curr_time = timer()
@@ -220,9 +224,22 @@ class Vision(object):
             centerList = []
             if flag == 0:
                 if crop is False:
-                    centerList = self.imgproc.detectObjNotRelyLKFromDict(featureimg, drawimg, dataDict)
+                    p0, label, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict, 2)
+                    if dataDict is not None and "box" in dataDict:
+                        for i in range(len(dataDict["box"])):
+                            print("%%%%%%current i", i)
+                            if dataDict["box"][i][10] is not None:
+                                print("%%%%%%%%currentID", dataDict["box"][i][10])
+
                 else:
                     centerList = self.imgproc.detectObjNotRelyLK(featureimg, drawimg, objCNNList)
+
+               #dataDict就是检测到的，centerX, centerY, trackID三个变量已经附加上
+                # centerList不再需要，仍旧保留，等待以下代码更改为dataDict
+                # boxList.append([predicted_class, score, left, top, right, bottom, \
+                #                 angle, diameter, centerX, centerY, trackID, deltaX, deltaY, speedX, speedY])
+
+
 
                 print("centerList", centerList)
 
@@ -268,40 +285,58 @@ class Vision(object):
                     # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
                         #     centerList = []
                         #     transList = centerList
-                # if p0 is not None and label is not None:
-                #     flag = 1
+                #切换为图像跟踪模式
+                if p0 is not None and label is not None:
+                    flag = 1
 
             # track
             else:
-                p0, label, centerList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0)
-                if centerList is not None and len(centerList) > 0:
-                    for seqN in range(len(centerList)):
-                        print("########################", centerList)
-                        # transList = [[] for j in range(len(centerList))]
-                        # for jj in range(len(centerList[seqN])):
-                        #     transList[seqN].append(centerList[seqN][jj])
-                        # transList.append(centerList[seqN])
-                        print("111111111111111111111111", transList, centerList)
-                        transList[seqN] = centerList[seqN]
+                # LKtrackedList中保存的是 被跟踪到的点的 位置坐标，位移，和位移除以时间后的速度，格式如下
+                # LKtrackedList[seqN][0]    centerX
+                # LKtrackedList[seqN][1]    centerY
+                # LKtrackedList[seqN][2]    trackID
+                # LKtrackedList[seqN][3]    deltaX
+                # LKtrackedList[seqN][4]    deltaY
+                # LKtrackedList[seqN][5]    speedY
+                # LKtrackedList[seqN][6]    speedY
+
+                p0, label, LKtrackedList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0, deltaT)
+                if LKtrackedList is not None and len(LKtrackedList) > 0:
+                    for seqN in range(len(LKtrackedList)):
+                        print("########################", LKtrackedList)
+                        print("111111111111111111111111", transList, LKtrackedList)
+                        transList[seqN] = LKtrackedList[seqN]
                         # uuIDText = targetDict["target"][seqN][0]
-                        cv2.circle(drawimg, (int(centerList[seqN][0]), int(centerList[seqN][1])), 24, (0, 0, 255), 7)
+                        # 位置坐标
+                        cv2.circle(drawimg, (int(LKtrackedList[seqN][0]), int(LKtrackedList[seqN][1])), 24, (0, 0, 255), 7)
                         # cv2.circle(drawimg, (int(targetDict["target"][seqN][2][0]),
                         #                      int(targetDict["target"][seqN][2][1])), 6, (0, 0, 200), 2)
                         # cv2.putText(drawimg, uuIDText, (int(targetDict["target"][seqN][2][0]) + 50,
                         #                                 int(targetDict["target"][seqN][2][1]) + 50),
                         #             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-                        cv2.putText(drawimg, text=str(int(centerList[seqN][3])),
-                                    org=(centerList[seqN][0] - 20, centerList[seqN][1]),
+
+                        # ID 和 偏移量
+                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][3])),
+                                    org=(LKtrackedList[seqN][0] - 20, LKtrackedList[seqN][1]),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(255, 255, 255), thickness=2)
-                        cv2.putText(drawimg, text=str(int(centerList[seqN][4])),
-                                    org=(centerList[seqN][0] - 20, centerList[seqN][1] + 50),
+                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][4])),
+                                    org=(LKtrackedList[seqN][0] - 20, LKtrackedList[seqN][1] + 50),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(255, 255, 255), thickness=2)
-                        cv2.putText(drawimg, text=str(centerList[seqN][2]),
-                                    org=(centerList[seqN][0], centerList[seqN][1]),
+                        cv2.putText(drawimg, text=str(LKtrackedList[seqN][2]),
+                                    org=(LKtrackedList[seqN][0], LKtrackedList[seqN][1]),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=3, color=(0, 255, 255), thickness=2)
+                        # speed
+                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][5])),
+                                    org=(LKtrackedList[seqN][0] + 20, LKtrackedList[seqN][1]-30),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=2, color=(255, 255, 255), thickness=2)
+                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][6])),
+                                    org=(LKtrackedList[seqN][0] + 20, LKtrackedList[seqN][1] - 60),
+                                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                                    fontScale=2, color=(255, 255, 255), thickness=2)
 
                         # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
                         #     centerList = []
@@ -315,7 +350,7 @@ class Vision(object):
                     for l in range(6):
                         for ll in range(7):
                             for lll in range(3):
-                                transFrame[l][ll][lll] = frame[centerList[0][0] + l][centerList[0][1] + ll][lll]
+                                transFrame[l][ll][lll] = frame[LKtrackedList[0][0] + l][LKtrackedList[0][1] + ll][lll]
                                 # transFrame[l][ll] = [1, 2, 3]
                             print(transFrame[l][ll])
                     # print(centerList)
@@ -350,6 +385,7 @@ class Vision(object):
             cv2.imshow("res", drawimg)
             cv2.waitKey(10)
             preframeb = frame.copy()
+            preframeT = frameT
 
             if bgMask is not None:
                 dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)

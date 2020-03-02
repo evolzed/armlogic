@@ -703,17 +703,20 @@ class ImgProc:
                     allList = []
                     for x in centerL:
                         allList.append([x[0], x[1], x[2], 0, 0])
-
-                    return p0, label, allList
+                        indexLabel = int(x[2])
+                        dataDict["box"][indexLabel][8] = x[0]
+                        dataDict["box"][indexLabel][9] = x[1]
+                        dataDict["box"][indexLabel][10] = x[2]
+                    return p0, label, allList, dataDict
                 else:
-                    return None, None, None
+                    return None, None, None, dataDict
             else:
-                return None, None, None
+                return None, None, None, dataDict
         else:
-            return None, None, None
+            return None, None, None, dataDict
 
 
-    def trackObj(self, featureimg, secondimg, drawimg, label, p0):
+    def trackObj(self, featureimg, secondimg, drawimg, label, p0, deltaT):
         """
         track the obj of deteced, input the deteced points or the last tracked points,output the new tracked points and its labels
 
@@ -774,21 +777,9 @@ class ImgProc:
                         for i in range(len(targetlist)):
                             if center[2] == targetlist[i][1]:  #CNN label 相等
                                 # 坐标 label 速度
-                                allList.append([center[0], center[1], center[2], targetlist[i][0][0], targetlist[i][0][1]])
-
-                                dataDict["box"][i][8] = center[0]
-                                dataDict["box"][i][9] = center[1]
-                                dataDict["box"][i][10] = center[2]
-                                #deltaX
-                                dataDict["box"][i][11] = targetlist[i][0][0]
-                                # deltaY
-                                dataDict["box"][i][12] = targetlist[i][0][1]
-                                #speedX
-                                dataDict["box"][i][13] = targetlist[i][0][0]
-                                # speedY
-                                dataDict["box"][i][14] = targetlist[i][0][1]
-
-
+                                allList.append([center[0], center[1], center[2],\
+                                                targetlist[i][0][0], targetlist[i][0][1],
+                                                targetlist[i][0][0]/deltaT, targetlist[i][0][1]/deltaT])
                         print("center", center)
                 return p0, label, allList
             else:
