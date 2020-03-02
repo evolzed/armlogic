@@ -244,6 +244,8 @@ class Vision(object):
 
                 # print("centerList", centerList)
 
+                # tempList = centerList
+
                 if centerList is not None and len(centerList) > 0:
                     # transList = [[] for j in range(len(centerList))]
                     if len(transList) == 0:
@@ -258,6 +260,7 @@ class Vision(object):
                                 deltaCnt -= 1
                             print("seqN-----------", seqN)
                             transList.append(centerList[seqN])
+                        print("666666", transList)
 
                     else:
                         # transList = []  千万不能这样操作！
@@ -269,6 +272,9 @@ class Vision(object):
                             if 0 <= seqN - (len(transList) - len(centerList)) < len(centerList):
                                 print("seqN-----------", seqN - (len(transList) - len(centerList)))
                                 transList.append(centerList[seqN - (len(transList) - len(centerList))])
+                        print("55555555", transList)
+                                # transList.append([])
+
                     #     print(transList, centerList, str(len(transList)), str(len(centerList)))
                     #     print(len(centerList[seqN]), len(transList[seqN]))
                     #     for jj in range(len(centerList[seqN])):
