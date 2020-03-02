@@ -21,7 +21,11 @@ from Track_duplication, start from 20200203
 # sys.stdout = Logger("d:\\12.txt")  # 保存到D盘
 
 speedMonitorList = [[]]
-preVX = preVY = 0
+preVX = preVY = dict()
+for targetNum in range(20):
+    preVX.setdefault(str(targetNum), 0)
+    preVY.setdefault(str(targetNum), 0)
+
 cnt = 0
 
 
@@ -126,8 +130,8 @@ class Track:
         # trackFlag = 0  # 对应imgProc中的Flag
 
         targetDict = dict()
-        speed = [0, 0]
-        # speed = [24.83, 0]    # 设置初始速度，为录像视频中平均速度; 初始像素速度为5.8， 转换成时间相关速度 近似值#
+        # speed = [0, 0]
+        speed = [24.83, 0]    # 设置初始速度，为录像视频中平均速度; 初始像素速度为5.8， 转换成时间相关速度 近似值#
         angle = [0, 0]
         type = 0
         typCounter = 0
@@ -212,16 +216,46 @@ class Track:
         # print(newTargetDict)
         # return newTargetDict
 
+        # 作位置监测，转化为速度
+        global preVX, preVY
+        # 试图临时tempList,防止transList的数量跳变带来的bug
+        tempList = transList.__deepcopy__({})
+
+        if len(tempList) > 0:
+            for ii in range(len(tempList)):
+                if preVX[str(ii)] == 0 and preVY[str(ii)] == 0:
+                    preVX[str(ii)] = tempList[ii][0]
+                    preVY[str(ii)] = tempList[ii][1]
+                    print("999999999999", tempList[ii])
+                    print(preVX, preVY)
+                else:
+                    for jj in range(20):
+                        # print("~~~~~!!!!!",  preVX[str(jj)], preVY[str(jj)])
+                        # # print("~~~~~!!!!!", preVY[str(ii)] != transList[ii][1], preVY[str(ii)],)
+                        if abs(preVX[str(jj)] - tempList[ii][0]) < 30 and preVX[str(jj)] != tempList[ii][0]:
+                            preVX[str(jj)] = tempList[ii][0]
+                            preVY[str(jj)] = tempList[ii][1]
+                        print("~~~~~!!!!!", preVY[str(jj)] != tempList[ii][1], preVX[str(jj)], preVY[str(jj)])
+                            # preVY[str(ii)] = transList[ii][1]
+                        # if preVY[str(ii)] != transList[ii][1]:
+                        #     preVY[str(ii)] = transList[ii][1]
+                            # preVY[str(ii)] = transList[ii][1]
+                    # for seqN in range(len(transList)):
+
+
+
+
+
         print(transList)
         global trackFlag
         startTime = time.time()
-        deltaT = 0.01
+        deltaT = 0.01  # 可调时间步长
         # tempTargetDict = dict()
         tempTargetDict = targetDict  # updateTarget()进程中，每次存储的临时TargetDict # ；
 
         # 每步updateTarget()进行自主估值
         # 从这里开始 tempList自 transList进行获取！
-        tempList = transList
+        # tempList = transList
         # tempList = tempTargetDict["target"]
         for i in range(len(tempTargetDict["target"])):
             if len(tempTargetDict["target"]) != 0:
@@ -317,6 +351,8 @@ class Track:
         print(targetDict, transList)
         print("%" * 150)
 
+
+        # 判断并增加新target机制 ，这个是数量上的判断！
         tempTransList = transList
         if len(tempTransList) > len(targetDict["target"]):
             for i in range(len(tempTransList)):
@@ -331,7 +367,7 @@ class Track:
 
 
 
-
+        # 位置上的判断
         # tempList = targetDict["target"]
         # if len(tempList) > 0:
         #     for j in range(len(tempList)):
@@ -505,13 +541,27 @@ class Track:
         #     if (cv2.waitKey(30) & 0xff) == 27:
         #         break
         # cv2.destroyAllWindows()
-        global trackFlag, speedMonitorList, cnt, preVX, preVY
+        global trackFlag, speedMonitorList, cnt
         trackFlag = 0
 
         # 存储上一记录targetDict
         lastDict = targetDict
 
+
         while True:
+            # # speedmonitor:
+            # if len(transList) > 0:
+            #     #     preVX = transList[0][0]
+            #     #     preVY = transList[0][1]
+            #     # preV = [[] for ii in range(len(transList))]
+            #     for seqN in range(len(transList)):
+            #         if len(preV) == 0:
+            #             preV.append(transList[seqN])
+            #         else:
+            #             preV[seqN][0] = transList[seqN][0]
+            #             preV[seqN][1] = transList[seqN][1]
+            #     print("!!!!~~~~~", preV)
+
 
             trackFrame = np.zeros((960, 1280, 3), np.uint8)
             # if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
@@ -527,10 +577,6 @@ class Track:
                             targetDict= self.updateTarget(self.createTarget(transDict, transList, ), transList)
                         else:
                             targetDict = self.updateTarget(targetDict, transList)
-
-                        if len(transList) != 0:
-                            print(preVX == transList[0][0])
-                            print(preVY == transList[0][1])
 
                     if i == 9:
                         # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
@@ -564,11 +610,15 @@ class Track:
                 # # 监控速度变化的机制：
                 # cnt += 1
 
-                # speedMonitorList = [[]for ii in range(transList)]
-                if len(transList) > 0:
-                    preVX = transList[0][0]
-                    preVY = transList[0][1]
-                    # speedMonitorList[0][0] = transList[0][0]
+                # # speedMonitorList = [[]for ii in range(transList)]
+                # if len(transList) > 0:
+                # #     preVX = transList[0][0]
+                # #     preVY = transList[0][1]
+                #     preV = [[] for ii in range(len(transList))]
+                #     for seqN in range(len(transList)):
+                #         preV[seqN][0] = transList[seqN][0]
+                #         preV[seqN][1] = transList[seqN][1]
+                #     # speedMonitorList[0][0] = transList[0][0]
 
             else:
                 time.sleep(0.001)
