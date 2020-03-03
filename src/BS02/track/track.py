@@ -1,5 +1,6 @@
 # -- coding: utf-8 --
 # !/bin/python
+import math
 import os
 import sys
 import cv2
@@ -9,6 +10,7 @@ from src.BS02.camera import Camera
 from src.BS02.vision import *
 from src.BS02.imageProcess.imgProc import *
 import time
+from lib.Sort.sort import Sort
 from timeit import default_timer as timer
 import numpy as np
 from src.BS02.yolo.Yolo import YOLO
@@ -21,12 +23,14 @@ from Track_duplication, start from 20200203
 # sys.stdout = Logger("d:\\12.txt")  # 保存到D盘
 
 speedMonitorList = [[]]
-preVX = preVY = dict()
-for targetNum in range(20):
-    preVX.setdefault(str(targetNum), 0)
-    preVY.setdefault(str(targetNum), 0)
+
+preVList = [[0 for i in range(5)] for j in range(20)]
+preV = dict()
+preV.setdefault("preVList", preVList)
 
 cnt = 0
+sort = Sort()
+tempT = preV["t"] = time.time()
 
 
 class Track:
@@ -217,30 +221,61 @@ class Track:
         # return newTargetDict
 
         # 作位置监测，转化为速度
-        global preVX, preVY
+        global preV, preVList, tempT
         # 试图临时tempList,防止transList的数量跳变带来的bug
         tempList = transList.__deepcopy__({})
 
+
         if len(tempList) > 0:
+            print("@@@@@@~~~~~~~~~!!!!!!!!", sort.bubble_sort(tempList, 0))
+            # 临时存储时刻差
+            tempT = (time.time() - preV["t"])
             for ii in range(len(tempList)):
-                if preVX[str(ii)] == 0 and preVY[str(ii)] == 0:
-                    preVX[str(ii)] = tempList[ii][0]
-                    preVY[str(ii)] = tempList[ii][1]
-                    print("999999999999", tempList[ii])
-                    print(preVX, preVY)
-                else:
-                    for jj in range(20):
-                        # print("~~~~~!!!!!",  preVX[str(jj)], preVY[str(jj)])
-                        # # print("~~~~~!!!!!", preVY[str(ii)] != transList[ii][1], preVY[str(ii)],)
-                        if abs(preVX[str(jj)] - tempList[ii][0]) < 30 and preVX[str(jj)] != tempList[ii][0]:
-                            preVX[str(jj)] = tempList[ii][0]
-                            preVY[str(jj)] = tempList[ii][1]
-                        print("~~~~~!!!!!", preVY[str(jj)] != tempList[ii][1], preVX[str(jj)], preVY[str(jj)])
-                            # preVY[str(ii)] = transList[ii][1]
-                        # if preVY[str(ii)] != transList[ii][1]:
-                        #     preVY[str(ii)] = transList[ii][1]
-                            # preVY[str(ii)] = transList[ii][1]
-                    # for seqN in range(len(transList)):
+
+                if preVList[ii][0] == 0 and preVList[ii][1] == 0:
+                    preVList[ii][0] = tempList[ii][0]
+                    preVList[ii][1] = tempList[ii][1]
+                # print(preVList[ii], preV)
+
+                for jj in range(len(preVList)):
+                    # 欧式距离判断 测试设定100像素距离
+                    if math.sqrt((preVList[jj][0] - tempList[ii][0]) * (preVList[jj][0] - tempList[ii][0]) +
+                                 (preVList[jj][1] - tempList[ii][1]) * (preVList[jj][1] - tempList[ii][1])) < 100\
+                                and preVList[jj][1] != tempList[ii][1] and preVList[jj][0] != tempList[ii][0]:
+                        # 时间相关的速度，赋予preVList:
+                        preVList[jj][3] = (tempList[ii][0] - preVList[jj][0]) / tempT
+                        preVList[jj][4] = (tempList[ii][1] - preVList[jj][1]) / tempT
+
+                        preV["t"] = time.time()
+                        preVList[jj][0] = tempList[ii][0]
+                        preVList[jj][1] = tempList[ii][1]
+                print("preVList!!!!!!!!!!!!!!!!!!!!!!!", preVList)
+
+
+
+
+
+
+        # if len(tempList) > 0:
+        #     for ii in range(len(tempList)):
+        #         if preVX[str(ii)] == 0 and preVY[str(ii)] == 0:
+        #             preVX[str(ii)] = tempList[ii][0]
+        #             preVY[str(ii)] = tempList[ii][1]
+        #             print("999999999999", tempList[ii])
+        #             print(preVX, preVY)
+        #         else:
+        #             for jj in range(20):
+        #                 # print("~~~~~!!!!!",  preVX[str(jj)], preVY[str(jj)])
+        #                 # # print("~~~~~!!!!!", preVY[str(ii)] != transList[ii][1], preVY[str(ii)],)
+        #                 if abs(preVX[str(jj)] - tempList[ii][0]) < 30 and preVX[str(jj)] != tempList[ii][0]:
+        #                     preVX[str(jj)] = tempList[ii][0]
+        #                     preVY[str(jj)] = tempList[ii][1]
+        #                 print("~~~~~!!!!!", preVY[str(jj)] != tempList[ii][1], preVX[str(jj)], preVY[str(jj)])
+        #                     # preVY[str(ii)] = transList[ii][1]
+        #                 # if preVY[str(ii)] != transList[ii][1]:
+        #                 #     preVY[str(ii)] = transList[ii][1]
+        #                     # preVY[str(ii)] = transList[ii][1]
+        #             # for seqN in range(len(transList)):
 
 
 
@@ -274,7 +309,7 @@ class Track:
             #     tempList[i][2][1] = tempList[i][2][1] + tempList[i][3][1] * deltaT
         # tempTargetDict["target"] = tempList
 
-        print(tempTargetDict, "this is tempDict !!!!!!")
+        # print(tempTargetDict, "this is tempDict !!!!!!")
 
         # targetDict.update(targetDict)    # 自主更新targetDict
         # targetDict.update(tempTargetDict)    # 更新成targetDict
@@ -285,7 +320,10 @@ class Track:
         targetDict["timeCost"] = timeCost
         targetDict["targetTrackTime"] = targetTrackTime
 
-        print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+        # print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+
+
+
 
         return targetDict
 
@@ -353,17 +391,17 @@ class Track:
 
 
         # 判断并增加新target机制 ，这个是数量上的判断！
-        tempTransList = transList
-        if len(tempTransList) > len(targetDict["target"]):
-            for i in range(len(tempTransList)):
-                for ii in range(len(targetDict["target"])):
-                    deltaX = tempTransList[i][0] - targetDict["target"][ii][2][0]
-                    deltaY = tempTransList[i][1] - targetDict["target"][ii][2][1]
-                    # 暂定范围
-                    if deltaX * deltaX + deltaY * deltaY < 50:
-                        tempTransList.pop(i)
-            tempTargetDict = self.createTarget(transDict, tempTransList)
-            targetDict = self.mergeTarget(targetDict, tempTargetDict)
+        # tempTransList = transList
+        # if len(tempTransList) > len(targetDict["target"]):
+        #     for i in range(len(tempTransList)):
+        #         for ii in range(len(targetDict["target"])):
+        #             deltaX = tempTransList[i][0] - targetDict["target"][ii][2][0]
+        #             deltaY = tempTransList[i][1] - targetDict["target"][ii][2][1]
+        #             # 暂定范围
+        #             if deltaX * deltaX + deltaY * deltaY < 50:
+        #                 tempTransList.pop(i)
+        #     tempTargetDict = self.createTarget(transDict, tempTransList)
+        #     targetDict = self.mergeTarget(targetDict, tempTargetDict)
 
 
 

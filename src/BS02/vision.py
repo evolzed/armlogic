@@ -315,8 +315,8 @@ class Vision(object):
                         #     centerList = []
                         #     transList = centerList
                 #切换为图像跟踪模式
-                if p0 is not None and label is not None:
-                    flag = 1
+                # if p0 is not None and label is not None:
+                #     flag = 1
 
 
             # track
