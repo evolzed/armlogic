@@ -677,7 +677,7 @@ class ImgProc:
             # classify  the label  by the dataDict boxes and label them
             if boxLenth > 0:
                 for i in range(len(dataDict["box"])):
-                    if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
+                    if "box" in dataDict and dataDict["box"][i][1] > 0.4 and dataDict["box"][i][3] > 180:
                         print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
                         left = dataDict["box"][i][2]
                         top = dataDict["box"][i][3]
@@ -730,7 +730,7 @@ class ImgProc:
             return None, None,None, None, dataDict
 
 
-    def trackObj(self, featureimg, secondimg, drawimg, label, p0, deltaT):
+    def trackObj(self, featureimg, secondimg, drawimg, label, p0, deltaT, startTime):
         """
         track the obj of deteced, input the deteced points or the last tracked points,output the new tracked points and its labels
 
@@ -794,7 +794,9 @@ class ImgProc:
                                 allList.append([center[0], center[1], center[2],
                                                 round(targetlist[i][0][0], 3), round(targetlist[i][0][1], 3),#offset
                                                 round(targetlist[i][0][0]/deltaT, 3),  #speed
-                                                round(targetlist[i][0][1]/deltaT, 3)])
+                                                round(targetlist[i][0][1]/deltaT, 3),
+                                                startTime]) #跟踪起始时间 如果和dataDict[frameTime]相等，
+                                # 则代表跟踪那一次dataDict的数据
                         # print("center", center)
                 return p0, label, allList
             else:

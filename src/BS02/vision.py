@@ -219,12 +219,15 @@ class Vision(object):
                         arrM = np.asarray(objCNNList[i]["image"])
                         cv2.imshow(str(kk), arrM)
 
-            # centerList = centerList = None
+
             # detect
-            centerList = []
+
+            # dataDict box[predicted_class, score, left, top, right, bottom, \
+            #                 angle, diameter, centerX, centerY, trackID, deltaX, deltaY, speedX, speedY]
             if flag == 0:
                 if crop is False:
                     p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict, 2)
+                    dataDict["frameTime"] = frameT
                     if dataDict is not None and "box" in dataDict:
                         print("dataDict:", dataDict)
                         for i in range(len(dataDict["box"])):
@@ -295,8 +298,8 @@ class Vision(object):
                         #     centerList = []
                         #     transList = centerList
                 #切换为图像跟踪模式
-                if p0 is not None and label is not None:
-                    flag = 1
+                # if p0 is not None and label is not None:
+                #     flag = 1
 
             # track
             else:
@@ -308,8 +311,11 @@ class Vision(object):
                 # LKtrackedList[seqN][4]    deltaY
                 # LKtrackedList[seqN][5]    speedX
                 # LKtrackedList[seqN][6]    speedY
+                # LKtrackedList[seqN][7]   startTime
 
-                p0, label, LKtrackedList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0, deltaT)
+               # frameT 传入作为跟踪起始时间 如果和 dataDict[frameTime] 相等，
+                # 则代表跟踪的是dataDict[frameTime] 那个时间的dataDict的数据
+                p0, label, LKtrackedList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0, deltaT, frameT)
 
                 if LKtrackedList is not None and len(LKtrackedList) > 0:
                     print("LKtrackedList:", LKtrackedList)
