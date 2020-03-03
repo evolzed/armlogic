@@ -224,7 +224,7 @@ class Vision(object):
             centerList = []
             if flag == 0:
                 if crop is False:
-                    p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict, 2)
+                    p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
                     if dataDict is not None and "box" in dataDict:
                         print("dataDict:", dataDict)
                         for i in range(len(dataDict["box"])):
@@ -294,9 +294,9 @@ class Vision(object):
                     # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
                         #     centerList = []
                         #     transList = centerList
-                #切换为图像跟踪模式
-                if p0 is not None and label is not None:
-                    flag = 1
+                #切换为图像跟踪模式 可屏蔽
+                # if p0 is not None and label is not None:
+                #     flag = 1
 
             # track
             else:
