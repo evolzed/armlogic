@@ -21,6 +21,8 @@ from lib.Logger.Logger import Logger
 
 # sys.stdout = Logger("d:\\12.txt")  # 保存到D盘
 
+import matplotlib.pyplot as plt
+
 sysArc = platform.uname()
 if sysArc[0] == "Windows":
     from lib.HikMvImport_Win.utils.CameraParams_header import MV_FRAME_OUT_INFO_EX
@@ -46,9 +48,16 @@ bottleDict = {
     "getPosTimeCost": None,
     "isObj": False  # bool
 }
-
+#保持False 就可以
 crop = False
+#切换使用相机还是视频
+useCamra = False
 
+videoDir = "E:\\1\\两个瓶子.avi"
+bgDir = "E:\\1\\一个瓶子背景.avi"
+
+# videoDir = "d:\\1\\Video_20200204122733339.mpone4"
+# bgDir = "d:\\1\\背景1.avi"
 class Vision(object):
     """create main Vision class for processing images"""
 
@@ -128,7 +137,7 @@ class Vision(object):
         self.cam.destroy(self.cam, self.cam._data_buf)
         yolo.closeSession()
 
-    def  detectSerialImage(self, cam, transDict, transList, targetDict, transFrame):
+    def detectSerialImage(self, cam, transDict, transList, targetDict, transFrame):
         """
         获取并处理连续的帧数
         :param cam: 相机对象
@@ -171,6 +180,12 @@ class Vision(object):
         i = 1
         dataDict = {}
         startTime = 0
+        fig = plt.figure()
+
+        ax = fig.add_subplot(1, 1, 1)
+
+        x_ = []
+        y_ = []
         while True:
             _frame, nFrame, t = cam.getImage()
             frameT = t
@@ -303,6 +318,7 @@ class Vision(object):
                 if p0 is not None and label is not None:
                     flag = 1
 
+
             # track
             else:
                 # LKtrackedList中保存的是 被跟踪到的点的 位置坐标，位移，和位移除以时间后的速度，格式如下
@@ -320,11 +336,18 @@ class Vision(object):
                 #代表第一次进
                 # if preflag != flag:
                 #     startTime = frameT
+
+
                 p0, label, LKtrackedList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0, deltaT)
 
                 if LKtrackedList is not None and len(LKtrackedList) > 0:
+                    # LKtrackedList[seqN][0]    centerX
+                    # LKtrackedList[seqN][1]    centerY
+                    # ax.plot([1, 2, 3, 4], [2, 3, 4, 5])
                     print("LKtrackedList:", LKtrackedList)
+
                     for seqN in range(len(LKtrackedList)):
+
                         print("########################", LKtrackedList)
                         print("111111111111111111111111", transList, LKtrackedList)
                         transList[seqN] = LKtrackedList[seqN]
@@ -370,6 +393,9 @@ class Vision(object):
 
                     # try to transfer the frame
                     # transFrame = np.zeros((10, 15, 3), np.uint8)
+                    x_.append(LKtrackedList[0][0])
+                    y_.append(LKtrackedList[0][1])
+
 
                     print("@" * 100)
                     # print(len(frame))
@@ -386,6 +412,17 @@ class Vision(object):
                     # print(frame[centerList[0][0]][centerList[0][1]])
                     # cv2.imshow("frame", frame)
                     print("@" * 100)
+                    a = np.array(x_)
+                    b = np.array(y_)
+                    a = a / a.mean(axis=0)
+                    b = b / b.mean(axis=0)
+
+                    plt.plot([LKtrackedList[0][0]], [LKtrackedList[0][1]])
+                    print("x~~~~~~~~~~~", a)
+                    print("y~~~~~~~~~~~", b)
+                    plt.pause(0.1)
+                    plt.clf()
+                    plt.show()
 
             # clear
 
@@ -506,15 +543,19 @@ def imageInit():
     初始化相机对象cam, Vision对象
     :return: (cam：相机对象, _image:Vision对象)
     """
-    cam = Camera()
-    # videoDir = "d:\\1\\Video_20200204122733339.mpone4"
-    # bgDir = "d:\\1\\背景1.avi"
-    # videoDir = "E:\\1\\两个瓶子.avi"
-    # bgDir = "E:\\1\\一个瓶子背景.avi"
-    # avi = Video(videoDir)
-    # bgAvi = Video(bgDir)
-    # imgCapObj = imageCapture(None, avi, bgAvi)
-    imgCapObj = imageCapture(cam, None, cam)
+    cam = None
+    avi =None
+    bgAvi =None
+
+    if useCamra:
+        cam = Camera()
+    else:
+        avi = Video(videoDir)
+        bgAvi = Video(bgDir)
+    if useCamra:
+        imgCapObj = imageCapture(cam, None, cam)
+    else:
+        imgCapObj = imageCapture(None, avi, bgAvi)
 
     # _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
@@ -525,7 +566,11 @@ def imageInit():
     # bgobj.studyBackground()
     # bgobj.createModelsfromStats()
     # 重新学习背景 每次需要重新学习背景的时候，就调用这个方法
-    bgobj.reStudyBgModelFromCam(cam)
+    if useCamra:
+        bgobj.reStudyBgModelFromCam(cam)
+    else:
+        bgobj.studyBackground()
+        bgobj.createModelsfromStats()
     _image = Vision(imgCapObj, yolo, bgobj)
     print("开始！")
     global gState
