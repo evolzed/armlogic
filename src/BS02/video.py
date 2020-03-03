@@ -29,7 +29,7 @@ class Video:
 
     def getFrameIdFromMoment(self, moment):
         frameId = moment / self.framCostTime * self.frameTotalCount
-        frameId =  int(frameId)
+        frameId = int(frameId)
         return frameId
 
 
