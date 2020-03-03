@@ -277,7 +277,7 @@ class Track:
         print(tempTargetDict, "this is tempDict !!!!!!")
 
         # targetDict.update(targetDict)    # 自主更新targetDict
-        targetDict.update(tempTargetDict)    # 更新成targetDict
+        # targetDict.update(tempTargetDict)    # 更新成targetDict
         time.sleep(deltaT - 0.0025)     # 实际让程序运行总体控制在0.01s内；
 
         timeCost = time.time()

@@ -4,8 +4,8 @@ import os
 import sys
 
 # from src.BS02.track import track
-from src.BS02.track.track_hjtest import vision_run, Track, np, video_run
-
+from src.BS02.track.track import vision_run, Track, np, video_run
+# from src.BS02.track.track_hjtest import vision_run, Track, np, video_run
 sys.path.append(os.path.abspath('../../'))
 from lib.Logger.Logger import *
 from src.BS02 import vision
