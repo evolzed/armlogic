@@ -162,6 +162,7 @@ class Vision(object):
         right = 0
         bottom = 0
         flag = 0
+        # preflag =0
         inputCorner = np.array([])
         p0 = np.array([])
         label = np.array([])
@@ -169,6 +170,7 @@ class Vision(object):
         # frame = avi.getImageFromVideo()
         i = 1
         dataDict = {}
+        startTime = 0
         while True:
             _frame, nFrame, t = cam.getImage()
             frameT = t
@@ -219,12 +221,15 @@ class Vision(object):
                         arrM = np.asarray(objCNNList[i]["image"])
                         cv2.imshow(str(kk), arrM)
 
-            # centerList = centerList = None
+
             # detect
-            centerList = []
+
+            # dataDict box[predicted_class, score, left, top, right, bottom, \
+            #                 angle, diameter, centerX, centerY, trackID, deltaX, deltaY, speedX, speedY]
             if flag == 0:
                 if crop is False:
-                    p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict, 3)
+                    p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict)
+                    dataDict["frameTime"] = frameT
                     if dataDict is not None and "box" in dataDict:
                         print("dataDict:", dataDict)
                         for i in range(len(dataDict["box"])):
@@ -294,9 +299,9 @@ class Vision(object):
                     # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
                         #     centerList = []
                         #     transList = centerList
-                #切换为图像跟踪模式 可屏蔽
-                # if p0 is not None and label is not None:
-                #     flag = 1
+                #切换为图像跟踪模式
+                if p0 is not None and label is not None:
+                    flag = 1
 
             # track
             else:
@@ -308,7 +313,13 @@ class Vision(object):
                 # LKtrackedList[seqN][4]    deltaY
                 # LKtrackedList[seqN][5]    speedX
                 # LKtrackedList[seqN][6]    speedY
+                # LKtrackedList[seqN][7]   startTime
 
+               # frameT 传入作为跟踪起始时间 如果和 dataDict[frameTime] 相等，
+                # 则代表跟踪的是dataDict[frameTime] 那个时间的dataDict的数据
+                #代表第一次进
+                # if preflag != flag:
+                #     startTime = frameT
                 p0, label, LKtrackedList = self.imgproc.trackObj(featureimg, secondimg, drawimg, label, p0, deltaT)
 
                 if LKtrackedList is not None and len(LKtrackedList) > 0:
@@ -405,6 +416,7 @@ class Vision(object):
             cv2.waitKey(10)
             preframeb = frame.copy()
             preframeT = frameT
+            # preflag = flag
 
             if bgMask is not None:
                 dataDict = self.imgproc.getBottlePose(_frame, bgMask, dataDict)
@@ -418,6 +430,11 @@ class Vision(object):
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 cam.destroy()
                 break
+                #重新开始检测
+            if cv2.waitKey(1) & 0xFF == ord('r'):
+                flag = 0
+                print("change!!!! flag=0!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                cv2.circle(drawimg, (100, 100), 15, (0, 255, 255), -1)  # red  track
             # return dataDict
             global bottleDict
             bottleDict = dataDict
@@ -490,20 +507,22 @@ def imageInit():
     :return: (cam：相机对象, _image:Vision对象)
     """
     cam = Camera()
-    # videoDir = "d:\\1\\Video_20200204122733339.mp4"
+    # videoDir = "d:\\1\\Video_20200204122733339.mpone4"
     # bgDir = "d:\\1\\背景1.avi"
+    # videoDir = "E:\\1\\两个瓶子.avi"
+    # bgDir = "E:\\1\\一个瓶子背景.avi"
     # avi = Video(videoDir)
     # bgAvi = Video(bgDir)
-    imgCapObj = imageCapture(cam, None, None)
-    # imgCapObj = imageCapture(cam, None, cam)
+    # imgCapObj = imageCapture(None, avi, bgAvi)
+    imgCapObj = imageCapture(cam, None, cam)
 
     # _frame, nf = cam.getImage()
     print("准备载入yolo网络！")
     yolo = YOLO()
     print("准备背景学习！")
     bgobj = ImgProc(50, imgCapObj)
-    # bgobj.studyBackgroundFromCam(cam)
-    # bgobj.studyBackgroundFromCam(cam)
+
+    # bgobj.studyBackground()
     # bgobj.createModelsfromStats()
     # 重新学习背景 每次需要重新学习背景的时候，就调用这个方法
     bgobj.reStudyBgModelFromCam(cam)

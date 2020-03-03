@@ -640,7 +640,7 @@ class ImgProc:
 
 
 
-    def detectObj(self, featureimg, drawimg, dataDict, label_num):
+    def detectObj(self, featureimg, drawimg, dataDict):
         """
          detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
 
@@ -677,7 +677,7 @@ class ImgProc:
             # classify  the label  by the dataDict boxes and label them
             if boxLenth > 0:
                 for i in range(len(dataDict["box"])):
-                    if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
+                    if "box" in dataDict and dataDict["box"][i][1] > 0.83 and dataDict["box"][i][3] > 180:
                         print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
                         left = dataDict["box"][i][2]
                         top = dataDict["box"][i][3]
@@ -709,7 +709,7 @@ class ImgProc:
                 # print("label", label)
                 # print("unique", np.unique(label[label != -1]))
                 # num is the detected label number
-                if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
+                if (label != -1).any() and np.size(np.unique(label[label != -1])) >= 0:
                 # if (label != -1).any():
                     # flag = 1
                     centerL = self.findTrackedCenterPoint(p0, label)
@@ -794,7 +794,9 @@ class ImgProc:
                                 allList.append([center[0], center[1], center[2],
                                                 round(targetlist[i][0][0], 3), round(targetlist[i][0][1], 3),#offset
                                                 round(targetlist[i][0][0]/deltaT, 3),  #speed
-                                                round(targetlist[i][0][1]/deltaT, 3)])
+                                                round(targetlist[i][0][1]/deltaT, 3),
+                                                ]) #跟踪起始时间 如果和dataDict[frameTime]相等，
+                                # 则代表跟踪那一次dataDict的数据
                         # print("center", center)
                 return p0, label, allList
             else:
