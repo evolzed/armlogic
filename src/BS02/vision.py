@@ -163,6 +163,10 @@ class Vision(object):
         preframe, nFrame, t = cam.getImage()
         preframeT = t
 
+
+        #保存一张测试图片
+        # cv2.imwrite("e:\\1\\research.jpg", preframe)
+
         preframeb, bgMaskb, resarray = self.imgproc.delBg(preframe) if self.imgproc else (preframe, None)
         k = 1
         startt = timer()
@@ -180,12 +184,14 @@ class Vision(object):
         i = 1
         dataDict = {}
         startTime = 0
-        fig = plt.figure()
+        # fig = plt.figure()
+        plt.ion()  # 开启一个画图的窗口
 
-        ax = fig.add_subplot(1, 1, 1)
+        # ax = fig.add_subplot(1, 1, 1)
 
         x_ = []
         y_ = []
+        idlist = []
         while True:
             _frame, nFrame, t = cam.getImage()
             frameT = t
@@ -242,6 +248,8 @@ class Vision(object):
             # dataDict box[predicted_class, score, left, top, right, bottom, \
             #                 angle, diameter, centerX, centerY, trackID, deltaX, deltaY, speedX, speedY]
             if flag == 0:
+                #clear the track idlist
+                idlist = []
                 if crop is False:
                     p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict)
                     dataDict["frameTime"] = frameT
@@ -252,6 +260,12 @@ class Vision(object):
                             if dataDict["box"][i][10] is not None:
                                 print("%%%%%%%%currentID", dataDict["box"][i][10])
 
+
+
+                        for seqN in range(len(centerList)):
+                            idlist.append(centerList[seqN][2])
+                        print("in track88888888888 idlist", idlist)
+
                 else:
                     centerList = self.imgproc.detectObjNotRelyLK(featureimg, drawimg, objCNNList)
 
@@ -259,8 +273,6 @@ class Vision(object):
                 # centerList不再需要，仍旧保留，等待以下代码更改为dataDict
                 # boxList.append([predicted_class, score, left, top, right, bottom, \
                 #                 angle, diameter, centerX, centerY, trackID, deltaX, deltaY, speedX, speedY])
-
-
 
                 # print("centerList", centerList)
 
@@ -315,9 +327,8 @@ class Vision(object):
                         #     centerList = []
                         #     transList = centerList
                 #切换为图像跟踪模式
-                # if p0 is not None and label is not None:
-                #     flag = 1
-
+                if p0 is not None and label is not None:
+                    flag = 1
 
             # track
             else:
@@ -344,11 +355,11 @@ class Vision(object):
                     # LKtrackedList[seqN][0]    centerX
                     # LKtrackedList[seqN][1]    centerY
                     # ax.plot([1, 2, 3, 4], [2, 3, 4, 5])
-                    print("LKtrackedList:", LKtrackedList)
+                    print("LKtrackedList~~~~~~~~~:", LKtrackedList)
 
                     for seqN in range(len(LKtrackedList)):
 
-                        print("########################", LKtrackedList)
+                        # print("LKtrackedList########################", LKtrackedList)
                         print("111111111111111111111111", transList, LKtrackedList)
                         transList[seqN] = LKtrackedList[seqN]
                         # uuIDText = targetDict["target"][seqN][0]
@@ -393,9 +404,24 @@ class Vision(object):
 
                     # try to transfer the frame
                     # transFrame = np.zeros((10, 15, 3), np.uint8)
-                    x_.append(LKtrackedList[0][0])
-                    y_.append(LKtrackedList[0][1])
 
+#遍历所有的跟踪ID
+                    print("in track88888888888 idlist", idlist)
+                    idXYDict ={}
+                    for idElem in range(len(idlist)):
+                        idXYDict[idElem] = [[], []]  # x, y坐标
+                        for seqN in range(len(LKtrackedList)):
+                            if LKtrackedList[seqN][2] == idElem:
+                                # x_.append(LKtrackedList[seqN][0])
+                                # y_.append(LKtrackedList[seqN][1])
+                                idXYDict[idElem][0].append(LKtrackedList[seqN][0])
+                                idXYDict[idElem][1].append(LKtrackedList[seqN][1])
+
+                    print()
+                    plt.clf()  # 清除之前画的图
+                    plt.plot(x_, y_)  # 画出当前 ax 列表和 ay 列表中的值的图形
+                    plt.pause(0.1)  # 暂停一秒
+                    plt.ioff()  # 关闭画图的窗口 没有的话会内存溢出
 
                     print("@" * 100)
                     # print(len(frame))
@@ -417,12 +443,12 @@ class Vision(object):
                     a = a / a.mean(axis=0)
                     b = b / b.mean(axis=0)
 
-                    plt.plot([LKtrackedList[0][0]], [LKtrackedList[0][1]])
-                    print("x~~~~~~~~~~~", a)
-                    print("y~~~~~~~~~~~", b)
-                    plt.pause(0.1)
-                    plt.clf()
-                    plt.show()
+                    # plt.plot([LKtrackedList[0][0]], [LKtrackedList[0][1]])
+                    # print("x~~~~~~~~~~~", a)
+                    # print("y~~~~~~~~~~~", b)
+                    # plt.pause(0.1)
+                    # plt.clf()
+                    # plt.show()
 
             # clear
 

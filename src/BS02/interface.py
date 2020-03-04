@@ -24,7 +24,7 @@ class imageCapture:
             frame, nFrame, t = self.bgVideo.getImageFromVideo()
             return frame, nFrame, t
 
-    def setCamFrameID(self,idn):
+    def setCamFrameID(self, idn):
         return self.video.setFrameID(idn)
 
     def getCamFrameInterval(self):

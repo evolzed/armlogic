@@ -504,8 +504,8 @@ class ImgProc:
                     # store every point label
                     # print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
                     for k in range(p0.shape[0]):
-                        print("p0", p0[k, 0, 0])
-                        print("p1", p0[k, 0, 1])
+                        # print("p0", p0[k, 0, 0])
+                        # print("p1", p0[k, 0, 1])
                         if (left - 20 <= p0[k, 0, 0]) and \
                                 (p0[k, 0, 0] <= right + 20) and \
                                 (top - 20 <= p0[k, 0, 1]) and \
@@ -677,7 +677,7 @@ class ImgProc:
             # classify  the label  by the dataDict boxes and label them
             if boxLenth > 0:
                 for i in range(len(dataDict["box"])):
-                    if "box" in dataDict and dataDict["box"][i][1] > 0.28 and dataDict["box"][i][3] > 180:
+                    if "box" in dataDict and dataDict["box"][i][1] > 0.91 and dataDict["box"][i][3] > 180:
                         print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
                         left = dataDict["box"][i][2]
                         top = dataDict["box"][i][3]
@@ -699,8 +699,8 @@ class ImgProc:
                         # store every point label
                         print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
                         for k in range(p0.shape[0]):
-                            print("p0", p0[k, 0, 0])
-                            print("p1", p0[k, 0, 1])
+                            # print("p0", p0[k, 0, 0])
+                            # print("p1", p0[k, 0, 1])
                             if (left - 20 <= p0[k, 0, 0]) and \
                                     (p0[k, 0, 0] <= right + 20) and \
                                     (top - 20 <= p0[k, 0, 1]) and \
@@ -715,7 +715,7 @@ class ImgProc:
                     centerL = self.findTrackedCenterPoint(p0, label)
                     allList = []
                     for x in centerL:
-                        allList.append([x[0], x[1], x[2], 0, 0]) # is not used  temparary
+                        allList.append([x[0], x[1], x[2], 0, 0])# is not used  temparary
                         indexLabel = int(x[2])
                         # print("indexLabel:", indexLabel)
                         # dataDict["box"][indexLabel][8] = x[0]      #centerX
