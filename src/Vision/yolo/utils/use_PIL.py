@@ -335,8 +335,8 @@ def main():
 
 
 if __name__ == '__main__':
-    img_save_path = "dataset_13_test"
-    anno_save_path = "anno_13_test"
+    img_save_path = "dataset"
+    anno_save_path = "anno"
     img_total_num = 1000
     # 生成的图片统一保存到dataset文件夹
     if not os.path.exists(img_save_path):
@@ -345,12 +345,12 @@ if __name__ == '__main__':
         os.mkdir(anno_save_path)
     # 将需要的物体存放列表
     # bottle_list = ["01", "02", "03", "04", "05", "06"]
-    bottle_list = ["%02d" % (i + 1) for i in range(8)]  # 选取6张bottle透明背景图
+    bottle_list = ["%02d" % (i + 1) for i in range(20)]  # 每个类别选取20张bottle透明背景图
     # bg_id = ["01", "02", "03"]
-    # bg_id = ["%02d" % (i + 1) for i in range(10)]  # 选取10张背景图
+    bg_id = ["%02d" % (i + 1) for i in range(10)]  # 选取10张背景图
     bottle_num = len(bottle_list)
-    # bottle_num_per_type = 10  # 指定所使用的每个类别的瓶子数量
-    bottle_types = ["01", "02", "03", "09", "18", "19"]
+    bottle_num_per_type = 10  # 指定所使用的每个类别的瓶子数量
+    bottle_types = [str("%02d" % i) for i in range(22)]  # 物体类别，形如["01", "02",...]
     # src_path = []
     # for m in range(len(bottle_num_per_type)):
     #     # 生成src集合
