@@ -192,6 +192,7 @@ class Vision(object):
         x_ = []
         y_ = []
         idlist = []
+        idXYDict = {}
         while True:
             _frame, nFrame, t = cam.getImage()
             frameT = t
@@ -250,6 +251,7 @@ class Vision(object):
             if flag == 0:
                 #clear the track idlist
                 idlist = []
+                idXYDict = {}
                 if crop is False:
                     p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict)
                     dataDict["frameTime"] = frameT
@@ -261,10 +263,12 @@ class Vision(object):
                                 print("%%%%%%%%currentID", dataDict["box"][i][10])
 
 
-
+                    if centerList is not None:
                         for seqN in range(len(centerList)):
                             idlist.append(centerList[seqN][2])
                         print("in track88888888888 idlist", idlist)
+                        for idElem in idlist:
+                            idXYDict[idElem] = [[], []]  # x, y坐标
 
                 else:
                     centerList = self.imgproc.detectObjNotRelyLK(featureimg, drawimg, objCNNList)
@@ -405,23 +409,27 @@ class Vision(object):
                     # try to transfer the frame
                     # transFrame = np.zeros((10, 15, 3), np.uint8)
 
-#遍历所有的跟踪ID
-                    print("in track88888888888 idlist", idlist)
-                    idXYDict ={}
-                    for idElem in range(len(idlist)):
-                        idXYDict[idElem] = [[], []]  # x, y坐标
-                        for seqN in range(len(LKtrackedList)):
-                            if LKtrackedList[seqN][2] == idElem:
-                                # x_.append(LKtrackedList[seqN][0])
-                                # y_.append(LKtrackedList[seqN][1])
-                                idXYDict[idElem][0].append(LKtrackedList[seqN][0])
-                                idXYDict[idElem][1].append(LKtrackedList[seqN][1])
+                    #遍历所有的跟踪ID 构造ID字典 存放跟踪到的坐标序列
+                    color = ["r", "g", "b"]
+                    if len(idlist) > 0:
+                        print("in track88888888888 idlist", idlist)
+                        plt.clf()  # 清除之前画的图
+                        for idElem in idlist:
+                            # idXYDict[idElem] = [[], []]  # x, y坐标
+                            for seqN in range(len(LKtrackedList)):
+                                if LKtrackedList[seqN][2] == idElem:
+                                    # x_.append(LKtrackedList[seqN][0])
+                                    # y_.append(LKtrackedList[seqN][1])
+                                    idXYDict[idElem][0].append(LKtrackedList[seqN][0])
+                                    idXYDict[idElem][1].append(LKtrackedList[seqN][1])
+                                    plt.plot(idXYDict[idElem][0], idXYDict[idElem][1], color[int(idElem)%3]+'s--', label=str(int(idElem)))  # 画出当前 ax 列表和 ay 列表中的值的图形
+                                    plt.pause(0.1)  # 暂停一秒
+                        print("idXYDict!!!!!!!!", idXYDict)
+                        for key in idXYDict.keys():
+                            print("DICT KEY,PLOT:", key)
 
-                    print()
-                    plt.clf()  # 清除之前画的图
-                    plt.plot(x_, y_)  # 画出当前 ax 列表和 ay 列表中的值的图形
-                    plt.pause(0.1)  # 暂停一秒
-                    plt.ioff()  # 关闭画图的窗口 没有的话会内存溢出
+
+                        plt.ioff()  # 关闭画图的窗口 没有的话会内存溢出
 
                     print("@" * 100)
                     # print(len(frame))
