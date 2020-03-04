@@ -51,7 +51,7 @@ bottleDict = {
 #保持False 就可以
 crop = False
 #切换使用相机还是视频
-useCamra = False
+useCamra = True
 
 videoDir = "E:\\1\\钻机转.avi"
 bgDir = "E:\\1\\钻机转背景.avi"
