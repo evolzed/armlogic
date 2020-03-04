@@ -53,8 +53,8 @@ crop = False
 #切换使用相机还是视频
 useCamra = False
 
-videoDir = "E:\\1\\两个瓶子.avi"
-bgDir = "E:\\1\\一个瓶子背景.avi"
+videoDir = "E:\\1\\钻机转.avi"
+bgDir = "E:\\1\\钻机转背景.avi"
 
 # videoDir = "d:\\1\\Video_20200204122733339.mpone4"
 # bgDir = "d:\\1\\背景1.avi"
@@ -261,6 +261,7 @@ class Vision(object):
                             print("%%%%%%current i", i)
                             if dataDict["box"][i][10] is not None:
                                 print("%%%%%%%%currentID", dataDict["box"][i][10])
+                                print("now in detect!!!!!!!!!!!!!!!!!!!!!!")
 
 
                     if centerList is not None:
@@ -360,6 +361,8 @@ class Vision(object):
                     # LKtrackedList[seqN][1]    centerY
                     # ax.plot([1, 2, 3, 4], [2, 3, 4, 5])
                     print("LKtrackedList~~~~~~~~~:", LKtrackedList)
+                    print("in the Track!!!!!!!!!!!!!!!!", LKtrackedList)
+
 
                     for seqN in range(len(LKtrackedList)):
 
