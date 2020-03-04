@@ -172,7 +172,7 @@ class Track:
 
         return targetDict
 
-    def updateTarget(self, targetDict, transList):
+    def updateTarget(self, transDict, targetDict, transList):
         """
         更新target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
         :param targetDict: 上一步的目标物的信息
@@ -221,40 +221,6 @@ class Track:
         # return newTargetDict
 
         # 作位置监测，转化为速度
-        global preV, preVList, tempT
-        # 试图临时tempList,防止transList的数量跳变带来的bug
-        tempList = transList.__deepcopy__({})
-
-
-        if len(tempList) > 0:
-            print("@@@@@@~~~~~~~~~!!!!!!!!", sort.bubble_sort(tempList, 0))
-            # 临时存储时刻差
-            tempT = (time.time() - preV["t"])
-            for ii in range(len(tempList)):
-
-                if preVList[ii][0] == 0 and preVList[ii][1] == 0:
-                    preVList[ii][0] = tempList[ii][0]
-                    preVList[ii][1] = tempList[ii][1]
-                # print(preVList[ii], preV)
-
-                for jj in range(len(preVList)):
-                    # 欧式距离判断 测试设定100像素距离
-                    if math.sqrt((preVList[jj][0] - tempList[ii][0]) * (preVList[jj][0] - tempList[ii][0]) +
-                                 (preVList[jj][1] - tempList[ii][1]) * (preVList[jj][1] - tempList[ii][1])) < 100\
-                                and preVList[jj][1] != tempList[ii][1] and preVList[jj][0] != tempList[ii][0]:
-                        # 时间相关的速度，赋予preVList:
-                        preVList[jj][3] = (tempList[ii][0] - preVList[jj][0]) / tempT
-                        preVList[jj][4] = (tempList[ii][1] - preVList[jj][1]) / tempT
-
-                        preV["t"] = time.time()
-                        preVList[jj][0] = tempList[ii][0]
-                        preVList[jj][1] = tempList[ii][1]
-                print("preVList!!!!!!!!!!!!!!!!!!!!!!!", preVList)
-
-
-
-
-
 
         # if len(tempList) > 0:
         #     for ii in range(len(tempList)):
@@ -277,9 +243,7 @@ class Track:
         #                     # preVY[str(ii)] = transList[ii][1]
         #             # for seqN in range(len(transList)):
 
-
-
-
+        self.speedMonitor(transDict, transList, targetDict)
 
         print(transList)
         global trackFlag
@@ -439,28 +403,46 @@ class Track:
 
         return targetDict
 
-    def speedEstimate(self, transDict, transList, targetDict):
+    def speedMonitor(self, transDict, transList, targetDict):
         """
-        根据前一帧与当前帧的centerList信息，对target的速度进行估计计算, 一旦监测到centerList对应position发生变化，
+        speedMonitor 根据前一帧与当前帧的centerList信息，对target的速度进行估计计算, 一旦监测到centerList对应position发生变化，
         则对两者之间的速度做出计算，一定要以变化的时候的时刻作为速度的计算依据；
         :param transDict:
         :param transList:
         :return:
         """
 
-        tempList = transList
-        # 记录当前时刻
-        tempT = time.time()
+        global preV, preVList, tempT
+        # 试图临时tempList,防止transList的数量跳变带来的bug
+        tempList = transList.__deepcopy__({})
 
-        # targetDictList_1 = targetDict_1.get("target")
-        # targetDictList_2 = targetDict_2.get("target")
-        # tempDeltaT = targetDict_2.get("timeCost") - targetDict_1.get("timeCost")
-        # for i in range(len(targetDictList_1)):
-        #     targetDictList_2[i][3][0] = (targetDictList_2[i][2][0] - targetDictList_1[i][2][0]) / tempDeltaT
-        #     targetDictList_2[i][3][1] = (targetDictList_2[i][2][1] - targetDictList_1[i][2][1]) / tempDeltaT
-        # print(targetDict_2)
 
-        return None
+        if len(tempList) > 0:
+            print("@@@@@@~~~~~~~~~!!!!!!!!", sort.bubble_sort(tempList, 0))
+            # 临时存储时刻差
+            tempT = (time.time() - preV["t"])
+            for ii in range(len(tempList)):
+
+                if preVList[ii][0] == 0 and preVList[ii][1] == 0:
+                    preVList[ii][0] = tempList[ii][0]
+                    preVList[ii][1] = tempList[ii][1]
+                # print(preVList[ii], preV)
+
+                for jj in range(len(preVList)):
+                    # 欧式距离判断 测试设定100像素距离
+                    if math.sqrt((preVList[jj][0] - tempList[ii][0]) * (preVList[jj][0] - tempList[ii][0]) +
+                                 (preVList[jj][1] - tempList[ii][1]) * (preVList[jj][1] - tempList[ii][1])) < 100\
+                                and preVList[jj][1] != tempList[ii][1] and preVList[jj][0] != tempList[ii][0]:
+                        # 时间相关的速度，赋予preVList:
+                        preVList[jj][3] = (tempList[ii][0] - preVList[jj][0]) / tempT
+                        preVList[jj][4] = (tempList[ii][1] - preVList[jj][1]) / tempT
+
+                        preV["t"] = time.time()
+                        preVList[jj][0] = tempList[ii][0]
+                        preVList[jj][1] = tempList[ii][1]
+                print("preVList!!!!!!!!!!!!!!!!!!!!!!!", preVList)
+
+        return preV, preVList
 
     def targetMove(self, x, y, current_measurement, last_measurement,
                    current_prediction, last_prediction, kalman, frame):
@@ -612,9 +594,9 @@ class Track:
                     # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
                     if i < 9:
                         if len(targetDict) == 0:
-                            targetDict= self.updateTarget(self.createTarget(transDict, transList, ), transList)
+                            targetDict= self.updateTarget(transDict, self.createTarget(transDict, transList), transList)
                         else:
-                            targetDict = self.updateTarget(targetDict, transList)
+                            targetDict = self.updateTarget(transDict, targetDict, transList)
 
                     if i == 9:
                         # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
