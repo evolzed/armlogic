@@ -5,7 +5,7 @@ class Sort:
     list = list()
     # 比较每个子元素中的第m个元素
 
-    def bubble_sort(self, list, m):
+    def bubble_sort(self, list, m, n):
 
         length = len(list)
 
