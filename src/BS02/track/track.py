@@ -34,6 +34,9 @@ cnt = 0
 sort = Sort()
 tempT = preV["t"] = time.time()
 
+# ###the initial time of Flag(call detectObj)###
+timeOfFlag = time.time()
+countOfTime = 0
 
 class Track:
     """
@@ -154,7 +157,8 @@ class Track:
                 print(i)
                 tempList[i].append(str(uuid.uuid1()))  # 对应位置打上uuID
                 # tempList[i].append(str(i) + "**********")    # 测试用
-                tempList[i].append(Flag)
+                if Flag is not None and len(Flag) != 0:
+                    tempList[i].append(Flag[0])
                 tempList[i].append([transList[i][0], transList[i][1]])
                 tempList[i].append(speed)
                 tempList[i].append(angle)
@@ -245,7 +249,7 @@ class Track:
         #                     # preVY[str(ii)] = transList[ii][1]
         #             # for seqN in range(len(transList)):
 
-
+        global timeOfFlag, countOfTime
 
         startTime = time.time()
         deltaT = 0.01  # 可调时间步长
@@ -290,8 +294,11 @@ class Track:
         #     print("transList in track !!!!!!!!!!!", transList)
         #     print(Flag)
         # test!!!!
-        time.sleep(3)
-        Flag[0] = 0
+
+        # ###the function of setting Flag to call detectObj()###
+        if time.time() - timeOfFlag > countOfTime * 3:
+            Flag[0] = 0
+            countOfTime += 1
         # print(Flag)
 
         return targetDict
@@ -311,7 +318,7 @@ class Track:
         print("$$$$$$$$$$$$$$$", targetDict2)
         return targetDict2
 
-    def checkTarget(self, transDict, targetDict, transList):
+    def checkTarget(self, transDict, targetDict, transList, Flag):
         """
         检查target功能，在trackProcess循环末期，对照自身target信息和bottleDict中的centerList信息；
         :param bottleDict: 上一步的
@@ -349,6 +356,7 @@ class Track:
         #         # print(targetList)
         # file.close()
         k = 24.83 / 5.8
+        targetFound = 0
         # 目前 按照顺序依次对targetDict 中的list 与 transList 进行比较， 目前，对于循环末期，直接赋值transList
         # tempList为初始时target的List；
 
@@ -358,6 +366,18 @@ class Track:
         print("%" * 150)
 
         tempTargetDict = targetDict
+        tempList = sorted(transList.__deepcopy__({}), key=itemgetter(0, 1), reverse=True)
+        # 遍历比较：
+        # if len(tempList) != 0 and len(tempTargetDict) != 0:
+        #     for ii in range(len(tempList)):
+        #         for jj in range(len(tempTargetDict["target"])):
+        #             if math.sqrt((tempTargetDict["target"][jj][2][0] - tempList[ii][0]) * (tempTargetDict["target"][jj][2][0] - tempList[ii][0]) +
+        #                          (tempTargetDict["target"][jj][2][1] - tempList[ii][1]) * (tempTargetDict["target"][jj][2][1] - tempList[ii][1])) < 100:
+        #                 targetFound += 1
+        #         if targetFound > 0:
+        #             tempList.pop(ii)
+        #
+        #     tempTargetDict = self.mergeTarget(tempTargetDict, self.createTarget(transDict, tempList, Flag))
 
 
         # if len(transList) == 0:
@@ -658,7 +678,7 @@ class Track:
                         #
                         # targetDict["target"] = tempList
 
-                        targetDict = self.checkTarget(transDict, targetDict, transList, )
+                        targetDict = self.checkTarget(transDict, targetDict, transList, Flag)
                         print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^  this is loop end !!!")
                         # self.updateTarget(targetDict, transList)
 
@@ -670,11 +690,17 @@ class Track:
 
             # show
             if len(transList) != 0 and len(targetDict) != 0:
-                for j in range(len(targetDict["target"])):
-                    currentX, currentY = int(targetDict["target"][j][2][0]), int(targetDict["target"][j][2][1])
+                tempList = sorted(transList.__deepcopy__({}), key=itemgetter(0, 1), reverse=True)
+                # vision_Run show
+                for ii in range(len(tempList)):
+                    visionX, visionY = tempList[ii][0], tempList[ii][1]
+                    cv2.circle(trackFrame, (visionX, visionY), 12, (0, 100, 0), 3)
+
+                for jj in range(len(targetDict["target"])):
+                    currentX, currentY = int(targetDict["target"][jj][2][0]), int(targetDict["target"][jj][2][1])
                     # FilterShow
-                    # lastX, lastY = int(lastDict["target"][j][2][0]), int(lastDict["target"][j][2][1],)
-                    uuIDText = targetDict["target"][j][0]
+                    # lastX, lastY = int(lastDict["target"][jj][2][0]), int(lastDict["target"][jj][2][1],)
+                    uuIDText = targetDict["target"][jj][0]
                     cv2.circle(trackFrame, (currentX, currentY), 6, (0, 0, 200), 2)
                     cv2.putText(trackFrame, uuIDText, (currentX - 100, currentY + 30), cv2.FONT_HERSHEY_SIMPLEX,
                                 1, (255, 255, 255), 2, cv2.LINE_AA)
