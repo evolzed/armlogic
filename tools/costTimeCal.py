@@ -25,7 +25,7 @@ class CostTimeCal:
             self.__endTime = timer()
             costTime = self.__endTime - self.__startTime
             self.__costTime = costTime
-        return costTime
+        return self.__costTime
 
     def printCostTime(self):
         if self.__isCal is True:
