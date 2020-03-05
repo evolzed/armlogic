@@ -36,21 +36,25 @@ def main():
             transDict = MG.dict()
             transList = MG.list()
             targetDict = MG.dict()
+            Flag = MG.list()
+            if len(Flag) == 0:
+                Flag.append(0)
+
             transFrame = multiprocessing.RawArray('d', np.zeros((6, 7, 3), np.double).ravel())
             # first line code is without filter; second line one is with filter
-            p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict))
-            p2.daemon = True
+            p2 = multiprocessing.Process(target=track.trackProcess, args=(transDict, transList, targetDict, Flag))
+            # p2.daemon = True
             p2.start()
 
             feed = int(input("please choose the feed (camera = 0 or video =1): "))
             if feed == 0:
-                p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
-                p1.daemon = True
+                p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame, Flag))
+                # p1.daemon = True
                 p1.start()
                 p1.join()
             else:
-                p1 = multiprocessing.Process(target=video_run, args=(transDict, transList, targetDict, transFrame))
-                p1.daemon = True
+                p1 = multiprocessing.Process(target=video_run, args=(transDict, transList, targetDict, transFrame, Flag))
+                # p1.daemon = True
                 p1.start()
                 p1.join()
 

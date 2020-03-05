@@ -53,11 +53,11 @@ crop = False
 #切换使用相机还是视频
 useCamra = True
 
-videoDir = "E:\\1\\钻机转.avi"
-bgDir = "E:\\1\\钻机转背景.avi"
+# videoDir = "E:\\1\\钻机转.avi"
+# bgDir = "E:\\1\\钻机转背景.avi"
 
-# videoDir = "d:\\1\\Video_20200204122733339.mpone4"
-# bgDir = "d:\\1\\背景1.avi"
+videoDir = "d:\\1\\Video_20200204122733339.mp4"
+bgDir = "d:\\1\\背景1.avi"
 class Vision(object):
     """create main Vision class for processing images"""
 
@@ -137,14 +137,14 @@ class Vision(object):
         self.cam.destroy(self.cam, self.cam._data_buf)
         yolo.closeSession()
 
-    def detectSerialImage(self, cam, transDict, transList, targetDict, transFrame):
+    def detectSerialImage(self, cam, transDict, transList, targetDict, transFrame, flag):
         """
         获取并处理连续的帧数
         :param cam: 相机对象
         :return: {"nFrame":nframe,"image":image, "timecost":timecost, "box":[(label1,xmin1,ymin1,xmax1, ymax1),(label2, xmin2, ymin2, xmax2, ymax2)]}
                 返回检测到的物体类别、位置信息（xmin, ymin, xmax, ymax）, 识别耗时，原始帧数据返回（便于后续操作，eg：Draw the box real time）
         """
-
+        print(flag)
         prev_time = timer()
         accum_time = 0
         curr_fps = 0
@@ -174,7 +174,7 @@ class Vision(object):
         top = 0
         right = 0
         bottom = 0
-        flag = 0
+        # flag = 0
         # preflag =0
         inputCorner = np.array([])
         p0 = np.array([])
@@ -194,6 +194,8 @@ class Vision(object):
         idlist = []
         idXYDict = {}
         while True:
+            print("flag in vision!!!!!!!!", flag)
+            print("flag in vision!!!!!!!!", flag)
             _frame, nFrame, t = cam.getImage()
             frameT = t
             deltaT = frameT - preframeT  #时间间隔
@@ -248,7 +250,7 @@ class Vision(object):
 
             # dataDict box[predicted_class, score, left, top, right, bottom, \
             #                 angle, diameter, centerX, centerY, trackID, deltaX, deltaY, speedX, speedY]
-            if flag == 0:
+            if flag[0] == 0:
                 #clear the track idlist
                 idlist = []
                 idXYDict = {}
@@ -336,7 +338,7 @@ class Vision(object):
                         #     transList = centerList
                 #切换为图像跟踪模式
                 if p0 is not None and label is not None:
-                    flag = 1
+                    flag[0] = 1
 
             # track
             else:
@@ -457,9 +459,9 @@ class Vision(object):
                     # a = a / a.mean(axis=0)
                     # b = b / b.mean(axis=0)
 
-                if True:
+                if LKtrackedList is not None:
 
-                    if centerList is not None and len(LKtrackedList) > 0:
+                    if transList is not None and len(LKtrackedList) > 0:
                         # transList = [[] for j in range(len(LKtrackedList))]
                         if len(transList) == 0:
                             for seqN in range(len(LKtrackedList)):
@@ -514,7 +516,7 @@ class Vision(object):
             if "box" not in dataDict:
                 p0 = np.array([])
                 label = np.array([])
-                flag = 0
+                flag[0] = 0
                 cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
 
             else:
@@ -527,7 +529,7 @@ class Vision(object):
                 if nonBottleFlag is True:
                     p0 = np.array([])
                     label = np.array([])
-                    flag = 0
+                    flag[0] = 0
                     cv2.circle(drawimg, (100, 100), 15, (0, 0, 255), -1)  # red  track
             cv2.imshow("res", drawimg)
             cv2.waitKey(10)
@@ -549,7 +551,7 @@ class Vision(object):
                 break
                 #重新开始检测
             if cv2.waitKey(1) & 0xFF == ord('r'):
-                flag = 0
+                flag[0] = 0
                 print("change!!!! flag=0!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 cv2.circle(drawimg, (100, 100), 15, (0, 255, 255), -1)  # red  track
             # return dataDict
@@ -677,7 +679,7 @@ def imageInit():
 """
 
 
-def imageRun(cam, _image, transDict, transList, targetDict, transFrame):
+def imageRun(cam, _image, transDict, transList, targetDict, transFrame, Flag):
     """
     根据输入的图像数据，进行识别
     :param cam: 相机对象
@@ -690,7 +692,7 @@ def imageRun(cam, _image, transDict, transList, targetDict, transFrame):
     #         frameDelBg = _image.bgLearn.delBg(_frame)
     # print(transDict)
 
-    _image.detectSerialImage(cam, transDict, transList, targetDict, transFrame)
+    _image.detectSerialImage(cam, transDict, transList, targetDict, transFrame, Flag)
 
     # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
     # cv2.waitKey(10)
@@ -708,11 +710,11 @@ def imageRun(cam, _image, transDict, transList, targetDict, transFrame):
 
 
 # 将imageInit()和imageRun()封装成一个函数，才能在一个进程中使用
-def vision_run(transDict, transList, targetDict, transFrame):
+def vision_run(transDict, transList, targetDict, transFrame, Flag):
     cam, _image = imageInit()
     # # while 1:
     # transDict["aaa"] = 666666
-    imageRun(cam, _image, transDict, transList, targetDict, transFrame)
+    imageRun(cam, _image, transDict, transList, targetDict, transFrame, Flag)
 """
 if __name__ == '__main__':
     cam = Camera()
@@ -742,7 +744,7 @@ if __name__ == '__main__':
 """
 
 
-def video_run(transDict, transList, targetDict, transFrame):
+def video_run(transDict, transList, targetDict, transFrame, Flag):
     # cam, _image = imageInit()
     # cam = Camera()
     videoDir = "d:\\1\\Video_20200204122301684 .avi"
@@ -765,7 +767,7 @@ def video_run(transDict, transList, targetDict, transFrame):
     print("开始！")
     global gState
     gState = 2
-    imageRun(imgCapObj, _image, transDict, transList, targetDict, transFrame)
+    imageRun(imgCapObj, _image, transDict, transList, targetDict, transFrame,Flag)
 
 
 # def read(transDict):
@@ -830,13 +832,15 @@ if __name__ == '__main__':
     #     #     p2.join()
 
     track = Track()
-    trackFlag = 0
 
     with multiprocessing.Manager() as MG:  # 重命名
 
         transDict = MG.dict()
         transList = MG.list()
         targetDict = MG.dict()
+        Flag = MG.list()
+        if len(Flag) == 0:
+            Flag.append(0)
         # transFrame = MG.Array("i", range(126))
         # transFrame = MG.Array("i", np.zeros((6, 7, 3), np.uint8))
         transFrame = multiprocessing.RawArray('d', np.zeros((6, 7, 3), np.double).ravel())
@@ -859,7 +863,19 @@ if __name__ == '__main__':
         # p2.daemon = True
         # p2.start()
 
-        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
-        p1.daemon = True  #主进程运行完不会检查p1子进程的状态（是否执行完），直接结束进程；
-        p1.start()
-        p1.join()  #阻塞当前进程p2，直到p1执行完，再执行p2
+        # p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame, Flag))
+        # p1.daemon = True  #主进程运行完不会检查p1子进程的状态（是否执行完），直接结束进程；
+        # p1.start()
+        # p1.join()  #阻塞当前进程p2，直到p1执行完，再执行p2
+
+        feed = int(input("please choose the feed (camera = 0 or video =1): "))
+        if feed == 0:
+            p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame, Flag))
+            # p1.daemon = True
+            p1.start()
+            p1.join()
+        else:
+            p1 = multiprocessing.Process(target=video_run, args=(transDict, transList, targetDict, transFrame, Flag))
+            # p1.daemon = True
+            p1.start()
+            p1.join()

@@ -45,7 +45,7 @@ class Track:
     """
 
     # def createTarget(self, bottleDict,frame,featureimg,nFrame,_vision,_imgproc):
-    def createTarget(self, transDict, transList):
+    def createTarget(self, transDict, transList , Flag):
         """
         增加新的Target目标功能
         :return: 新的带UUID的targetDict, 传至imgProc的UUID
@@ -154,7 +154,7 @@ class Track:
                 print(i)
                 tempList[i].append(str(uuid.uuid1()))  # 对应位置打上uuID
                 # tempList[i].append(str(i) + "**********")    # 测试用
-                tempList[i].append(trackFlag)
+                tempList[i].append(Flag)
                 tempList[i].append([transList[i][0], transList[i][1]])
                 tempList[i].append(speed)
                 tempList[i].append(angle)
@@ -168,13 +168,13 @@ class Track:
         targetTrackTime = startTime + deltaT
         targetDict.setdefault("timeCost", timeCost)
         targetDict.setdefault("targetTrackTime", targetTrackTime)
-        if len(tempList) != 0:
-            trackFlag = 1
+        # if len(tempList) != 0:
+        #     trackFlag = 1
         print(targetDict, "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
 
         return targetDict
 
-    def updateTarget(self, transDict, targetDict, transList):
+    def updateTarget(self, transDict, targetDict, transList, Flag):
         """
         更新target功能，自定义时间间隔Δt = （t2 - t1），主流程会根据该时间间隔进行call bgLearn；
         :param targetDict: 上一步的目标物的信息
@@ -245,8 +245,8 @@ class Track:
         #                     # preVY[str(ii)] = transList[ii][1]
         #             # for seqN in range(len(transList)):
 
-        print(transList)
-        global trackFlag
+
+
         startTime = time.time()
         deltaT = 0.01  # 可调时间步长
         # tempTargetDict = dict()
@@ -255,9 +255,10 @@ class Track:
         # 每步updateTarget()进行自主估值
         if len(tempTargetDict["target"]) != 0:
 
-            if True:
-                # speedMonitor,先时时刻刻监测，
-                self.speedMonitor(transDict, transList, tempTargetDict)
+            # # SpeedMonitor in trackProcess
+            # if True:
+            #     # speedMonitor,先时时刻刻监测，
+            #     self.speedMonitor(transDict, transList, tempTargetDict)
 
             for i in range(len(tempTargetDict["target"])):
                 tempTargetDict["target"][i][2][0] = tempTargetDict["target"][i][2][0] + \
@@ -284,6 +285,14 @@ class Track:
         targetDict["targetTrackTime"] = targetTrackTime
 
         # print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+        print(Flag)
+        # if True:
+        #     print("transList in track !!!!!!!!!!!", transList)
+        #     print(Flag)
+        # test!!!!
+        time.sleep(3)
+        Flag[0] = 0
+        # print(Flag)
 
         return targetDict
 
@@ -548,7 +557,7 @@ class Track:
         #
         # print(lmx, lmy, cmx, cmy, "  &&&   ", lpx, lpy, cpx, cpy)
 
-    def trackProcess(self, transDict, transList, targetDict):
+    def trackProcess(self, transDict, transList, targetDict, Flag):
         # # kf1 = self.targetMove()
         # kf2 = KF()
         # kf3 = KF()
@@ -598,8 +607,9 @@ class Track:
         #     if (cv2.waitKey(30) & 0xff) == 27:
         #         break
         # cv2.destroyAllWindows()
-        global trackFlag, speedMonitorList, cnt
-        trackFlag = 0
+        global speedMonitorList, cnt
+        print(Flag)
+        # Flag = 0
 
         # 存储上一记录targetDict
         lastDict = targetDict
@@ -629,10 +639,9 @@ class Track:
                     # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
                     if i < 9:
                         if len(targetDict) == 0:
-                            targetDict = self.updateTarget(transDict, self.createTarget(transDict, transList),
-                                                           transList)
+                            targetDict = self.updateTarget(transDict, self.createTarget(transDict, transList, Flag), transList, Flag)
                         else:
-                            targetDict = self.updateTarget(transDict, targetDict, transList)
+                            targetDict = self.updateTarget(transDict, targetDict, transList, Flag)
 
                     if i == 9:
                         # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
@@ -892,7 +901,7 @@ if __name__ == "__main__":
     #         break
     # cam.destroy()
     track = Track()
-    trackFlag = 0
+    # trackFlag = 0
 
     with multiprocessing.Manager() as MG:  # 重命名
 
