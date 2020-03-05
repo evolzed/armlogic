@@ -705,10 +705,11 @@ class ImgProc:
                                     (p0[k, 0, 0] <= right + 20) and \
                                     (top - 20 <= p0[k, 0, 1]) and \
                                     (p0[k, 0, 1] <= bottom + 20):
-                                label[k, 0, 0] = i
+                                label[k, 0, 0] = int(i)
                 # print("label", label)
                 # print("unique", np.unique(label[label != -1]))
                 # num is the detected label number
+                # 或操作 只要有一个-1 就是 True   不是-1的大于0
                 if (label != -1).any() and np.size(np.unique(label[label != -1])) >= 0:
                 # if (label != -1).any():
                     # flag = 1
@@ -721,9 +722,12 @@ class ImgProc:
                         # dataDict["box"][indexLabel][8] = x[0]      #centerX
                         # dataDict["box"][indexLabel][9] = x[1]       #centerY
                         # dataDict["box"][indexLabel][10] = int(x[2])   #trackID
-                    return p0, label, allList, theList, dataDict
+
+                    #return 的时机不对
                 else:
                     return None, None, None, None, dataDict
+
+                return p0, label, allList, theList, dataDict
             else:
                 return None, None, None,None, dataDict
         else:
