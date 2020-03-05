@@ -59,6 +59,17 @@ class Aug(object):
                 rotate=(0, 360),  # 随机旋转范围
                 mode="edge",
             ),
+            # 增加对背景通道的处理
+            iaa.WithChannels(
+                channels=random.sample([0, 1, 2], 1),
+                children=iaa.Add(random.sample([-10, 10, -15, 15, -20, 20], 1)),
+                deterministic=False
+            ),
+            iaa.WithChannels(
+                channels=random.sample([0, 1, 2], 1),
+                children=iaa.Add(random.sample([-10, 10, -15, 15, -18, 18], 1)),
+                deterministic=False
+            ),
         ])
 
     def img_aug(self):
@@ -72,6 +83,27 @@ class Aug(object):
         Aug.class_bg = self.bg_prod
         # 对背景增强之后，进行记录
         Aug.is_bg_aug = True
+
+    @staticmethod
+    def aug_white_bottle(img_arr):
+        """ 对白色瓶子[03,09,10,18,19,20]进行透明处理，alpha通道范围（-15） """
+        return iaa.WithChannels(channels=3,
+                                children=iaa.Add(random.sample(range(-15, -5), 1)),
+                                deterministic=False).augment_image(img_arr)
+
+    @staticmethod
+    def aug_transparency_bottle(img_arr):
+        """ 除了纯白色之外，其他需要进行高度透明的瓶子，alpha调整范围（-60~-80） """
+        return iaa.WithChannels(channels=3,
+                                children=iaa.Add(random.sample(range(-60, -40), 1)),
+                                deterministic=False).augment_image(img_arr)
+
+    @staticmethod
+    def aug_rgb(img_arr):
+        """ 进行rgb通道处理 """
+        return iaa.WithChannels(channels=random.sample([0, 1, 2]),
+                                children=iaa.Add(5, -5),
+                                deterministic=False).augment_image(img_arr)
 
     def rotate_src(self):
         """
@@ -98,6 +130,13 @@ class Aug(object):
         #     self.box = [self.handle_box(i) for i in self.rotated_img]
         #     return self.box
         self.box = self.handle_box(self.rotated_img)
+        # 得到瓶子位置信息后根据瓶子种类进行通道处理
+        temp_arr = np.array(self.rotated_img)
+        if self.type in ["02", "03", "09", "10", "18", "19", "20", "12", "13", "14", "16"]:
+            ret = self.aug_white_bottle(temp_arr)
+        else:
+            ret = self.aug_transparency_bottle(temp_arr)
+        self.rotated_img = Image.fromarray(ret)
         return self.box
 
     @staticmethod
@@ -337,7 +376,7 @@ def main():
 if __name__ == '__main__':
     img_save_path = "dataset"
     anno_save_path = "anno"
-    img_total_num = 1000
+    img_total_num = 40
     # 生成的图片统一保存到dataset文件夹
     if not os.path.exists(img_save_path):
         os.mkdir(img_save_path)
@@ -392,15 +431,15 @@ if __name__ == '__main__':
         f.close()
         print("图片已保存{}张".format(n + 1))
         # 进行生成效果展示
-        # draw = ImageDraw.Draw(Aug.class_bg)
-        # font = ImageFont.truetype(font='font/FiraMono-Medium.otf', size=40)
-        # for x in zip(src_boxes, type_labels):
-        #     draw.rectangle(x[0], outline=(random.randrange(256),
-        #                                   random.randrange(256),
-        #                                   random.randrange(256)), width=2)
-        #     draw.text((x[0][0], x[0][1]), text=x[1], fill=(0, 0, 0), font=font)
-        # del draw
-        # Aug.class_bg.show()
+        draw = ImageDraw.Draw(Aug.class_bg)
+        font = ImageFont.truetype(font='font/FiraMono-Medium.otf', size=40)
+        for x in zip(src_boxes, type_labels):
+            draw.rectangle(x[0], outline=(random.randrange(256),
+                                          random.randrange(256),
+                                          random.randrange(256)), width=2)
+            draw.text((x[0][0], x[0][1]), text=x[1], fill=(0, 0, 0), font=font)
+        del draw
+        Aug.class_bg.show()
         # 初始化下一轮次的参数
         Aug.class_bg = None
         Aug.is_bg_aug = False
