@@ -55,15 +55,15 @@ useCamra = False
 
 statisticTrackTime =True
 
-videoDir = "E:\\1\\两个瓶子.avi"
-bgDir = "E:\\1\\一个瓶子背景.avi"
+# videoDir = "E:\\1\\两个瓶子.avi"
+# bgDir = "E:\\1\\一个瓶子背景.avi"
 
 LkTrackTimeOBJ = CostTimeCal("LkTrackTime", True)
 YoloTimeOBJ = CostTimeCal("YoloTime", True)
 BgLearnTimeOBJ = CostTimeCal("BgLearnTime", True)
 
-# videoDir = "d:\\1\\Video_20200204122733339.mpone4"
-# bgDir = "d:\\1\\背景1.avi"
+videoDir = "d:\\1\\Video_20200204122733339.mp4"
+bgDir = "d:\\1\\背景1.avi"
 class Vision(object):
     """create main Vision class for processing images"""
 
@@ -143,7 +143,7 @@ class Vision(object):
         self.cam.destroy(self.cam, self.cam._data_buf)
         yolo.closeSession()
 
-    def detectSerialImage(self, cam, transDict, transList, targetDict, transFrame):
+    def detectSerialImage(self, cam, transDict, transList, targetDict, transFrame, flag):
         """
         获取并处理连续的帧数
         :param cam: 相机对象
@@ -180,7 +180,7 @@ class Vision(object):
         top = 0
         right = 0
         bottom = 0
-        flag = 0
+        # flag = 0
         # preflag =0
         inputCorner = np.array([])
         p0 = np.array([])
@@ -261,7 +261,7 @@ class Vision(object):
 
             # dataDict box[predicted_class, score, left, top, right, bottom, \
             #                 angle, diameter, centerX, centerY, trackID, deltaX, deltaY, speedX, speedY]
-            if flag == 0:
+            if flag[0] == 0:
                 #clear the track idlist
                 idlist = []
                 idXYDict = {}
@@ -297,33 +297,33 @@ class Vision(object):
 
                 # tempList = centerList
 
-                if centerList is not None and len(centerList) > 0:
-                    # transList = [[] for j in range(len(centerList))]
-                    if len(transList) == 0:
-                        for seqN in range(len(centerList)):
-                            transList.append(centerList[seqN])
-
-                    elif len(transList) <= len(centerList):
-                        deltaCnt = len(transList)
-                        for seqN in range(len(centerList)):
-                            if deltaCnt > 0:
-                                transList.pop(0)
-                                deltaCnt -= 1
-                            print("seqN-----------", seqN)
-                            transList.append(centerList[seqN])
-                        print("666666", transList)
-
-                    else:
-                        # transList = []  千万不能这样操作！
-                        deltaCnt = len(transList)
-                        for seqN in range(len(transList)):
-                            if deltaCnt > 0:
-                                transList.pop(0)
-                                deltaCnt -= 1
-                            if 0 <= seqN - (len(transList) - len(centerList)) < len(centerList):
-                                print("seqN-----------", seqN - (len(transList) - len(centerList)))
-                                transList.append(centerList[seqN - (len(transList) - len(centerList))])
-                        print("55555555", transList)
+                # if centerList is not None and len(centerList) > 0:
+                #     # transList = [[] for j in range(len(centerList))]
+                #     if len(transList) == 0:
+                #         for seqN in range(len(centerList)):
+                #             transList.append(centerList[seqN])
+                #
+                #     elif len(transList) <= len(centerList):
+                #         deltaCnt = len(transList)
+                #         for seqN in range(len(centerList)):
+                #             if deltaCnt > 0:
+                #                 transList.pop(0)
+                #                 deltaCnt -= 1
+                #             print("seqN-----------", seqN)
+                #             transList.append(centerList[seqN])
+                #         print("666666", transList)
+                #
+                #     else:
+                #         # transList = []  千万不能这样操作！
+                #         deltaCnt = len(transList)
+                #         for seqN in range(len(transList)):
+                #             if deltaCnt > 0:
+                #                 transList.pop(0)
+                #                 deltaCnt -= 1
+                #             if 0 <= seqN - (len(transList) - len(centerList)) < len(centerList):
+                #                 print("seqN-----------", seqN - (len(transList) - len(centerList)))
+                #                 transList.append(centerList[seqN - (len(transList) - len(centerList))])
+                #         print("55555555", transList)
                                 # transList.append([])
 
                     #     print(transList, centerList, str(len(transList)), str(len(centerList)))
@@ -347,7 +347,7 @@ class Vision(object):
                         #     transList = centerList
                 #切换为图像跟踪模式
                 if p0 is not None and label is not None and toBeTrackedList is not None:
-                    flag = 1
+                    flag[0] = 1
 
             # track
             else:
@@ -392,7 +392,7 @@ class Vision(object):
 
                         # print("LKtrackedList########################", LKtrackedList)
                         print("111111111111111111111111", transList, LKtrackedList)
-                        transList[seqN] = LKtrackedList[seqN]
+                        # transList[seqN] = LKtrackedList[seqN]
                         # uuIDText = targetDict["target"][seqN][0]
                         # 位置坐标
                         cv2.circle(drawimg, (int(LKtrackedList[seqN][0]), int(LKtrackedList[seqN][1])), 24, (0, 0, 255), 5)
@@ -437,23 +437,23 @@ class Vision(object):
                     # transFrame = np.zeros((10, 15, 3), np.uint8)
 
                     #遍历所有的跟踪ID 构造ID字典 存放跟踪到的坐标序列
-                    color = ["r", "g", "b"]
-                    if len(idlist) > 0:
-                        print("in track88888888888 idlist", idlist)
-                        plt.clf()  # 清除之前画的图
-                        for idElem in idlist:
-                            # idXYDict[idElem] = [[], []]  # x, y坐标
-                            for seqN in range(len(LKtrackedList)):
-                                if LKtrackedList[seqN][2] == idElem:
-                                    # x_.append(LKtrackedList[seqN][0])
-                                    # y_.append(LKtrackedList[seqN][1])
-                                    idXYDict[idElem][0].append(LKtrackedList[seqN][0])
-                                    idXYDict[idElem][1].append(LKtrackedList[seqN][1])
-                                    plt.plot(idXYDict[idElem][0], idXYDict[idElem][1], color[int(idElem)%3]+'s--', label=str(int(idElem)))  # 画出当前 ax 列表和 ay 列表中的值的图形
-                                    plt.pause(0.1)  # 暂停一秒
-                        print("idXYDict!!!!!!!!", idXYDict)
-                        for key in idXYDict.keys():
-                            print("DICT KEY,PLOT:", key)
+                    # color = ["r", "g", "b"]
+                    # if len(idlist) > 0:
+                    #     print("in track88888888888 idlist", idlist)
+                    #     plt.clf()  # 清除之前画的图
+                    #     for idElem in idlist:
+                    #         # idXYDict[idElem] = [[], []]  # x, y坐标
+                    #         for seqN in range(len(LKtrackedList)):
+                    #             if LKtrackedList[seqN][2] == idElem:
+                    #                 # x_.append(LKtrackedList[seqN][0])
+                    #                 # y_.append(LKtrackedList[seqN][1])
+                    #                 idXYDict[idElem][0].append(LKtrackedList[seqN][0])
+                    #                 idXYDict[idElem][1].append(LKtrackedList[seqN][1])
+                    #                 plt.plot(idXYDict[idElem][0], idXYDict[idElem][1], color[int(idElem)%3]+'s--', label=str(int(idElem)))  # 画出当前 ax 列表和 ay 列表中的值的图形
+                    #                 plt.pause(0.1)  # 暂停一秒
+                    #     print("idXYDict!!!!!!!!", idXYDict)
+                    #     for key in idXYDict.keys():
+                    #         print("DICT KEY,PLOT:", key)
 
 
                         plt.ioff()  # 关闭画图的窗口 没有的话会内存溢出
@@ -468,7 +468,7 @@ class Vision(object):
 
                                 # transFrame[l][ll] = [1, 2, 3]
                             # print(transFrame[l][ll])
-                    # print(centerList)
+                    # print(LKtrackedList)
                     # print(transFrame)
                     # print(frame[centerList[0][0]][centerList[0][1]])
                     # cv2.imshow("frame", frame)
@@ -484,6 +484,34 @@ class Vision(object):
                     # plt.pause(0.1)
                     # plt.clf()
                     # plt.show()
+
+                # if LKtrackedList is not None and len(LKtrackedList) > 0:
+                    # transList = [[] for j in range(len(LKtrackedList))]
+                    if len(transList) == 0:
+                        for seqN in range(len(LKtrackedList)):
+                            transList.append(LKtrackedList[seqN])
+
+                    elif len(transList) <= len(LKtrackedList):
+                        deltaCnt = len(transList)
+                        for seqN in range(len(LKtrackedList)):
+                            if deltaCnt > 0:
+                                transList.pop(0)
+                                deltaCnt -= 1
+                            print("seqN-----------", seqN)
+                            transList.append(LKtrackedList[seqN])
+                        print("666666", transList)
+
+                    else:
+                        # transList = []  千万不能这样操作！
+                        deltaCnt = len(transList)
+                        for seqN in range(len(transList)):
+                            if deltaCnt > 0:
+                                transList.pop(0)
+                                deltaCnt -= 1
+                            if 0 <= seqN - (len(transList) - len(LKtrackedList)) < len(LKtrackedList):
+                                print("seqN-----------", seqN - (len(transList) - len(LKtrackedList)))
+                                transList.append(LKtrackedList[seqN - (len(transList) - len(LKtrackedList))])
+
 
             # clear
 
@@ -658,7 +686,7 @@ def imageInit():
 """
 
 
-def imageRun(cam, _image, transDict, transList, targetDict, transFrame):
+def imageRun(cam, _image, transDict, transList, targetDict, transFrame, Flag):
     """
     根据输入的图像数据，进行识别
     :param cam: 相机对象
@@ -671,7 +699,7 @@ def imageRun(cam, _image, transDict, transList, targetDict, transFrame):
     #         frameDelBg = _image.bgLearn.delBg(_frame)
     # print(transDict)
 
-    _image.detectSerialImage(cam, transDict, transList, targetDict, transFrame)
+    _image.detectSerialImage(cam, transDict, transList, targetDict, transFrame, Flag)
 
     # dataDict["bgTimeCost"] = _image.bgLearn.bgTimeCost
     # cv2.waitKey(10)
@@ -689,11 +717,11 @@ def imageRun(cam, _image, transDict, transList, targetDict, transFrame):
 
 
 # 将imageInit()和imageRun()封装成一个函数，才能在一个进程中使用
-def vision_run(transDict, transList, targetDict, transFrame):
+def vision_run(transDict, transList, targetDict, transFrame, Flag):
     cam, _image = imageInit()
     # # while 1:
     # transDict["aaa"] = 666666
-    imageRun(cam, _image, transDict, transList, targetDict, transFrame)
+    imageRun(cam, _image, transDict, transList, targetDict, transFrame, Flag)
 """
 if __name__ == '__main__':
     cam = Camera()
@@ -723,10 +751,10 @@ if __name__ == '__main__':
 """
 
 
-def video_run(transDict, transList, targetDict, transFrame):
+def video_run(transDict, transList, targetDict, transFrame, Flag):
     # cam, _image = imageInit()
     # cam = Camera()
-    videoDir = "d:\\1\\Video_20200204122301684 .avi"
+    videoDir = "d:\\1\\Video_20200204122733339.avi"
     bgDir = "d:\\1\\背景1.avi"
     avi = Video(videoDir)
     bgAvi = Video(bgDir)
@@ -746,7 +774,7 @@ def video_run(transDict, transList, targetDict, transFrame):
     print("开始！")
     global gState
     gState = 2
-    imageRun(imgCapObj, _image, transDict, transList, targetDict, transFrame)
+    imageRun(imgCapObj, _image, transDict, transList, targetDict, transFrame, Flag)
 
 
 # def read(transDict):
@@ -818,6 +846,9 @@ if __name__ == '__main__':
         transDict = MG.dict()
         transList = MG.list()
         targetDict = MG.dict()
+        Flag = MG.list()
+        if len(Flag) == 0:
+            Flag.append(0)
         # transFrame = MG.Array("i", range(126))
         # transFrame = MG.Array("i", np.zeros((6, 7, 3), np.uint8))
         transFrame = multiprocessing.RawArray('d', np.zeros((6, 7, 3), np.double).ravel())
@@ -840,7 +871,7 @@ if __name__ == '__main__':
         # p2.daemon = True
         # p2.start()
 
-        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
+        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame, Flag))
         p1.daemon = True  #主进程运行完不会检查p1子进程的状态（是否执行完），直接结束进程；
         p1.start()
         p1.join()  #阻塞当前进程p2，直到p1执行完，再执行p2

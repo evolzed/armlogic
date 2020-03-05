@@ -365,6 +365,8 @@ class Track:
         print(targetDict, transList)
         print("%" * 150)
 
+
+
         tempTargetDict = targetDict
         tempList = sorted(transList.__deepcopy__({}), key=itemgetter(0, 1), reverse=True)
         # 遍历比较：
@@ -378,6 +380,8 @@ class Track:
         #             tempList.pop(ii)
         #
         #     tempTargetDict = self.mergeTarget(tempTargetDict, self.createTarget(transDict, tempList, Flag))
+
+
 
 
         # if len(transList) == 0:
