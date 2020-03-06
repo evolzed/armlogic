@@ -11,6 +11,11 @@ from lib.Logger.Logger import *
 from src.BS02 import vision
 import multiprocessing
 
+
+# sys.stdout = Logger("d:\\12.txt")  # 保存到D盘
+
+
+
 def main():
 
 

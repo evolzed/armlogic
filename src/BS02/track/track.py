@@ -38,6 +38,9 @@ tempT = preV["t"] = time.time()
 timeOfFlag = time.time()
 countOfTime = 0
 
+# define the checkTargetTimeCost
+checkTargetTimeCost = 0
+
 class Track:
     """
     根据图像api，提供增加新的Target目标功能；
@@ -145,16 +148,16 @@ class Track:
         type = 0
         typCounter = 0
         time.sleep(0.001)
-        print(transList, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        print(len(transList) != 0, "##############")
-        print(transList, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        # print(transList, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        # print(len(transList) != 0, "##############")
+        # print(transList, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         tempList = [[] for j in range(len(transList))]
         # if transList:
         if len(transList) != 0:
             # tempList = [[] for j in range(len(transList))]
-            print(tempList)
+            # print(tempList)
             for i in range(len(transList)):
-                print(i)
+                # print(i)
                 tempList[i].append(str(uuid.uuid1()))  # 对应位置打上uuID
                 # tempList[i].append(str(i) + "**********")    # 测试用
                 if Flag is not None and len(Flag) != 0:
@@ -174,7 +177,7 @@ class Track:
         targetDict.setdefault("targetTrackTime", targetTrackTime)
         # if len(tempList) != 0:
         #     trackFlag = 1
-        print(targetDict, "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+        # print(targetDict, "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
 
         return targetDict
 
@@ -249,8 +252,8 @@ class Track:
         #                     # preVY[str(ii)] = transList[ii][1]
         #             # for seqN in range(len(transList)):
 
-        global timeOfFlag, countOfTime
-
+        global timeOfFlag, countOfTime, checkTargetTimeCost
+        # print(checkTargetTimeCost, "0000000000000000000000000000000000000000000000")
         startTime = time.time()
         deltaT = 0.01  # 可调时间步长
         # tempTargetDict = dict()
@@ -266,12 +269,15 @@ class Track:
 
             for i in range(len(tempTargetDict["target"])):
                 tempTargetDict["target"][i][2][0] = tempTargetDict["target"][i][2][0] + \
-                                                    tempTargetDict["target"][i][3][0] * deltaT
+                                                    tempTargetDict["target"][i][3][0] * (deltaT + checkTargetTimeCost)
 
                 tempTargetDict["target"][i][2][1] = tempTargetDict["target"][i][2][1] + \
-                                                    tempTargetDict["target"][i][3][1] * deltaT
+                                                    tempTargetDict["target"][i][3][1] * (deltaT + checkTargetTimeCost)
 
-        # 回传targetDict
+                # Flag
+                tempTargetDict["target"][i][1] = Flag[0]
+
+                # 回传targetDict
         targetDict = tempTargetDict
         # if len(tempList[i]) != 0:
         #     tempList[i][2][0] = tempList[i][2][0] + tempList[i][3][0] * deltaT
@@ -282,14 +288,14 @@ class Track:
 
         # targetDict.update(targetDict)    # 自主更新targetDict
         # targetDict.update(tempTargetDict)    # 更新成targetDict
-        time.sleep(deltaT - 0.0025)  # 实际让程序运行总体控制在0.01s内；
+        time.sleep(deltaT - 0.005)  # 实际让程序运行总体控制在0.01s内；
         timeCost = time.time()
         targetTrackTime = startTime + deltaT
         targetDict["timeCost"] = timeCost
         targetDict["targetTrackTime"] = targetTrackTime
 
         # print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^")
-        print(Flag)
+        # print(Flag)
         # if True:
         #     print("transList in track !!!!!!!!!!!", transList)
         #     print(Flag)
@@ -300,7 +306,7 @@ class Track:
             Flag[0] = 0
             countOfTime += 1
         # print(Flag)
-
+        checkTargetTimeCost = 0
         return targetDict
 
     def mergeTarget(self, targetDict1, targetDict2):
@@ -315,7 +321,7 @@ class Track:
         for i in range(len(targetDict1.get("target"))):
             tempList.append(targetDict1.get("target")[i])
         targetDict2.setdefault("target", tempList)
-        print("$$$$$$$$$$$$$$$", targetDict2)
+        # print("$$$$$$$$$$$$$$$", targetDict2)
         return targetDict2
 
     def checkTarget(self, transDict, targetDict, transList, Flag):
@@ -358,20 +364,22 @@ class Track:
         k = 24.83 / 5.8
         targetFound = 0
         deltaDistance = 190
+        global checkTargetTimeCost
+        tempT = time.time()
         # 目前 按照顺序依次对targetDict 中的list 与 transList 进行比较， 目前，对于循环末期，直接赋值transList
         # tempList为初始时target的List；
 
         # compare机制，用临时存储tempList，比较其长度与targetDict长度，假如追踪target在判断范围内，则不做修正，
-        print("%" * 150)
-        print(targetDict, transList)
-        print("%" * 150)
+        # print("%" * 150)
+        # print(targetDict, transList)
+        # print("%" * 150)
 
 
 
         tempTargetDict = targetDict
         tempList = sorted(transList.__deepcopy__({}), key=itemgetter(0, 1), reverse=True)
-        t = tempList.copy()
-        print(t)
+        tempListCopy = tempList.copy()
+        # print(t)
         # 遍历比较：
         if len(tempList) != 0 and len(tempTargetDict) != 0:
             for ii in range(len(tempList), 0, -1):
@@ -385,10 +393,10 @@ class Track:
                             tempTargetDict["target"][jj][3][1] = tempList[ii - 1][6]
                         targetFound += 1
                 if targetFound > 0:
-                    t.pop(ii - 1)
+                    tempListCopy.pop(ii - 1)
                     targetFound = 0
 
-            tempTargetDict = self.mergeTarget(tempTargetDict, self.createTarget(transDict, t, Flag))
+            tempTargetDict = self.mergeTarget(tempTargetDict, self.createTarget(transDict, tempListCopy, Flag))
 
 
 
@@ -439,8 +447,8 @@ class Track:
         # # if judge == 1:
         #     targetDict["target"] = []
         targetDict.update(tempTargetDict)
-        print("@@@@@@@@@", targetDict, "@@@@@@@@@", str(len(transList)))
-
+        # print("@@@@@@@@@", targetDict, "@@@@@@@@@", str(len(transList)))
+        checkTargetTimeCost = time.time() - tempT
         return targetDict
 
     def speedMonitor(self, transDict, transList, targetDict):
@@ -641,7 +649,7 @@ class Track:
         #         break
         # cv2.destroyAllWindows()
         global speedMonitorList, cnt
-        print(Flag)
+        # print(Flag)
         # Flag = 0
 
         # 存储上一记录targetDict
@@ -663,10 +671,10 @@ class Track:
 
             trackFrame = np.zeros((960, 1280, 3), np.uint8)
             # if trackFlag == 1:  # 条件待定，与imgProc中的Flag信号， 以及需结合有没有产生新target信号结合
-            print("*" * 200)
-            print(transList)
-            print(targetDict)
-            print("*" * 200)
+            # print("*" * 200)
+            # print(transList)
+            # print(targetDict)
+            # print("*" * 200)
             if len(transList) != 0:
                 for i in range(10):
                     # 更新target, 比较targetTrackTime 与最邻近帧时间，与其信息做比较：
@@ -675,7 +683,7 @@ class Track:
                             targetDict = self.updateTarget(transDict, self.createTarget(transDict, transList, Flag), transList, Flag)
                         else:
                             targetDict = self.updateTarget(transDict, targetDict, transList, Flag)
-
+                        print("targetDict!!!!!!!!!!!!!!!", targetDict)
                     if i == 9:
                         # 更新时，要求在targetTrackTime上做自加，在最后一次子循环 update中问询imgProc.trackObj() 作判断
 
@@ -692,7 +700,7 @@ class Track:
                         # targetDict["target"] = tempList
 
                         targetDict = self.checkTarget(transDict, targetDict, transList, Flag)
-                        print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^  this is loop end !!!")
+                        # print(targetDict, transList, "^^^^^^^^^^^^^^^^^^^^^^^^^^^  this is loop end !!!")
                         # self.updateTarget(targetDict, transList)
 
             else:
