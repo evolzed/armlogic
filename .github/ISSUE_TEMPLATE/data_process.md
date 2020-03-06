@@ -2,7 +2,7 @@
 name: Data Process
 about: 数据处理工作
 title: "[Data]"
-labels: 无码
+labels: 无码, ￥, 数据
 assignees: ''
 
 ---
