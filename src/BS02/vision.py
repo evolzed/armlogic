@@ -424,7 +424,7 @@ class Vision(object):
 
                         # print("LKtrackedList########################", LKtrackedList)
                         print("111111111111111111111111", transList, LKtrackedList)
-                        transList[seqN] = LKtrackedList[seqN]
+
                         # uuIDText = targetDict["target"][seqN][0]
                         # 位置坐标
                         cv2.circle(drawimg, (int(LKtrackedList[seqN][0]), int(LKtrackedList[seqN][1])), 24, (0, 0, 255), 5)
