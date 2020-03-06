@@ -542,7 +542,7 @@ class Vision(object):
                 break
                 #重新开始检测
             if cv2.waitKey(1) & 0xFF == ord('r'):
-                flag = 0
+                flag[0] = 0
                 print("change!!!! flag=0!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 cv2.circle(drawimg, (100, 100), 15, (0, 255, 255), -1)  # red  track
             # return dataDict
@@ -855,7 +855,7 @@ if __name__ == '__main__':
         # p2.daemon = True
         # p2.start()
 
-        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
+        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame,Flag))
         p1.daemon = True  #主进程运行完不会检查p1子进程的状态（是否执行完），直接结束进程；
         p1.start()
         p1.join()  #阻塞当前进程p2，直到p1执行完，再执行p2
