@@ -369,17 +369,20 @@ class Track:
 
         tempTargetDict = targetDict
         tempList = sorted(transList.__deepcopy__({}), key=itemgetter(0, 1), reverse=True)
+        t = tempList.copy()
+        print(t)
         # 遍历比较：
-        # if len(tempList) != 0 and len(tempTargetDict) != 0:
-        #     for ii in range(len(tempList)):
-        #         for jj in range(len(tempTargetDict["target"])):
-        #             if math.sqrt((tempTargetDict["target"][jj][2][0] - tempList[ii][0]) * (tempTargetDict["target"][jj][2][0] - tempList[ii][0]) +
-        #                          (tempTargetDict["target"][jj][2][1] - tempList[ii][1]) * (tempTargetDict["target"][jj][2][1] - tempList[ii][1])) < 100:
-        #                 targetFound += 1
-        #         if targetFound > 0:
-        #             tempList.pop(ii)
-        #
-        #     tempTargetDict = self.mergeTarget(tempTargetDict, self.createTarget(transDict, tempList, Flag))
+        if len(tempList) != 0 and len(tempTargetDict) != 0:
+            for ii in range(len(tempList), 0, -1):
+                for jj in range(len(tempTargetDict["target"])):
+                    if math.sqrt((tempTargetDict["target"][jj][2][0] - tempList[ii - 1][0]) * (tempTargetDict["target"][jj][2][0] - tempList[ii - 1][0]) +
+                                 (tempTargetDict["target"][jj][2][1] - tempList[ii - 1][1]) * (tempTargetDict["target"][jj][2][1] - tempList[ii - 1][1])) < 190:
+                        targetFound += 1
+                if targetFound > 0:
+                    t.pop(ii - 1)
+                    targetFound = 0
+
+            tempTargetDict = self.mergeTarget(tempTargetDict, self.createTarget(transDict, t, Flag))
 
 
 
