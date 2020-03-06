@@ -249,7 +249,7 @@ class ImgProc:
         dst = cv2.subtract(255, dst)
 
         # filter  and morph again and then find the bottle contours
-        dst = cv2.GaussianBlur(dst, (19, 19), 3)
+        dst = cv2.GaussianBlur(dst, (19, 19), 3)  #删掉会影响功能
         # print("is this ok04?")
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.dilate(dst, self.kernel19)
@@ -272,8 +272,8 @@ class ImgProc:
                 contourCenterGx = int(contourM['m10'] / contourM['m00'])  # 重心
                 contourCenterGy = int(contourM['m01'] / contourM['m00'])
                 contourArea = cv2.contourArea(contours[i])  # 面积
-                contourhull = cv2.convexHull(contours[i])  # 凸包
-                cv2.polylines(self.show, [contourhull], True, (500, 255, 0), 2)
+                # contourhull = cv2.convexHull(contours[i])  # 凸包
+                # cv2.polylines(self.show, [contourhull], True, (500, 255, 0), 2)
                 arclenth = cv2.arcLength(contours[i], True)  # 周长
 
                 # https: // blog.csdn.net / lanyuelvyun / article / details / 76614872
@@ -287,11 +287,11 @@ class ImgProc:
                 y = contourBndBox[1]
                 w = contourBndBox[2]
                 h = contourBndBox[3]
-                img = cv2.rectangle(self.show, (x, y), (x + w, y + h), (0, 255, 0), 2)  # 画矩形
+                # img = cv2.rectangle(self.show, (x, y), (x + w, y + h), (0, 255, 0), 2)  # 画矩形
                 rows, cols = src.shape[:2]  # shape 0 1 #得出原图的行 列 数
-                [vx, vy, x, y] = cv2.fitLine(contours[i], cv2.DIST_L2, 0, 0.01, 0.01)  # 对轮廓进行多边形拟合
-                lefty = int((x * vy / vx) + y)
-                righty = int(((cols - x) * vy / vx) + y)
+                # [vx, vy, x, y] = cv2.fitLine(contours[i], cv2.DIST_L2, 0, 0.01, 0.01)  # 对轮廓进行多边形拟合
+                # lefty = int((x * vy / vx) + y)
+                # righty = int(((cols - x) * vy / vx) + y)
                 # print("pre final"y
                 # rectArray = np.append(rectArray, contourBndBox, axis=0)
                 elem = [contourBndBox, contourArea, arclenth, contourCenterGx, contourCenterGy]
@@ -301,6 +301,58 @@ class ImgProc:
                 # print("rectArray", rectArray)
         return rectArray, dst
 
+
+    def backgroundDiffFast(self, src0):
+        """
+        when get pic frame from camera, use the backgroundDiff to  segment the frame pic and get a mask pic
+        if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
+        will change to white,otherwise, it will cover to black.
+        https://www.cnblogs.com/mrfri/p/8550328.html
+        rectArray=np.zeros(shape=(1,4),dtype=float)
+
+        :param src0: input cam pic waited for segment
+        :param dst: temp store segment result of mask
+        :return: rectArray:all boundingboxes of all bottles
+                 dst:segment result of mask
+        """
+        rectArray = []
+        src = np.float32(src0)
+
+        # segment the src through IlowF and IhiF
+        dst = cv2.inRange(src, self.IlowF, self.IhiF)
+        # cv2.imshow("segment_debug", dst)
+
+        # morph process the frame to clear the noise and highlight our object region
+
+        dst = cv2.morphologyEx(dst, cv2.MORPH_OPEN, self.kernel7)
+
+        dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel7)
+
+        # tmp = 255 * np.ones(shape=dst.shape, dtype=dst.dtype)
+
+        # inverse the  pixel value to make the mask
+        dst = cv2.subtract(255, dst)
+
+        # filter  and morph again and then find the bottle contours
+        # dst = cv2.GaussianBlur(dst, (19, 19), 3)  #删掉会影响功能
+        # print("is this ok04?")
+        dst = cv2.dilate(dst, self.kernel19)
+        dst = cv2.dilate(dst, self.kernel19)
+        dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel13)  # eclipice
+        dst = cv2.erode(dst, self.kernel19)  # eclipice
+        # 解决cv2版本3.4.2和4.1.2兼容问题
+        # if cv2.__version__.startswith("3"):
+        #     _, contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        # elif cv2.__version__.startswith("4"):
+        #     contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        # cv2.drawContours(self.show, contours, -1, (0, 255, 0), 3)
+        # contourLen = len(contours)
+        # print(contourLen)
+        momentList = []
+        pointList = []
+
+        return None, dst
+
     def delBg(self, src):
         """
         use the mask pic bgMask to make bit and operation to the cam frame to get a pic that del the bacground
@@ -309,18 +361,18 @@ class ImgProc:
         :return: rectArray:all boundingboxes of all bottles
                 dst:segment result of mask
         """
-        prev_time = timer()
+        # prev_time = timer()
         # simply output the frame that delete the background
         # dst = np.zeros(shape=(960, 1280, 3), dtype=np.uint8)  flexible the dst shape to adapt the src shape
-        dst = np.zeros(shape=src.shape, dtype=src.dtype)
-        resarray, bgMask = self.backgroundDiff(src, dst)  # 对src 帧 减去背景 结果放到dst，获得瓶子的框，和掩膜图像
-
+        ##### dst = np.zeros(shape=src.shape, dtype=src.dtype)
+        # resarray, bgMask = self.backgroundDiff(src, dst)  # 对src 帧 减去背景 结果放到dst，获得瓶子的框，和掩膜图像
+        resarray, bgMask = self.backgroundDiffFast(src)
         # bit and operation
         frame_delimite_bac = cv2.bitwise_and(src, src, mask=bgMask)  # 用掩膜图像和原图像做像素与操作，获得只有瓶子的图
-        curr_time = timer()
+        # curr_time = timer()
         # calculate the cost time
-        exec_time = curr_time - prev_time
-        self.bgTimeCost = exec_time
+        # exec_time = curr_time - prev_time
+        # self.bgTimeCost = exec_time
         # print("Del background Cost time:", self.bgTimeCost)
         return frame_delimite_bac, bgMask, resarray
 

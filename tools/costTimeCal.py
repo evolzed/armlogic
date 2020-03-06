@@ -25,11 +25,11 @@ class CostTimeCal:
             self.__endTime = timer()
             costTime = self.__endTime - self.__startTime
             self.__costTime = costTime
-        return self.__costTime
+        return round(self.__costTime, 3)   #保留三位小数
 
     def printCostTime(self):
         if self.__isCal is True:
-            print(str(self.__CostTimeType)+" = %f ms" % (self.__costTime * 1000))
+            print(str(self.__CostTimeType)+" = %f ms" % (round(self.__costTime * 1000)))
         else:
             pass
 

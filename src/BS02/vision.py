@@ -48,6 +48,11 @@ bottleDict = {
     "getPosTimeCost": None,
     "isObj": False  # bool
 }
+
+#dataDict box 形式
+# boxList.append([predicted_class, score, left, top, right, bottom, \
+#                 angle, diameter, centerX, centerY, trackID, deltaX, deltaY, speedX, speedY])
+
 #保持False 就可以
 crop = False
 #切换使用相机还是视频
@@ -60,7 +65,7 @@ bgDir = "E:\\1\\一个瓶子背景.avi"
 
 LkTrackTimeOBJ = CostTimeCal("LkTrackTime", False)
 YoloTimeOBJ = CostTimeCal("YoloTime", False)
-BgLearnTimeOBJ = CostTimeCal("BgLearnTime", False)
+BgLearnTimeOBJ = CostTimeCal("BgLearnTime", True)
 state = False
 # videoDir = "d:\\1\\Video_20200204122733339.mpone4"
 # bgDir = "d:\\1\\背景1.avi"
@@ -202,16 +207,17 @@ class Vision(object):
 
         statelist = []
         frameTlist =[]
+        bgtime = 0
         while True:
             print("track State--------------->", state)
 
             _frame, nFrame, t = cam.getImage()
             frameT = t
-            statelist.append(int(state))
+            statelist.append(1000*bgtime)
             frameTlist.append(frameT)
             plt.clf()  # 清除之前画的图
-            plt.plot(frameTlist, statelist, 'rs--', label=str(0))  # 画出当前 ax 列表和 ay 列表中的值的图形
-            plt.pause(0.1)
+            # plt.plot(frameTlist, statelist, 'rs--', label=str(0))  # 画出当前 ax 列表和 ay 列表中的值的图形
+            # plt.pause(0.1)
             plt.ioff()
             deltaT = frameT - preframeT  #时间间隔
             camfps = "Cam" + cam.getCamFps(nFrame)
@@ -228,7 +234,7 @@ class Vision(object):
 
             BgLearnTimeOBJ.calSet()
             frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None)
-            BgLearnTimeOBJ.calEnd()
+            bgtime = BgLearnTimeOBJ.calEnd()
             BgLearnTimeOBJ.printCostTime()
             result = frame.copy()
             if crop is False:
@@ -255,17 +261,18 @@ class Vision(object):
             drawimg = frame.copy()
             featureimg = cv2.cvtColor(preframeb, cv2.COLOR_BGR2GRAY)
             secondimg = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            detectbox = self.imgproc.filterBgBox(resarray, drawimg)
+            # detectbox = self.imgproc.filterBgBox(resarray, drawimg)
             objCNNList = []
             if crop is True:
-                print("detectbox.......", detectbox)
-                objCNNList= self.imgproc.cropBgBoxToYolo(detectbox, drawimg,  self.yolo, nFrame, t)
-                kk = 0
-                if len(objCNNList) > 0:
-                    for i in range(len(objCNNList)):
-                        kk += 1
-                        arrM = np.asarray(objCNNList[i]["image"])
-                        cv2.imshow(str(kk), arrM)
+                # print("detectbox.......", detectbox)
+                # objCNNList= self.imgproc.cropBgBoxToYolo(detectbox, drawimg,  self.yolo, nFrame, t)
+                # kk = 0
+                # if len(objCNNList) > 0:
+                #     for i in range(len(objCNNList)):
+                #         kk += 1
+                #         arrM = np.asarray(objCNNList[i]["image"])
+                #         cv2.imshow(str(kk), arrM)
+                pass
 
 
             # detect
