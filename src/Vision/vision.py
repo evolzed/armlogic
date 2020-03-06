@@ -82,12 +82,11 @@ class Vision(object):
             # print(cam._data_buf)
             frame = np.asarray(cam._data_buf)
             frame = frame.reshape((960, 1280, 3))
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
             # image.show()
             image = yolo.detectImage(image)
-
             result = np.asarray(image)
+            result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
             curr_time = timer()
             exec_time = curr_time - prev_time  # 计算图像识别的执行时间
             prev_time = curr_time  # 重新设置时间节点
@@ -156,6 +155,7 @@ class Vision(object):
             # global prev_time
             # 设定计时器, 统计识别图像耗时
             # prev_time = timer()
+            # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             # 将opencv格式的图像数据转换成PIL类型的image对象，便于进行标框和识别效果可视化
             img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
             # img.show()
@@ -163,6 +163,7 @@ class Vision(object):
             dataDict = self.yolo.detectImage(img)
             dataDict["bgTimeCost"] = self.imgproc.bgTimeCost if self.imgproc else 0
             result = np.asarray(dataDict["image"])
+            result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
             # dataDict["image"] = result  # result：cv2.array的图像数据
             # dataDict["image"] = img  # img：Image对象
             dataDict["image"] = frame  # img：cv2对象
@@ -333,7 +334,7 @@ if __name__ == '__main__':
     yolo = YOLO()
 
     _image = Vision(cam, yolo)
-    saveThread()
+    # saveThread()
     dataDict = _image.detectSerialImage(cam)
     print(dataDict)
     # image.detectVideo(yolo)
