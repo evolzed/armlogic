@@ -139,8 +139,8 @@ class Track:
         # trackFlag = 0  # 对应imgProc中的Flag
 
         targetDict = dict()
-        # speed = [0, 0]
-        speed = [24.83, 0]  # 设置初始速度，为录像视频中平均速度; 初始像素速度为5.8， 转换成时间相关速度 近似值#
+        speed = [0, 0]
+        # speed = [24.83, 0]  # 设置初始速度，为录像视频中平均速度; 初始像素速度为5.8， 转换成时间相关速度 近似值#
         angle = [0, 0]
         type = 0
         typCounter = 0
@@ -252,7 +252,7 @@ class Track:
         global timeOfFlag, countOfTime
 
         startTime = time.time()
-        deltaT = 0.03  # 可调时间步长
+        deltaT = 0.01  # 可调时间步长
         # tempTargetDict = dict()
         tempTargetDict = targetDict  # updateTarget()进程中，每次存储的临时TargetDict # ；
 
@@ -379,8 +379,8 @@ class Track:
                     if math.sqrt((tempTargetDict["target"][jj][2][0] - tempList[ii - 1][0]) * (tempTargetDict["target"][jj][2][0] - tempList[ii - 1][0]) +
                                  (tempTargetDict["target"][jj][2][1] - tempList[ii - 1][1]) * (tempTargetDict["target"][jj][2][1] - tempList[ii - 1][1])) < deltaDistance:
                         # 意味着监测到的数据小范围周边已经有至少一个在追踪的target；认为不必要添加新的target；首先只赋予速度（历史速度）：
-                        # 假设有速度值：
-                        if len(tempList) > 5:
+                        # 假设有速度值 (沿着皮带方向)：
+                        if len(tempList[ii - 1]) > 5 and tempList[ii - 1][5] > 0:
                             tempTargetDict["target"][jj][3][0] = tempList[ii - 1][5]
                             tempTargetDict["target"][jj][3][1] = tempList[ii - 1][6]
                         targetFound += 1

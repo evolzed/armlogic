@@ -56,7 +56,7 @@ bottleDict = {
 #保持False 就可以
 crop = False
 #切换使用相机还是视频
-useCamra = False
+useCamra = True
 
 statisticTrackTime =True
 
@@ -464,6 +464,35 @@ class Vision(object):
                         # if centerList[seqN][3] == 0 or centerList[seqN][4] == 0:
                         #     centerList = []
                         #     transList = centerList
+
+
+                    if len(transList) == 0:
+                        for seqN in range(len(LKtrackedList)):
+                            transList.append(LKtrackedList[seqN])
+
+                    elif len(transList) <= len(LKtrackedList):
+                        deltaCnt = len(transList)
+                        for seqN in range(len(LKtrackedList)):
+                            if deltaCnt > 0:
+                                transList.pop(0)
+                                deltaCnt -= 1
+                            print("seqN-----------", seqN)
+                            transList.append(LKtrackedList[seqN])
+                        print("666666", transList)
+
+                    else:
+                        # transList = []  千万不能这样操作！
+                        deltaCnt = len(transList)
+                        for seqN in range(len(transList)):
+                            if deltaCnt > 0:
+                                transList.pop(0)
+                                deltaCnt -= 1
+                            if 0 <= seqN - (len(transList) - len(LKtrackedList)) < len(LKtrackedList):
+                                print("seqN-----------", seqN - (len(transList) - len(LKtrackedList)))
+                                transList.append(LKtrackedList[seqN - (len(transList) - len(LKtrackedList))])
+                        print("55555555", transList)
+
+
 
                     # try to transfer the frame
                     # transFrame = np.zeros((10, 15, 3), np.uint8)
