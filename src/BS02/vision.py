@@ -69,6 +69,9 @@ BgLearnTimeOBJ = CostTimeCal("BgLearnTime", True)
 state = False
 # videoDir = "d:\\1\\Video_20200204122733339.mpone4"
 # bgDir = "d:\\1\\背景1.avi"
+
+
+
 class Vision(object):
     """create main Vision class for processing images"""
 
@@ -84,6 +87,11 @@ class Vision(object):
         #         print("相机初始化失败！退出程序！")
         #         sys.exit()
         print("相机或视频初始化完成！")
+
+    # 把新数据融合到tracked中
+    def dataFusion(self, toBeTrack, tracked):
+        pass
+
 
     def detectVideo(self, yolo, output_path=""):
         """
@@ -208,6 +216,9 @@ class Vision(object):
         statelist = []
         frameTlist =[]
         bgtime = 0
+
+#数据融合通过它 都融合在这里面
+        LKtrackedList= []
         while True:
             print("track State--------------->", state)
 
@@ -285,6 +296,8 @@ class Vision(object):
                 idXYDict = {}
                 if crop is False:
                     p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict)
+
+                    dataFusion(toBeTrackedList, LKtrackedList)
 
                     dataDict["frameTime"] = frameT
                     if dataDict is not None and "box" in dataDict:
