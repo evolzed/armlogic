@@ -1,6 +1,6 @@
 ---
 name: Data Process
-about: 数据处理
+about: 数据处理工作
 title: "[Data]"
 labels: 无码
 assignees: ''
@@ -27,7 +27,7 @@ assignees: ''
   * 根据任务需求完成相应的标注任务，标注信息以Json格式进行存储
   * 机器自动识别可运行DataProcess.py，但需再次审核数据无误。
 - [ ] 上传结果
-  * 按照[数据存储规范]([https://github.com/evolzed/armlogic/issues/79)将数据上传至GitLab文件夹中
+  * 按照[数据存储规范](https://github.com/evolzed/armlogic/issues/79)将数据上传至GitLab文件夹中
   * 将标注文件上传到Annotation目录中
   * 将重命名的数据上传到Processed目录中
   * 将抠图上传到Foreground或Background目录中
