@@ -456,23 +456,23 @@ class Vision(object):
                     # transFrame = np.zeros((10, 15, 3), np.uint8)
 
                     #遍历所有的跟踪ID 构造ID字典 存放跟踪到的坐标序列
-                    color = ["r", "g", "b"]
-                    if len(idlist) > 0:
-                        print("in track88888888888 idlist", idlist)
-                        plt.clf()  # 清除之前画的图
-                        for idElem in idlist:
-                            # idXYDict[idElem] = [[], []]  # x, y坐标
-                            for seqN in range(len(LKtrackedList)):
-                                if LKtrackedList[seqN][2] == idElem:
-                                    # x_.append(LKtrackedList[seqN][0])
-                                    # y_.append(LKtrackedList[seqN][1])
-                                    idXYDict[idElem][0].append(LKtrackedList[seqN][0])
-                                    idXYDict[idElem][1].append(LKtrackedList[seqN][1])
-                                    # plt.plot(idXYDict[idElem][0], idXYDict[idElem][1], color[int(idElem)%3]+'s--', label=str(int(idElem)))  # 画出当前 ax 列表和 ay 列表中的值的图形
-                                    # plt.pause(0.1)  # 暂停一秒
-                        print("idXYDict!!!!!!!!", idXYDict)
-                        for key in idXYDict.keys():
-                            print("DICT KEY,PLOT:", key)
+                    # color = ["r", "g", "b"]
+                    # if len(idlist) > 0:
+                    #     print("in track88888888888 idlist", idlist)
+                    #     plt.clf()  # 清除之前画的图
+                    #     for idElem in idlist:
+                    #         # idXYDict[idElem] = [[], []]  # x, y坐标
+                    #         for seqN in range(len(LKtrackedList)):
+                    #             if LKtrackedList[seqN][2] == idElem:
+                    #                 # x_.append(LKtrackedList[seqN][0])
+                    #                 # y_.append(LKtrackedList[seqN][1])
+                    #                 idXYDict[idElem][0].append(LKtrackedList[seqN][0])
+                    #                 idXYDict[idElem][1].append(LKtrackedList[seqN][1])
+                    #                 # plt.plot(idXYDict[idElem][0], idXYDict[idElem][1], color[int(idElem)%3]+'s--', label=str(int(idElem)))  # 画出当前 ax 列表和 ay 列表中的值的图形
+                    #                 # plt.pause(0.1)  # 暂停一秒
+                    #     print("idXYDict!!!!!!!!", idXYDict)
+                    #     for key in idXYDict.keys():
+                    #         print("DICT KEY,PLOT:", key)
 
 
                         # plt.ioff()  # 关闭画图的窗口 没有的话会内存溢出

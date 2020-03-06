@@ -252,7 +252,7 @@ class Track:
         global timeOfFlag, countOfTime
 
         startTime = time.time()
-        deltaT = 0.01  # 可调时间步长
+        deltaT = 0.03  # 可调时间步长
         # tempTargetDict = dict()
         tempTargetDict = targetDict  # updateTarget()进程中，每次存储的临时TargetDict # ；
 
@@ -357,6 +357,7 @@ class Track:
         # file.close()
         k = 24.83 / 5.8
         targetFound = 0
+        deltaDistance = 190
         # 目前 按照顺序依次对targetDict 中的list 与 transList 进行比较， 目前，对于循环末期，直接赋值transList
         # tempList为初始时target的List；
 
@@ -376,7 +377,12 @@ class Track:
             for ii in range(len(tempList), 0, -1):
                 for jj in range(len(tempTargetDict["target"])):
                     if math.sqrt((tempTargetDict["target"][jj][2][0] - tempList[ii - 1][0]) * (tempTargetDict["target"][jj][2][0] - tempList[ii - 1][0]) +
-                                 (tempTargetDict["target"][jj][2][1] - tempList[ii - 1][1]) * (tempTargetDict["target"][jj][2][1] - tempList[ii - 1][1])) < 190:
+                                 (tempTargetDict["target"][jj][2][1] - tempList[ii - 1][1]) * (tempTargetDict["target"][jj][2][1] - tempList[ii - 1][1])) < deltaDistance:
+                        # 意味着监测到的数据小范围周边已经有至少一个在追踪的target；认为不必要添加新的target；首先只赋予速度（历史速度）：
+                        # 假设有速度值：
+                        if len(tempList) > 5:
+                            tempTargetDict["target"][jj][3][0] = tempList[ii - 1][5]
+                            tempTargetDict["target"][jj][3][1] = tempList[ii - 1][6]
                         targetFound += 1
                 if targetFound > 0:
                     t.pop(ii - 1)
