@@ -56,7 +56,7 @@ bottleDict = {
 #保持False 就可以
 crop = False
 #切换使用相机还是视频
-useCamra = True
+useCamra = False
 
 statisticTrackTime =True
 
@@ -297,7 +297,7 @@ class Vision(object):
                 if crop is False:
                     p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict)
 
-                    # dataFusion(toBeTrackedList, LKtrackedList)
+                    self.dataFusion(toBeTrackedList, LKtrackedList)
 
                     dataDict["frameTime"] = frameT
                     if dataDict is not None and "box" in dataDict:
@@ -424,7 +424,7 @@ class Vision(object):
 
                         # print("LKtrackedList########################", LKtrackedList)
                         print("111111111111111111111111", transList, LKtrackedList)
-
+                        transList[seqN] = LKtrackedList[seqN]
                         # uuIDText = targetDict["target"][seqN][0]
                         # 位置坐标
                         cv2.circle(drawimg, (int(LKtrackedList[seqN][0]), int(LKtrackedList[seqN][1])), 24, (0, 0, 255), 5)
@@ -758,7 +758,7 @@ if __name__ == '__main__':
 def video_run(transDict, transList, targetDict, transFrame, Flag):
     # cam, _image = imageInit()
     # cam = Camera()
-    videoDir = "d:\\1\\Video_20200204122733339.mp4"
+    videoDir = "d:\\1\\Video_20200204122301684 .avi"
     bgDir = "d:\\1\\背景1.avi"
     avi = Video(videoDir)
     bgAvi = Video(bgDir)
