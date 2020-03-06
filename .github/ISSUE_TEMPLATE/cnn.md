@@ -2,7 +2,7 @@
 name: CNN
 about: 神经网络训练工作
 title: "[YoloV3]"
-labels: 涛, ￥, 数据
+labels: 数据, 涛, ￥
 assignees: ''
 
 ---
