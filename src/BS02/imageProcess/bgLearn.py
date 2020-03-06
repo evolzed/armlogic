@@ -134,7 +134,6 @@ class BgLearn:
             self.avgBackground(self.bgVector[i])
 
 
-
     def studyBackgroundFromVideo(self, videoDir):
         """
         get many pics for time interval of 60sec by cam and store the pics in  bgVector.

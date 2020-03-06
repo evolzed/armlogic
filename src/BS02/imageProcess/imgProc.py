@@ -802,11 +802,11 @@ class ImgProc:
                                                 ]) #跟踪起始时间 如果和dataDict[frameTime]相等，
                                 # 则代表跟踪那一次dataDict的数据
                         # print("center", center)
-                return p0, label, allList
+                return p0, label, allList, True
             else:
-                return None, None, None
+                return None, None, None, False
         else:
-            return None, None, None
+            return None, None, None, False
 
 
 
