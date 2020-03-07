@@ -787,7 +787,7 @@ if __name__ == '__main__':
 def video_run(transDict, transList, targetDict, transFrame, Flag):
     # cam, _image = imageInit()
     # cam = Camera()
-    videoDir = "d:\\1\\Video_20200204122301684 .avi"
+    videoDir = "d:\\1\\Video_20200204122733339.mp4"
     bgDir = "d:\\1\\背景1.avi"
     avi = Video(videoDir)
     bgAvi = Video(bgDir)
