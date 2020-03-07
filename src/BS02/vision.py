@@ -2,6 +2,7 @@ import os
 import sys
 
 from src.BS02.track.track import *
+from src.BS02.imageProcess.imageTools import eDistance
 from tools.costTimeCal import CostTimeCal
 sys.path.append(os.path.abspath("../../"))
 import numpy as np
@@ -56,7 +57,7 @@ bottleDict = {
 #保持False 就可以
 crop = False
 #切换使用相机还是视频
-useCamra = True
+useCamra = False
 
 statisticTrackTime =True
 
@@ -65,13 +66,13 @@ bgDir = "E:\\1\\一个瓶子背景.avi"
 
 LkTrackTimeOBJ = CostTimeCal("LkTrackTime", False)
 YoloTimeOBJ = CostTimeCal("YoloTime", False)
-BgLearnTimeOBJ = CostTimeCal("BgLearnTime", True)
+BgLearnTimeOBJ = CostTimeCal("BgLearnTime", False)
 state = False
 # videoDir = "d:\\1\\Video_20200204122733339.mpone4"
 # bgDir = "d:\\1\\背景1.avi"
+gk = 0 #用于计数
 
-
-
+drawimg = np.array([])
 class Vision(object):
     """create main Vision class for processing images"""
 
@@ -89,8 +90,63 @@ class Vision(object):
         print("相机或视频初始化完成！")
 
     # 把新数据融合到tracked中
-    def dataFusion(self, toBeTrack, tracked):
-        pass
+    def dataFusion(self, toBeTrack, tracked,label):
+        global gk
+        global drawimg
+        ak =1
+        toBeTrackID = []
+        trackedID = []
+        for elem in toBeTrack:
+            toBeTrackID.append(elem[2])
+        for elemTracked in tracked:
+            trackedID.append(elemTracked[2])
+        print("toBeTrackID::::", toBeTrackID)
+        print("trackedID::::", trackedID)
+
+        lenth = len(tracked)
+        maxNo = max(trackedID)
+        for elemIndex in range(len(toBeTrack)):  #遍历检测的中心点
+            point = np.array([toBeTrack[elemIndex][0], toBeTrack[elemIndex][1] ])
+            # distantList = []
+            distantList = [0 for x in range(0, len(tracked))]
+            for elemTrackedindex in range(len(tracked)):  #遍历跟踪的中心点
+                pointTracked = np.array([tracked[elemTrackedindex][0], tracked[elemTrackedindex][1]])
+                distant = eDistance(pointTracked, point)
+                print("distant_between" + str(elemTrackedindex) + "and" + str(elemIndex)+".....", distant)
+                distantList[elemTrackedindex] = distant
+                #找出跟踪的中心点中 最接近检测中心点的一个中心点，把它的ID 和检测中心点的ID融合起来
+            mini = min(distantList)
+            print("distantList", distantList)
+            if mini < 150:
+                neareassIndex = distantList.index(min(distantList))
+                toBeTrack[elemIndex][2] = tracked[neareassIndex][2]
+                # print("toBeTrack[elemIndex][3]", toBeTrack[elemIndex][3])
+                label[toBeTrack[elemIndex][3]] = tracked[neareassIndex][2]
+                # print("label:", label)
+                print("find the nearest!!!!!!fusion,%f===== %f" %(toBeTrack[elemIndex][2], tracked[neareassIndex][2]))
+            else:
+                toBeTrack[elemIndex][2] = maxNo + ak
+                label[toBeTrack[elemIndex][3]] = maxNo + ak
+                print("> 150!!!!!ADD CHANGE,%f ===== %f" %(toBeTrack[elemIndex][2], maxNo + ak))
+                ak += 1
+
+            #
+            # #找出最小距离那个点
+            # if distant < 90:
+            #     toBeTrack[elemIndex][2] = tracked[elemTrackedindex][2]  # 是同一个东西 融合跟踪的ID和检测到的ID
+            #     label[toBeTrack[elemIndex][3]] = tracked[elemTrackedindex][2]
+            #
+            #     cv2.circle(drawimg, (tracked[elemTrackedindex][0], tracked[elemTrackedindex][1]), 3, (0, 255, 255))
+            #     cv2.circle(drawimg, (toBeTrack[elemIndex][0], toBeTrack[elemIndex][1]), 3, (255, 0, 255))
+            #
+            #     print("<90!!!!!!fusion,ID!!!===== ",  tracked[elemTrackedindex][2])
+            #     剩下的点
+            #     if distant > 150:
+            #         toBeTrack[elemIndex][2] = maxNo+ak
+            #         label[toBeTrack[elemIndex][3]] = maxNo+ak
+            #         print("> 150!!!!!ADD CHANGE,ID ===== ", maxNo+ak)
+            #         ak += 1
+        return toBeTrack, label
 
 
     def detectVideo(self, yolo, output_path=""):
@@ -156,6 +212,7 @@ class Vision(object):
         self.cam.destroy(self.cam, self.cam._data_buf)
         yolo.closeSession()
 
+
     def detectSerialImage(self, cam, transDict, transList, targetDict, transFrame, flag):
         """
         获取并处理连续的帧数
@@ -216,7 +273,7 @@ class Vision(object):
         statelist = []
         frameTlist =[]
         bgtime = 0
-
+        reckon =0
 #数据融合通过它 都融合在这里面
         LKtrackedList= []
         while True:
@@ -297,22 +354,21 @@ class Vision(object):
                 if crop is False:
                     p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict)
 
-                    self.dataFusion(toBeTrackedList, LKtrackedList)
 
                     dataDict["frameTime"] = frameT
-                    if dataDict is not None and "box" in dataDict:
-                        print("dataDict:", dataDict)
-                        for i in range(len(dataDict["box"])):
-                            print("%%%%%%current i", i)
-                            if dataDict["box"][i][10] is not None:
-                                print("%%%%%%%%currentID", dataDict["box"][i][10])
-                                print("now in detect!!!!!!!!!!!!!!!!!!!!!!")
+                    # if dataDict is not None and "box" in dataDict:
+                    #     print("dataDict:", dataDict)
+                    #     for i in range(len(dataDict["box"])):
+                    #         print("%%%%%%current i", i)
+                    #         if dataDict["box"][i][10] is not None:
+                    #             print("%%%%%%%%currentID", dataDict["box"][i][10])
+                    #             print("now in detect!!!!!!!!!!!!!!!!!!!!!!")
 
 
                     if toBeTrackedList is not None:
                         for seqN in range(len(toBeTrackedList)):
                             idlist.append(toBeTrackedList[seqN][2])
-                        print("detect 88888888888 idlist", idlist)
+                        # print("detect 88888888888 idlist", idlist)
                         for idElem in idlist:
                             idXYDict[idElem] = [[], []]  # x, y坐标
 
@@ -340,9 +396,9 @@ class Vision(object):
                             if deltaCnt > 0:
                                 transList.pop(0)
                                 deltaCnt -= 1
-                            print("seqN-----------", seqN)
+                            # print("seqN-----------", seqN)
                             transList.append(centerList[seqN])
-                        print("666666", transList)
+                        # print("666666", transList)
 
                     else:
                         # transList = []  千万不能这样操作！
@@ -352,9 +408,9 @@ class Vision(object):
                                 transList.pop(0)
                                 deltaCnt -= 1
                             if 0 <= seqN - (len(transList) - len(centerList)) < len(centerList):
-                                print("seqN-----------", seqN - (len(transList) - len(centerList)))
+                                # print("seqN-----------", seqN - (len(transList) - len(centerList)))
                                 transList.append(centerList[seqN - (len(transList) - len(centerList))])
-                        print("55555555", transList)
+                        # print("55555555", transList)
                                 # transList.append([])
 
                     #     print(transList, centerList, str(len(transList)), str(len(centerList)))
@@ -377,8 +433,16 @@ class Vision(object):
                         #     centerList = []
                         #     transList = centerList
                 #切换为图像跟踪模式
+                if toBeTrackedList is not None:
+                    print("toBeTrackedList", np.array(toBeTrackedList)[:, 0:3])
+
                 if p0 is not None and label is not None and toBeTrackedList is not None:
+                    if toBeTrackedList is not None and LKtrackedList is not None and len(LKtrackedList) > 0:
+                        toBeTrackedList, label = self.dataFusion(toBeTrackedList, LKtrackedList, label)
+                        # cv2.waitKey(2000)
                     flag[0] = 1
+
+
 
             # track
             else:
@@ -412,6 +476,9 @@ class Vision(object):
 
                 # print("!!!!!!!!!!!tracked p0 = ", p0)
                 # print("!!!!!!!!!!!!tracked label = ", label)
+                if LKtrackedList is not None:
+                    print("LKtrackedList", np.array(LKtrackedList)[:, 0:3])
+
                 if LKtrackedList is not None and len(LKtrackedList) > 0:
                     # LKtrackedList[seqN][0]    centerX
                     # LKtrackedList[seqN][1]    centerY
@@ -435,11 +502,11 @@ class Vision(object):
                         #             cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
                         # ID 和 偏移量
-                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][3])),
+                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][4])),
                                     org=(LKtrackedList[seqN][0] - 50, LKtrackedList[seqN][1] - 30),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(255, 255, 0), thickness=2)
-                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][4])),
+                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][5])),
                                     org=(LKtrackedList[seqN][0] + 50, LKtrackedList[seqN][1] - 30),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(255, 255, 0), thickness=2)
@@ -452,11 +519,11 @@ class Vision(object):
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(0, 255, 255), thickness=2)
                         # speed
-                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][5])),
+                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][6])),
                                     org=(LKtrackedList[seqN][0] - 50, LKtrackedList[seqN][1]+30),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(255, 255, 0), thickness=2)
-                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][6])),
+                        cv2.putText(drawimg, text=str(int(LKtrackedList[seqN][7])),
                                     org=(LKtrackedList[seqN][0] + 50, LKtrackedList[seqN][1] + 30),
                                     fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                                     fontScale=2, color=(255, 255, 0), thickness=2)
@@ -550,8 +617,8 @@ class Vision(object):
 
             # if centerList:
             #     0
-            if dataDict is not None and "box" in dataDict:
-                print("dataDict!!!:", dataDict)
+            # if dataDict is not None and "box" in dataDict:
+            #     print("dataDict!!!:", dataDict)
             # 如果CNN没识别到瓶子，则跳回detect
             if "box" not in dataDict:
                 # p0 = np.array([])
@@ -589,7 +656,11 @@ class Vision(object):
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 cam.destroy()
                 break
-                #重新开始检测
+                #重新开始检测  如果时间大于1s
+            if frameT - reckon > 1:
+                reckon = frameT
+                flag[0] = 0
+
             if cv2.waitKey(1) & 0xFF == ord('r'):
                 flag[0] = 0
                 print("change!!!! flag=0!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")

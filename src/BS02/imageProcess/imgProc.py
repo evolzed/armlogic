@@ -413,7 +413,7 @@ class ImgProc:
         """
         label_list = np.unique(good_label)
         label_list = label_list[label_list != -1]
-        print("label_list", label_list)
+        # print("label_list", label_list)
         targetList = []
         for i in label_list:
             # print("i", i)
@@ -455,7 +455,8 @@ class ImgProc:
             # print("p0_con_i", p0_con_i)
             x = int(np.median(p0_con_i[:, 0]))
             y = int(np.median(p0_con_i[:, 1]))
-            center_i = [x, y, i]
+            indexMask = (p0_con[:, :, 2] == i)  #用于找出Label等于i 的p0的索引
+            center_i = [x, y, i, indexMask]
             # print("center_i", center_i)
             center_list.append(center_i)
         return center_list
@@ -547,7 +548,7 @@ class ImgProc:
             # classify  the label  by the dataDict boxes and label them
             if boxLenth > 0:
                 for i in range(boxLenth):
-                    print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
+                    # print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
                     left = detectedBox[i][0]
                     top = detectedBox[i][1]
                     right = detectedBox[i][2]
@@ -730,7 +731,7 @@ class ImgProc:
             if boxLenth > 0:
                 for i in range(len(dataDict["box"])):
                     if "box" in dataDict and dataDict["box"][i][1] > 0.91 and dataDict["box"][i][3] > 180:
-                        print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
+                        # print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
                         left = dataDict["box"][i][2]
                         top = dataDict["box"][i][3]
                         right = dataDict["box"][i][4]
@@ -738,7 +739,6 @@ class ImgProc:
 
                         centerX = int((left + right) / 2)
                         centerY = int((top + bottom) / 2)
-
 
                         dataDict["box"][i][8] = centerX
                         dataDict["box"][i][9] = centerY
@@ -768,7 +768,7 @@ class ImgProc:
                     centerL = self.findTrackedCenterPoint(p0, label)
                     allList = []
                     for x in centerL:
-                        allList.append([x[0], x[1], x[2], 0, 0])# is not used  temparary
+                        allList.append([x[0], x[1], x[2], x[3], 0, 0])# is not used  temparary
                         indexLabel = int(x[2])
                         # print("indexLabel:", indexLabel)
                         # dataDict["box"][indexLabel][8] = x[0]      #centerX
@@ -844,10 +844,10 @@ class ImgProc:
                 allList = []
                 if centerList is not None:
                     for center in centerList:
-                        for i in range(len(targetlist)):
+                        for i in range(len(targetlist)):   #为了加上
                             if center[2] == targetlist[i][1]:  #CNN label 相等
                                 # 坐标 label 速度
-                                allList.append([center[0], center[1], center[2],
+                                allList.append([center[0], center[1], center[2], center[3],
                                                 round(targetlist[i][0][0], 3), round(targetlist[i][0][1], 3),#offset
                                                 round(targetlist[i][0][0]/deltaT, 3),  #speed
                                                 round(targetlist[i][0][1]/deltaT, 3),
