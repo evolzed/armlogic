@@ -724,7 +724,7 @@ class ImgProc:
             # init the label
             #构造label的形状
             label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
-            print("len(dataDict[box])", len(dataDict["box"]))
+            # print("len(dataDict[box])", len(dataDict["box"]))
 
             boxLenth = len(dataDict["box"])
             # classify  the label  by the dataDict boxes and label them
@@ -747,9 +747,9 @@ class ImgProc:
                         theList.append([centerX, centerY, int(i), 0, 0])
 
 
-                        cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
+                        # cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
                         # store every point label
-                        print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
+                        # print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
                         for k in range(p0.shape[0]):
                             # print("p0", p0[k, 0, 0])
                             # print("p1", p0[k, 0, 1])

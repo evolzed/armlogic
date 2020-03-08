@@ -67,6 +67,7 @@ bgDir = "E:\\1\\一个瓶子背景.avi"
 LkTrackTimeOBJ = CostTimeCal("LkTrackTime", False)
 YoloTimeOBJ = CostTimeCal("YoloTime", False)
 BgLearnTimeOBJ = CostTimeCal("BgLearnTime", False)
+DetectTimeOBJ = CostTimeCal("DetectTime", True)
 state = False
 # videoDir = "d:\\1\\Video_20200204122733339.mpone4"
 # bgDir = "d:\\1\\背景1.avi"
@@ -352,8 +353,10 @@ class Vision(object):
                 idlist = []
                 idXYDict = {}
                 if crop is False:
+                    DetectTimeOBJ.calSet()
                     p0, label, toBeTrackedList, centerList, dataDict = self.imgproc.detectObj(featureimg, drawimg, dataDict)
-
+                    DetectTimeOBJ.calEnd()
+                    DetectTimeOBJ.printCostTime()
 
                     dataDict["frameTime"] = frameT
                     # if dataDict is not None and "box" in dataDict:
