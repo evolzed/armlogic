@@ -463,11 +463,12 @@ class Vision(object):
                 # LKtrackedList[seqN][0]    centerX
                 # LKtrackedList[seqN][1]    centerY
                 # LKtrackedList[seqN][2]    trackID
-                # LKtrackedList[seqN][3]    deltaX
-                # LKtrackedList[seqN][4]    deltaY
-                # LKtrackedList[seqN][5]    speedX
-                # LKtrackedList[seqN][6]    speedY
-                # LKtrackedList[seqN][7]   startTime
+                # LKtrackedList[seqN][3]    和label对应的p0的 index
+                # LKtrackedList[seqN][4]    deltaX
+                # LKtrackedList[seqN][5]    deltaY
+                # LKtrackedList[seqN][6]    speedX
+                # LKtrackedList[seqN][7]    speedY
+
 
                # frameT 传入作为跟踪起始时间 如果和 dataDict[frameTime] 相等，
                 # 则代表跟踪的是dataDict[frameTime] 那个时间的dataDict的数据
@@ -672,7 +673,7 @@ class Vision(object):
                 #重新开始检测  如果时间大于1s
             if frameT - reckon > 1:
                 reckon = frameT
-                flag[0] = 0
+                # flag[0] = 0   先屏蔽掉
 
             if cv2.waitKey(1) & 0xFF == ord('r'):
                 flag[0] = 0

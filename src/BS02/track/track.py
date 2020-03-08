@@ -152,7 +152,8 @@ class Track:
         currentWatch = int(getTimeStamp()[-8:-6])
         if currentWatch == 20 or currentWatch == 9 \
                 or currentWatch == 14 or currentWatch == 17:  #20点的时候重新调用BGlearn
-            Flag[0] = 2
+            # Flag[0] = 2    先屏蔽到
+            pass
 
         checkTime = 0
         
