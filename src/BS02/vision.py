@@ -278,6 +278,16 @@ class Vision(object):
 #数据融合通过它 都融合在这里面
         LKtrackedList= []
         while True:
+            if flag[0] == 2:
+                print("重新进行背景学习")
+                if useCamra:
+                    self.imgproc.reStudyBgModelFromCam(cam)
+                else:
+                    self.imgproc.studyBackground()
+                    self.imgproc.createModelsfromStats()
+                flag[0] = 0
+
+
             print("track State--------------->", state)
 
             _frame, nFrame, t = cam.getImage()

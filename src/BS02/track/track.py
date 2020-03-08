@@ -6,6 +6,7 @@ import sys
 import cv2
 import uuid
 from src.BS02.camera import Camera
+from tools.timeStamp import getTimeStamp
 
 from src.BS02.vision import *
 from src.BS02.imageProcess.imgProc import *
@@ -147,6 +148,11 @@ class Track:
 
             Flag[0] = 0
             countOfTime += 1
+
+        currentWatch = int(getTimeStamp()[-8:-6])
+        if currentWatch == 20 or currentWatch == 9 \
+                or currentWatch == 14 or currentWatch == 17:  #20点的时候重新调用BGlearn
+            Flag[0] = 2
 
         checkTime = 0
         

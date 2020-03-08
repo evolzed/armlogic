@@ -118,8 +118,10 @@ class ImgProc:
         # cv2.subtract(IavgF, IdiffF, IlowF)
         self.IlowF = cv2.subtract(self.IavgF, self.IdiffF)
         # release the memory | 12.25 内存优化，显示释放内存
-        del self.bgVector
-        gc.collect()
+
+        # del self.bgVector  #删了 就不能反复使用了
+        # gc.collect()
+
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
 
