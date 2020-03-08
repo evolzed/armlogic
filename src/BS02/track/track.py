@@ -202,10 +202,11 @@ class Track:
                                  pow((tempTargetDict["target"][jj][2][1] - tempList[ii - 1][1]), 2)) < deltaDistance:
                         # 意味着监测到的数据小范围周边已经有至少一个在追踪的target；认为不必要添加新的target；首先只赋予速度（历史速度）：
                         # 假设有速度值 (沿着皮带方向)：
-                        if len(tempList[ii - 1]) > 5 and tempList[ii - 1][5] > 0:
+                        # if len(tempList[ii - 1]) > 5 and tempList[ii - 1][5] > 0:
+                        if len(tempList[ii - 1]) > 5 and tempList[ii - 1][6] > 0:
 
-                            tempTargetDict["target"][jj][3][0] = tempList[ii - 1][5]
-                            tempTargetDict["target"][jj][3][1] = tempList[ii - 1][6]
+                            tempTargetDict["target"][jj][3][0] = tempList[ii - 1][6]
+                            tempTargetDict["target"][jj][3][1] = tempList[ii - 1][7]
                         targetFound += 1
 
                 if targetFound > 0:

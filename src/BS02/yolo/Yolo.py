@@ -37,9 +37,9 @@ class YOLO(object):
         # self.model_path = 'model_data/tiny_yolo_weights.h5' # model path or trained weights path
 
         # 自己的模型
-        self.model_path = '../BS02/yolo/1000_416_trained_weights_final.h5' # model path or trained weights path
+        self.model_path = '../BS02/yolo/10000_trained_weights_final.h5' # model path or trained weights path
         self.anchors_path = '../BS02/yolo/tiny_yolo_anchors.txt'
-        self.classes_path = '../BS02/yolo/bottle_annotation_classes.txt'
+        self.classes_path = '../BS02/yolo/22bottle_annotation_classes.txt'
         self.score = 0.3
         self.iou = 0.45
         self.class_names = self._get_class()

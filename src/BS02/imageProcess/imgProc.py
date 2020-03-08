@@ -730,7 +730,7 @@ class ImgProc:
             # classify  the label  by the dataDict boxes and label them
             if boxLenth > 0:
                 for i in range(len(dataDict["box"])):
-                    if "box" in dataDict and dataDict["box"][i][1] > 0.91 and dataDict["box"][i][3] > 180:
+                    if "box" in dataDict and dataDict["box"][i][1] > 0.31 and dataDict["box"][i][3] > 180:
                         # print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
                         left = dataDict["box"][i][2]
                         top = dataDict["box"][i][3]
@@ -847,7 +847,7 @@ class ImgProc:
                         for i in range(len(targetlist)):   #为了加上
                             if center[2] == targetlist[i][1]:  #CNN label 相等
                                 # 坐标 label 速度
-                                allList.append([center[0], center[1], center[2], center[3],
+                                allList.append([center[0], center[1], center[2], center[3], #索引
                                                 round(targetlist[i][0][0], 3), round(targetlist[i][0][1], 3),#offset
                                                 round(targetlist[i][0][0]/deltaT, 3),  #speed
                                                 round(targetlist[i][0][1]/deltaT, 3),
