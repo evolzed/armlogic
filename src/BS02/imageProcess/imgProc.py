@@ -732,7 +732,7 @@ class ImgProc:
             # classify  the label  by the dataDict boxes and label them
             if boxLenth > 0:
                 for i in range(len(dataDict["box"])):
-                    if "box" in dataDict and dataDict["box"][i][1] > 0.31 and dataDict["box"][i][3] > 180:
+                    if "box" in dataDict and dataDict["box"][i][1] > 0.92 and dataDict["box"][i][3] > 180:
                         # print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
                         left = dataDict["box"][i][2]
                         top = dataDict["box"][i][3]
