@@ -1,8 +1,10 @@
 import os
 import sys
+import copy
 import time
 import json
 import PIL.Image as pimg
+import PIL.ImageDraw as draw
 import keras
 
 sys.path.append("../")
@@ -18,13 +20,13 @@ class DataProcess():
         """
             初始化信息：姓名、数据源路径、输出路径、处理时间
         """
-        self.name = input("input name")
-        self.inPath = input("input data path")
-        while not os.path.isdir(self.inPath):
-            self.inPath=input("Reenter data path")
-        # '''测试用'''
-        # self.inPath = r'F:\XSCX\Samples\validation\dtprcs'
-
+        # self.name = input("input name")
+        # self.inPath = input("input data path")
+        # while not os.path.isdir(self.inPath):
+        #     self.inPath=input("Reenter data path")
+        '''测试用'''
+        self.inPath = r'F:\XSCX\Samples\validation\dtprcs'
+        self.outPath=os.path.join(self.inPath, 'outputs')
         self.dataTime = time.strftime('%Y%m%d%H%M%S', time.localtime(time.time()))
         self.yolo = YOLO()
 
@@ -73,25 +75,24 @@ class DataProcess():
         '''
         ann = {"path": "", "outputs": {}, "size": {}}  # 标注信息
         obj = []  # 目标列表
-        target = {"name": "", "bandbox": {}}  # 目标信息
-        bandbox = {"xmin": 0, "ymin": 0, "xmax": 0, "ymax": 0}  # 目标位置
+        target = {"name": "", "bndbox": {}}  # 目标信息
+        bndbox = {"xmin": 0, "ymin": 0, "xmax": 0, "ymax": 0}  # 目标位置
 
         # 进行数据整合
         if outputs != []:
             for box in outputs:
-                bandbox["xmin"],bandbox["ymin"],bandbox["xmax"],bandbox["ymax"]=int(box[2]),int(box[3]),int(box[4]),int(box[5])
-                target["name"],target["bandbox"] =box[0], bandbox
-                obj.append(target)
+                bndbox["xmin"],bndbox["ymin"],bndbox["xmax"],bndbox["ymax"]=int(box[2]),int(box[3]),int(box[4]),int(box[5])
+                target["name"],target["bndbox"] =box[0], bndbox
+                obj.append(copy.deepcopy(target))
 
         ann["outputs"]["object"] = obj
         ann["size"] = size
         ann["path"] = '%s.jpg' % fname
 
         # 保存数据到文件
-        dir=os.path.join(self.inPath, 'outputs')
-        fp = os.path.join(dir, '%s.json' % fname)  # 文件保存路径
-        if not os.path.exists(dir):
-            os.mkdir(dir)
+        fp = os.path.join(self.outPath, '%s.json' % fname)  # 文件保存路径
+        if not os.path.exists(self.outPath):
+            os.mkdir(self.outPath)
         try:
             with open(fp, 'w', encoding='utf-8') as fd:
                 json.dump(ann, fd)
@@ -99,7 +100,48 @@ class DataProcess():
             return 1
         return 0
 
+    def FilterAnnotation(self):
+        fileList = os.listdir(self.outPath)
+        un_anno = []
+        for file in fileList:
+            if file.endswith(".json"):
+                with open(os.path.join(self.outPath,file), "r") as f:
+                    dic = json.loads(f.read().encode("gbk").decode("utf8"))
+                    outputs = dic.get("outputs")
+                    if outputs is None:
+                        print("--None--" * 20, file)
+                        continue
+                    try:
+                        obj = outputs["object"]
+                    except Exception as e:
+                        un_anno.append(file)
+                        continue
+                    name=file[:-5]
+                    with pimg.open(os.path.join(self.inPath,'%s.jpg'% name)) as img:
+                        imgDraw=draw.Draw(img)
+                        for bbox in obj:
+                            bbox_class = bbox["name"]
+                            bbox_xmin = bbox["bndbox"]["xmin"]
+                            bbox_ymin = bbox["bndbox"]["ymin"]
+                            bbox_xmax = bbox["bndbox"]["xmax"]
+                            bbox_ymax = bbox["bndbox"]["ymax"]
+                            imgDraw.rectangle((bbox_xmin,bbox_ymin,bbox_xmax,bbox_ymax))
+                            # print(bbox_class,bbox_xmin,bbox_ymin,bbox_xmax,bbox_ymax)
+                        img.show()
+                        flag=input('是否需要重标,请输入 y 或 n')
+                        while not flag in ['y','n']:
+                            flag = input('输入错误,请重新输入 y 或 n')
+                        if flag=='n':
+                            continue
+                        elif flag=='y':
+                            with open(os.path.join(self.outPath, "reList.txt"),'a') as fd:
+                                fd.write('%s.jpg\n'% name)
+                                print(name)
+
 
 if __name__ == '__main__':
     process = DataProcess()
     process.Processing()
+    print("processed")
+    process.FilterAnnotation()
+
