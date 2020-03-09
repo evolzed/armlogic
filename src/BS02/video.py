@@ -75,6 +75,7 @@ class Video:
         """
         if self.isOpened:
             (frameState, frame) = self.cap.read()  # 记录每帧及获取状态
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             if frameState == True:
                 t = time.time()  # 获取当前帧的时间
                 self.nFrame += 1
