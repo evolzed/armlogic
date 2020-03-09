@@ -299,7 +299,7 @@ class Camera(object):
             self.fps = "FPS: " + str(self.fpsnum)
             self.nFrameNumPreOneSec = nFrameNum  # update the nFrameNumPreOneSec every 1 second
             self.accum_time = 0.0  # back to origin
-        return self.fps
+        return str(self.fps)
 
     def press_any_key_exit(self):
         """
