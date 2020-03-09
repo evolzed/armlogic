@@ -5,7 +5,6 @@ from timeit import default_timer as timer
 class Video:
     def __init__(self, videoDir):
         """
-
         :param videoDir:
         """
         self.cap = cv2.VideoCapture(videoDir)  # 获取视频对象
@@ -18,7 +17,6 @@ class Video:
 
     def getImageFromVideo(self):
         """
-
         :return:
         frame
         """
@@ -63,11 +61,9 @@ def getImageFromVideo(VideoDir):
             imageNum = imageNum + 1
         (frameState, frame) = cap.read()  # 记录每帧及获取状态
         fileName = 'image' + str(imageNum) + '.jpg'  # 存储路径
-
         if frameState == True:
             cv2.imwrite(fileName, frame, [cv2.IMWRITE_JPEG_QUALITY, 100])
             print(fileName + "successfully write in")  # 输出存储状态
     print('finish!')
 """
-
 
