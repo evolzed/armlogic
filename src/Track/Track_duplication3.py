@@ -5,8 +5,9 @@ import sys
 import cv2
 import uuid
 from src.Vision.camera import Camera
-from src.Vision.vision import *
-from src.Vision.imageProcess.imgProc import *
+
+from src.Vision.vision_duplication import *
+from src.Vision.imageProcess.imgProc_duplication import *
 import time
 from timeit import default_timer as timer
 import numpy as np
@@ -23,7 +24,9 @@ class Track:
 
     """
 
-    def createTarget(self, bottleDict, frame, preframeb):
+
+    def createTarget(self, bottleDict, frame):
+
         """
         增加新的Target目标功能
 
@@ -67,7 +70,8 @@ class Track:
 
         # 用imgProc的centerList
         # tempCenterList = _imgproc.findTrackedCenterPoint(p0, label)
-        print(bottleDict)
+
+
         print(centerpoints)
         print(p0, label)
         # cv2.imshow("test", frame)
@@ -235,19 +239,13 @@ class Track:
 
 
 if __name__ == "__main__":
-    cam, _image = imageInit()
-    # cam = Camera()
+
+    # cam, _image = imageInit()
+    cam = Camera()
     yolo = YOLO()
-    # _vision = Vision(cam, yolo, imgproc_=None)
+    _vision = Vision(cam, yolo, imgproc_=None)
+    _imgproc = ImgProc(10)
 
-    videoDir = "d:\\1\\Video_20200204122301684.avi"
-    bgDir = "d:\\1\\背景1.avi"
-    avi = Video(videoDir)
-    bgAvi = Video(bgDir)
-    imgCapObj = imageCapture(None, avi, bgAvi)
-
-    _imgproc = ImgProc(10, imgCapObj)
-    _vision = Vision(cam, yolo, _imgproc)
     prev_time = timer()
     accum_time = 0
     curr_fps = 0
@@ -263,8 +261,6 @@ if __name__ == "__main__":
     dataDict = dict()
     tempDict = dict()
 
-    # preframe, nFrame, t = cam.getImage()
-    # preframeb, bgMaskb, resarrayb = _imgproc.delBg(preframe) if _imgproc else (preframe, None)
 
     while True:
         targetTracking = Track()
@@ -283,8 +279,9 @@ if __name__ == "__main__":
 
         else:
             # 创建target
-            tempDict, tempBottleDict, uuIDList, preframeb = targetTracking.createTarget(dataDict, drawimg, preframeb)
-            dataDict = tempBottleDict
+
+            tempDict, tempBottleDict, uuIDList, preframeb = targetTracking.createTarget(dataDict, drawimg)
+
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
