@@ -154,7 +154,8 @@ class YOLO(object):
                     size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = (image.size[0] + image.size[1]) // 300
         # 保存需要返回的数据的集合
-        dataDict = {"image": image}
+        # dataDict = {"image": image}  # 更改位置到return之前
+        dataDict = dict()
         boxList = []
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]
@@ -205,6 +206,8 @@ class YOLO(object):
         end = timer()
         dataDict["timeCost"] = end - start
         # print(end - start)
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        dataDict["image"] = image
         return dataDict
 
     def closeSession(self):

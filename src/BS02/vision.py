@@ -57,7 +57,7 @@ bottleDict = {
 #保持False 就可以
 crop = False
 #切换使用相机还是视频
-useCamra = False
+useCamra = True
 
 statisticTrackTime =True
 
