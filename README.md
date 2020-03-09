@@ -23,12 +23,12 @@
 * numpy==1.16.5（必须要用1.16版本，1.17报错；win下需要1.16.5+mkl）
 * keras==2.1.5（务必使用该版本，否则报错）
 * PIL第三方库
+* h5py==2.10.0
 * 标准库：os模块、ctype(调用c/c++代码)、datetime(日期模块)、colorsys(转换模型模块)、timeit(测试程序运行时间)
 * [GitHub](https://github.com/evolzed/armlogic)
 * 可能的报错：如果运行出现OSError：[WinError] 找不到指定的模块，尝试安装海康SDK中的Runtime组件包【[海康官网下载地址](https://www.hikrobotics.com/service/soft.htm?type=2)】，如果安装后依然报错，重启计算机后进行尝试）
 ## 1.3 通讯接口
 * Ethernet
-* RS485
 
 ----
 # 2.**定义及规则**
@@ -39,12 +39,13 @@
   * docs/         #技术文档
   * src/          #源代码
   * test/         #测试
+
   * README.md     
 
   * LICENSE.md     
   
 ## 2.2 系统流程图
-![FlowChart](http://192.168.0.203:8088/armlogic/BottleSort/raw/Track/docs/pic/FlowChart/Track_20200102.png)
+![FlowChart](http://192.168.0.203:8088/armlogic/BottleSort/raw/Track/docs/pic/FlowChart/Track_20200103.png)
 
 ## 2.3 数据变量命名规则
 
@@ -55,7 +56,7 @@
 | library |  bgDict  | #address to image file location and processed flag | #%.JPG | bool processed ||||
 | global |  gDir  | #direction of the moving belt | int gDir | ||||
 | library |  bottleDict  | #sorted bottle information | {"image":imagedata,"box":[(bottletype1, confidence, xmin, ymin, xmax, ymax),(bottletype2, confidence, xmin, ymin, xmax, ymax),···]，"bgTimeCost":time,"timeCost":time,"nFrame":camNumFrame} |  |  | | |
-| library | trackDict | #target track information | {"target":[(UUID, trackFlag, postion, speed, angle, type, typeCounter, nFrame, bgTimeCost, timeCost, trackTimeCost)]} | | | | |
+| library | targetDict | #target track information | {"target":[(UUID, trackFlag, postion, speed, angle, type, typeCounter),...], "timeCost":time, <br />"targetTrackTime":time} | | | | |
 | path | bgPic | #file location for bgPic ||||||
 
 ## 2.4 功能包文档填写说明
@@ -63,6 +64,7 @@
 |   Class   | Function |           Description          | Input | Output | Return |
 | :------: | :------: | :-----------------------------: | :----: | :----: | :----: |
 | Main |  | 主方法，系统流程 | gState |  |  |
+
 | Camera |  getImage  | get a frame of opencv format from camra | %_cam  %_data_buf %_nPayloadSize|  | %frame|
 | Camera | getCamFps  | get  fps of camera output in str type  | %nFrameNum  |  | %fps|
 
@@ -116,6 +118,8 @@ rbox
 | :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
 | Track | createTarget() | 创建新的trackDict元素 |       | trackDict |        |
 | Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
+
+
 
 
 

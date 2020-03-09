@@ -237,7 +237,7 @@ class Camera(object):
         frame = np.asarray(self._data_buf)
         frame = frame.reshape((960, 1280, 3))
         # todo
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         # cv2.imshow("rrr", frame)
         # cv2.waitKey(10)
         return frame, self.stFrameInfo.nFrameNum, t
@@ -299,7 +299,7 @@ class Camera(object):
             self.fps = "FPS: " + str(self.fpsnum)
             self.nFrameNumPreOneSec = nFrameNum  # update the nFrameNumPreOneSec every 1 second
             self.accum_time = 0.0  # back to origin
-        return self.fps
+        return str(self.fps)
 
     def press_any_key_exit(self):
         """

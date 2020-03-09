@@ -18,7 +18,6 @@ class Video:
 
     def getImageFromVideo(self):
         """
-
         :return:
         frame
         """

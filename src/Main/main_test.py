@@ -31,5 +31,5 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.stdout = Logger("D:\\log.txt")  # 保存到D盘
+    # sys.stdout = Logger("D:\\log.txt")  # 保存到D盘
     main()

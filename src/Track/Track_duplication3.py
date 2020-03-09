@@ -5,11 +5,13 @@ import sys
 import cv2
 import uuid
 from src.Vision.camera import Camera
+
 from src.Vision.vision_duplication import *
 from src.Vision.imageProcess.imgProc_duplication import *
 import time
 from timeit import default_timer as timer
 import numpy as np
+
 from src.Vision.yolo.Yolo import *
 
 
@@ -22,7 +24,9 @@ class Track:
 
     """
 
+
     def createTarget(self, bottleDict, frame):
+
         """
         增加新的Target目标功能
 
@@ -66,6 +70,8 @@ class Track:
 
         # 用imgProc的centerList
         # tempCenterList = _imgproc.findTrackedCenterPoint(p0, label)
+
+
         print(centerpoints)
         print(p0, label)
         # cv2.imshow("test", frame)
@@ -233,11 +239,13 @@ class Track:
 
 
 if __name__ == "__main__":
+
     # cam, _image = imageInit()
     cam = Camera()
     yolo = YOLO()
     _vision = Vision(cam, yolo, imgproc_=None)
     _imgproc = ImgProc(10)
+
     prev_time = timer()
     accum_time = 0
     curr_fps = 0
@@ -252,14 +260,7 @@ if __name__ == "__main__":
     label = np.array([])
     dataDict = dict()
     tempDict = dict()
-    # feature_params = dict(maxCorners=30,
-    #                       qualityLevel=0.3,
-    #                       minDistance=7,  # min distance between corners
-    #                       blockSize=7)  # winsize of corner
-    # # params for lk track
-    # lk_params = dict(winSize=(15, 15),
-    #                  maxLevel=2,
-    #                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+
 
     while True:
         targetTracking = Track()
@@ -278,8 +279,9 @@ if __name__ == "__main__":
 
         else:
             # 创建target
+
             tempDict, tempBottleDict, uuIDList, preframeb = targetTracking.createTarget(dataDict, drawimg)
-            dataDict = tempBottleDict
+
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break

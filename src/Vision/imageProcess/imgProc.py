@@ -9,6 +9,7 @@ from src.Vision.camera import Camera
 from timeit import default_timer as timer
 from src.Vision.video import Video
 from src.Vision.interface import imageCapture
+
 from src.Track import Track
 
 # TemplateDir = 'E:\\1\\template.jpg'
@@ -22,6 +23,7 @@ feature_params = dict(maxCorners=30,
 lk_params = dict(winSize=(15, 15),
                  maxLevel=2,
                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+
 
 
 class ImgProc:
@@ -73,7 +75,6 @@ class ImgProc:
         read background pic of I,and then calculate frame difference of current frame and pre frame: I and IprevF
         accumulate every frame difference Iscratch2 to sum of differences :IdiffF
         meanwhile,accumulate every frame I  to sum of frames :IavgF
-
         :param I: input  Mat type pic stream
         :return: None
         """
@@ -88,13 +89,13 @@ class ImgProc:
         self.IprevF = I.copy()
 
     def createModelsfromStats(self, scale=9.0):
+
         """
         calculate the average sum of frames to  IavgF
         calculate frame difference to IdiffF
         then  multiply the scale to the Idiiff,and add the Idiff to IavgF to get the IhiF,
         subtract  the Idiff from IavgF to get the IlowF
         now we get the background model IhiF and IlowF
-
         :param scale: gap of high threshold and low threshold of background model
         :return: None
         """
@@ -142,6 +143,7 @@ class ImgProc:
 
 
 
+
     def studyBackgroundFromVideo(self, videoDir):
         """
         get many pics for time interval of 60sec by cam and store the pics in  bgVector.
@@ -177,10 +179,43 @@ class ImgProc:
             self.avgBackground(self.bgVector[i])
 
     def studyBackgroundFromCam(self, cam):
+
         """
         get many pics for time interval of 60sec by cam and store the pics in  bgVector.
         then  call the avgBackground method
+        :param cam: input camera object
+        :return: None
+        """
+        avi = Video(videoDir)
+        frame = avi.getImageFromVedio()
+        over_flag = 1
+        pic_cnt = 0
+        frame_cnt = 0
+        while frame is not None and over_flag == 1:
+            frame = avi.getImageFromVedio()
+            if frame_cnt % 20 == 0:  # get a frame per 20
+                fin = np.float32(frame)
+                self.bgVector[pic_cnt] = fin
+                pic_cnt += 1
+            frame_cnt += 1
+            # print("shape", fin.shape)
+            # store the frame in list bgVector
 
+
+            # print("pic_cnt", pic_cnt)
+            # wait about 200 milli seconds
+            # cv2.waitKey(20)
+            print("pic_cnt", pic_cnt)
+            if pic_cnt == self.BG_STUDY_NUM:
+                over_flag = 0
+        for i in range(self.bgVector.shape[0]):
+            # print("i", i)
+            self.avgBackground(self.bgVector[i])
+
+    def studyBackgroundFromCam(self, cam):
+        """
+        get many pics for time interval of 60sec by cam and store the pics in  bgVector.
+        then  call the avgBackground method
         :param cam: input camera object
         :return: None
         """
@@ -219,7 +254,6 @@ class ImgProc:
         will change to white,otherwise, it will cover to black.
         https://www.cnblogs.com/mrfri/p/8550328.html
         rectArray=np.zeros(shape=(1,4),dtype=float)
-
         :param src0: input cam pic waited for segment
         :param dst: temp store segment result of mask
         :return: rectArray:all boundingboxes of all bottles
@@ -299,7 +333,6 @@ class ImgProc:
     def delBg(self, src):
         """
         use the mask pic bgMask to make bit and operation to the cam frame to get a pic that del the bacground
-
         :param src: input cam pic waited for segment
         :return: rectArray:all boundingboxes of all bottles
                 dst:segment result of mask
@@ -403,6 +436,7 @@ class ImgProc:
             center_list.append(center_i)
         return center_list
 
+
     def filterBgBox(self, resarray, drawimg):
         detectedBox = []
         for elem in resarray:
@@ -475,9 +509,11 @@ class ImgProc:
 
 
 
+
     def detectObj(self, featureimg, drawimg, dataDict, label_num):
         """
          detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
+
 
         :param featureimg: feature image, pre image, the  points of this  image(p0) will be track in the trackObj cycle if the points is labeled
         :param drawimg: drawing img,which is used for draw
@@ -497,12 +533,15 @@ class ImgProc:
         p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **feature_params)
         if p0 is not None and "box" in dataDict:
             # trackDict, trackDict = trackObj.createTarget()
+
             #画出每个点
+
             for k in range(p0.shape[0]):
                 a = int(p0[k, 0, 0])
                 b = int(p0[k, 0, 1])
                 cv2.circle(drawimg, (a, b), 3, (0, 255, 255), -1)
             # init the label
+
             #构造label的形状
             label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
             print("len(dataDict[box])", len(dataDict["box"]))
@@ -607,7 +646,7 @@ class ImgProc:
                     for center in centerList:
                         for i in range(len(targetlist)):
                             if center[2] == targetlist[i][1]:
-                                # 坐标 label 速度
+
                                 allList.append([center[0], center[1], center[2], targetlist[i][0][0], targetlist[i][0][1]])
                         print("center", center)
                 return p0, label, allList
@@ -622,7 +661,6 @@ class ImgProc:
         """
         function description:
         get Euclidean distance  between point p1 and p2
-
         :param p1: point
         :param p2: point
         :return: distance
@@ -634,7 +672,6 @@ class ImgProc:
     def correctAngle(self, rbox):
         """
         correct the angle to -90 to 90 for get Pose,
-
         :param rbox: input rotatebox
         :return: angle: angle that modified
         """
@@ -728,7 +765,6 @@ class ImgProc:
         两个数字，一个是角度，一个是直径，是否正确，例如
         'box': [['Transparent bottle', 0.3777146, 568, 378, 679, 465, 0.0, 60.19998931884765]
         0.0是角度  60.19998931884765是直径
-
         :param frameOrg0: input frame
         :param bgMask:  the mask frame that generate from bglearn
         :param dataDict:  input dataDict
@@ -812,11 +848,9 @@ class ImgProc:
         # return good_new, good_old, offset
         """
         analyse the track point to get the more precision point
-
         :param good_new: current frame point of track
         :param good_old: prev frame point of track
         :return: good_new0: more precision current frame point of track
-
                  good_old0: more precision prev frame point of track
         """
         # good_new = cornersB[st == 1]
@@ -886,7 +920,6 @@ class ImgProc:
         一个(Vx ,Vy. Vz)数组
         对这个(Vx ,Vy. Vz)数组，剔除过大和过小的异常数据，可以使用np.percentile方法，然后对剩余数据求平均获得
         最终（Vx ,Vy. Vz)
-
         :param dataDict: bottle dictionary
         :return: bottleDetail:mainly include bottle rotate angle from belt move direction,0--180 degree,and the diameter of bottle
         """""
@@ -898,14 +931,11 @@ class ImgProc:
         and then track the point of featureimg to get the corresponding point of secondimg_orig
         we pass the previous frame, previous points and next frame.It returns next points along with some status numbers
         which has a value of 1 if next point is found,
-
         :param featureimg:
         :param secondimg_orig:
         :param mask: mask for accumulate track lines,usually is preframe
         :return:  good_new:good tracked point of new frame,
-
                   good_old:old tracked point of new frame,
-
                   img :image for drawing
         """
         # params for find good corners
@@ -1107,6 +1137,13 @@ def nothing(x):
 
 if __name__ == "__main__":
 
+    videoDir = "E:\\1\\3.avi"
+    bgDir = "E:\\1\\背景.avi"
+    avi = Video(videoDir)
+    bgAvi = Video(bgDir)
+    imgCapObj = imageCapture(None, avi, bgAvi)
+    obj = ImgProc(50, imgCapObj)
+
 
     # cam = Camera()
     videoDir = "E:\\1\\3.avi"
@@ -1118,13 +1155,16 @@ if __name__ == "__main__":
     obj.studyBackground()
     # obj.studyBackgroundFromCam(cam)
     # obj.studyBackgroundFromVideo("E:\\1\\背景.avi")
+
     obj.createModelsfromStats(8.0)
 
     try:
         # cam = Camera()
+
         # preFrame, nFrameNum, t = cam.getImage()
         preFrame, nFrameNum, t = obj.imgCap.getImage()
         preframeDelBg, bgmask, resarray= obj.delBg(preFrame)
+
 
         #preFrame = np.zeros_like(frame)
         mask = preFrame.copy()
@@ -1148,10 +1188,12 @@ if __name__ == "__main__":
 
         contourTemplate = obj.loadContourTemplate(TemplateDir)
         while 1:
+
             # frame, nFrameNum, t = cam.getImage()
             frame, nFrameNum, t = obj.imgCap.getImage()
             if frame is None:
                 break
+
             # camra fault tolerant
             # mem addr use is
             # if frame is None:
@@ -1160,6 +1202,7 @@ if __name__ == "__main__":
             obj.show = frame.copy()
             pic = frame.copy()
             # get fps of cam output
+
 
             # fps = cam.getCamFps(nFrameNum)
 
@@ -1185,6 +1228,7 @@ if __name__ == "__main__":
             cv2.imshow("show", obj.show)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
+
                 pass
             #     cam.destroy()
                 break

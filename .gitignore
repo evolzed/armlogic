@@ -1,5 +1,5 @@
 *_test.py
-*.png
+# *.png
 *.weights
 
 logs/
