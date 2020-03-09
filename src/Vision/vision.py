@@ -371,8 +371,10 @@ def imageInit():
     :return: (cam：相机对象, _image:Vision对象)
     """
     # cam = Camera()
+
     videoDir = "d:\\1\\Video_20200204122733339.avi"
     bgDir = "d:\\1\\背景1.avi"
+
     avi = Video(videoDir)
     bgAvi = Video(bgDir)
     imgCapObj = imageCapture(None, avi, bgAvi)
@@ -390,7 +392,6 @@ def imageInit():
     global gState
     gState = 2
     return imgCapObj, _image
-
 
 """
 def imageInit():

@@ -9,6 +9,7 @@ from src.Vision.camera import Camera
 from timeit import default_timer as timer
 from src.Vision.video import Video
 from src.Vision.interface import imageCapture
+
 from src.Track import Track
 
 # TemplateDir = 'E:\\1\\template.jpg'
@@ -22,6 +23,7 @@ feature_params = dict(maxCorners=30,
 lk_params = dict(winSize=(15, 15),
                  maxLevel=2,
                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+
 
 
 class ImgProc:
@@ -86,7 +88,9 @@ class ImgProc:
         self.Icount += 1.0
         self.IprevF = I.copy()
 
+
     def createModelsfromStats(self, scale=8.0):
+
         """
         calculate the average sum of frames to  IavgF
         calculate frame difference to IdiffF
@@ -139,8 +143,8 @@ class ImgProc:
             self.avgBackground(self.bgVector[i])
 
 
-
     def studyBackgroundFromVideo(self, videoDir):
+
         """
         get many pics for time interval of 60sec by cam and store the pics in  bgVector.
         then  call the avgBackground method
@@ -1088,22 +1092,25 @@ def nothing(x):
 
 if __name__ == "__main__":
 
-    # cam = Camera()
     videoDir = "E:\\1\\3.avi"
     bgDir = "E:\\1\\背景.avi"
     avi = Video(videoDir)
     bgAvi = Video(bgDir)
     imgCapObj = imageCapture(None, avi, bgAvi)
     obj = ImgProc(50, imgCapObj)
+
     obj.studyBackground()
     # obj.studyBackgroundFromCam(cam)
     # obj.studyBackgroundFromVideo("E:\\1\\背景.avi")
+
     obj.createModelsfromStats(8.0)
 
     try:
         # cam = Camera()
+
         # preFrame, nFrameNum, t = cam.getImage()
         preFrame, nFrameNum, t = obj.imgCap.getImage()
+
         preframeDelBg, bgmask, resarray= obj.delBg(preFrame)
 
         #preFrame = np.zeros_like(frame)
@@ -1128,10 +1135,12 @@ if __name__ == "__main__":
 
         contourTemplate = obj.loadContourTemplate(TemplateDir)
         while 1:
+
             # frame, nFrameNum, t = cam.getImage()
             frame, nFrameNum, t = obj.imgCap.getImage()
             if frame is None:
                 break
+
             # camra fault tolerant
             # mem addr use is
             # if frame is None:
@@ -1141,7 +1150,9 @@ if __name__ == "__main__":
             pic = frame.copy()
             # get fps of cam output
 
+
             # fps = cam.getCamFps(nFrameNum)
+
 
             # use the background model to del the bacground of  frame
 
@@ -1162,6 +1173,7 @@ if __name__ == "__main__":
             cv2.imshow("show", obj.show)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
+
                 pass
             #     cam.destroy()
                 break
@@ -1169,3 +1181,4 @@ if __name__ == "__main__":
         print(e)
         pass
         # cam.destroy()
+

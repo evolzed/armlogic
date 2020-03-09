@@ -66,3 +66,4 @@ def getImageFromVideo(VideoDir):
             print(fileName + "successfully write in")  # 输出存储状态
     print('finish!')
 """
+
