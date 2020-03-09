@@ -1,7 +1,12 @@
 import os
 import sys
 
+# import datetime
+import threading
+
+
 sys.path.append(os.path.abspath("../../"))
+
 import numpy as np
 from ctypes import *
 from timeit import default_timer as timer
@@ -90,12 +95,11 @@ class Vision(object):
             # print(cam._data_buf)
             frame = np.asarray(cam._data_buf)
             frame = frame.reshape((960, 1280, 3))
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
             # image.show()
             image = yolo.detectImage(image)
-
             result = np.asarray(image)
+            result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
             curr_time = timer()
             exec_time = curr_time - prev_time  # 计算图像识别的执行时间
             prev_time = curr_time  # 重新设置时间节点
@@ -174,17 +178,8 @@ class Vision(object):
                 fps = "NetFPS:" + str(curr_fps)
                 curr_fps = 0
 
-            frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None)
 
-            # transFrame = np.zeros((4, 5, 3), np.uint8)
-            # print("@" * 100)
-            # print(len(frame))
-            # for l in range(4):
-            #     for ll in range(5):
-            #         for lll in range(3):
-            #             transFrame[l][ll][lll] = frame[l][ll][lll]
-            #             # print(frame)
-            # print("@" * 100)
+            frame, bgMask, resarray = self.imgproc.delBg(_frame) if self.imgproc else (_frame, None, None)
 
             # cv2.namedWindow("kk", cv2.WINDOW_AUTOSIZE)
             # cv2.imshow("kk", frame)
@@ -192,6 +187,7 @@ class Vision(object):
             # global prev_time
             # 设定计时器, 统计识别图像耗时
             # prev_time = timer()
+            # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             # 将opencv格式的图像数据转换成PIL类型的image对象，便于进行标框和识别效果可视化
             img = PImage.fromarray(frame)  # PImage: from PIL import Vision as PImage
             # img.show()
@@ -199,8 +195,10 @@ class Vision(object):
             dataDict = self.yolo.detectImage(img)
             dataDict["bgTimeCost"] = self.imgproc.bgTimeCost if self.imgproc else 0
             result = np.asarray(dataDict["image"])
+            result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
             # dataDict["image"] = result  # result：cv2.array的图像数据
-            dataDict["image"] = img  # img：Image对象
+            # dataDict["image"] = img  # img：Image对象
+            dataDict["image"] = frame  # img：cv2对象
             # dataDict["timeCost"] = exec_time
             dataDict["nFrame"] = nFrame
             dataDict["frameTime"] = t  # 相机当前获取打当前帧nFrame的时间t
@@ -328,26 +326,18 @@ class Vision(object):
                 break
             # return dataDict
             global bottleDict
-            bottleDict = dataDict
-            # bottleDict1 = dataDict
-            # 此处不能直接使用transDict = dataDict,不然其他进程读取不到数据
-            transDict.update(dataDict)
-            # print("*" * 100)
-            # print(transDict)
-            # print("*" * 100)
-            # print(transDict)
-            # print(bottleDict1)
-            # print(bottleDict)
-            bottleDict1 = dataDict
-            # transDict = {}
-            # if "box" in dataDict:
-            #     transDict["box"] = bottleDict["box"]
-            transFrame = copy.deepcopy(frame)
-            # transDict = {"---------------------------------------------------" + str(i)}
-            # print(transDict)
-            # print(bottleDict["box"])
-            # print(dict)
-            i += 1
+
+            bottleDict.update(dataDict)
+            print("==" * 50)
+            print(bottleDict)
+            print("==" * 50)
+                # print(dataDict)
+            # except Exception as e:
+            #     # global gState
+            #     # gState = 3
+            #     print(e)
+            #     break
+
         cam.destroy()
 
     def detectSingleImage(self, frame, nFrame):
@@ -378,19 +368,6 @@ class Vision(object):
         cv2.waitKey(10)
         return dataDict
 
-
-"""
-if __name__ == '__main__':
-    cam = Camera()
-    _frame, nf = cam.getImage()
-    print("准备载入yolo网络！")
-    yolo = YOLO()
-
-    _image = Vision(cam, yolo)
-    dataDict = _image.detectSerialImage(_frame, nf)
-    print(dataDict)
-    # image.detectVideo(yolo)
-"""
 
 
 def imageInit():
@@ -449,6 +426,9 @@ def imageRun(cam, _image, transDict, transList, targetDict, transFrame):
     :param _image: Vision对象
     :return: None | 系统有异常，退出系统
     """
+    # 开启存图线程
+    saveThread()
+
     # while 1:
     #     try:
     #         _frame, nf = cam.getImage()
@@ -470,6 +450,25 @@ def imageRun(cam, _image, transDict, transList, targetDict, transFrame):
     # cam.destroy()
     print("系统退出中···")
     sys.exit()
+
+
+
+def imageSave():
+    while True:
+        if bottleDict['isObj'] is True:
+            now = datetime.now()
+            ctime = now.strftime('%Y%m%d_%H%M%S')
+            # cv2.imshow("eee", np.array(bottleDict['image']))
+            # bottleDict['image'].save("img/{}_{}.jpg".format(ctime, "ss"))
+            cv2.imwrite("img/{}_{}.jpg".format(ctime, "ss"), bottleDict['image'])
+            print("已保存！")
+
+
+def saveThread():
+    save = threading.Thread(target=imageSave)
+    save.setDaemon(True)
+    save.start()
+    return save
 
 
 # 将imageInit()和imageRun()封装成一个函数，才能在一个进程中使用
@@ -506,63 +505,19 @@ if __name__ == '__main__':
     cam.destroy()
 """
 
-# def read(transDict):
-#     while True:
-#         print("=" * 100)
-#         print(transDict)
-#         print("=" * 100)
-#         time.sleep(1)
 
-
-def read(transDict, transList):
-    while True:
-        print("*******")
-        print(transDict)
-        print(transList)
-        print("*******")
-        time.sleep(0.5)
-    # print('Process to read: %s' % os.getpid(), time.time())
-    # while True:
-    #     value = bottlDict1.get(True)
-    #     print(value)
-    #
-    #     # print('Get %s from dict.  ---- currentTime:' % value, time.time())
-
-
+# if __name__ == '__main__':
+#     cam, _image = imageInit()
+#     imageRun(cam, _image)
 if __name__ == '__main__':
-    # cam = Vision()
-    with multiprocessing.Manager() as MG:  # 重命名
-        transDict = MG.dict()
-        transList = MG.list()
-        targetDict = MG.dict()
-        # transFrame = MG.Array("i", range(126))
-        # transFrame = MG.Array("i", np.zeros((6, 7, 3), np.uint8))
-        transFrame = multiprocessing.RawArray('d', np.zeros((6, 7, 3), np.double).ravel())
-        # cam, _image = imageInit()
-        p2 = multiprocessing.Process(target=read, args=(transDict, transList,))
-        p2.daemon = True
-        p2.start()
-        # p2.join()
-        p1 = multiprocessing.Process(target=vision_run, args=(transDict, transList, targetDict, transFrame))
-        p1.daemon = True
-        p1.start()
-        p1.join()
-        # _image.detectSerialImage(cam, transDict, )
+    cam = Camera()
+    # _frame, nf = cam.getImage()
+    print("准备载入yolo网络！")
+    yolo = YOLO()
 
-        # pw = multiprocessing.Process(target=imageRun, args=(cam, _image, transDict))
-        # pw.run()
-        # pw.join()
-        # imageRun(cam, _image, transDict)
+    _image = Vision(cam, yolo)
+    # saveThread()
+    dataDict = _image.detectSerialImage(cam)
+    print(dataDict)
+    # image.detectVideo(yolo)
 
-        # by yuantao1880@126.com
-        # with multiprocessing.Manager() as MG:  # 重命名
-        #     transDict = MG.dict()
-        #     p2 = multiprocessing.Process(target=read, args=(transDict,))
-        #     # 设置进程守护，主进程停止后，子进程也停止
-        #     p2.daemon = True
-        #     p2.start()
-        #     # 开启一个子进程，进行识别跟踪
-        #     pw = multiprocessing.Process(target=vision_run, args=(transDict,))
-        #     pw.daemon = True
-        #     pw.start()
-        #     p2.join()
