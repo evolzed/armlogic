@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="eff4863e-45bb-4904-a2a9-6beb8a105e9a" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Vision/interface.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/video.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/armlogic.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/armlogic.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/timeStamp.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/timeStamp.py" afterDir="false" />
+    <list default="true" id="eff4863e-45bb-4904-a2a9-6beb8a105e9a" name="Default" comment="因为我之前github合并错了，导致vision，和track目录丢失，现在手动将他们合并进去了">
+      <change afterPath="$PROJECT_DIR$/src/Track/Track.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Track/Track_duplication.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Track/Track_duplication2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Track/Track_duplication20200203.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Track/Track_duplication3.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Track/Track_kalmanFilter.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Track/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Track/trackTODO.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Track/新建文本文档.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/camera.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/getSpeed.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/test.mp4" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/vision.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/Yolo.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/bottle_annotation_classes.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/tiny_yolo_anchors.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Vision/基于keras的yolov3说明.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,6 +31,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
+    <SUITE FILE_PATH="coverage/BottleSort$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1583810304037" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/Vision" />
     <SUITE FILE_PATH="coverage/armlogic$Time_test.coverage" NAME="Time_test Coverage Results" MODIFIED="1576824889609" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/lib/Logger" />
     <SUITE FILE_PATH="coverage/BottleSort$DataProcess.coverage" NAME="DataProcess Coverage Results" MODIFIED="1583809868921" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tools" />
     <SUITE FILE_PATH="coverage/armlogic$Logger.coverage" NAME="Logger Coverage Results" MODIFIED="1576828226148" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/lib/Logger" />
@@ -49,13 +65,21 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tools/DataProcess.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2850">
-              <caret line="6" column="26" selection-start-line="6" selection-start-column="26" selection-end-line="6" selection-end-column="26" />
+            <state relative-caret-position="46">
+              <caret line="126" column="39" lean-forward="true" selection-start-line="126" selection-start-column="39" selection-end-line="126" selection-end-column="39" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
             </state>
           </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Track/新建文本文档.txt">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -255,7 +279,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.DataProcess">
+  <component name="RunManager" selected="Python.__init__">
     <configuration name="DataProcess" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="armlogic" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -270,6 +294,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/DataProcess.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="__init__" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="armlogic" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/Vision" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/Vision/__init__.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -322,28 +368,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="armlogic" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/lib/Logger" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/lib/Logger/test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="vision" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="armlogic" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -367,19 +391,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.test" />
       <item itemvalue="Python.main_BS02" />
       <item itemvalue="Python.vision" />
       <item itemvalue="Python.ddWorkHourCal" />
       <item itemvalue="Python.DataProcess" />
+      <item itemvalue="Python.__init__" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.__init__" />
         <item itemvalue="Python.DataProcess" />
         <item itemvalue="Python.main_BS02" />
         <item itemvalue="Python.vision" />
         <item itemvalue="Python.ddWorkHourCal" />
-        <item itemvalue="Python.test" />
       </list>
     </recent_temporary>
   </component>
@@ -394,29 +418,36 @@
       <option name="presentableId" value="Default" />
       <updated>1576811704684</updated>
       <workItem from="1583808141554" duration="14000" />
-      <workItem from="1583808156178" duration="1806000" />
+      <workItem from="1583808156178" duration="2173000" />
     </task>
+    <task id="LOCAL-00001" summary="因为我之前github合并错了，导致vision，和track目录丢失，现在手动将他们合并进去了">
+      <created>1583810037755</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1583810037755</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1820000" />
+    <option name="totallyTimeSpent" value="2187000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19320938" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.43896523" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.25222024" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.053285968" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.053285968" />
       <window_info anchor="bottom" id="Python Console" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Messages" order="11" weight="0.32941177" />
@@ -432,6 +463,10 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="因为我之前github合并错了，导致vision，和track目录丢失，现在手动将他们合并进去了" />
+    <option name="LAST_COMMIT_MESSAGE" value="因为我之前github合并错了，导致vision，和track目录丢失，现在手动将他们合并进去了" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/Main/log.txt" />
@@ -552,10 +587,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tools/DataProcess.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2850">
-          <caret line="6" column="26" selection-start-line="6" selection-start-column="26" selection-end-line="6" selection-end-column="26" />
+        <state relative-caret-position="46">
+          <caret line="126" column="39" lean-forward="true" selection-start-line="126" selection-start-column="39" selection-end-line="126" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Track/新建文本文档.txt">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
   </component>
 </project>
