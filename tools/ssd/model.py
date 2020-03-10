@@ -11,6 +11,28 @@ from sampling import buildPredBoxes
 
 __all__ = ["EzDetectConfig", "EzDetectNet", "ReorgModule"]
 
+def buildPredBoxes(config):
+    predBoxes = []
+    for i in range(len(config.mboxes)):
+        l = config.mboxes[i][0]      #priorConfig 预制的序号
+        wid = config.featureSize[l][0]  #这两个是什么
+        hei = config.featureSize[l][1]
+        wbox = config.mboxes[i][1]      #宽
+        hbox =config.mboxes[i][2]
+
+        for y in range(hei):
+            for x in range(wid):
+                xc = (x + 0.5)/wid
+                yc = (y + 0.5)/hei
+                xmin = xc - wbox/2
+                ymin = yc - hbox / 2
+                xmax = xc + wbox / 2
+                ymax = yc + hbox / 2
+                predBoxes.append([xmin, ymin, xmax, ymax])
+    return predBoxes
+
+
+
 class EzDetectConfig(object):
     def __init__(self, batchSize=4, gpu=False):
         super(EzDetectConfig, self).__init__()
@@ -38,4 +60,14 @@ class EzDetectConfig(object):
             ratios = priorConfig[i][2:]
             #aspect ratio 1 for min and max
             self.mboxes.append([i, minSize, minSize])
-            self.mboxes.append
+            self.mboxes.append([i, meanSize, meanSize])
+            #other aspect ratio
+            for r in ratios:
+                ar = math.sqrt(r)
+                self.mboxes.append([i, minSize*ar, minSize/ar])   #wbox  [序号  宽， 高]
+                self.mboxes.append([i, minSize/ar, minSize*ar])   #hbox
+        self.predBoxes = buildPredBoxes(self)
+
+
+
+
