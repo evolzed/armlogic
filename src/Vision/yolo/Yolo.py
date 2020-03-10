@@ -37,15 +37,15 @@ class YOLO(object):
         # self.model_path = 'model_data/tiny_yolo_weights.h5' # model path or trained weights path
 
         # 自己的模型
-        self.model_path = '../../src/Vision/yolo/10000_trained_weights_final.h5' # model path or trained weights path
-        self.anchors_path = '../../src/Vision/yolo/tiny_yolo_anchors.txt'
-        self.classes_path = '../../src/Vision/yolo/bottle_annotation_classes.txt'
+        self.model_path = '../Vision/yolo/1000_416_trained_weights_final.h5' # model path or trained weights path
+        self.anchors_path = '../Vision/yolo/tiny_yolo_anchors.txt'
+        self.classes_path = '../Vision/yolo/bottle_annotation_classes.txt'
         self.score = 0.3
         self.iou = 0.45
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
         self.sess = K.get_session()
-        self.model_image_size = (416, 416)  # fixed size or (None, None), hw
+        self.model_image_size = (832, 832)  # fixed size or (None, None), hw
         self.boxes, self.scores, self.classes = self.generate()
 
     def _get_class(self):
@@ -143,18 +143,18 @@ class YOLO(object):
                 self.input_image_shape: [image.size[1], image.size[0]],
                 K.learning_phase(): 0
             })
-        # 如果检测到物体，在dataDict中添加字段isObj
-        dataDict = {}
+        # TODO //
         if len(out_boxes) > 0:
-            dataDict["isObj"] = True
-
+            dataDict = {"isObj": True}
+        #     try:
+        #         image.save("")
         # print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 
         font = ImageFont.truetype(font='../Vision/yolo/font/FiraMono-Medium.otf',
                     size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = (image.size[0] + image.size[1]) // 300
         # 保存需要返回的数据的集合
-        dataDict["image"] = image
+        dataDict = {"image": image}
         boxList = []
         for i, c in reversed(list(enumerate(out_classes))):
             predicted_class = self.class_names[c]

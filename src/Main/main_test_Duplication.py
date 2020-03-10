@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath('../../'))
 from lib.Logger.Logger import *
 import time
 import logging
-from src.Vision import vision
+from src.BS02 import vision
 
 #logger = logging.getLogger(__name__)
 #logger.addHandler(logging.FileHandler("log.txt"))  # 添一个FileHandler
