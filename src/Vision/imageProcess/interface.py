@@ -1,4 +1,4 @@
-from src.Vision.camera import Camera
+from src.Vision.imageProcess.camera import Camera
 from timeit import default_timer as timer
 from src.Vision.imageProcess.video import Video
 

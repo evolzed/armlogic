@@ -35,8 +35,9 @@ testMode = True
 #本地保存屏幕截图的路径
 captureDir = "E:\\1\\Capture\\"
 #本地存放钉钉录制视频的路径
+#本地存放钉钉录制视频的路径
 # videoDir = "E:\\1\\DDvedio\\ttt0.mp4"
-videoDir = "E:\\1\\DDvedio\\2020_2_27\\ttt9.mp4"
+videoDir = "E:\\1\\DDvedio\\2020_3_10\\newt.mp4"
 # videoDir = "E:\\1\\1.avi"
 #本地存放背景视频的路径，这里没用，写和videoDir相同即可
 bgDir = videoDir

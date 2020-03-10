@@ -83,43 +83,30 @@
 | :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
 | BgLearn |  studyBackgroundFromCam  | get 100 pics for time interval of 60sec by cam and save the pics as background pics sets in disk| %cam | |  |
 | BgLearn |  avgBackground  | learn the backgroud from disk then  accumulate every frame difference,accumulate every frame  | %img |  |  |
-| ImgProc |  cref  | use the background to segment the frame pic| %src %dst | ||
 | BgLearn | getBottlePose  | get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
-| ImgTrack |  trackObj  | track the obj of deteced, input the deteced points or the last tracked points,output the new tracked points and its labels   |%featureimg %secondimg %drawimg %label %p0|  | %p0 %label %allList|
-| ImgTrack |  detectObj  |detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes   |%featureimg %drawimg %dataDict %label_num|  | %p0  %label  %allList |
-| imageTools |  eDistance  | get Euclidean distance  between point p1 and p2   |%p1 %p2|  | distance |
-| ImgTrack |  findTrackedCenterPoint | find center point of  every bottle's tracked points  |% p0 %label|  | center_list |
-| ImgTrack |  findTrackedOffsetOneBottle |  find the offset of one bottle that tracked |%good_new %good_oldl|  | offset |
-| ImgTrack |  findTrackedOffsets | find all bottle's offset and store in the list |%good_new_con %good_old_con %good_label| |targetList|
 | BgLearn |  correctAngle | correct the angle to -90 to 90 for get Pose |%rbox| |angle|
 | BgLearn |  getBoxOnlyPic |get the pictures of only have one yolo detected box,return the list of these pictures |%dataDict
 %frameOrg0 | |list|
-| ImgTrack | analyseTrackPoint |analyse the track point to get the more precision point |%good_new %good_old %precisionThreshold | |%good_new0 %good_old0|
-| ImgTrack |lkLightflow_track | LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,and then track the point of featureimg to get the corresponding point of secondimg_orig，we pass the previous frame, previous points and next frame.It returns next points along with some status numbers which has a value of 1 if next point is found
-|%featureimg %secondimg_orig %mask %inputCorner | |%good_new %good_old %img|
 | BgLearn | findContourMatch |find the contour that match the template shape |%frameDelBg| |%cx0 %cy0 %contour|
 | BgLearn | loadContourTemplate |load the template contour from pic |ContourDir| |contoursGet|
 | BgLearn | makeTemplate|make the template contour and store a picture in the dir |frameDelBg, frame, writeDir| ||
-
-
-
-
- 
-
-
-
-
-
-
-rbox
 | BgLearn | getBottlePose()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
+| ImgProc |  cref  | use the background to segment the frame pic| %src %dst | ||
 
 | Class |    Function    |      Description      | Input |  Output   | Return |
 | :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
 | Track | createTarget() | 创建新的trackDict元素 |       | trackDict |        |
 | Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
+| ImgTrack |  trackObj  | track the obj of deteced, input the deteced points or the last tracked points,output the new tracked points and its labels   |%featureimg %secondimg %drawimg %label %p0|  | %p0 %label %allList|
+| ImgTrack |  detectObj  |detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes   |%featureimg %drawimg %dataDict %label_num|  | %p0  %label  %allList |
+| ImgTrack |  findTrackedCenterPoint | find center point of  every bottle's tracked points  |% p0 %label|  | center_list |
+| ImgTrack |  findTrackedOffsetOneBottle |  find the offset of one bottle that tracked |%good_new %good_oldl|  | offset |
+| ImgTrack |  findTrackedOffsets | find all bottle's offset and store in the list |%good_new_con %good_old_con %good_label| |targetList|
+| ImgTrack | analyseTrackPoint |analyse the track point to get the more precision point |%good_new %good_old %precisionThreshold | |%good_new0 %good_old0|
+| ImgTrack |lkLightflow_track | LK algorithm for track,input the featureimg  and  secondimg_orig, detetced the feature point in featureimg,and then track the point of featureimg to get the corresponding point of secondimg_orig，we pass the previous frame, previous points and next frame.It returns next points along with some status numbers which has a value of 1 if next point is found
+|%featureimg %secondimg_orig %mask %inputCorner | |%good_new %good_old %img|
 
-
+| imageTools |  eDistance  | get Euclidean distance  between point p1 and p2   |%p1 %p2|  | distance |
 
 
 
