@@ -14,10 +14,12 @@ __all__ = ["EzDetectConfig", "EzDetectNet", "ReorgModule"]
 def buildPredBoxes(config):
     predBoxes = []
     for i in range(len(config.mboxes)):
-        l = config.mboxes[i][0]      #priorConfig 预制的序号
-        wid = config.featureSize[l][0]  #这两个是什么
-        hei = config.featureSize[l][1]
-        wbox = config.mboxes[i][1]      #宽
+        N = config.mboxes[i][0]      #priorConfig 预制的序号
+
+        wid = config.featureSize[N][0]  # 42，42  掌管中心点的位置集合
+        hei = config.featureSize[N][1]
+
+        wbox = config.mboxes[i][1]      #宽   掌管框的宽高
         hbox =config.mboxes[i][2]
 
         for y in range(hei):
@@ -67,6 +69,12 @@ class EzDetectConfig(object):
                 self.mboxes.append([i, minSize*ar, minSize/ar])   #wbox  [序号  宽， 高]
                 self.mboxes.append([i, minSize/ar, minSize*ar])   #hbox
         self.predBoxes = buildPredBoxes(self)
+
+class EzDetectNet(nn.Module):  #SSD net
+    def __init__(self, config, pretrained=False):
+        super(EzDetectNet, self).__init__()
+        self.config = config
+        resnet =
 
 
 

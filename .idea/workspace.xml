@@ -1,28 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="eff4863e-45bb-4904-a2a9-6beb8a105e9a" name="Default" comment="因为我之前github合并错了，导致vision，和track目录丢失，现在手动将他们合并进去了">
-      <change afterPath="$PROJECT_DIR$/src/Track/Track.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Track/Track_duplication.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Track/Track_duplication2.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Track/Track_duplication20200203.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Track/Track_duplication3.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Track/Track_kalmanFilter.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Track/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Track/trackTODO.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Track/新建文本文档.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/camera.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/getSpeed.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/test.mp4" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/vision.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/Yolo.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/bottle_annotation_classes.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/model.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/tiny_yolo_anchors.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/yolo/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Vision/基于keras的yolov3说明.md" afterDir="false" />
+    <list default="true" id="eff4863e-45bb-4904-a2a9-6beb8a105e9a" name="Default" comment="更新ssd的两个文件 ssd单独做一个目录">
+      <change afterPath="$PROJECT_DIR$/tools/ssd/ssdTest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/ssd/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/ssd/model.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -43,33 +25,29 @@
     <SUITE FILE_PATH="coverage/BottleSort$main_BS02.coverage" NAME="main_BS02 Coverage Results" MODIFIED="1583809610017" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/Main" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Main/main_BS02.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="37" lean-forward="true" selection-start-line="37" selection-end-line="37" />
-            </state>
-          </provider>
+        <entry file="file://$PROJECT_DIR$/src/Track/新建文本文档.txt">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Vision/vision.py">
+        <entry file="file://$PROJECT_DIR$/tools/ssd/voc_dataset.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="86">
-              <caret line="357" lean-forward="true" selection-start-line="357" selection-end-line="357" />
+            <state relative-caret-position="325">
+              <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
               <folding>
-                <element signature="e#0#9#0" expanded="true" />
+                <element signature="e#0#35#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/tools/DataProcess.py">
+        <entry file="file://$PROJECT_DIR$/tools/ssd/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="46">
-              <caret line="126" column="39" lean-forward="true" selection-start-line="126" selection-start-column="39" selection-end-line="126" selection-end-column="39" />
+            <state relative-caret-position="460">
+              <caret line="76" column="16" selection-start-line="76" selection-start-column="16" selection-end-line="76" selection-end-column="16" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -78,15 +56,19 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/Track/新建文本文档.txt">
-          <provider selected="true" editor-type-id="text-editor" />
+        <entry file="file://$PROJECT_DIR$/tools/ssd/ssdTest.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="200">
+              <caret line="8" column="30" selection-start-line="8" selection-start-column="30" selection-end-line="8" selection-end-column="30" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tools/ddWorkHourCal.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="100">
-              <caret line="40" column="12" lean-forward="true" selection-start-line="40" selection-start-column="12" selection-end-line="40" selection-end-column="12" />
+            <state relative-caret-position="425">
+              <caret line="40" column="12" selection-start-line="40" selection-start-column="12" selection-end-line="40" selection-end-column="12" />
               <folding>
                 <element signature="e#15#25#0" expanded="true" />
               </folding>
@@ -97,7 +79,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/BS02/video.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="598">
+            <state relative-caret-position="1475">
               <caret line="61" column="29" selection-start-line="61" selection-start-column="29" selection-end-line="61" selection-end-column="29" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
@@ -109,7 +91,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/BS02/interface.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="132">
+            <state relative-caret-position="1050">
               <caret line="44" column="23" selection-start-line="44" selection-start-column="8" selection-end-line="44" selection-end-column="23" />
               <folding>
                 <element signature="e#0#34#0" expanded="true" />
@@ -121,7 +103,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Vision/interface.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
+            <state relative-caret-position="1075">
               <caret line="45" column="29" selection-start-line="45" selection-start-column="19" selection-end-line="45" selection-end-column="29" />
             </state>
           </provider>
@@ -131,7 +113,7 @@
         <entry file="file://$PROJECT_DIR$/src/Vision/video.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="175">
-              <caret line="9" column="11" lean-forward="true" selection-start-line="9" selection-start-column="11" selection-end-line="9" selection-end-column="11" />
+              <caret line="9" column="11" selection-start-line="9" selection-start-column="11" selection-end-line="9" selection-end-column="11" />
             </state>
           </provider>
         </entry>
@@ -139,13 +121,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/BS02/camera.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="36" column="21" lean-forward="true" selection-start-line="36" selection-start-column="21" selection-end-line="36" selection-end-column="21" />
+            <state relative-caret-position="750">
+              <caret line="36" column="21" selection-start-line="36" selection-start-column="21" selection-end-line="36" selection-end-column="21" />
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
@@ -164,14 +153,16 @@
         <option value="$PROJECT_DIR$/src/Main/main_test.py" />
         <option value="$PROJECT_DIR$/lib/Logger/Logger.py" />
         <option value="$PROJECT_DIR$/tools/ddWorkHourCal.py" />
+        <option value="$PROJECT_DIR$/tools/ssd/model.py" />
+        <option value="$PROJECT_DIR$/tools/ssd/ssdTest.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-11" />
-    <option name="y" value="-11" />
-    <option name="width" value="1943" />
-    <option name="height" value="1043" />
+    <option name="x" value="-12" />
+    <option name="y" value="-12" />
+    <option name="width" value="1944" />
+    <option name="height" value="1044" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -250,6 +241,12 @@
               <item name="BottleSort" type="b2602c69:ProjectViewProjectNode" />
               <item name="BottleSort" type="462c0819:PsiDirectoryNode" />
               <item name="tools" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="BottleSort" type="b2602c69:ProjectViewProjectNode" />
+              <item name="BottleSort" type="462c0819:PsiDirectoryNode" />
+              <item name="tools" type="462c0819:PsiDirectoryNode" />
+              <item name="ssd" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -419,6 +416,7 @@
       <updated>1576811704684</updated>
       <workItem from="1583808141554" duration="14000" />
       <workItem from="1583808156178" duration="2173000" />
+      <workItem from="1583821209178" duration="1910000" />
     </task>
     <task id="LOCAL-00001" summary="因为我之前github合并错了，导致vision，和track目录丢失，现在手动将他们合并进去了">
       <created>1583810037755</created>
@@ -427,16 +425,24 @@
       <option name="project" value="LOCAL" />
       <updated>1583810037755</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="更新ssd的两个文件 ssd单独做一个目录">
+      <created>1583821265701</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1583821265701</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2187000" />
+    <option name="totallyTimeSpent" value="4097000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.43896523" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18674211" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -466,7 +472,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="因为我之前github合并错了，导致vision，和track目录丢失，现在手动将他们合并进去了" />
-    <option name="LAST_COMMIT_MESSAGE" value="因为我之前github合并错了，导致vision，和track目录丢失，现在手动将他们合并进去了" />
+    <MESSAGE value="更新ssd的两个文件 ssd单独做一个目录" />
+    <option name="LAST_COMMIT_MESSAGE" value="更新ssd的两个文件 ssd单独做一个目录" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/Main/log.txt" />
@@ -506,7 +513,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="675">
           <caret line="27" column="32" selection-start-line="27" selection-start-column="32" selection-end-line="27" selection-end-column="32" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -517,16 +523,46 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/BS02/camera.py">
+    <entry file="file://$PROJECT_DIR$/src/Main/main_BS02.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="36" column="21" lean-forward="true" selection-start-line="36" selection-start-column="21" selection-end-line="36" selection-end-column="21" />
+        <state relative-caret-position="825">
+          <caret line="37" selection-start-line="37" selection-end-line="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Vision/vision.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8900">
+          <caret line="357" selection-start-line="357" selection-end-line="357" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/DataProcess.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2975">
+          <caret line="126" column="39" selection-start-line="126" selection-start-column="39" selection-end-line="126" selection-end-column="39" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/ddWorkHourCal.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="40" column="12" selection-start-line="40" selection-start-column="12" selection-end-line="40" selection-end-column="12" />
+          <folding>
+            <element signature="e#15#25#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/BS02/video.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="598">
+        <state relative-caret-position="1475">
           <caret line="61" column="29" selection-start-line="61" selection-start-column="29" selection-end-line="61" selection-end-column="29" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
@@ -536,7 +572,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/BS02/interface.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
+        <state relative-caret-position="1050">
           <caret line="44" column="23" selection-start-line="44" selection-start-column="8" selection-end-line="44" selection-end-column="23" />
           <folding>
             <element signature="e#0#34#0" expanded="true" />
@@ -546,7 +582,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Vision/interface.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
+        <state relative-caret-position="1075">
           <caret line="45" column="29" selection-start-line="45" selection-start-column="19" selection-end-line="45" selection-end-column="29" />
         </state>
       </provider>
@@ -554,49 +590,46 @@
     <entry file="file://$PROJECT_DIR$/src/Vision/video.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="175">
-          <caret line="9" column="11" lean-forward="true" selection-start-line="9" selection-start-column="11" selection-end-line="9" selection-end-column="11" />
+          <caret line="9" column="11" selection-start-line="9" selection-start-column="11" selection-end-line="9" selection-end-column="11" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tools/ddWorkHourCal.py">
+    <entry file="file://$PROJECT_DIR$/src/BS02/camera.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
-          <caret line="40" column="12" lean-forward="true" selection-start-line="40" selection-start-column="12" selection-end-line="40" selection-end-column="12" />
-          <folding>
-            <element signature="e#15#25#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Vision/vision.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="86">
-          <caret line="357" lean-forward="true" selection-start-line="357" selection-end-line="357" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Main/main_BS02.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="37" lean-forward="true" selection-start-line="37" selection-end-line="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tools/DataProcess.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="46">
-          <caret line="126" column="39" lean-forward="true" selection-start-line="126" selection-start-column="39" selection-end-line="126" selection-end-column="39" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="750">
+          <caret line="36" column="21" selection-start-line="36" selection-start-column="21" selection-end-line="36" selection-end-column="21" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Track/新建文本文档.txt">
       <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/ssd/voc_dataset.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="325">
+          <caret line="13" lean-forward="true" selection-start-line="13" selection-end-line="13" />
+          <folding>
+            <element signature="e#0#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/ssd/model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="460">
+          <caret line="76" column="16" selection-start-line="76" selection-start-column="16" selection-end-line="76" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/ssd/ssdTest.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="200">
+          <caret line="8" column="30" selection-start-line="8" selection-start-column="30" selection-end-line="8" selection-end-column="30" />
+        </state>
+      </provider>
     </entry>
   </component>
 </project>
