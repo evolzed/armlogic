@@ -1,16 +1,16 @@
-# BottleSort0.2设计说明书
+# BottleSort设计说明书
 
-# Objective：Track Function & Optimize Vision Efficiency
+# Objective：
 
 # 1.**环境搭建**
 
 ## 1.1 硬件环境
 
-* 运行平台： PC/Win10_x86_64**&**Linux
+* 运行平台： PC/Win10_x86_64 & Linux
 * 工业相机
   + 品牌：HIKVision 
   + 接口协议：Gigabit Ethernet（GigE协议）
-  + 型号:MV-CE013-50GC
+  + 型号：MV-CE013-50GC
   
 ## 1.2 软件环境
 * Ubuntu 18.04
@@ -34,20 +34,41 @@
 # 2.**定义及规则**
 
 ## 2.1 文件夹
-* project_root/
-  * lib/          #库
-  * docs/         #技术文档
-  * src/          #源代码
-  * test/         #测试
+project_root/
 
-  * README.md     
+​	└ docs/	#技术文档
 
-  * LICENSE.md     
-  
+​	└ lib/	#库
+
+​	└ src/	#源代码
+
+​		└ BS0X/	
+
+​		└ Control/
+
+​		└ GUI/
+
+​		└ Main/
+
+​		└ Track/
+
+​		└ TX2/
+
+​		└ Vision/
+
+​	└ test/	#测试
+
+​	└ tools/	#工具
+
+​	└ README.md
+
+​	└ LICENSE.md
+
 ## 2.2 系统流程图
-![FlowChart](http://192.168.0.203:8088/armlogic/BottleSort/raw/Track/docs/pic/FlowChart/Track_20200103.png)
 
-## 2.3 数据变量命名规则
+详见src/BS0X目录下.md文件
+
+## 2.3 数据变量
 
 |   类型   | 命名举例 |              描述               | 第一元素 | 第二元素 |  第三元素 |  第四元素 |  第五元素 |
 | :------: | :------: | :-----------------------------: | :-------: | :-------: | :-------: | :-------: | :-------: |
@@ -59,7 +80,7 @@
 | library | targetDict | #target track information | {"target":[(UUID, trackFlag, postion, speed, angle, type, typeCounter),...], "timeCost":time, <br />"targetTrackTime":time} | | | | |
 | path | bgPic | #file location for bgPic ||||||
 
-## 2.4 功能包文档填写说明
+## 2.4 功能包文档
 
 |   Class   | Function |           Description          | Input | Output | Return |
 | :------: | :------: | :-----------------------------: | :----: | :----: | :----: |
@@ -104,7 +125,7 @@
 
 
 
- 
+
 
 
 
@@ -114,10 +135,17 @@
 rbox
 | ImgProc | getBottlePose()  | #get belt speed direction and valu e,pixel per second   |bottleDict |  | bottleDetail |
 
-| Class |    Function    |      Description      | Input |  Output   | Return |
-| :---: | :------------: | :-------------------: | :---: | :-------: | :----: |
-| Track | createTarget() | 创建新的trackDict元素 |       | trackDict |        |
-| Track | updateTarget() | 更新trackDict内的元素 |       | trackDict |        |
+| Class |     Function      |                         Description                          |                 Input                  | Output |      Return       |
+| :---: | :---------------: | :----------------------------------------------------------: | :------------------------------------: | :----: | :---------------: |
+| Track |  createTarget()   |                  create new targets fuction                  |            transList, Flag             |        |    targetDict     |
+| Track |  updateTarget()   |                  update new targets fuction                  |               targetDict               |        |    targetDict     |
+| Track |   mergeTarget()   |           merge historical & new targets function            |    targetDictNew, targetDictHistory    |        | targetDictHistory |
+| Track |   checkTarget()   | while in the end of loop, check the information of targets and that in vision | transDict, targetDict, transList, Flag |        |    targetDict     |
+| Track |  trackProcess()   |                      the track Process                       | transDict, transList, targetDict, Flag |        |                   |
+| Track |  speedEstimate()  |                                                              |                                        |        |                   |
+| Track |   targetMove()    |                                                              |                                        |        |                   |
+| Track | trackWithFilter() |                                                              |                                        |        |                   |
+| Track |  contourTrack()   |                                                              |                                        |        |                   |
 
 
 
