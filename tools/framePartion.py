@@ -1,6 +1,6 @@
 #本文件示例不同的图像分块儿代码 以及建立文件夹的代码
-from src.Vision.video import Video
-from src.Vision.interface import imageCapture
+from src.Vision.imageProcess.video import Video
+from src.Vision.imageProcess.interface import imageCapture
 import cv2
 
 

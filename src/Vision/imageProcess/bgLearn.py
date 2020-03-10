@@ -3,13 +3,10 @@ import sys
 sys.path.append(os.path.abspath("../../../"))
 import gc
 import cv2
-import numpy as np
 import random
-from src.Vision.camera import Camera
 from timeit import default_timer as timer
-from src.Vision.video import Video
-from src.Vision.interface import imageCapture
-from src.Track import Track
+from src.Vision.imageProcess.video import Video
+from src.Vision.imageProcess.interface import imageCapture
 from src.Vision.imageProcess.imageTools import *
 # TemplateDir = 'E:\\1\\template.jpg'
 TemplateDir = 'template.jpg'
@@ -56,7 +53,7 @@ class BgLearn:
         # time cost of one frame delete the background
         self.bgTimeCost = 0
 
-
+        self.MAX_CORNERS = 50
         self.win_size = 10
         self.imgCap = imgCapObj
 
@@ -115,6 +112,10 @@ class BgLearn:
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\h.jpg", self.IhiF)
         # cv2.imwrite("E:\\Xscx2019\\OPENCV_PROJ\\backgroundtemplate\\py\\l.jpg", self.IlowF)
 
+    def reStudyBgModelFromCam(self, cam):
+        self.studyBackgroundFromCam(cam)
+        self.createModelsfromStats()
+
     def studyBackground(self):
         frame = self.imgCap.getBgImage()
         over_flag = 1
@@ -144,12 +145,12 @@ class BgLearn:
         :return: None
         """
         avi = Video(videoDir)
-        frame = avi.getImageFromVedio()
+        frame = avi.getImageFromVideo()
         over_flag = 1
         pic_cnt = 0
         frame_cnt = 0
         while frame is not None and over_flag == 1:
-            frame = avi.getImageFromVedio()
+            frame = avi.getImageFromVideo()
             if frame_cnt % 20 == 0:  # get a frame per 20
                 fin = np.float32(frame)
                 self.bgVector[pic_cnt] = fin
@@ -254,7 +255,7 @@ class BgLearn:
         dst = cv2.subtract(255, dst)
 
         # filter  and morph again and then find the bottle contours
-        dst = cv2.GaussianBlur(dst, (19, 19), 3)
+        dst = cv2.GaussianBlur(dst, (19, 19), 3)  #删掉会影响功能
         # print("is this ok04?")
         dst = cv2.dilate(dst, self.kernel19)
         dst = cv2.dilate(dst, self.kernel19)
@@ -306,6 +307,58 @@ class BgLearn:
                 # print("rectArray", rectArray)
         return rectArray, dst
 
+
+    def backgroundDiffFast(self, src0):
+        """
+        when get pic frame from camera, use the backgroundDiff to  segment the frame pic and get a mask pic
+        if the pic pixel value is higher than  high background threadhold  or lower than low background threadhold, the pixels
+        will change to white,otherwise, it will cover to black.
+        https://www.cnblogs.com/mrfri/p/8550328.html
+        rectArray=np.zeros(shape=(1,4),dtype=float)
+
+        :param src0: input cam pic waited for segment
+        :param dst: temp store segment result of mask
+        :return: rectArray:all boundingboxes of all bottles
+                 dst:segment result of mask
+        """
+        rectArray = []
+        src = np.float32(src0)
+
+        # segment the src through IlowF and IhiF
+        dst = cv2.inRange(src, self.IlowF, self.IhiF)
+        # cv2.imshow("segment_debug", dst)
+
+        # morph process the frame to clear the noise and highlight our object region
+
+        dst = cv2.morphologyEx(dst, cv2.MORPH_OPEN, self.kernel7)
+
+        dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel7)
+
+        # tmp = 255 * np.ones(shape=dst.shape, dtype=dst.dtype)
+
+        # inverse the  pixel value to make the mask
+        dst = cv2.subtract(255, dst)
+
+        # filter  and morph again and then find the bottle contours
+        # dst = cv2.GaussianBlur(dst, (19, 19), 3)  #删掉会影响功能
+        # print("is this ok04?")
+        dst = cv2.dilate(dst, self.kernel19)
+        dst = cv2.dilate(dst, self.kernel19)
+        dst = cv2.morphologyEx(dst, cv2.MORPH_CLOSE, self.kernel13)  # eclipice
+        dst = cv2.erode(dst, self.kernel19)  # eclipice
+        # 解决cv2版本3.4.2和4.1.2兼容问题
+        # if cv2.__version__.startswith("3"):
+        #     _, contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        # elif cv2.__version__.startswith("4"):
+        #     contours, hierarchy = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        # cv2.drawContours(self.show, contours, -1, (0, 255, 0), 3)
+        # contourLen = len(contours)
+        # print(contourLen)
+        momentList = []
+        pointList = []
+
+        return None, dst
+
     def delBg(self, src):
         """
         use the mask pic bgMask to make bit and operation to the cam frame to get a pic that del the bacground
@@ -328,6 +381,7 @@ class BgLearn:
         self.bgTimeCost = exec_time
         # print("Del background Cost time:", self.bgTimeCost)
         return frame_delimite_bac, bgMask, resarray
+
 
     def correctAngle(self, rbox):
         """

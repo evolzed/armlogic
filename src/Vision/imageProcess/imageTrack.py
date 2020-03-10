@@ -1,16 +1,9 @@
 import os
 import sys
 sys.path.append(os.path.abspath("../../../"))
-import gc
 import cv2
-import numpy as np
-import random
-from src.Vision.camera import Camera
-from timeit import default_timer as timer
-from src.Vision.video import Video
-from src.Vision.interface import imageCapture
-from src.Track import Track
 from src.Vision.imageProcess.imageTools import *
+
 
 # TemplateDir = 'E:\\1\\template.jpg'
 TemplateDir = 'template.jpg'
@@ -112,7 +105,8 @@ class ImgTrack:
             # print("p0_con_i", p0_con_i)
             x = int(np.median(p0_con_i[:, 0]))
             y = int(np.median(p0_con_i[:, 1]))
-            center_i = [x, y, i]
+            indexMask = (p0_con[:, :, 2] == i)  #用于找出Label等于i 的p0的索引
+            center_i = [x, y, i, indexMask]
             # print("center_i", center_i)
             center_list.append(center_i)
         return center_list
@@ -171,9 +165,7 @@ class ImgTrack:
             return None, None, None
 
 
-
-
-    def detectObj(self, featureimg, drawimg, dataDict, label_num):
+    def detectObjNotRelyLKFromDict(self, featureimg, drawimg, dataDict):
         """
          detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
 
@@ -190,61 +182,189 @@ class ImgTrack:
         allList[seqN][3], allList[seqN][4] is offset X offset Y
         allList[seqN][2], is id
         """
-        # detect the points
+        #detect the points
         # trackObj = Track()
-        p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **self.feature_params)
-        if p0 is not None and "box" in dataDict:
-            # trackDict, trackDict = trackObj.createTarget()
-            # 画出每个点
-            for k in range(p0.shape[0]):
-                a = int(p0[k, 0, 0])
-                b = int(p0[k, 0, 1])
-                cv2.circle(drawimg, (a, b), 3, (0, 255, 255), -1)
-            # init the label
-            # 构造label的形状
-            label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
-            print("len(dataDict[box])", len(dataDict["box"]))
-
+        allList = []
+        count = 0
+        if "box" in dataDict:
             boxLenth = len(dataDict["box"])
             # classify  the label  by the dataDict boxes and label them
             if boxLenth > 0:
                 for i in range(len(dataDict["box"])):
-                    if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
-                        print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
+                    # print("in11111111111")
+                    # if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
+                    if "box" in dataDict and dataDict["box"][i][1] > 0.9:
+                        # print("in2222222222")
                         left = dataDict["box"][i][2]
                         top = dataDict["box"][i][3]
                         right = dataDict["box"][i][4]
                         bottom = dataDict["box"][i][5]
                         cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
                         # store every point label
-                        print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
+                        # print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
+                        centerX = int((left + right)/2)
+                        centerY = int((top + bottom) / 2)
+
+                        allList.append([centerX, centerY, int(count), 0, 0])
+
+                        dataDict["box"][i][8] = centerX
+                        dataDict["box"][i][9] = centerY
+                        dataDict["box"][i][10] = int(count)
+
+                        print("count", count)
+                        count += 1
+                return allList
+            else:
+                return None
+            return allList
+        else:
+            return None
+
+    def detectObjNotRelyLK(self, featureimg, drawimg, dataDictList):
+        """
+         detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
+
+        :param featureimg: feature image, pre image, the  points of this  image(p0) will be track in the trackObj cycle if the points is labeled
+        :param drawimg: drawing img,which is used for draw
+        :param dataDict: the dataDict retruned by image check
+        :param feature_params:track params
+        :param label_num: the min detected boxes
+        :return:p0, label, allList
+        p0 is detected and labeled points  and will be track in the trackObj cycle ,
+        label is the label of p0 points
+        allList is a list to store center point position and offset and id
+        allList[seqN][0], allList[seqN][1] is center point position
+        allList[seqN][3], allList[seqN][4] is offset X offset Y
+        allList[seqN][2], is id
+        """
+        #detect the points
+        # trackObj = Track()
+        allList = []
+        count = 0
+        for index in range(len(dataDictList)):
+            dataDict = dataDictList[index]
+            if "box" in dataDict:
+                boxLenth = len(dataDict["box"])
+                # classify  the label  by the dataDict boxes and label them
+                if boxLenth > 0:
+                    for i in range(len(dataDict["box"])):
+                        # print("in11111111111")
+                        # if "box" in dataDict and dataDict["box"][i][1] > 0.9 and dataDict["box"][i][3] > 180:
+                        if "box" in dataDict:
+                            # print("in2222222222")
+                            left = dataDict["box"][i][2]
+                            top = dataDict["box"][i][3]
+                            right = dataDict["box"][i][4]
+                            bottom = dataDict["box"][i][5]
+                            cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
+                            # store every point label
+                            print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
+                            centerX = int((left + right)/2)
+                            centerY = int((top + bottom) / 2)
+
+                            allList.append([centerX, centerY, int(count), 0, 0])
+
+                            dataDict["box"][i][8] = centerX
+                            dataDict["box"][i][9] = centerY
+                            dataDict["box"][i][10] = int(count)
+                            print("count", count)
+                            count += 1
+        return allList
+
+    def detectObj(self, featureimg, drawimg, dataDict):
+        """
+         detect the points and  add the labels on every point,and then track them,the label_num define the min count of detected boxes
+
+        :param featureimg: feature image, pre image, the  points of this  image(p0) will be track in the trackObj cycle if the points is labeled
+        :param drawimg: drawing img,which is used for draw
+        :param dataDict: the dataDict retruned by image check
+        :param feature_params:track params
+        :param label_num: the min detected boxes
+        :return:p0, label, allList
+        p0 is detected and labeled points  and will be track in the trackObj cycle ,
+        label is the label of p0 points
+        allList is a list to store center point position and offset and id
+        allList[seqN][0], allList[seqN][1] is center point position
+        allList[seqN][3], allList[seqN][4] is offset X offset Y
+        allList[seqN][2], is id
+        """
+        #detect the points
+        # trackObj = Track()
+        theList = []
+        p0 = cv2.goodFeaturesToTrack(featureimg, mask=None, **self.feature_params)
+        if p0 is not None and "box" in dataDict:
+            # trackDict, trackDict = trackObj.createTarget()
+            #画出每个点
+            for k in range(p0.shape[0]):
+                a = int(p0[k, 0, 0])
+                b = int(p0[k, 0, 1])
+                cv2.circle(drawimg, (a, b), 3, (0, 255, 255), -1)
+            # init the label
+            #构造label的形状
+            label = np.ones(shape=(p0.shape[0], 1, 1), dtype=p0.dtype) * (-1)
+            # print("len(dataDict[box])", len(dataDict["box"]))
+
+            boxLenth = len(dataDict["box"])
+            # classify  the label  by the dataDict boxes and label them
+            if boxLenth > 0:
+                for i in range(len(dataDict["box"])):
+                    if "box" in dataDict and dataDict["box"][i][1] > 0.31 and dataDict["box"][i][3] > 180:
+                        # print("in!!!!!!!!!!!!!!!!!!!!!!!!!in!!!!!!!!!!!!!!!")
+                        left = dataDict["box"][i][2]
+                        top = dataDict["box"][i][3]
+                        right = dataDict["box"][i][4]
+                        bottom = dataDict["box"][i][5]
+
+                        centerX = int((left + right) / 2)
+                        centerY = int((top + bottom) / 2)
+
+                        dataDict["box"][i][8] = centerX
+                        dataDict["box"][i][9] = centerY
+                        dataDict["box"][i][10] = int(i)
+
+                        theList.append([centerX, centerY, int(i), 0, 0])
+
+
+                        # cv2.rectangle(drawimg, (left, top), (right, bottom), (255, 255, 0))
+                        # store every point label
+                        # print("iiiiiiiiiiiiiiiiiiiiiiiiii------------:", i)
                         for k in range(p0.shape[0]):
-                            print("p0", p0[k, 0, 0])
-                            print("p1", p0[k, 0, 1])
+                            # print("p0", p0[k, 0, 0])
+                            # print("p1", p0[k, 0, 1])
                             if (left - 20 <= p0[k, 0, 0]) and \
                                     (p0[k, 0, 0] <= right + 20) and \
                                     (top - 20 <= p0[k, 0, 1]) and \
                                     (p0[k, 0, 1] <= bottom + 20):
-                                label[k, 0, 0] = i
-                print("label", label)
-                print("unique", np.unique(label[label != -1]))
+                                label[k, 0, 0] = int(i)
+                # print("label", label)
+                # print("unique", np.unique(label[label != -1]))
                 # num is the detected label number
-                if (label != -1).any() and np.size(np.unique(label[label != -1])) >= label_num:
+                # 或操作 只要有一个-1 就是 True   不是-1的大于0
+                if (label != -1).any() and np.size(np.unique(label[label != -1])) >= 0:
+                # if (label != -1).any():
                     # flag = 1
                     centerL = self.findTrackedCenterPoint(p0, label)
                     allList = []
                     for x in centerL:
-                        allList.append([x[0], x[1], x[2], 0, 0])
+                        allList.append([x[0], x[1], x[2], x[3], 0, 0])# is not used  temparary
+                        indexLabel = int(x[2])
+                        # print("indexLabel:", indexLabel)
+                        # dataDict["box"][indexLabel][8] = x[0]      #centerX
+                        # dataDict["box"][indexLabel][9] = x[1]       #centerY
+                        # dataDict["box"][indexLabel][10] = int(x[2])   #trackID
 
-                    return p0, label, allList
+                    #return 的时机不对
                 else:
-                    return None, None, None
-            else:
-                return None, None, None
-        else:
-            return None, None, None
+                    return None, None, None, None, dataDict
 
-    def trackObj(self, featureimg, secondimg, drawimg, label, p0):
+                return p0, label, allList, theList, dataDict
+            else:
+                return None, None, None,None, dataDict
+        else:
+            return None, None,None, None, dataDict
+
+
+    def trackObj(self, featureimg, secondimg, drawimg, label, p0, deltaT):
         """
         track the obj of deteced, input the deteced points or the last tracked points,output the new tracked points and its labels
 
@@ -302,19 +422,21 @@ class ImgTrack:
                 allList = []
                 if centerList is not None:
                     for center in centerList:
-                        for i in range(len(targetlist)):
-                            if center[2] == targetlist[i][1]:
+                        for i in range(len(targetlist)):   #为了加上
+                            if center[2] == targetlist[i][1]:  #CNN label 相等
                                 # 坐标 label 速度
-                                allList.append([center[0], center[1], center[2], targetlist[i][0][0], targetlist[i][0][1]])
-                        print("center", center)
-                return p0, label, allList
+                                allList.append([center[0], center[1], center[2], center[3], #索引
+                                                round(targetlist[i][0][0], 3), round(targetlist[i][0][1], 3),#offset
+                                                round(targetlist[i][0][0]/deltaT, 3),  #speed
+                                                round(targetlist[i][0][1]/deltaT, 3),
+                                                ]) #跟踪起始时间 如果和dataDict[frameTime]相等，
+                                # 则代表跟踪那一次dataDict的数据
+                        # print("center", center)
+                return p0, label, allList, True
             else:
-                return None, None, None
+                return None, None, None, False
         else:
-            return None, None, None
-
-
-
+            return None, None, None, False
 
     # analyse every point
     def analyseTrackPoint(self, good_new, good_old, precisionThreshold):
@@ -344,7 +466,7 @@ class ImgTrack:
             return good_new, good_old, np.array([0, 0])
         disarray = np.array([])
         for i in range(pointLen):
-            dis = self.eDistance(good_new[i], good_old[i])
+            dis = eDistance(good_new[i], good_old[i])
             disarray = np.append(disarray, dis)
         #get the low 20% distance point,that is more precision points
         reduce = np.percentile(disarray, precisionThreshold, axis=0)
@@ -451,7 +573,7 @@ class ImgTrack:
             if mask is not None:
                 mask = cv2.line(mask, (a, b), (c, d), (0, 0, 255), 1)
 
-            if self.eDistance(np.array(list((a, b))), np.array(list((c, d)))) > 1:
+            if eDistance(np.array(list((a, b))), np.array(list((c, d)))) > 1:
                 # drawimg = cv2.circle(drawimg, (a, b), 5, color[i].tolist(), -1)
                 drawimg = cv2.circle(drawimg, (a, b), 5, (0, 0, 255), -1)   #red
             if mask is not None:
@@ -464,5 +586,4 @@ class ImgTrack:
                 if offset is not None:
                     cv2.line(drawimg, (a, b), (int(a - offset[0]), int(b - offset[1])), (0, 255, 255), 1)  # yellow
         img = drawimg
-
         return good_new, good_old, offset, img

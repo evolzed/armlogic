@@ -1,9 +1,8 @@
 #本文件示例不同时间的帧的处理框架
-from src.Vision.video import Video
-from src.Vision.interface import imageCapture
+from src.Vision.imageProcess.video import Video
+from src.Vision.imageProcess.interface import imageCapture
 from timeit import default_timer as timer
 import cv2
-import numpy as np
 
 videoDir = "E:\\1\\1.avi"
 bgDir = videoDir

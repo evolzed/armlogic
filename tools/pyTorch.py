@@ -6,7 +6,7 @@ from tools.mnist import *
 input_size0 = 28*28 #28*28
 hidden_size0 = 500
 
-
+#DDhour方案 用自己的数据训练 batch改小 然后 位置都让定的准准的 都定到静音符号那
 num_classes = 10
 
 weightsTrainedDir = "E:\\1\\pytorch\\net0.pkl"
@@ -40,6 +40,8 @@ def train():
         for i, (images, labels) in enumerate(train_loader):#train_loader 是一个批次的数据
             images = Variable(images.view(-1, 28*28))
             labels = Variable(labels)
+            print("images", images)
+            print("labels", labels)
             outputs = net(images)
             # print("outputs", outputs)
             # print("outputsshape::", outputs.shape)
@@ -152,7 +154,7 @@ def torchPred(pic, net):
 
 
 if __name__ == '__main__':
-    # train()
+    train()
     # torch.save(net, "E:\\1\\pytorch\\net0.pkl")
     net = torch.load("E:\\1\\pytorch\\net0.pkl")
 

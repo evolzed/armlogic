@@ -5,7 +5,7 @@ import torchvision.datasets as dsets
 import cv2
 import torchvision.transforms as transforms
 import operator
-batch_size = 100
+batch_size = 10
 from tools.KNN import *
 MnistDataSetDir = 'E:/ml/pymnist'
 from torch.autograd import Variable

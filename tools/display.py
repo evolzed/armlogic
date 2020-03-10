@@ -1,25 +1,10 @@
 #本文件示例不同显示接口的用法
 # coding=utf-8
-import cv2
-import numpy as np
-from PIL import ImageGrab
-import numpy
-import time
-from timeit import default_timer as timer
-from src.Vision.video import Video
-from src.Vision.interface import imageCapture
-import xlsxwriter
-import sys
-import os
-from collections import Counter
-from tools.timeStamp import getTimeStamp
+from src.Vision.imageProcess.video import Video
+from src.Vision.imageProcess.interface import imageCapture
 
-from shutil import copyfile
-from tools.numeralRecognition import numRecogByMnistKnn
 from tools.mnist import *
-from tools.pyTorch import torchPred
-from tools.pyTorch import Neural_net
-from tools.pyTorch import findTheNumPic
+
 videoDir = "E:\\1\\1.avi"
 bgDir = videoDir
 testMode = True
